@@ -1,0 +1,19 @@
+.bloop
+.history
+.idea
+.metals
+.vscode
+*.class
+*.hprof
+*.iml
+*.ipr
+*.iws
+*.log
+metals.sbt
+out
+target
+TODO*
+
+# Temporary files
+*.csv
+/samples
