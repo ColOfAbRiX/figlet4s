@@ -10,6 +10,7 @@ object Dependencies extends Libraries with CompilerPlugins {
   //  DEPENDENCY BUNDLES  //
 
   lazy val CatsBundle       = Seq(CatsCoreDep, CatsEffectDep, ScalaTestCatsDep)
+  lazy val EnumeratumBundle = Seq(EnumeratumDep, EnumeratumCatsDep)
   lazy val TestingBundle    = Seq(ScalaTestDep, ScalaCheckDep, ScalaTestCatsDep)
 
 }

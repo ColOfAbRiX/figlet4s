@@ -10,17 +10,18 @@ ThisBuild / developers := List(
 )
 
 // Compiler options
-ThisBuild / scalacOptions ++= Compiler.TpolecatOptions ++ Compiler.StrictOptions ++ Seq("-P:splain:all")
+// ThisBuild / scalacOptions ++= Compiler.TpolecatOptions ++ Compiler.StrictOptions ++ Seq("-P:splain:all")
+ThisBuild / scalacOptions ++= Compiler.TpolecatOptions ++ Seq("-P:splain:all")
 
 // Wartremover
-ThisBuild / wartremoverExcluded ++= (baseDirectory.value * "**" / "src" / "test").get
-ThisBuild / wartremoverErrors ++= Warts.allBut(
-  Wart.Any,
-  Wart.ImplicitParameter,
-  Wart.Nothing,
-  Wart.Overloading,
-  Wart.ToString,
-)
+// ThisBuild / wartremoverExcluded ++= (baseDirectory.value * "**" / "src" / "test").get
+// ThisBuild / wartremoverErrors ++= Warts.allBut(
+//   Wart.Any,
+//   Wart.ImplicitParameter,
+//   Wart.Nothing,
+//   Wart.Overloading,
+//   Wart.ToString,
+// )
 
 // Scalafmt
 ThisBuild / scalafmtOnCompile := true
@@ -39,4 +40,12 @@ lazy val rootProject: Project = project
   .settings(
     name := "figlet4s",
     description := "Scala FIGlet implementation",
+    version := "0.1.0",
+    // libraryDependencies := Seq(
+    //   PPrintDep
+    // ),
+    bundledDependencies := Seq(
+      CatsBundle,
+      EnumeratumBundle
+    ),
   )

@@ -11,6 +11,7 @@
               Portions Copyright 1991, 1993, 1994
                   by Glenn Chappell and Ian Chai
               May be freely copied and distributed.
+               http://www.jave.de/docs/figfont.txt
 
   _____          __           __
  / ___/__  ___  / /____ ___  / /____
