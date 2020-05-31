@@ -1,19 +1,12 @@
 package com.colofabrix.scala.figlet4s
 
-import scala.io.Source
-import cats.effect.IOApp
-import cats.effect.{ ExitCode, IO }
 import com.colofabrix.scala.figlet4s.figfont._
+import scala.io.Source
 
-object Figlet4s extends IOApp {
-
-  def run(args: List[String]): IO[ExitCode] =
-    IO {
-      val lines = Source.fromResource("fonts/standard.flf").getLines().toVector
-      val font  = FIGfont.fromLines(lines)
-      pprint.pprintln(font)
-    } as ExitCode.Success
-
+object Figlet4s extends App {
+  val lines = Source.fromResource("fonts/standard.flf").getLines().toVector
+  val font  = FIGfont(lines.take(624))
+  pprint.pprintln(font)
 }
 
 // 15 = 8 + 2 + 1

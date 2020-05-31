@@ -41,10 +41,10 @@ lazy val rootProject: Project = project
     name := "figlet4s",
     description := "Scala FIGlet implementation",
     version := "0.1.0",
-    // libraryDependencies := Seq(
-    //   PPrintDep
-    // ),
-    bundledDependencies := Seq(
+    libraryDependencies ++= Seq(
+      PPrintDep
+    ),
+    bundledDependencies ++= Seq(
       CatsBundle,
       EnumeratumBundle
     ),
