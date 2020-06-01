@@ -39,12 +39,12 @@ object FIGfont {
   private def parseBuilderState(state: BuilderState): FigletResult[FIGfont] =
     if (state.loadedCharLines.size != 0) {
       // Check we didn't stop in the middle of a character
-      FlfCharacterError("Incomplete character definition found at the end of the file").invalidNec
+      FlfCharacterError("Incomplete character definition").invalidNec
 
     } else if ((requiredChars.toSet diff state.loadedChars.keySet).size != 0) {
       // Check we loaded all required characters
-      val missing = requiredChars.toSet diff state.loadedChars.keySet
-      FlfCharacterError(s"Missing definition for required characters: ${missing}").invalidNec
+      val missing = requiredChars.toSet diff state.loadedChars.keySet mkString (", ")
+      FlfCharacterError(s"Missing definition for required FIGlet characters: $missing").invalidNec
 
     } else {
       // Build the font
@@ -52,6 +52,7 @@ object FIGfont {
       val comment    = state.commentLines.mkString("\n")
       val characters = state.loadedChars
       FIGfont(header, comment, characters).validNec
+
     }
 
   /**
@@ -61,7 +62,7 @@ object FIGfont {
     if (index == 0)
       buildHeader(state, line)
     else if (index <= state.header.get.commentLines)
-      storeComment(state, line)
+      buildComment(state, line)
     else if (!state.processTaggedFonts)
       buildCharacter(state, line, index)
     else
@@ -79,7 +80,7 @@ object FIGfont {
   /**
    * Builds the comment section
    */
-  private def storeComment(state: BuilderState, line: String): FigletResult[BuilderState] =
+  private def buildComment(state: BuilderState, line: String): FigletResult[BuilderState] =
     state.copy(commentLines = state.commentLines :+ line).validNec
 
   /**
@@ -92,15 +93,23 @@ object FIGfont {
       state.copy(loadedCharLines = state.loadedCharLines :+ line).validNec
 
     } else {
-      val firstLine = 1 + header.commentLines
-      val charIndex = (index - firstLine - header.height + 1) / header.height
-      val valueV    = FIGcharacter(requiredChars(charIndex), state.loadedCharLines :+ line, header.height, "")
+      val startLine = index - state.loadedCharLines.size
+      val charNum   = (startLine - header.commentLines - 1) / header.height
 
-      valueV.map { charValue =>
-        val loadedChars  = state.loadedChars + (charValue.name -> charValue)
-        val isNextTagged = state.loadedChars.size + 1 >= requiredChars.size
-        state.copy(loadedCharLines = Vector.empty, loadedChars = loadedChars, processTaggedFonts = isNextTagged)
-      }
+      FIGcharacter(header, requiredChars(charNum), state.loadedCharLines :+ line, None, startLine)
+        .map { figChar =>
+          // print(s"Storing char: ")
+          // pprint.pprintln(figChar.copy(lines = Vector.empty))
+          // println(s"  line: $index")
+          // println(s"  num/name: $charNum/${figChar.name}")
+          // println(s"  startLine: $startLine")
+          // println(s"  commentLines: ${header.commentLines}")
+          // println(s"  height: ${header.height}")
+
+          val loadedChars  = state.loadedChars + (figChar.name -> figChar)
+          val isNextTagged = loadedChars.size >= requiredChars.size
+          state.copy(loadedCharLines = Vector.empty, loadedChars = loadedChars, processTaggedFonts = isNextTagged)
+        }
     }
   }
 
@@ -114,26 +123,30 @@ object FIGfont {
       state.copy(loadedCharLines = state.loadedCharLines :+ line).validNec
 
     } else {
+      val startLine = index - state.loadedCharLines.size
+
       val splitTag = state.loadedCharLines.head.replaceFirst(" +", "###").split("###").toVector
 
       val nameV = Option
         .when(splitTag.size > 0)(splitTag(0))
-        .toValidNec(FlfCharacterError(s"Missing character code at line $index: $line"))
+        .toValidNec(FlfCharacterError(s"Missing character code at line ${index + 1}: $line"))
         .andThen(parseCharCode _)
 
       val commentV = Option
         .when(splitTag.size > 1)(splitTag(1))
         .getOrElse("")
         .validNec[FigletError]
+        .map(Option(_))
 
       val loadedCharLines = state.loadedCharLines.drop(1) :+ line
 
-      val valueV = (nameV, commentV).mapN(FIGcharacter(_, loadedCharLines, header.height, _)) andThen identity
-
-      valueV.map { charValue =>
-        val loadedChars = state.loadedChars + (charValue.name -> charValue)
-        state.copy(loadedCharLines = Vector.empty, loadedChars = loadedChars)
-      }
+      (nameV, commentV)
+        .mapN(FIGcharacter(header, _, loadedCharLines, _, startLine))
+        .andThen(identity)
+        .map { figChar =>
+          val loadedChars = state.loadedChars + (figChar.name -> figChar)
+          state.copy(loadedCharLines = Vector.empty, loadedChars = loadedChars)
+        }
     }
   }
 

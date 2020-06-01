@@ -38,73 +38,21 @@ object FlfHeader {
     val splitLine = line.split(" ").toVector
 
     if (splitLine.length < 6 || splitLine.length > 9) {
-      FlfHeaderError(s"Wrong number of argument in FLF header: found ${splitLine.length.toString}").invalidNec
+      FlfHeaderError(s"Wrong number of parameters in FLF header. Found ${splitLine.length.toString} parameters").invalidNec
 
     } else {
       val (signatureText, hardblankText) = splitLine(SIGNATURE_INDEX).splitAt(5)
 
-      // Identify the file as compatible with FIGlet version 2.0 or later
-      val signatureV = Option
-        .when(signatureText == "flf2a")(signatureText)
-        .toValidNec(FlfHeaderError(s"Wrong FLF signature: $signatureText"))
-
-      // The header line defines which sub-character will be used to represent hardblanks in the FIGcharacter data
-      val hardblankV = Option
-        .when(hardblankText.length == 1)(hardblankText)
-        .toValidNec(FlfHeaderError(s"The hardblank is not composed of only one character: $hardblankText"))
-
-      // The consistent height of every FIGcharacter, measured in subcharacters
-      val heightV = splitLine(HEIGHT_INDEX)
-        .toIntOption
-        .toValidNec(FlfHeaderError(s"Couldn't parse header field 'height' to Int"))
-
-      // The number of lines of subcharacters from the baseline of a FIGcharacter to the top of the tallest FIGcharacter
-      val baselineV = splitLine(BASELINE_INDEX)
-        .toIntOption
-        .toValidNec(FlfHeaderError(s"Couldn't parse header field 'baseline' to Int"))
-
-      // The maximum length of any line describing a FIGcharacter
-      val maxLengthV = splitLine(MAXLENGTH_INDEX)
-        .toIntOption
-        .toValidNec(FlfHeaderError(s"Couldn't parse header field 'maxLength' to Int"))
-
-      // Describes information about horizontal and vertical layout but does not include all of the information desired
-      // by the most recent FIGdrivers
-      val oldLayoutV = splitLine(OLDLAYOUT_INDEX)
-        .toIntOption
-        .map(OldLayout(_))
-        .toValidNec(FlfHeaderError(s"Couldn't parse header field 'oldLayout' to OldLayout"))
-
-      // How many lines there are
-      val commentLinesV = splitLine(COMMENTLINES_INDEX)
-        .toIntOption
-        .toValidNec(FlfHeaderError(s"Couldn't parse header field 'commentLines' to Int"))
-
-      // Which direction the font is to be printed by default
-      val printDirectionV = Option
-        .when(splitLine.size > PRINTDIRECTION_INDEX) {
-          splitLine(PRINTDIRECTION_INDEX)
-            .toIntOption
-            .map(PrintDirection(_))
-            .toValidNec(FlfHeaderError(s"Couldn't parse header field 'printDirection' to PrintDirection"))
-        }.sequence
-
-      // Describes ALL information about horizontal and vertical layout
-      val fullLayoutV = Option
-        .when(splitLine.size > FULLLAYOUT_INDEX) {
-          splitLine(FULLLAYOUT_INDEX)
-            .toIntOption
-            .map(FullLayout(_))
-            .toValidNec(FlfHeaderError(s"Couldn't parse header field 'fullLayout' to FullLayout"))
-        }.sequence
-
-      // The number of code-tagged (non-required) FIGcharacters in this FIGfont
-      val codetagCountV = Option
-        .when(splitLine.size > CODETAGCOUNT_INDEX) {
-          splitLine(CODETAGCOUNT_INDEX)
-            .toIntOption
-            .toValidNec(FlfHeaderError(s"Couldn't parse header field 'codetagCount' to Int"))
-        }.sequence
+      val signatureV      = validateSignature(signatureText)
+      val hardblankV      = validateHardblank(hardblankText)
+      val heightV         = validateHeight(splitLine(HEIGHT_INDEX))
+      val baselineV       = validateBaseline(splitLine(BASELINE_INDEX))
+      val maxLengthV      = validateMaxLength(splitLine(MAXLENGTH_INDEX))
+      val oldLayoutV      = validateOldLayout(splitLine(OLDLAYOUT_INDEX))
+      val commentLinesV   = validateCommentLines(splitLine(COMMENTLINES_INDEX))
+      val printDirectionV = validatePrintDirection(splitLine.get(PRINTDIRECTION_INDEX.toLong))
+      val fullLayoutV     = validateFullLayout(splitLine.get(FULLLAYOUT_INDEX.toLong))
+      val codetagCountV   = validateCodetagCount(splitLine.get(CODETAGCOUNT_INDEX.toLong))
 
       // format: off
       (signatureV, hardblankV, heightV, baselineV, maxLengthV, oldLayoutV, commentLinesV, printDirectionV, fullLayoutV, codetagCountV)
@@ -112,4 +60,95 @@ object FlfHeader {
       // format: on
     }
   }
+
+  /**
+   * Identify the file as compatible with FIGlet version 2.0 or later
+   */
+  private def validateSignature(signature: String): FigletResult[String] =
+    Option
+      .when(signature == "flf2a")(signature)
+      .toValidNec(FlfHeaderError(s"Wrong FLF signature: $signature"))
+
+  /**
+   * The header line defines which sub-character will be used to represent hardblanks in the FIGcharacter data
+   */
+  private def validateHardblank(hardblank: String): FigletResult[String] =
+    Option
+      .when(hardblank.length == 1)(hardblank)
+      .toValidNec(FlfHeaderError(s"The hardblank '$hardblank' is not composed of only one character"))
+
+  /**
+   * The consistent height of every FIGcharacter, measured in subcharacters
+   */
+  private def validateHeight(height: String): FigletResult[Int] =
+    height
+      .toIntOption
+      .toValidNec(FlfHeaderError(s"Couldn't parse header field 'height': $height"))
+
+  /**
+   * The number of lines of subcharacters from the baseline of a FIGcharacter to the top of the tallest FIGcharacter
+   */
+  private def validateBaseline(baseline: String): FigletResult[Int] =
+    baseline
+      .toIntOption
+      .toValidNec(FlfHeaderError(s"Couldn't parse header field 'baseline': $baseline"))
+
+  /**
+   * The maximum length of any line describing a FIGcharacter
+   */
+  private def validateMaxLength(maxlength: String): FigletResult[Int] =
+    maxlength
+      .toIntOption
+      .toValidNec(FlfHeaderError(s"Couldn't parse header field 'maxLength': $maxlength"))
+
+  /**
+   * Describes information about horizontal and vertical layout but does not include all of the information desired
+   * by the most recent FIGdrivers
+   */
+  private def validateOldLayout(oldLayout: String): FigletResult[Vector[OldLayout]] =
+    oldLayout
+      .toIntOption
+      .map(OldLayout(_))
+      .toValidNec(FlfHeaderError(s"Couldn't parse header field 'oldLayout': $oldLayout"))
+
+  /**
+   * How many lines of comments there are
+   */
+  private def validateCommentLines(commentLines: String): FigletResult[Int] =
+    commentLines
+      .toIntOption
+      .toValidNec(FlfHeaderError(s"Couldn't parse header field 'commentLines': $commentLines"))
+
+  /**
+   * Which direction the font is to be printed by default
+   */
+  private def validatePrintDirection(printDirection: Option[String]): FigletResult[Option[PrintDirection]] =
+    printDirection.traverse { value =>
+      value
+        .toIntOption
+        .map(PrintDirection(_))
+        .toValidNec(FlfHeaderError(s"Couldn't parse header field 'printDirection': $printDirection"))
+    }
+
+  /**
+   * Describes ALL information about horizontal and vertical layout
+   */
+  private def validateFullLayout(fullLayout: Option[String]): FigletResult[Option[Vector[FullLayout]]] =
+    fullLayout.traverse { value =>
+      value
+        .toIntOption
+        .map(FullLayout(_))
+        .toValidNec(FlfHeaderError(s"Couldn't parse header field 'fullLayout': $fullLayout"))
+    }
+
+  /**
+   * The number of code-tagged (non-required) FIGcharacters in this FIGfont
+   */
+  private def validateCodetagCount(codetagCount: Option[String]): FigletResult[Option[Int]] =
+    codetagCount.traverse { value =>
+      value
+        .toIntOption
+        .toValidNec(FlfHeaderError(s"Couldn't parse header field 'codetagCount': $codetagCount"))
+    }
+
 }
