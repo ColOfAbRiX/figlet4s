@@ -7,7 +7,7 @@ import com.colofabrix.scala.figlet4s._
 /**
  * FIGlet File Header
  */
-case class FlfHeader(
+final case class FlfHeader(
     signature: String,
     hardblank: String,
     height: Int,
@@ -37,51 +37,51 @@ object FlfHeader {
   def apply(line: String): FigletResult[FlfHeader] = {
     val splitLine = line.split(" ").toVector
 
-    if (splitLine.length < 7 || splitLine.length > 10) {
+    if (splitLine.length < 6 || splitLine.length > 9) {
       FlfHeaderError(s"Wrong number of argument in FLF header: found ${splitLine.length.toString}").invalidNec
 
     } else {
       val (signatureText, hardblankText) = splitLine(SIGNATURE_INDEX).splitAt(5)
 
       // Identify the file as compatible with FIGlet version 2.0 or later
-      val signature = Option
+      val signatureV = Option
         .when(signatureText == "flf2a")(signatureText)
         .toValidNec(FlfHeaderError(s"Wrong FLF signature: $signatureText"))
 
       // The header line defines which sub-character will be used to represent hardblanks in the FIGcharacter data
-      val hardblank = Option
+      val hardblankV = Option
         .when(hardblankText.length == 1)(hardblankText)
         .toValidNec(FlfHeaderError(s"The hardblank is not composed of only one character: $hardblankText"))
 
       // The consistent height of every FIGcharacter, measured in subcharacters
-      val height = splitLine(HEIGHT_INDEX)
+      val heightV = splitLine(HEIGHT_INDEX)
         .toIntOption
         .toValidNec(FlfHeaderError(s"Couldn't parse header field 'height' to Int"))
 
       // The number of lines of subcharacters from the baseline of a FIGcharacter to the top of the tallest FIGcharacter
-      val baseline = splitLine(BASELINE_INDEX)
+      val baselineV = splitLine(BASELINE_INDEX)
         .toIntOption
         .toValidNec(FlfHeaderError(s"Couldn't parse header field 'baseline' to Int"))
 
       // The maximum length of any line describing a FIGcharacter
-      val maxLength = splitLine(MAXLENGTH_INDEX)
+      val maxLengthV = splitLine(MAXLENGTH_INDEX)
         .toIntOption
         .toValidNec(FlfHeaderError(s"Couldn't parse header field 'maxLength' to Int"))
 
       // Describes information about horizontal and vertical layout but does not include all of the information desired
       // by the most recent FIGdrivers
-      val oldLayout = splitLine(OLDLAYOUT_INDEX)
+      val oldLayoutV = splitLine(OLDLAYOUT_INDEX)
         .toIntOption
         .map(OldLayout(_))
         .toValidNec(FlfHeaderError(s"Couldn't parse header field 'oldLayout' to OldLayout"))
 
       // How many lines there are
-      val commentLines = splitLine(COMMENTLINES_INDEX)
+      val commentLinesV = splitLine(COMMENTLINES_INDEX)
         .toIntOption
         .toValidNec(FlfHeaderError(s"Couldn't parse header field 'commentLines' to Int"))
 
       // Which direction the font is to be printed by default
-      val printDirection = Option
+      val printDirectionV = Option
         .when(splitLine.size > PRINTDIRECTION_INDEX) {
           splitLine(PRINTDIRECTION_INDEX)
             .toIntOption
@@ -90,7 +90,7 @@ object FlfHeader {
         }.sequence
 
       // Describes ALL information about horizontal and vertical layout
-      val fullLayout = Option
+      val fullLayoutV = Option
         .when(splitLine.size > FULLLAYOUT_INDEX) {
           splitLine(FULLLAYOUT_INDEX)
             .toIntOption
@@ -99,7 +99,7 @@ object FlfHeader {
         }.sequence
 
       // The number of code-tagged (non-required) FIGcharacters in this FIGfont
-      val codetagCount = Option
+      val codetagCountV = Option
         .when(splitLine.size > CODETAGCOUNT_INDEX) {
           splitLine(CODETAGCOUNT_INDEX)
             .toIntOption
@@ -107,7 +107,7 @@ object FlfHeader {
         }.sequence
 
       // format: off
-      (signature, hardblank, height, baseline, maxLength, oldLayout, commentLines, printDirection, fullLayout, codetagCount)
+      (signatureV, hardblankV, heightV, baselineV, maxLengthV, oldLayoutV, commentLinesV, printDirectionV, fullLayoutV, codetagCountV)
         .mapN(FlfHeader.apply)
       // format: on
     }
