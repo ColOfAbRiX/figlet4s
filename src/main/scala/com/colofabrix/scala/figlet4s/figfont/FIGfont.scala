@@ -3,12 +3,15 @@ package com.colofabrix.scala.figlet4s.figfont
 import cats.data.Validated._
 import cats.implicits._
 import com.colofabrix.scala.figlet4s._
-import com.colofabrix.scala.figlet4s.figfont.header._
 
 /**
  * FIGlet Font
  */
-final case class FIGfont(header: FlfHeader, comment: String, characters: Map[Char, FIGcharacter])
+final case class FIGfont(
+    header: FlfHeader,
+    comment: String,
+    characters: Map[Char, FIGcharacter],
+)
 
 object FIGfont {
   private case class BuilderState(
@@ -98,14 +101,6 @@ object FIGfont {
 
       FIGcharacter(header, requiredChars(charNum), state.loadedCharLines :+ line, None, startLine)
         .map { figChar =>
-          // print(s"Storing char: ")
-          // pprint.pprintln(figChar.copy(lines = Vector.empty))
-          // println(s"  line: $index")
-          // println(s"  num/name: $charNum/${figChar.name}")
-          // println(s"  startLine: $startLine")
-          // println(s"  commentLines: ${header.commentLines}")
-          // println(s"  height: ${header.height}")
-
           val loadedChars  = state.loadedChars + (figChar.name -> figChar)
           val isNextTagged = loadedChars.size >= requiredChars.size
           state.copy(loadedCharLines = Vector.empty, loadedChars = loadedChars, processTaggedFonts = isNextTagged)
@@ -125,15 +120,15 @@ object FIGfont {
     } else {
       val startLine = index - state.loadedCharLines.size
 
-      val splitTag = state.loadedCharLines.head.replaceFirst(" +", "###").split("###").toVector
+      val splitFontTag = state.loadedCharLines.head.replaceFirst(" +", "###").split("###").toVector
 
       val nameV = Option
-        .when(splitTag.size > 0)(splitTag(0))
+        .when(splitFontTag.size > 0)(splitFontTag(0))
         .toValidNec(FlfCharacterError(s"Missing character code at line ${index + 1}: $line"))
-        .andThen(parseCharCode _)
+        .andThen(parseCharCode(startLine, _))
 
       val commentV = Option
-        .when(splitTag.size > 1)(splitTag(1))
+        .when(splitFontTag.size > 1)(splitFontTag(1))
         .getOrElse("")
         .validNec[FigletError]
         .map(Option(_))
@@ -153,7 +148,7 @@ object FIGfont {
   /**
    * Parses a character code into a Char
    */
-  private def parseCharCode(code: String): FigletResult[Char] =
+  private def parseCharCode(index: Int, code: String): FigletResult[Char] =
     if (code.matches("^-?\\d+$"))
       Integer.parseInt(code, 10).toChar.validNec
     else if (code.toLowerCase.matches("^-?0x[0-9a-f]+$"))
@@ -161,6 +156,6 @@ object FIGfont {
     else if (code.matches("^-?0\\d+$"))
       Integer.parseInt(code, 8).toChar.validNec
     else
-      FlfCharacterError(s"Couldn't convert character code '$code' to Char").invalidNec
+      FlfCharacterError(s"Couldn't convert character code '$code' defined at line ${index + 1}").invalidNec
 
 }

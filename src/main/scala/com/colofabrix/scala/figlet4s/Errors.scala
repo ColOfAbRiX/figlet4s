@@ -3,7 +3,7 @@ package com.colofabrix.scala.figlet4s
 /**
  * FIGLet Error
  */
-sealed trait FigletError
+sealed trait FigletError extends Throwable
 
 /**
  * Errors for FIGLet Files

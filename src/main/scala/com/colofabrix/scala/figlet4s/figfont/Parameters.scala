@@ -1,4 +1,4 @@
-package com.colofabrix.scala.figlet4s.figfont.header
+package com.colofabrix.scala.figlet4s.figfont
 
 import enumeratum.values._
 import scala.collection.BitSet

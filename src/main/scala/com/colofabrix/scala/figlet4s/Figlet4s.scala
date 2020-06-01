@@ -2,8 +2,7 @@ package com.colofabrix.scala.figlet4s
 
 import com.colofabrix.scala.figlet4s.figfont._
 import scala.io.Source
-import cats.data.Validated.Invalid
-import cats.data.Validated.Valid
+import cats.data.Validated._
 
 object Figlet4s extends App {
   val fonts = List(
@@ -108,8 +107,8 @@ object Figlet4s extends App {
     "katakana.flf",
     "kban.flf",
     "keyboard.flf",
-    "konto.flf",
-    "kontoslant.flf",
+    // "konto.flf",
+    // "kontoslant.flf",
     "larry3d.flf",
     "lcd.flf",
     "lean.flf",
@@ -144,9 +143,9 @@ object Figlet4s extends App {
     "pepper.flf",
     "poison.flf",
     "puffy.flf",
-    "pyramid.flf",
+    // "pyramid.flf",
     "rectangles.flf",
-    "redphoenix.flf'",
+    "redphoenix.flf",
     "relief.flf",
     "relief2.flf",
     "reverse.flf",
@@ -210,12 +209,11 @@ object Figlet4s extends App {
   // val decoder = Codec.UTF8.decoder.onMalformedInput(java.nio.charset.CodingErrorAction.CodingErrorAction.IGNORE)
   val decoder = Codec.ISO8859
 
-  // val lines = Source.fromResource(s"fonts/greek.flf")(decoder).getLines().toVector
+  // val lines = Source.fromResource(s"fonts/jacky.flf")(decoder).getLines().toVector
   // val fontV = FIGfont(lines)
   // fontV.fold(println(_), printFont("Claire")(_))
 
   for (font <- fonts) {
-    // println(s"Loading $font")
     val lines = Source.fromResource(s"fonts/$font")(decoder).getLines().toVector
     val fontV = FIGfont(lines)
     fontV match {
@@ -223,7 +221,7 @@ object Figlet4s extends App {
         println(s"Font: $font")
         pprint.pprintln(e)
       case Valid(font) =>
-      // printFont("ABC abc 012")(font)
+        printFont("ABC abc 012")(font)
     }
   }
 

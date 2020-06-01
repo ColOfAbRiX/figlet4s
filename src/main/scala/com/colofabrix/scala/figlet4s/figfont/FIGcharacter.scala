@@ -2,7 +2,6 @@ package com.colofabrix.scala.figlet4s.figfont
 
 import cats.implicits._
 import com.colofabrix.scala.figlet4s._
-import com.colofabrix.scala.figlet4s.figfont.header.FlfHeader
 import scala.util.matching.Regex
 
 /**
@@ -56,7 +55,7 @@ object FIGcharacter {
    * Removes the endmarks from the lines of the character
    */
   private def cleanLines(lines: Vector[String])(endmark: Char): FigletResult[Vector[String]] = {
-    val find = Regex.quote(endmark.toString) + "+$"
+    val find = Regex.quote(endmark.toString) + "{1,2}$"
     lines.map(_.replaceAll(find, "")).validNec
   }
 
@@ -73,13 +72,18 @@ object FIGcharacter {
           s"""Lines for character '$name' defined at line ${position + 1} are of different width: ${cleanLines.toString}""",
         ),
       )
+      .andThen { width =>
+        if (width <= maxWidth) width.validNec
+        else FlfCharacterError(s"""Maximum character width exceeded at line ${position + 1}""").invalidNec
+      }
   }
 
   /**
    * Validates the height of each line
    */
   private def validateHeight(name: Char, position: Int, height: Int)(cleanLines: Vector[String]): FigletResult[Int] =
-    if (cleanLines.size == height) height.validNec[FigletError]
+    if (cleanLines.size == height)
+      height.validNec[FigletError]
     else
       FlfCharacterError(
         s"The character '$name' defined at line ${position + 1} doesn't respect the specified height of $height",
