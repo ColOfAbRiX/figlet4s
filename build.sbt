@@ -28,8 +28,6 @@ ThisBuild / scalafmtOnCompile := true
 
 // Global dependencies and compiler plugins
 ThisBuild / libraryDependencies ++= Seq(
-  BetterMonadicForPlugin,
-  KindProjectorPlugin,
   SplainPlugin,
   WartremoverPlugin,
 )

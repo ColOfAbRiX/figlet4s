@@ -3,6 +3,7 @@ package com.colofabrix.scala.figlet4s.figfont
 import cats.data.Validated._
 import cats.implicits._
 import com.colofabrix.scala.figlet4s._
+import _root_.cats.data.Validated
 
 /**
  * FIGlet File Header
@@ -54,7 +55,10 @@ object FIGheader {
       val fullLayoutV     = validateFullLayout(splitLine.get(FULLLAYOUT_INDEX.toLong))
       val codetagCountV   = validateCodetagCount(splitLine.get(CODETAGCOUNT_INDEX.toLong))
 
-      val crossValidatedLayoutsV = (oldLayoutV, fullLayoutV).mapN(crossValidateLayouts)
+      val crossValidatedLayoutsV = (oldLayoutV, fullLayoutV)
+        .mapN { (oldLayout, fullLayoutO) =>
+          fullLayoutO.map(crossValidateLayouts(oldLayout, _))
+        }
 
       // format: off
       crossValidatedLayoutsV andThen { _ =>
@@ -160,14 +164,18 @@ object FIGheader {
    */
   private def crossValidateLayouts(
       oldLayout: Vector[OldLayout],
-      fullLayoutO: Option[Vector[FullLayout]],
+      fullLayout: Vector[FullLayout],
   ): FigletResult[Unit] = {
-    fullLayoutO
-      .map { fullLayout =>
-        if (fullLayout.contains(Full))
-        ().validNec
-      }
-      .getOrElse(().validNec)
+    val fullWidthV =
+      if (FullLayout.isFullWidth(fullLayout) && OldLayout.isFullWidth(oldLayout)) ().validNec
+      else FIGheaderError("FullLayout sets FullWidth but OldLayout doesn't set the same option").invalidNec
+
+    val horizontalFittingV =
+      if (FullLayout.isHorizontalFitting(fullLayout) && OldLayout.isFitting(oldLayout)) ().validNec
+      else FIGheaderError("FullLayout sets Horizontal Fitting but OldLayout doesn't set the same option").invalidNec
+
+    (fullWidthV, horizontalFittingV)
+      .mapN((_, _) => ())
   }
 
 }

@@ -17,6 +17,9 @@ final case class FIGcharacter(
 )
 
 object FIGcharacter {
+  /**
+   * Creates a validated FIGcharacter
+   */
   def apply(
       header: FIGheader,
       name: Char,

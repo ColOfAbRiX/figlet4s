@@ -2,7 +2,7 @@ package com.colofabrix.scala.figlet4s
 
 import scala.collection.immutable.BitSet
 
-object Utils {
+private[figlet4s] object Utils {
   /**
    * Adds conversion to BitSet to Int
    */
