@@ -1,8 +1,9 @@
 package com.colofabrix.scala.figlet4s
 
 import com.colofabrix.scala.figlet4s.figfont._
+import scala.io.Codec
 import scala.io.Source
-import cats.data.Validated._
+import _root_.cats.data.Validated._
 
 object Figlet4s extends App {
   val fonts = List(
@@ -205,29 +206,30 @@ object Figlet4s extends App {
     "whimsy.flf",
   )
 
-  import scala.io.Codec
-  // val decoder = Codec.UTF8.decoder.onMalformedInput(java.nio.charset.CodingErrorAction.CodingErrorAction.IGNORE)
-  val decoder = Codec.ISO8859
+  // https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
+  val decoder = Codec("ISO8859_1").decoder.onMalformedInput(java.nio.charset.CodingErrorAction.REPORT)
 
-  // val lines = Source.fromResource(s"fonts/jacky.flf")(decoder).getLines().toVector
+  // val lines = Source.fromResource(s"fonts/standard.flf")(decoder).getLines().toVector
   // val fontV = FIGfont(lines)
-  // fontV.fold(println(_), printFont("Claire")(_))
+  // fontV.fold(println(_), printFont("Fabrizio & Claire")(_))
 
   for (font <- fonts) {
+    println(s"Font: $font")
+
     val lines = Source.fromResource(s"fonts/$font")(decoder).getLines().toVector
     val fontV = FIGfont(lines)
+
     fontV match {
-      case Invalid(e) =>
-        println(s"Font: $font")
-        pprint.pprintln(e)
-      case Valid(font) =>
-        printFont("ABC abc 012")(font)
+      case Invalid(e)  => pprint.pprintln(e)
+      case Valid(font) => printFont("Fabrizio & Claire")(font)
     }
+
+    println("")
   }
 
   def printFont(name: String)(font: FIGfont): Unit =
     for (l <- 0 until font.header.height) {
-      for (c <- name) print(font.characters(c).lines(l))
+      for (c <- name) print(font.process(c)(l))
       print("\n")
     }
 }

@@ -11,10 +11,10 @@ sealed trait FigletError extends Throwable
 sealed trait FLFError extends FigletError
 
 /** FLF Header Error */
-final case class FlfHeaderError(message: String) extends FLFError
+final case class FIGheaderError(message: String) extends FLFError
 
 /** FLF Character Error */
-final case class FlfCharacterError(message: String) extends FLFError
+final case class FIGcharacterError(message: String) extends FLFError
 
 /** FLF Font Error */
-final case class FlfFontError(message: String) extends FLFError
+final case class FIGFontError(message: String) extends FLFError

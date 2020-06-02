@@ -7,7 +7,7 @@ import com.colofabrix.scala.figlet4s._
 /**
  * FIGlet File Header
  */
-final case class FlfHeader(
+final case class FIGheader(
     signature: String,
     hardblank: String,
     height: Int,
@@ -20,7 +20,7 @@ final case class FlfHeader(
     codetagCount: Option[Int],
 )
 
-object FlfHeader {
+object FIGheader {
   private val SIGNATURE_INDEX: Int      = 0
   private val HEIGHT_INDEX: Int         = 1
   private val BASELINE_INDEX: Int       = 2
@@ -34,11 +34,11 @@ object FlfHeader {
   /**
    * Creates a new FLF Header from a string
    */
-  def apply(line: String): FigletResult[FlfHeader] = {
+  def apply(line: String): FigletResult[FIGheader] = {
     val splitLine = line.split(" ").toVector
 
     if (splitLine.length < 6 || splitLine.length > 9) {
-      FlfHeaderError(s"Wrong number of parameters in FLF header. Found ${splitLine.length.toString} parameters").invalidNec
+      FIGheaderError(s"Wrong number of parameters in FLF header. Found ${splitLine.length.toString} parameters").invalidNec
 
     } else {
       val (signatureText, hardblankText) = splitLine(SIGNATURE_INDEX).splitAt(5)
@@ -56,7 +56,7 @@ object FlfHeader {
 
       // format: off
       (signatureV, hardblankV, heightV, baselineV, maxLengthV, oldLayoutV, commentLinesV, printDirectionV, fullLayoutV, codetagCountV)
-        .mapN(FlfHeader.apply)
+        .mapN(FIGheader.apply)
       // format: on
     }
   }
@@ -67,7 +67,7 @@ object FlfHeader {
   private def validateSignature(signature: String): FigletResult[String] =
     Option
       .when(signature == "flf2a")(signature)
-      .toValidNec(FlfHeaderError(s"Wrong FLF signature: $signature"))
+      .toValidNec(FIGheaderError(s"Wrong FLF signature: $signature"))
 
   /**
    * The header line defines which sub-character will be used to represent hardblanks in the FIGcharacter data
@@ -75,7 +75,7 @@ object FlfHeader {
   private def validateHardblank(hardblank: String): FigletResult[String] =
     Option
       .when(hardblank.length == 1)(hardblank)
-      .toValidNec(FlfHeaderError(s"The hardblank '$hardblank' is not composed of only one character"))
+      .toValidNec(FIGheaderError(s"The hardblank '$hardblank' is not composed of only one character"))
 
   /**
    * The consistent height of every FIGcharacter, measured in subcharacters
@@ -83,7 +83,7 @@ object FlfHeader {
   private def validateHeight(height: String): FigletResult[Int] =
     height
       .toIntOption
-      .toValidNec(FlfHeaderError(s"Couldn't parse header field 'height': $height"))
+      .toValidNec(FIGheaderError(s"Couldn't parse header field 'height': $height"))
 
   /**
    * The number of lines of subcharacters from the baseline of a FIGcharacter to the top of the tallest FIGcharacter
@@ -91,7 +91,7 @@ object FlfHeader {
   private def validateBaseline(baseline: String): FigletResult[Int] =
     baseline
       .toIntOption
-      .toValidNec(FlfHeaderError(s"Couldn't parse header field 'baseline': $baseline"))
+      .toValidNec(FIGheaderError(s"Couldn't parse header field 'baseline': $baseline"))
 
   /**
    * The maximum length of any line describing a FIGcharacter
@@ -99,7 +99,7 @@ object FlfHeader {
   private def validateMaxLength(maxlength: String): FigletResult[Int] =
     maxlength
       .toIntOption
-      .toValidNec(FlfHeaderError(s"Couldn't parse header field 'maxLength': $maxlength"))
+      .toValidNec(FIGheaderError(s"Couldn't parse header field 'maxLength': $maxlength"))
 
   /**
    * Describes information about horizontal and vertical layout but does not include all of the information desired
@@ -109,7 +109,7 @@ object FlfHeader {
     oldLayout
       .toIntOption
       .map(OldLayout(_))
-      .toValidNec(FlfHeaderError(s"Couldn't parse header field 'oldLayout': $oldLayout"))
+      .toValidNec(FIGheaderError(s"Couldn't parse header field 'oldLayout': $oldLayout"))
 
   /**
    * How many lines of comments there are
@@ -117,7 +117,7 @@ object FlfHeader {
   private def validateCommentLines(commentLines: String): FigletResult[Int] =
     commentLines
       .toIntOption
-      .toValidNec(FlfHeaderError(s"Couldn't parse header field 'commentLines': $commentLines"))
+      .toValidNec(FIGheaderError(s"Couldn't parse header field 'commentLines': $commentLines"))
 
   /**
    * Which direction the font is to be printed by default
@@ -127,7 +127,7 @@ object FlfHeader {
       value
         .toIntOption
         .map(PrintDirection(_))
-        .toValidNec(FlfHeaderError(s"Couldn't parse header field 'printDirection': $printDirection"))
+        .toValidNec(FIGheaderError(s"Couldn't parse header field 'printDirection': $printDirection"))
     }
 
   /**
@@ -138,7 +138,7 @@ object FlfHeader {
       value
         .toIntOption
         .map(FullLayout(_))
-        .toValidNec(FlfHeaderError(s"Couldn't parse header field 'fullLayout': $fullLayout"))
+        .toValidNec(FIGheaderError(s"Couldn't parse header field 'fullLayout': $fullLayout"))
     }
 
   /**
@@ -148,7 +148,7 @@ object FlfHeader {
     codetagCount.traverse { value =>
       value
         .toIntOption
-        .toValidNec(FlfHeaderError(s"Couldn't parse header field 'codetagCount': $codetagCount"))
+        .toValidNec(FIGheaderError(s"Couldn't parse header field 'codetagCount': $codetagCount"))
     }
 
 }

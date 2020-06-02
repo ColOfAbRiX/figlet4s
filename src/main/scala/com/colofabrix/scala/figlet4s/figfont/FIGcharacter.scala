@@ -5,7 +5,7 @@ import com.colofabrix.scala.figlet4s._
 import scala.util.matching.Regex
 
 /**
- * A single FIGlet character
+ * A single FIGlet character part of a FIGfont
  */
 final case class FIGcharacter(
     name: Char,
@@ -18,19 +18,20 @@ final case class FIGcharacter(
 
 object FIGcharacter {
   def apply(
-      header: FlfHeader,
+      header: FIGheader,
       name: Char,
       lines: Vector[String],
       comment: Option[String],
       position: Int,
   ): FigletResult[FIGcharacter] = {
+    val nameV       = if (name.toInt != -1) name.validNec else FIGcharacterError(s"Name '$name' is illegal").invalidNec
     val endmarkV    = validateEndmark(name, position, lines)
     val cleanLinesV = endmarkV andThen cleanLines(lines)
     val widthV      = cleanLinesV andThen validateWidth(name, header.maxLength, position)
     val heightV     = cleanLinesV andThen validateHeight(name, position, header.height)
 
     heightV andThen { _ =>
-      (name.validNec, cleanLinesV, endmarkV, widthV, comment.validNec, position.validNec)
+      (nameV, cleanLinesV, endmarkV, widthV, comment.validNec, position.validNec)
         .mapN(FIGcharacter.apply)
     }
   }
@@ -44,7 +45,7 @@ object FIGcharacter {
       .headOption
       .filter(_ => allEndmarks.size == 1)
       .toValidNec(
-        FlfCharacterError(
+        FIGcharacterError(
           s"""|Multiple endmarks found for character '$name' defined at line ${position + 1}, only one character allowed:
               |${allEndmarks.toString}""".stripMargin,
         ),
@@ -68,13 +69,13 @@ object FIGcharacter {
       .headOption
       .filter(_ => allLinesWidth.size == 1)
       .toValidNec(
-        FlfCharacterError(
+        FIGcharacterError(
           s"""Lines for character '$name' defined at line ${position + 1} are of different width: ${cleanLines.toString}""",
         ),
       )
       .andThen { width =>
         if (width <= maxWidth) width.validNec
-        else FlfCharacterError(s"""Maximum character width exceeded at line ${position + 1}""").invalidNec
+        else FIGcharacterError(s"""Maximum character width exceeded at line ${position + 1}""").invalidNec
       }
   }
 
@@ -85,7 +86,7 @@ object FIGcharacter {
     if (cleanLines.size == height)
       height.validNec[FigletError]
     else
-      FlfCharacterError(
+      FIGcharacterError(
         s"The character '$name' defined at line ${position + 1} doesn't respect the specified height of $height",
       ).invalidNec
 }

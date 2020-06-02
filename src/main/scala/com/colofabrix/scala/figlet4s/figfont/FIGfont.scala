@@ -8,14 +8,22 @@ import com.colofabrix.scala.figlet4s._
  * FIGlet Font
  */
 final case class FIGfont(
-    header: FlfHeader,
+    header: FIGheader,
     comment: String,
     characters: Map[Char, FIGcharacter],
-)
+) {
+  def process(char: Char): Vector[String] =
+    characters
+      .getOrElse(char, characters('0'))
+      .lines
+      .map(_.replace(header.hardblank, " "))
+
+  def empty: FIGcharacter = characters.apply('0')
+}
 
 object FIGfont {
   private case class BuilderState(
-      header: Option[FlfHeader] = None,
+      header: Option[FIGheader] = None,
       commentLines: Vector[String] = Vector.empty,
       loadedChars: Map[Char, FIGcharacter] = Map.empty,
       loadedCharLines: Vector[String] = Vector.empty,
@@ -37,25 +45,33 @@ object FIGfont {
       .andThen(parseBuilderState _)
 
   /**
+   * The "zero" character
+   */
+  def zero(height: Int): FIGcharacter =
+    FIGcharacter(0.toChar, Vector.fill(height)(""), '@', 0, None, -1)
+
+  /**
    * Build the FIGfont by parsing the given state
    */
   private def parseBuilderState(state: BuilderState): FigletResult[FIGfont] =
     if (state.loadedCharLines.size != 0) {
       // Check we didn't stop in the middle of a character
-      FlfCharacterError("Incomplete character definition").invalidNec
+      FIGcharacterError("Incomplete character definition").invalidNec
 
     } else if ((requiredChars.toSet diff state.loadedChars.keySet).size != 0) {
       // Check we loaded all required characters
       val missing = requiredChars.toSet diff state.loadedChars.keySet mkString (", ")
-      FlfCharacterError(s"Missing definition for required FIGlet characters: $missing").invalidNec
+      FIGcharacterError(s"Missing definition for required FIGlet characters: $missing").invalidNec
 
     } else {
       // Build the font
-      val header     = state.header.get
-      val comment    = state.commentLines.mkString("\n")
-      val characters = state.loadedChars
-      FIGfont(header, comment, characters).validNec
+      val header  = state.header.get
+      val comment = state.commentLines.mkString("\n")
+      val chars =
+        if (state.loadedChars.contains(0.toChar)) state.loadedChars
+        else state.loadedChars ++ Map(0.toChar -> FIGfont.zero(header.height))
 
+      FIGfont(header, comment, chars).validNec
     }
 
   /**
@@ -76,7 +92,7 @@ object FIGfont {
    * Parses the FLF header
    */
   private def buildHeader(state: BuilderState, line: String): FigletResult[BuilderState] =
-    FlfHeader(line) andThen { header =>
+    FIGheader(line) andThen { header =>
       state.copy(header = Some(header)).validNec
     }
 
@@ -124,7 +140,7 @@ object FIGfont {
 
       val nameV = Option
         .when(splitFontTag.size > 0)(splitFontTag(0))
-        .toValidNec(FlfCharacterError(s"Missing character code at line ${index + 1}: $line"))
+        .toValidNec(FIGcharacterError(s"Missing character code at line ${index + 1}: $line"))
         .andThen(parseCharCode(startLine, _))
 
       val commentV = Option
@@ -156,6 +172,6 @@ object FIGfont {
     else if (code.matches("^-?0\\d+$"))
       Integer.parseInt(code, 8).toChar.validNec
     else
-      FlfCharacterError(s"Couldn't convert character code '$code' defined at line ${index + 1}").invalidNec
+      FIGcharacterError(s"Couldn't convert character code '$code' defined at line ${index + 1}").invalidNec
 
 }
