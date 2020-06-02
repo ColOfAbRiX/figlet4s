@@ -54,9 +54,13 @@ object FIGheader {
       val fullLayoutV     = validateFullLayout(splitLine.get(FULLLAYOUT_INDEX.toLong))
       val codetagCountV   = validateCodetagCount(splitLine.get(CODETAGCOUNT_INDEX.toLong))
 
+      val crossValidatedLayoutsV = (oldLayoutV, fullLayoutV).mapN(crossValidateLayouts)
+
       // format: off
-      (signatureV, hardblankV, heightV, baselineV, maxLengthV, oldLayoutV, commentLinesV, printDirectionV, fullLayoutV, codetagCountV)
-        .mapN(FIGheader.apply)
+      crossValidatedLayoutsV andThen { _ =>
+        (signatureV, hardblankV, heightV, baselineV, maxLengthV, oldLayoutV, commentLinesV, printDirectionV, fullLayoutV, codetagCountV)
+          .mapN(FIGheader.apply)
+      }
       // format: on
     }
   }
@@ -150,5 +154,20 @@ object FIGheader {
         .toIntOption
         .toValidNec(FIGheaderError(s"Couldn't parse header field 'codetagCount': $codetagCount"))
     }
+
+  /**
+   * Validates the compatibility of the old and full layout options
+   */
+  private def crossValidateLayouts(
+      oldLayout: Vector[OldLayout],
+      fullLayoutO: Option[Vector[FullLayout]],
+  ): FigletResult[Unit] = {
+    fullLayoutO
+      .map { fullLayout =>
+        if (fullLayout.contains(Full))
+        ().validNec
+      }
+      .getOrElse(().validNec)
+  }
 
 }

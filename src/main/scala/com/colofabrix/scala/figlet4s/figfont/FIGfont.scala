@@ -7,17 +7,19 @@ import com.colofabrix.scala.figlet4s._
 /**
  * FIGlet Font
  */
-final case class FIGfont(
-    header: FIGheader,
-    comment: String,
-    characters: Map[Char, FIGcharacter],
-) {
+final case class FIGfont(header: FIGheader, comment: String, characters: Map[Char, FIGcharacter]) {
+  /**
+   * Processes a character to a representable format
+   */
   def process(char: Char): Vector[String] =
     characters
       .getOrElse(char, characters('0'))
       .lines
       .map(_.replace(header.hardblank, " "))
 
+  /**
+   * The empty character
+   */
   def empty: FIGcharacter = characters.apply('0')
 }
 
@@ -35,14 +37,14 @@ object FIGfont {
   /**
    * Creates a new FIGfont by parsing an input vector of lines representing an FLF file
    */
-  def apply(lines: Vector[String]): FigletResult[FIGfont] =
+  def apply(lines: Iterable[String]): FigletResult[FIGfont] =
     lines
       .zipWithIndex
       .foldLeft(BuilderState().validNec[FigletError]) {
         case (i @ Invalid(_), _)           => i
         case (Valid(state), (line, index)) => processLine(state, line, index)
       }
-      .andThen(parseBuilderState _)
+      .andThen(parseFinalBuilderState _)
 
   /**
    * The "zero" character
@@ -53,7 +55,7 @@ object FIGfont {
   /**
    * Build the FIGfont by parsing the given state
    */
-  private def parseBuilderState(state: BuilderState): FigletResult[FIGfont] =
+  private def parseFinalBuilderState(state: BuilderState): FigletResult[FIGfont] =
     if (state.loadedCharLines.size != 0) {
       // Check we didn't stop in the middle of a character
       FIGcharacterError("Incomplete character definition").invalidNec

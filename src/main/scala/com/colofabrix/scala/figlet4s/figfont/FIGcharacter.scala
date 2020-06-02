@@ -24,7 +24,7 @@ object FIGcharacter {
       comment: Option[String],
       position: Int,
   ): FigletResult[FIGcharacter] = {
-    val nameV       = if (name.toInt != -1) name.validNec else FIGcharacterError(s"Name '$name' is illegal").invalidNec
+    val nameV       = if (name.toInt != -1) name.validNec else FIGcharacterError(s"Name '-1' is illegal").invalidNec
     val endmarkV    = validateEndmark(name, position, lines)
     val cleanLinesV = endmarkV andThen cleanLines(lines)
     val widthV      = cleanLinesV andThen validateWidth(name, header.maxLength, position)

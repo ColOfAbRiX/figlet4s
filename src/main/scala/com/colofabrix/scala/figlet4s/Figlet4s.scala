@@ -209,23 +209,28 @@ object Figlet4s extends App {
   // https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
   val decoder = Codec("ISO8859_1").decoder.onMalformedInput(java.nio.charset.CodingErrorAction.REPORT)
 
-  // val lines = Source.fromResource(s"fonts/standard.flf")(decoder).getLines().toVector
-  // val fontV = FIGfont(lines)
-  // fontV.fold(println(_), printFont("Fabrizio & Claire")(_))
-
-  for (font <- fonts) {
-    println(s"Font: $font")
-
-    val lines = Source.fromResource(s"fonts/$font")(decoder).getLines().toVector
-    val fontV = FIGfont(lines)
-
-    fontV match {
-      case Invalid(e)  => pprint.pprintln(e)
-      case Valid(font) => printFont("Fabrizio & Claire")(font)
-    }
-
-    println("")
+  val lines = Source.fromResource(s"fonts/standard.flf")(decoder).getLines().toVector
+  val fontV = FIGfont(lines)
+  fontV match {
+    case Invalid(e) => pprint.pprintln(e)
+    case Valid(font) =>
+      pprint.pprintln(font.header)
+      printFont("Fabrizio & Claire")(font)
   }
+
+  // for (font <- fonts) {
+  //   println(s"Font: $font")
+
+  //   val lines = Source.fromResource(s"fonts/$font")(decoder).getLines().toVector
+  //   val fontV = FIGfont(lines)
+
+  //   fontV match {
+  //     case Invalid(e)  => pprint.pprintln(e)
+  //     case Valid(font) => printFont("Fabrizio & Claire")(font)
+  //   }
+
+  //   println("")
+  // }
 
   def printFont(name: String)(font: FIGfont): Unit =
     for (l <- 0 until font.header.height) {
@@ -233,8 +238,3 @@ object Figlet4s extends App {
       print("\n")
     }
 }
-
-// 15 = 8 + 2 + 1
-// Vector(FullWidthLayoutOldlayout, KerningLayoutOldlayout, HorizontalSmushingRule1Oldlayout, HorizontalSmushingRule2Oldlayout),
-// 24463
-// Vector(HorizontalSmushingRule1NewLayout, HorizontalSmushingRule2NewLayout, HorizontalSmushingRule3NewLayout, HorizontalSmushingRule4NewLayout, HorizontalSmushingNewLayout, VerticalSmushingRule1NewLayout, VerticalSmushingRule2NewLayout, VerticalSmushingRule3NewLayout, VerticalSmushingRule4NewLayout, VerticalSmushingRule5NewLayout, VerticalSmushingNewLayout)),

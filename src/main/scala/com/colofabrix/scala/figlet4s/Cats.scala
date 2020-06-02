@@ -1,7 +1,6 @@
 package com.colofabrix.scala.figlet4s
 
 import _root_.cats._
-import _root_.cats.implicits._
 import com.colofabrix.scala.figlet4s.figfont.FIGfont
 import scala.annotation.tailrec
 
