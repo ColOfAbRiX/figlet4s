@@ -14,7 +14,6 @@ trait Libraries {
   lazy val ScalaCheckVersion    = "1.14.1"
   lazy val ScalaTestCatsVersion = "3.0.5"
   lazy val ScalaTestVersion     = "3.1.1"
-  lazy val ShapelessVersion     = "2.3.3"
 
   // Generic
   lazy val CatsCoreDep       = "org.typelevel"    %% "cats-core"       % CatsVersion
@@ -25,6 +24,5 @@ trait Libraries {
   lazy val ScalaCheckDep     = "org.scalacheck"   %% "scalacheck"      % ScalaCheckVersion % Test
   lazy val ScalaTestCatsDep  = "com.ironcorelabs" %% "cats-scalatest"  % ScalaTestCatsVersion % Test
   lazy val ScalaTestDep      = "org.scalatest"    %% "scalatest"       % ScalaTestVersion % Test
-  lazy val ShapelessDep      = "com.chuusai"      %% "shapeless"       % ShapelessVersion
 
 }

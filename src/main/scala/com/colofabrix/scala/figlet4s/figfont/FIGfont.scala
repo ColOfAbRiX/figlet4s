@@ -3,54 +3,82 @@ package com.colofabrix.scala.figlet4s.figfont
 import cats.data.Validated._
 import cats.implicits._
 import com.colofabrix.scala.figlet4s._
+import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
 
 /**
- * FIGlet Font
+ * A FIGlet Font is a map of characters to their FIGrepresentation and the typographic settings used to display them
  */
-final case class FIGfont(header: FIGheader, comment: String, characters: Map[Char, FIGcharacter]) {
+final case class FIGfont(
+    name: String,
+    header: FIGheader,
+    comment: String,
+    hLayout: HorizontalLayout,
+    vLayout: VerticalLayout,
+    characters: Map[Char, FIGcharacter],
+) {
   /**
-   * Processes a character to a representable format
+   * Returns a FIGcharacter representation of the given Char
    */
-  def process(char: Char): Vector[String] =
-    characters
-      .getOrElse(char, characters('0'))
-      .lines
-      .map(_.replace(header.hardblank, " "))
+  def apply(char: Char): FIGcharacter =
+    characters.getOrElse(char, characters('0'))
 
   /**
    * The empty character
    */
-  def empty: FIGcharacter = characters.apply('0')
+  val zero: FIGcharacter =
+    FIGcharacter(this, 0.toChar, Vector.fill(header.height)(""), '@', 0, None, -1)
+
+  /**
+   * Processes a character to a representable format
+   */
+  def process(char: Char): Vector[String] =
+    this(char)
+      .lines
+      .map(_.replace(header.hardblank, " "))
 }
 
-object FIGfont {
+final object FIGfont {
   private case class BuilderState(
+      name: String,
       header: Option[FIGheader] = None,
       commentLines: Vector[String] = Vector.empty,
-      loadedChars: Map[Char, FIGcharacter] = Map.empty,
+      loadedNames: Set[Char] = Set.empty,
+      loadedChars: Vector[CharBuilderState] = Vector.empty,
       loadedCharLines: Vector[String] = Vector.empty,
       processTaggedFonts: Boolean = false,
   )
 
-  private val requiredChars = ((32 to 126) ++ Seq(196, 214, 220, 228, 246, 252, 223)).map(_.toChar)
+  private case class CharBuilderState(
+      name: Char,
+      lines: Vector[String],
+      comment: Option[String],
+      position: Int,
+  )
 
   /**
    * Creates a new FIGfont by parsing an input vector of lines representing an FLF file
    */
-  def apply(lines: Iterable[String]): FigletResult[FIGfont] =
+  def apply(name: String, lines: Iterable[String]): FigletResult[FIGfont] =
     lines
       .zipWithIndex
-      .foldLeft(BuilderState().validNec[FigletError]) {
+      .foldLeft(BuilderState(name).validNec[FigletError]) {
         case (i @ Invalid(_), _)           => i
         case (Valid(state), (line, index)) => processLine(state, line, index)
       }
       .andThen(parseFinalBuilderState _)
 
   /**
-   * The "zero" character
+   * Creates a new FIGfont with FIGcharacters given as Vector
    */
-  def zero(height: Int): FIGcharacter =
-    FIGcharacter(0.toChar, Vector.fill(height)(""), '@', 0, None, -1)
+  private[figlet4s] def apply(
+      name: String,
+      header: FIGheader,
+      comment: String,
+      characters: Vector[FIGcharacter],
+  ): FIGfont =
+    FIGfont(name, header, comment, characters.map(c => c.name -> c).toMap)
+
+  private val requiredChars = ((32 to 126) ++ Seq(196, 214, 220, 228, 246, 252, 223)).map(_.toChar)
 
   /**
    * Build the FIGfont by parsing the given state
@@ -60,21 +88,34 @@ object FIGfont {
       // Check we didn't stop in the middle of a character
       FIGcharacterError("Incomplete character definition").invalidNec
 
-    } else if ((requiredChars.toSet diff state.loadedChars.keySet).size != 0) {
+    } else if ((requiredChars.toSet diff state.loadedNames).size != 0) {
       // Check we loaded all required characters
-      val missing = requiredChars.toSet diff state.loadedChars.keySet mkString (", ")
+      val missing = requiredChars.toSet diff state.loadedNames mkString (", ")
       FIGcharacterError(s"Missing definition for required FIGlet characters: $missing").invalidNec
 
     } else {
-      // Build the font
-      val header  = state.header.get
-      val comment = state.commentLines.mkString("\n")
-      val chars =
-        if (state.loadedChars.contains(0.toChar)) state.loadedChars
-        else state.loadedChars ++ Map(0.toChar -> FIGfont.zero(header.height))
+      val header    = state.header.get
+      val comment   = state.commentLines.mkString("\n")
+      val emptyFont = FIGfont(state.name, header, comment, Vector.empty)
 
-      FIGfont(header, comment, chars).validNec
+      // // Build the font
+      // val a = state.loadedChars.foldLeft(emptyFont) { (font, builder) =>
+      //   font.addCharacter(builder.name, builder.lines, builder.comment, builder.position)
+      // }
+
+      ???
     }
+
+  /**
+   * Build the FIGchar by parsing the CharBuilderState
+   */
+  private def parseCharBuilder(
+      font: () => FIGfont,
+      state: BuilderState,
+      charState: CharBuilderState,
+  ): FigletResult[FIGcharacter] = {
+    ???
+  }
 
   /**
    * Processes a line calling the appropriate action based on the current state
@@ -114,15 +155,16 @@ object FIGfont {
       state.copy(loadedCharLines = state.loadedCharLines :+ line).validNec
 
     } else {
-      val startLine = index - state.loadedCharLines.size
-      val charNum   = (startLine - header.commentLines - 1) / header.height
-
-      FIGcharacter(header, requiredChars(charNum), state.loadedCharLines :+ line, None, startLine)
-        .map { figChar =>
-          val loadedChars  = state.loadedChars + (figChar.name -> figChar)
-          val isNextTagged = loadedChars.size >= requiredChars.size
-          state.copy(loadedCharLines = Vector.empty, loadedChars = loadedChars, processTaggedFonts = isNextTagged)
-        }
+      val startLine   = index - state.loadedCharLines.size
+      val charNum     = (startLine - header.commentLines - 1) / header.height
+      val charBuilder = CharBuilderState(requiredChars(charNum), state.loadedCharLines :+ line, None, startLine)
+      state
+        .copy(
+          loadedCharLines = Vector.empty,
+          loadedNames = state.loadedNames + charBuilder.name,
+          loadedChars = state.loadedChars :+ charBuilder,
+          processTaggedFonts = state.loadedChars.size + 1 >= requiredChars.size,
+        ).validNec
     }
   }
 
@@ -154,11 +196,13 @@ object FIGfont {
       val loadedCharLines = state.loadedCharLines.drop(1) :+ line
 
       (nameV, commentV)
-        .mapN(FIGcharacter(header, _, loadedCharLines, _, startLine))
-        .andThen(identity)
-        .map { figChar =>
-          val loadedChars = state.loadedChars + (figChar.name -> figChar)
-          state.copy(loadedCharLines = Vector.empty, loadedChars = loadedChars)
+        .mapN(CharBuilderState(_, loadedCharLines, _, startLine))
+        .map { charBuilder =>
+          state.copy(
+            loadedCharLines = Vector.empty,
+            loadedNames = state.loadedNames + charBuilder.name,
+            loadedChars = state.loadedChars :+ charBuilder,
+          )
         }
     }
   }

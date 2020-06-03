@@ -1,12 +1,13 @@
 package com.colofabrix.scala.figlet4s.figfont
 
+import cats.data.Chain
 import cats.data.Validated._
 import cats.implicits._
 import com.colofabrix.scala.figlet4s._
-import _root_.cats.data.Validated
+import com.colofabrix.scala.figlet4s.figfont.FIGheaderParameters._
 
 /**
- * FIGlet File Header
+ * FIGlet file header that contains raw configuration settings for the FIGfont
  */
 final case class FIGheader(
     signature: String,
@@ -21,7 +22,7 @@ final case class FIGheader(
     codetagCount: Option[Int],
 )
 
-object FIGheader {
+final object FIGheader {
   private val SIGNATURE_INDEX: Int      = 0
   private val HEIGHT_INDEX: Int         = 1
   private val BASELINE_INDEX: Int       = 2
@@ -33,7 +34,7 @@ object FIGheader {
   private val CODETAGCOUNT_INDEX: Int   = 8
 
   /**
-   * Creates a new FLF Header from a string
+   * Creates a new FLF Header from a the string representing the header
    */
   def apply(line: String): FigletResult[FIGheader] = {
     val splitLine = line.split(" ").toVector
@@ -69,67 +70,42 @@ object FIGheader {
     }
   }
 
-  /**
-   * Identify the file as compatible with FIGlet version 2.0 or later
-   */
   private def validateSignature(signature: String): FigletResult[String] =
     Option
       .when(signature == "flf2a")(signature)
       .toValidNec(FIGheaderError(s"Wrong FLF signature: $signature"))
 
-  /**
-   * The header line defines which sub-character will be used to represent hardblanks in the FIGcharacter data
-   */
   private def validateHardblank(hardblank: String): FigletResult[String] =
     Option
       .when(hardblank.length == 1)(hardblank)
       .toValidNec(FIGheaderError(s"The hardblank '$hardblank' is not composed of only one character"))
 
-  /**
-   * The consistent height of every FIGcharacter, measured in subcharacters
-   */
   private def validateHeight(height: String): FigletResult[Int] =
     height
       .toIntOption
       .toValidNec(FIGheaderError(s"Couldn't parse header field 'height': $height"))
 
-  /**
-   * The number of lines of subcharacters from the baseline of a FIGcharacter to the top of the tallest FIGcharacter
-   */
   private def validateBaseline(baseline: String): FigletResult[Int] =
     baseline
       .toIntOption
       .toValidNec(FIGheaderError(s"Couldn't parse header field 'baseline': $baseline"))
 
-  /**
-   * The maximum length of any line describing a FIGcharacter
-   */
   private def validateMaxLength(maxlength: String): FigletResult[Int] =
     maxlength
       .toIntOption
       .toValidNec(FIGheaderError(s"Couldn't parse header field 'maxLength': $maxlength"))
 
-  /**
-   * Describes information about horizontal and vertical layout but does not include all of the information desired
-   * by the most recent FIGdrivers
-   */
   private def validateOldLayout(oldLayout: String): FigletResult[Vector[OldLayout]] =
     oldLayout
       .toIntOption
       .map(OldLayout(_))
       .toValidNec(FIGheaderError(s"Couldn't parse header field 'oldLayout': $oldLayout"))
 
-  /**
-   * How many lines of comments there are
-   */
   private def validateCommentLines(commentLines: String): FigletResult[Int] =
     commentLines
       .toIntOption
       .toValidNec(FIGheaderError(s"Couldn't parse header field 'commentLines': $commentLines"))
 
-  /**
-   * Which direction the font is to be printed by default
-   */
   private def validatePrintDirection(printDirection: Option[String]): FigletResult[Option[PrintDirection]] =
     printDirection.traverse { value =>
       value
@@ -138,9 +114,6 @@ object FIGheader {
         .toValidNec(FIGheaderError(s"Couldn't parse header field 'printDirection': $printDirection"))
     }
 
-  /**
-   * Describes ALL information about horizontal and vertical layout
-   */
   private def validateFullLayout(fullLayout: Option[String]): FigletResult[Option[Vector[FullLayout]]] =
     fullLayout.traverse { value =>
       value
@@ -149,9 +122,6 @@ object FIGheader {
         .toValidNec(FIGheaderError(s"Couldn't parse header field 'fullLayout': $fullLayout"))
     }
 
-  /**
-   * The number of code-tagged (non-required) FIGcharacters in this FIGfont
-   */
   private def validateCodetagCount(codetagCount: Option[String]): FigletResult[Option[Int]] =
     codetagCount.traverse { value =>
       value
@@ -159,23 +129,28 @@ object FIGheader {
         .toValidNec(FIGheaderError(s"Couldn't parse header field 'codetagCount': $codetagCount"))
     }
 
-  /**
-   * Validates the compatibility of the old and full layout options
-   */
   private def crossValidateLayouts(
       oldLayout: Vector[OldLayout],
       fullLayout: Vector[FullLayout],
   ): FigletResult[Unit] = {
-    val fullWidthV =
-      if (FullLayout.isFullWidth(fullLayout) && OldLayout.isFullWidth(oldLayout)) ().validNec
-      else FIGheaderError("FullLayout sets FullWidth but OldLayout doesn't set the same option").invalidNec
+    // if (FullLayout.isFullWidth(fullLayout)) {
 
-    val horizontalFittingV =
-      if (FullLayout.isHorizontalFitting(fullLayout) && OldLayout.isFitting(oldLayout)) ().validNec
-      else FIGheaderError("FullLayout sets Horizontal Fitting but OldLayout doesn't set the same option").invalidNec
+    // } else if (FullLayout.isHorizontalFitting(fullLayout)) {
 
-    (fullWidthV, horizontalFittingV)
-      .mapN((_, _) => ())
+    // } else if (FullLayout.isControlledHorizontalSmushing(fullLayout)) {
+
+    // } else if (FullLayout.isUniversalHorizontalSmushing(fullLayout)) {
+
+    // }
+
+    // val fullWidthV =
+    //   if (FullLayout.isFullWidth(fullLayout) && OldLayout.isFullWidth(oldLayout)) Chain.empty
+    //   else Chain(FIGheaderError("FullLayout sets FullWidth but OldLayout doesn't set the same option"))
+
+    // val horizontalFittingV =
+    //   if (FullLayout.isHorizontalFitting(fullLayout) && OldLayout.isFitting(oldLayout)) ().validNec
+    //   else FIGheaderError("FullLayout sets Horizontal Fitting but OldLayout doesn't set the same option").invalidNec
+
+    ???
   }
-
 }

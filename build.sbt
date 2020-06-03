@@ -33,7 +33,7 @@ ThisBuild / libraryDependencies ++= Seq(
 )
 
 // Root project
-lazy val rootProject: Project = project
+lazy val figlet4s: Project = project
   .in(file("."))
   .settings(
     name := "figlet4s",
