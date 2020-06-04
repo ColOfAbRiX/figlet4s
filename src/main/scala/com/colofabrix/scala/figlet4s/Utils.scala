@@ -1,12 +1,14 @@
 package com.colofabrix.scala.figlet4s
 
+import java.math.BigInteger
+import java.security.MessageDigest
 import scala.collection.immutable.BitSet
 
 private[figlet4s] object Utils {
-  /**
-   * Adds conversion to BitSet to Int
-   */
   implicit class BinaryInt(val self: Int) extends AnyVal {
+    /**
+     * Converts the Int to a BitSet
+     */
     def toBitSet(size: Int): BitSet = {
       val binaryString = self.toBinaryString
 
@@ -24,5 +26,17 @@ private[figlet4s] object Utils {
     }
 
     def toBitSet: BitSet = toBitSet(32)
+  }
+
+  implicit class MD5String(val self: String) extends AnyVal {
+    /**
+     * MD5 hash of the string
+     */
+    def md5(): String = {
+      val md     = MessageDigest.getInstance("MD5")
+      val digest = md.digest(self.getBytes)
+      val bigInt = new BigInteger(1, digest)
+      bigInt.toString(16)
+    }
   }
 }

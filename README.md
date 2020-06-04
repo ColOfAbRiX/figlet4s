@@ -1,7 +1,7 @@
 # Figlet4s
 
-This is an implementation of [FIGlet](http://www.figlet.org/) in pure Scala with integrated fonts
-and support for Cats.
+This is an implementation of [FIGlet](http://www.figlet.org/) in pure Scala with integrated fonts,
+support for Cats and minimal dependencies.
 
 ## License
 

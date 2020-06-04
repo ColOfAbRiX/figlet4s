@@ -40,10 +40,10 @@ lazy val figlet4s: Project = project
     description := "Scala FIGlet implementation",
     version := "0.1.0",
     libraryDependencies ++= Seq(
-      PPrintDep
+      PPrintDep,
+      EnumeratumDep,
     ),
     bundledDependencies ++= Seq(
-      CatsBundle,
-      EnumeratumBundle
+      CatsBundle
     ),
   )

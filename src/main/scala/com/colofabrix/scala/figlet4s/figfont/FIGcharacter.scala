@@ -8,7 +8,7 @@ import scala.util.matching.Regex
  * A single FIGlet character part of a FIGfont
  */
 final case class FIGcharacter private[figlet4s] (
-    font: FIGfont,
+    fontId: String,
     name: Char,
     lines: Vector[String],
     endmark: Char,
@@ -22,7 +22,8 @@ final object FIGcharacter {
    * Creates a validated FIGcharacter
    */
   def apply(
-      font: FIGfont,
+      fontId: String,
+      header: FIGheader,
       name: Char,
       lines: Vector[String],
       comment: Option[String],
@@ -31,11 +32,11 @@ final object FIGcharacter {
     val nameV       = if (name.toInt != -1) name.validNec else FIGcharacterError(s"Name '-1' is illegal").invalidNec
     val endmarkV    = validateEndmark(name, position, lines)
     val cleanLinesV = endmarkV andThen cleanLines(lines)
-    val widthV      = cleanLinesV andThen validateWidth(name, font.header.maxLength, position)
-    val heightV     = cleanLinesV andThen validateHeight(name, position, font.header.height)
+    val widthV      = cleanLinesV andThen validateWidth(name, header.maxLength, position)
+    val heightV     = cleanLinesV andThen validateHeight(name, position, header.height)
 
     heightV andThen { _ =>
-      (font.validNec, nameV, cleanLinesV, endmarkV, widthV, comment.validNec, position.validNec)
+      (fontId.validNec, nameV, cleanLinesV, endmarkV, widthV, comment.validNec, position.validNec)
         .mapN(FIGcharacter.apply)
     }
   }

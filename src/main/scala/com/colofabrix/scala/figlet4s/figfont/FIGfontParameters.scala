@@ -17,13 +17,24 @@ object FIGfontParameters {
 
   object HorizontalLayout {
 
-    def fromHeaderParams(header: FIGheader): FigletResult[HorizontalLayout] = {
-      val fullHorizontal = fromFullLayout(header)
-      val oldHorizontal  = fromOldlayout(header)
-      ???
+    /**
+     * Interprets the header settings and returns the selected Horizontal Layout
+     */
+    def fromHeader(header: FIGheader): FigletResult[HorizontalLayout] = {
+      val oldHorizontalV  = fromOldlayout(header)
+      val fullHorizontalV = fromFullLayout(header)
+
+      (oldHorizontalV, fullHorizontalV).mapN { (oldHorizontal, fullHorizontal) =>
+        // NOTE: If fullLayout is defined then oldLayout is ignored
+        fullHorizontal
+          .getOrElse(oldHorizontal)
+      }
     }
 
-    private def fromFullLayout(header: FIGheader): FigletResult[Option[HorizontalLayout]] =
+    /**
+     * Interprets the "fullLayout" part of the header settings and returns the selected Horizontal Layout
+     */
+    def fromFullLayout(header: FIGheader): FigletResult[Option[HorizontalLayout]] =
       header
         .fullLayout
         .traverse { settings =>
@@ -34,12 +45,15 @@ object FIGfontParameters {
           else if (settings.contains(UseHorizontalFitting) && !settings.contains(UseHorizontalSmushing))
             HorizontalFittingLayout.validNec
           else if (settings.contains(UseHorizontalSmushing) && selectedSmushingRules.size != 0)
-            HorizontalSmushingRules.fromHeaderParams(header).map(ControlledHorizontalSmushingLayout(_))
+            HorizontalSmushingRules.fromHeader(header).map(ControlledHorizontalSmushingLayout(_))
           else
             UniversalHorizontalSmushingLayout.validNec
         }
 
-    private def fromOldlayout(header: FIGheader): FigletResult[HorizontalLayout] = {
+    /**
+     * Interprets the "oldLayout" part of the header settings and returns the selected Horizontal Layout
+     */
+    def fromOldlayout(header: FIGheader): FigletResult[HorizontalLayout] = {
       val settings = header.oldLayout
       if (settings.contains(OldFullWidthLayout))
         FullWidthHorizontalLayout.validNec
@@ -70,7 +84,25 @@ object FIGfontParameters {
   sealed trait HorizontalSmushingRules
 
   object HorizontalSmushingRules {
-    def fromHeaderParams(header: FIGheader): FigletResult[Vector[HorizontalSmushingRules]] = ???
+    /**
+     * Interprets the header settings and returns the selected Horizontal Smushing Rules
+     */
+    def fromHeader(header: FIGheader): FigletResult[Vector[HorizontalSmushingRules]] =
+      header
+        .fullLayout
+        .map { settings =>
+          (settings intersect FullLayout.horizontalSmushingRules).collect {
+            case FullLayout.EqualCharacterHorizontalSmushing => EqualCharacterHorizontalSmushing
+            case FullLayout.UnderscoreHorizontalSmushing     => UnderscoreHorizontalSmushing
+            case FullLayout.HierarchyHorizontalSmushing      => HierarchyHorizontalSmushing
+            case FullLayout.OppositePairHorizontalSmushing   => OppositePairHorizontalSmushing
+            case FullLayout.BigXHorizontalSmushing           => BigXHorizontalSmushing
+            case FullLayout.HardblankHorizontalSmushing      => HardblankHorizontalSmushing
+          }
+        }
+        .getOrElse(Vector.empty)
+        .validNec
+
   }
 
   /** Apply "equal" character horizontal smushing */
@@ -97,7 +129,10 @@ object FIGfontParameters {
   sealed trait VerticalLayout
 
   object VerticalLayout {
-    def fromHeaderParams(header: FIGheader): FigletResult[VerticalLayout] = {
+    /**
+     * Interprets the header settings and returns the selected Vertical Layout
+     */
+    def fromHeader(header: FIGheader): FigletResult[VerticalLayout] = {
       header
         .fullLayout
         .map { settings =>
@@ -108,7 +143,7 @@ object FIGfontParameters {
           else if (settings.contains(UseVerticalFitting) && !settings.contains(UseVerticalSmushing))
             VerticalFittingLayout.validNec
           else if (settings.contains(UseVerticalSmushing) && selectedSmushingRules.size != 0)
-            VerticalSmushingRules.fromHeaderParams(header).map(ControlledVerticalSmushingLayout(_))
+            VerticalSmushingRules.fromHeader(header).map(ControlledVerticalSmushingLayout(_))
           else
             UniversalVerticalSmushingLayout.validNec
         }
@@ -134,7 +169,23 @@ object FIGfontParameters {
   sealed trait VerticalSmushingRules
 
   object VerticalSmushingRules {
-    def fromHeaderParams(header: FIGheader): FigletResult[Vector[VerticalSmushingRules]] = ???
+    /**
+     * Interprets the header settings and returns the selected Vertical Smushing Rules
+     */
+    def fromHeader(header: FIGheader): FigletResult[Vector[VerticalSmushingRules]] =
+      header
+        .fullLayout
+        .map { settings =>
+          (settings intersect FullLayout.verticalSmushingRules).collect {
+            case FullLayout.EqualCharacterVerticalSmushing    => EqualCharacterVerticalSmushing
+            case FullLayout.UnderscoreVerticalSmushing        => UnderscoreVerticalSmushing
+            case FullLayout.HierarchyVerticalSmushing         => HierarchyVerticalSmushing
+            case FullLayout.HorizontalLineVerticalSmushing    => HorizontalLineVerticalSmushing
+            case FullLayout.VerticalLineVerticalSuperSmushing => VerticalLineVerticalSuperSmushing
+          }
+        }
+        .getOrElse(Vector.empty)
+        .validNec
   }
 
   /** Apply "equal" character vertical smushing */

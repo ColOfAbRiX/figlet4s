@@ -209,28 +209,30 @@ object Figlet4s extends App {
   // https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
   val decoder = Codec("ISO8859_1").decoder.onMalformedInput(java.nio.charset.CodingErrorAction.REPORT)
 
-  val lines = Source.fromResource(s"fonts/standard.flf")(decoder).getLines().toVector
-  val fontV = FIGfont(lines)
-  fontV match {
-    case Invalid(e) => pprint.pprintln(e)
-    case Valid(font) =>
-      pprint.pprintln(font.header)
-      printFont("Fabrizio & Claire")(font)
-  }
-
-  // for (font <- fonts) {
-  //   println(s"Font: $font")
-
-  //   val lines = Source.fromResource(s"fonts/$font")(decoder).getLines().toVector
-  //   val fontV = FIGfont(lines)
-
-  //   fontV match {
-  //     case Invalid(e)  => pprint.pprintln(e)
-  //     case Valid(font) => printFont("Fabrizio & Claire")(font)
-  //   }
-
-  //   println("")
+  // val fontName = "standard"
+  // val lines    = Source.fromResource(s"fonts/$fontName.flf")(decoder).getLines().toVector
+  // val fontV    = FIGfont(fontName, lines)
+  // fontV match {
+  //   case Invalid(e) =>
+  //     pprint.pprintln(e)
+  //   case Valid(font) =>
+  //     printFont("Fabrizio & Claire")(font)
+  //     pprint.pprintln(font)
   // }
+
+  for (font <- fonts) {
+    println(s"Font: $font")
+
+    val lines = Source.fromResource(s"fonts/$font")(decoder).getLines().toVector
+    val fontV = FIGfont(font, lines)
+
+    fontV match {
+      case Invalid(e)  => pprint.pprintln(e)
+      case Valid(font) => printFont("Fabrizio & Claire")(font)
+    }
+
+    println("")
+  }
 
   def printFont(name: String)(font: FIGfont): Unit =
     for (l <- 0 until font.header.height) {

@@ -1,6 +1,5 @@
 package com.colofabrix.scala.figlet4s.figfont
 
-import cats.data.Chain
 import cats.data.Validated._
 import cats.implicits._
 import com.colofabrix.scala.figlet4s._
@@ -9,7 +8,7 @@ import com.colofabrix.scala.figlet4s.figfont.FIGheaderParameters._
 /**
  * FIGlet file header that contains raw configuration settings for the FIGfont
  */
-final case class FIGheader(
+final case class FIGheader private[figlet4s] (
     signature: String,
     hardblank: String,
     height: Int,
@@ -39,10 +38,9 @@ final object FIGheader {
   def apply(line: String): FigletResult[FIGheader] = {
     val splitLine = line.split(" ").toVector
 
-    if (splitLine.length < 6 || splitLine.length > 9) {
+    if (splitLine.length < 6 || splitLine.length > 9)
       FIGheaderError(s"Wrong number of parameters in FLF header. Found ${splitLine.length.toString} parameters").invalidNec
-
-    } else {
+    else {
       val (signatureText, hardblankText) = splitLine(SIGNATURE_INDEX).splitAt(5)
 
       val signatureV      = validateSignature(signatureText)
@@ -56,16 +54,9 @@ final object FIGheader {
       val fullLayoutV     = validateFullLayout(splitLine.get(FULLLAYOUT_INDEX.toLong))
       val codetagCountV   = validateCodetagCount(splitLine.get(CODETAGCOUNT_INDEX.toLong))
 
-      val crossValidatedLayoutsV = (oldLayoutV, fullLayoutV)
-        .mapN { (oldLayout, fullLayoutO) =>
-          fullLayoutO.map(crossValidateLayouts(oldLayout, _))
-        }
-
       // format: off
-      crossValidatedLayoutsV andThen { _ =>
-        (signatureV, hardblankV, heightV, baselineV, maxLengthV, oldLayoutV, commentLinesV, printDirectionV, fullLayoutV, codetagCountV)
-          .mapN(FIGheader.apply)
-      }
+      (signatureV, hardblankV, heightV, baselineV, maxLengthV, oldLayoutV, commentLinesV, printDirectionV, fullLayoutV, codetagCountV)
+        .mapN(FIGheader.apply)
       // format: on
     }
   }
@@ -128,29 +119,4 @@ final object FIGheader {
         .toIntOption
         .toValidNec(FIGheaderError(s"Couldn't parse header field 'codetagCount': $codetagCount"))
     }
-
-  private def crossValidateLayouts(
-      oldLayout: Vector[OldLayout],
-      fullLayout: Vector[FullLayout],
-  ): FigletResult[Unit] = {
-    // if (FullLayout.isFullWidth(fullLayout)) {
-
-    // } else if (FullLayout.isHorizontalFitting(fullLayout)) {
-
-    // } else if (FullLayout.isControlledHorizontalSmushing(fullLayout)) {
-
-    // } else if (FullLayout.isUniversalHorizontalSmushing(fullLayout)) {
-
-    // }
-
-    // val fullWidthV =
-    //   if (FullLayout.isFullWidth(fullLayout) && OldLayout.isFullWidth(oldLayout)) Chain.empty
-    //   else Chain(FIGheaderError("FullLayout sets FullWidth but OldLayout doesn't set the same option"))
-
-    // val horizontalFittingV =
-    //   if (FullLayout.isHorizontalFitting(fullLayout) && OldLayout.isFitting(oldLayout)) ().validNec
-    //   else FIGheaderError("FullLayout sets Horizontal Fitting but OldLayout doesn't set the same option").invalidNec
-
-    ???
-  }
 }
