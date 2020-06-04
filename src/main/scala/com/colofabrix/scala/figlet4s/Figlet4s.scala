@@ -3,9 +3,11 @@ package com.colofabrix.scala.figlet4s
 import com.colofabrix.scala.figlet4s.figfont._
 import scala.io.Codec
 import scala.io.Source
-import _root_.cats.data.Validated._
 
-object Figlet4s extends App {
+/**
+ * "FIGlet" stands for "Frank, Ian and Glenn's LETters and this is a pure Scala implementation
+ */
+object Main extends App {
   val fonts = List(
     "1row.flf",
     "3-d.flf",
@@ -206,8 +208,8 @@ object Figlet4s extends App {
     "whimsy.flf",
   )
 
-  // https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
-  val decoder = Codec("ISO8859_1").decoder.onMalformedInput(java.nio.charset.CodingErrorAction.REPORT)
+  // // https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
+  // val decoder = Codec("ISO8859_1").decoder.onMalformedInput(java.nio.charset.CodingErrorAction.REPORT)
 
   // val fontName = "standard"
   // val lines    = Source.fromResource(s"fonts/$fontName.flf")(decoder).getLines().toVector
@@ -216,27 +218,72 @@ object Figlet4s extends App {
   //   case Invalid(e) =>
   //     pprint.pprintln(e)
   //   case Valid(font) =>
-  //     printFont("Fabrizio & Claire")(font)
   //     pprint.pprintln(font)
+  //     printFont("Fabrizio & Claire")(font)
   // }
 
-  for (font <- fonts) {
-    println(s"Font: $font")
+  // for (font <- fonts) {
+  //   println(s"Font: $font")
 
-    val lines = Source.fromResource(s"fonts/$font")(decoder).getLines().toVector
-    val fontV = FIGfont(font, lines)
+  //   val lines = Source.fromResource(s"fonts/$font")(decoder).getLines().toVector
+  //   val fontV = FIGfont(font, lines)
 
-    fontV match {
-      case Invalid(e)  => pprint.pprintln(e)
-      case Valid(font) => printFont("Fabrizio & Claire")(font)
-    }
+  //   fontV match {
+  //     case Invalid(e)  => pprint.pprintln(e)
+  //     case Valid(font) => //printFont("Fabrizio & Claire")(font)
+  //   }
 
-    println("")
-  }
+  //   println("")
+  // }
 
   def printFont(name: String)(font: FIGfont): Unit =
     for (l <- 0 until font.header.height) {
       for (c <- name) print(font.process(c)(l))
       print("\n")
     }
+}
+
+object Figlet4s {
+  import java.io.File
+
+  def listFonts(): Vector[String] = {
+    import java.util.zip.ZipInputStream
+
+    // Opening the JAR to look at resources
+    val jar = getClass.getProtectionDomain.getCodeSource.getLocation
+    val zip = new ZipInputStream(jar.openStream)
+
+    Iterator
+      .continually(zip.getNextEntry)
+      .takeWhile(_ != null)
+      .map(zipEntry => new File(zipEntry.getName))
+      .filter(path => path.getPath.startsWith("fonts") && path.getName.endsWith(".flf"))
+      .map(_.getName.replace(".flf", ""))
+      .toVector
+  }
+
+  def loadString(
+      text: String,
+      fontName: String = "standard",
+      fontEncoding: String = "ISO8859_1",
+  ): FigletResult[FIGstring] = {
+    loadFont(fontName, fontEncoding).map(FIGstring(text, _))
+  }
+
+  def loadString(text: String, font: FIGfont): FIGstring =
+    FIGstring(text, font)
+
+  def loadFont(fontName: String = "standard", fontEncoding: String = "ISO8859_1"): FigletResult[FIGfont] = {
+    val decoder = Codec(fontEncoding)
+      .decoder
+      .onMalformedInput(java.nio.charset.CodingErrorAction.REPORT)
+
+    val lines = Source
+      .fromResource(s"fonts/$fontName.flf")(decoder)
+      .getLines()
+      .toVector
+
+    FIGfont(fontName, lines)
+  }
+
 }

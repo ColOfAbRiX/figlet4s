@@ -13,23 +13,21 @@ object FIGfontParameters {
   /**
    * Horizontal Layout
    */
-  sealed trait HorizontalLayout
+  sealed trait HorizontalLayout extends Product with Serializable
 
   object HorizontalLayout {
 
     /**
      * Interprets the header settings and returns the selected Horizontal Layout
+     *
+     * If the header defines fullLayout then oldLayout is ignored
      */
-    def fromHeader(header: FIGheader): FigletResult[HorizontalLayout] = {
-      val oldHorizontalV  = fromOldlayout(header)
-      val fullHorizontalV = fromFullLayout(header)
-
-      (oldHorizontalV, fullHorizontalV).mapN { (oldHorizontal, fullHorizontal) =>
-        // NOTE: If fullLayout is defined then oldLayout is ignored
-        fullHorizontal
-          .getOrElse(oldHorizontal)
-      }
-    }
+    def fromHeader(header: FIGheader): FigletResult[HorizontalLayout] =
+      (fromOldlayout(header), fromFullLayout(header))
+        .mapN { (oldHorizontal, fullHorizontal) =>
+          fullHorizontal
+            .getOrElse(oldHorizontal)
+        }
 
     /**
      * Interprets the "fullLayout" part of the header settings and returns the selected Horizontal Layout
@@ -81,7 +79,7 @@ object FIGfontParameters {
   /**
    * Rules for Horizontal Smushing
    */
-  sealed trait HorizontalSmushingRules
+  sealed trait HorizontalSmushingRules extends Product with Serializable
 
   object HorizontalSmushingRules {
     /**
@@ -126,7 +124,7 @@ object FIGfontParameters {
   /**
    * Vertical Layout
    */
-  sealed trait VerticalLayout
+  sealed trait VerticalLayout extends Product with Serializable
 
   object VerticalLayout {
     /**
@@ -166,7 +164,7 @@ object FIGfontParameters {
   /**
    * Rules for Vertical Smushing
    */
-  sealed trait VerticalSmushingRules
+  sealed trait VerticalSmushingRules extends Product with Serializable
 
   object VerticalSmushingRules {
     /**

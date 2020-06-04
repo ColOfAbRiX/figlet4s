@@ -6,7 +6,7 @@ import com.colofabrix.scala.figlet4s._
 import com.colofabrix.scala.figlet4s.figfont.FIGheaderParameters._
 
 /**
- * FIGlet file header that contains raw configuration settings for the FIGfont
+ * FIGLettering Font file header that contains raw configuration settings for the FIGfont
  */
 final case class FIGheader private[figlet4s] (
     signature: String,

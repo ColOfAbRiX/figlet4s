@@ -52,7 +52,7 @@ final object FIGfont {
       hash: String = "".md5,
   )
 
-  /** State to build a character that is filled while scanning each input lines */
+  /** State to build a character that is filled while scanning input lines */
   private case class CharBuilderState(
       name: Char,
       lines: Vector[String],
@@ -75,7 +75,21 @@ final object FIGfont {
   private val requiredChars = ((32 to 126) ++ Seq(196, 214, 220, 228, 246, 252, 223)).map(_.toChar)
 
   /**
-   * Build the FIGfont by parsing the given state
+   * Processes a line calling the appropriate action based on the current state
+   */
+  private def processLine(state: FontBuilderState, line: String, index: Int): FigletResult[FontBuilderState] = {
+    if (index == 0)
+      buildHeader(state, line)
+    else if (index <= state.header.get.commentLines)
+      buildComment(state, line)
+    else if (!state.processTaggedFonts)
+      buildCharacter(state, line, index)
+    else
+      buildTaggedCharacter(state, line, index)
+  }
+
+  /**
+   * Build the FIGfont by parsing the font builder state
    */
   private def buildFont(fontState: FontBuilderState): FigletResult[FIGfont] =
     if (fontState.loadedCharLines.size != 0) {
@@ -94,9 +108,22 @@ final object FIGfont {
       val commentV = fontState.commentLines.mkString("\n").validNec
       val hLayoutV = HorizontalLayout.fromHeader(header)
       val vLayoutV = VerticalLayout.fromHeader(header)
+
       val charsV = fontState
         .loadedChars
         .traverse(buildChar(fontState, _))
+        .andThen { chars =>
+          val loadedTaggedCount = chars.size - requiredChars.size
+          val codetagCount      = header.codetagCount.getOrElse(loadedTaggedCount)
+
+          if (loadedTaggedCount == codetagCount)
+            chars.validNec
+          else
+            FIGFontError(
+              s"The number of loaded tagged fonts $loadedTaggedCount doesn't correspond to the value indicated " +
+              s"in the header ${codetagCount}",
+            ).invalidNec
+        }
         .map(_.map(c => c.name -> c).toMap)
 
       (hashV, nameV, header.validNec, commentV, hLayoutV, vLayoutV, charsV)
@@ -104,7 +131,7 @@ final object FIGfont {
     }
 
   /**
-   * Build the FIGchar by parsing the CharBuilderState
+   * Build the FIGfont by parsing the character builder state
    */
   private def buildChar(fontState: FontBuilderState, charState: CharBuilderState): FigletResult[FIGcharacter] =
     fontState
@@ -112,20 +139,6 @@ final object FIGfont {
         FIGcharacter(fontState.hash, _, charState.name, charState.lines, charState.comment, charState.position),
       )
       .get
-
-  /**
-   * Processes a line calling the appropriate action based on the current state
-   */
-  private def processLine(state: FontBuilderState, line: String, index: Int): FigletResult[FontBuilderState] = {
-    if (index == 0)
-      buildHeader(state, line)
-    else if (index <= state.header.get.commentLines)
-      buildComment(state, line)
-    else if (!state.processTaggedFonts)
-      buildCharacter(state, line, index)
-    else
-      buildTaggedCharacter(state, line, index)
-  }
 
   /**
    * Parses the FLF header

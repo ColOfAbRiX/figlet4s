@@ -29,7 +29,7 @@ final object FIGcharacter {
       comment: Option[String],
       position: Int,
   ): FigletResult[FIGcharacter] = {
-    val nameV       = if (name.toInt != -1) name.validNec else FIGcharacterError(s"Name '-1' is illegal").invalidNec
+    val nameV       = if (name != '\uffff') name.validNec else FIGcharacterError(s"Name '-1' is illegal").invalidNec
     val endmarkV    = validateEndmark(name, position, lines)
     val cleanLinesV = endmarkV andThen cleanLines(lines)
     val widthV      = cleanLinesV andThen validateWidth(name, header.maxLength, position)
@@ -51,8 +51,8 @@ final object FIGcharacter {
       .filter(_ => allEndmarks.size == 1)
       .toValidNec(
         FIGcharacterError(
-          s"""|Multiple endmarks found for character '$name' defined at line ${position + 1}, only one character allowed:
-              |${allEndmarks.toString}""".stripMargin,
+          s"Multiple endmarks found for character '$name' defined at line ${position + 1}, only one endmark " +
+          s"character is allowed: ${allEndmarks.toString}",
         ),
       )
   }
@@ -75,7 +75,7 @@ final object FIGcharacter {
       .filter(_ => allLinesWidth.size == 1)
       .toValidNec(
         FIGcharacterError(
-          s"""Lines for character '$name' defined at line ${position + 1} are of different width: ${cleanLines.toString}""",
+          s"Lines for character '$name' defined at line ${position + 1} are of different width: ${cleanLines.toString}",
         ),
       )
       .andThen { width =>
