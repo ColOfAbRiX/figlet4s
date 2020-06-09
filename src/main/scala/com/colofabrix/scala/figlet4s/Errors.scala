@@ -5,6 +5,9 @@ package com.colofabrix.scala.figlet4s
  */
 sealed trait FigletError extends Throwable
 
+/** An error when loading from files */
+final case class FigletLoadingError(inner: Throwable) extends FigletError
+
 /**
  * Errors for FIGLet Files
  */

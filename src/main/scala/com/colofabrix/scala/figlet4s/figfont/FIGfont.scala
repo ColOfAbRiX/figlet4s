@@ -77,7 +77,7 @@ final object FIGfont {
   /**
    * Processes a line calling the appropriate action based on the current state
    */
-  private def processLine(state: FontBuilderState, line: String, index: Int): FigletResult[FontBuilderState] = {
+  private def processLine(state: FontBuilderState, line: String, index: Int): FigletResult[FontBuilderState] =
     if (index == 0)
       buildHeader(state, line)
     else if (index <= state.header.get.commentLines)
@@ -86,7 +86,6 @@ final object FIGfont {
       buildCharacter(state, line, index)
     else
       buildTaggedCharacter(state, line, index)
-  }
 
   /**
    * Build the FIGfont by parsing the font builder state
