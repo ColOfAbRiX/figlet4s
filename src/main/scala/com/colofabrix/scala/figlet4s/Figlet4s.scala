@@ -13,7 +13,7 @@ object Figlet4s {
   /**
    * The list of available internal fonts
    */
-  lazy val availableFonts: Vector[String] = {
+  lazy val internalFonts: Vector[String] = {
     import java.util.zip.ZipInputStream
 
     // Opening the JAR to look at resources
@@ -32,9 +32,10 @@ object Figlet4s {
   /**
    * Loads a string as a FIGure given a font name
    */
-  def renderString(text: String, fontName: String = "standard"): FigletResult[FIGure] =
+  def renderString(text: String, fontName: String = "standard"): FIGure =
     loadFontInternal(fontName)
       .map(renderString(text, _))
+      .fold(e => throw e.head, identity)
 
   /**
    * Loads a string as a FIGure given a FIGfont
@@ -43,7 +44,7 @@ object Figlet4s {
     FullWidthRenderer(font).render(text)
 
   /**
-   * Loads one of the internal fonts
+   * Loads one of the internal FIGfont
    */
   def loadFontInternal(fontName: String = "standard"): FigletResult[FIGfont] = {
     val decoder = Codec("ISO8859_1")
@@ -61,7 +62,7 @@ object Figlet4s {
   /**
    * Load a FIGfont from file
    */
-  def loadFont(fontPath: String = "standard", fontEncoding: String = "ISO8859_1"): FigletResult[FIGfont] = {
+  def loadFont(fontPath: String, fontEncoding: String = "ISO8859_1"): FigletResult[FIGfont] = {
     val decoder = Codec(fontEncoding)
       .decoder
       .onMalformedInput(java.nio.charset.CodingErrorAction.REPORT)

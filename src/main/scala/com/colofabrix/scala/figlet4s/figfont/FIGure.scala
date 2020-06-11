@@ -1,5 +1,7 @@
 package com.colofabrix.scala.figlet4s.figfont
 
+import cats.data.Nested
+import cats.implicits._
 import com.colofabrix.scala.figlet4s.figfont.FIGure._
 
 /**
@@ -9,7 +11,21 @@ final case class FIGure private[figlet4s] (
     font: FIGfont,
     value: String,
     lines: Vector[FIGline],
-)
+) {
+
+  /**
+   * The width of the FIGure
+   */
+  val width: Int = lines.head.head.size
+
+  /**
+   * Lines stripped of their hardblanks
+   */
+  val cleanLines: Vector[FIGline] =
+    Nested(lines)
+      .map(_.replace(font.header.hardblank.toString, ""))
+      .value
+}
 
 object FIGure {
   type FIGline = Vector[String]
