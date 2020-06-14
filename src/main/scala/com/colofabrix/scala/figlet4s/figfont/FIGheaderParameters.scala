@@ -6,13 +6,13 @@ import com.colofabrix.scala.figlet4s.Utils._
 /**
  * Parameters and configuration settings used by FIGheaders
  */
-object FIGheaderParameters {
+private[figfont] object FIGheaderParameters {
   /**
    * Print direction parameter
    */
   sealed abstract class PrintDirection(val value: Int) extends IntEnumEntry
 
-  private[figfont] object PrintDirection extends IntEnum[PrintDirection] {
+  object PrintDirection extends IntEnum[PrintDirection] {
     /** Print direction left-to-right */
     final case object LeftToRight extends PrintDirection(value = 0)
     /** Print direction right-to-left */
@@ -31,7 +31,7 @@ object FIGheaderParameters {
    */
   sealed abstract class FullLayout(val value: Int) extends IntEnumEntry
 
-  private[figfont] object FullLayout extends IntEnum[FullLayout] {
+  object FullLayout extends IntEnum[FullLayout] {
 
     final case object EqualCharacterHorizontalSmushing  extends FullLayout(value = 1)
     final case object UnderscoreHorizontalSmushing      extends FullLayout(value = 2)
@@ -90,7 +90,7 @@ object FIGheaderParameters {
    */
   sealed abstract class OldLayout(val value: Int) extends IntEnumEntry
 
-  private[figfont] object OldLayout extends IntEnum[OldLayout] {
+  object OldLayout extends IntEnum[OldLayout] {
 
     final case object OldFullWidthLayout                  extends OldLayout(value = -1)
     final case object OldHorizontalFittingLayout          extends OldLayout(value = 0)

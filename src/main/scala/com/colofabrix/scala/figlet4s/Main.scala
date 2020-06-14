@@ -5,4 +5,5 @@ package com.colofabrix.scala.figlet4s
  */
 object Main extends App {
   Figlet4s.renderString("Fabrizio & Claire").print()
+  // Figlet4s.renderString("Fa").print()
 }

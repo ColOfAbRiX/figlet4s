@@ -12,23 +12,43 @@ final case class FIGure private[figlet4s] (
     value: String,
     lines: Vector[FIGline],
 ) {
-
   /**
    * The width of the FIGure
    */
   val width: Int = lines.head.head.size
+
+  // /**
+  //  * Returns a FIGline as a list of columns
+  //  */
+  // def columns(line: Int): FIGcolumn =
+  //   lines(line)
+  //     .toVector
+  //     .transpose
+  //     .map(_.mkString)
+
+  /**
+   * Cached access to the last line of the FIGure
+   */
+  lazy val lastLine: FIGline = lines.last
+
+  // /**
+  //  * Cached access to last line of the FIGure as columns
+  //  */
+  // lazy val lastLineColumns: FIGcolumn =
+  //   columns(0)
 
   /**
    * Lines stripped of their hardblanks
    */
   val cleanLines: Vector[FIGline] =
     Nested(lines)
-      .map(_.replace(font.header.hardblank.toString, ""))
+      .map(_.replace(font.header.hardblank.toString, " "))
       .value
 }
 
 object FIGure {
-  type FIGline = Vector[String]
+  type FIGline   = Vector[String]
+  type FIGcolumn = Vector[String]
 
   def apply(font: FIGfont): FIGure =
     FIGure(font.zero, font)

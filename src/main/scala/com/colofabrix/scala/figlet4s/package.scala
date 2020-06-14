@@ -13,14 +13,17 @@ package object figlet4s {
   implicit class FIGureOps(val figure: FIGure) extends AnyVal {
     import com.colofabrix.scala.figlet4s.figfont.FIGure._
 
-    def print(): Unit =
-      figure.foreachLine(println)
+    def foreachLine[A](f: String => A): Unit =
+      figure.cleanLines.foreach(_.foreach(f))
 
     def foreachFIGline[A](f: FIGline => A): Unit =
       figure.cleanLines.foreach(f)
 
-    def foreachLine[A](f: String => A): Unit =
-      figure.cleanLines.foreach(_.foreach(f))
+    def print(): Unit =
+      figure.foreachLine(println)
+
+    def build(): String =
+      figure.lines.map(_.mkString("\n")).mkString("\n")
   }
 
 }

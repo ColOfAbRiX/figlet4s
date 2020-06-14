@@ -6,20 +6,13 @@ import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
 /**
  * Renders a String with the specified FIGfont using the Full Width layout
  */
-class FullWidthRenderer(val font: FIGfont, options: RenderOptions)
-    extends HorizontalTextRenderer[FullWidthHorizontalLayout.type] { self =>
-
+final class FullWidthRenderer extends HorizontalTextRenderer[FullWidthHorizontalLayout.type] {
   /**
    * Appends two FIGures using the rule of the current layout
    */
-  protected def append(first: FIGure, second: FIGure): FIGure =
-    Option(appendInline(first, second))
-      .filter(_.width <= options.maxWidth.getOrElse(Int.MaxValue))
-      .getOrElse(appendNewLine(first, second))
-
-  private def appendInline(first: FIGure, second: FIGure): FIGure = {
+  def append(first: FIGure, second: FIGure): FIGure = {
     val appended =
-      (first.lines.last zip second.lines.last)
+      (first.lastLine zip second.lastLine)
         .map { case (f, s) => f + s }
 
     first.copy(
@@ -27,15 +20,12 @@ class FullWidthRenderer(val font: FIGfont, options: RenderOptions)
       value = first.value + second.value,
     )
   }
-
-  private def appendNewLine(first: FIGure, second: FIGure): FIGure =
-    first.copy(
-      lines = first.lines.last +: Vector(second.lines.last),
-      value = first.value + second.value,
-    )
 }
 
 object FullWidthRenderer {
-  def apply(font: FIGfont, options: RenderOptions = RenderOptions()) =
-    new FullWidthRenderer(font, options)
+  def render(text: String, font: FIGfont, options: RenderOptions): FIGure =
+    new FullWidthRenderer().render(text, font, options)
+
+  def render(text: String, font: FIGfont): FIGure =
+    new FullWidthRenderer().render(text, font)
 }
