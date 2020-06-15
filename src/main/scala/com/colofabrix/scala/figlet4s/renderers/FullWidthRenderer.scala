@@ -1,4 +1,4 @@
-package com.colofabrix.scala.figlet4s.renderes
+package com.colofabrix.scala.figlet4s.renderers
 
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._

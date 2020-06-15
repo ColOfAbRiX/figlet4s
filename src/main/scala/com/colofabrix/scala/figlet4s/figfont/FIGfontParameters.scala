@@ -7,7 +7,8 @@ import com.colofabrix.scala.figlet4s.figfont.FIGheaderParameters.OldLayout._
 import com.colofabrix.scala.figlet4s.figfont.FIGheaderParameters.FullLayout._
 
 /**
- * Parameters and configuration settings used by FIGfonts
+ * Parameters and configuration settings used by FIGfonts.
+ * It is a Scala-friendly mapping of the FIGheaderParameters
  */
 object FIGfontParameters {
   /**
@@ -100,7 +101,6 @@ object FIGfontParameters {
         }
         .getOrElse(Vector.empty)
         .validNec
-
   }
 
   /** Apply "equal" character horizontal smushing */
@@ -130,7 +130,7 @@ object FIGfontParameters {
     /**
      * Interprets the header settings and returns the selected Vertical Layout
      */
-    def fromHeader(header: FIGheader): FigletResult[VerticalLayout] = {
+    def fromHeader(header: FIGheader): FigletResult[VerticalLayout] =
       header
         .fullLayout
         .map { settings =>
@@ -147,7 +147,6 @@ object FIGfontParameters {
         }
         .getOrElse(FullHeightVerticalLayout.validNec)
     }
-  }
 
   /** Use full height vertical layout */
   final case object FullHeightVerticalLayout extends VerticalLayout
