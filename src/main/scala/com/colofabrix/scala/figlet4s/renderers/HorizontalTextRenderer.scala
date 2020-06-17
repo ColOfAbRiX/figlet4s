@@ -19,15 +19,15 @@ trait HorizontalTextRenderer[A <: HorizontalLayout] {
    */
   def render(text: String, font: FIGfont, options: RenderOptions): FIGure =
     text
+      .map(FIGure(_, font))
       .foldLeft(empty(font)) {
         case (accumulator, current) =>
-          val figChar = FIGure(current, font)
-          Option(append(accumulator, figChar))
+          Option(append(accumulator, current))
             .filter(_.width <= options.maxWidth.getOrElse(Int.MaxValue))
             .getOrElse {
               accumulator.copy(
-                lines = accumulator.lastLine +: Vector(figChar.lastLine),
-                value = accumulator.value + figChar.value,
+                lines = accumulator.lastLine +: Vector(current.lastLine),
+                value = accumulator.value + current.value,
               )
             }
       }

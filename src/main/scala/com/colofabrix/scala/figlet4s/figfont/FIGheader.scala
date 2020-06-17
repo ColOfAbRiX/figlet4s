@@ -19,7 +19,15 @@ final case class FIGheader private[figlet4s] (
     printDirection: Option[PrintDirection],
     fullLayout: Option[Vector[FullLayout]],
     codetagCount: Option[Int],
-)
+) {
+  override def toString(): String = {
+    val oldLayoutNum      = oldLayout.map(_.value).sum.toString
+    val printDirectionNum = printDirection.map(x => s" ${x.value}").getOrElse("")
+    val fullLayoutNum     = fullLayout.map(x => s" ${x.map(_.value).sum}").getOrElse("")
+    val codetagCountNum   = codetagCount.map(x => s" $x").getOrElse("")
+    s"$signature$hardblank $height $baseline $maxLength $oldLayoutNum $commentLines $printDirectionNum $fullLayoutNum $codetagCountNum"
+  }
+}
 
 final object FIGheader {
   private val SIGNATURE_INDEX: Int      = 0

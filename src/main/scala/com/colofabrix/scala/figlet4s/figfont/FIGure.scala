@@ -32,7 +32,7 @@ final case class FIGure private[figlet4s] (
 }
 
 object FIGure {
-  type FIGline   = Vector[String]
+  type FIGline = Vector[String]
 
   def apply(font: FIGfont): FIGure =
     FIGure(font.zero, font)

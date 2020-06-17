@@ -61,6 +61,31 @@ final object FIGfont {
   )
 
   /**
+   * Creates a new FIGfont with the given parameters
+   */
+  def apply(
+      name: String,
+      header: FIGheader,
+      comment: String,
+      chars: Vector[FIGcharacter],
+  ): FigletResult[FIGfont] = {
+    val hash = (name + header.toString + comment + chars.mkString).md5
+
+    val hLayoutV = HorizontalLayout.fromHeader(header)
+    val vLayoutV = VerticalLayout.fromHeader(header)
+    val charsV = validatedRequiredChars(chars)
+      .map {
+        _.map(_.copy(fontId = hash))
+          .map(char => char.name -> char)
+          .toMap
+      }
+
+    (hLayoutV, vLayoutV, charsV).mapN {
+      FIGfont(hash, name, header, comment, _, _, _)
+    }
+  }
+
+  /**
    * Creates a new FIGfont by parsing an input vector of lines representing an FLF file
    */
   def apply(name: String, lines: Iterable[String]): FigletResult[FIGfont] =
@@ -95,11 +120,6 @@ final object FIGfont {
       // Check we didn't stop in the middle of a character
       FIGcharacterError("Incomplete character definition").invalidNec
 
-    } else if ((requiredChars.toSet diff fontState.loadedNames).size != 0) {
-      // Check we loaded all required characters
-      val missing = requiredChars.toSet diff fontState.loadedNames mkString (", ")
-      FIGcharacterError(s"Missing definition for required FIGlet characters: $missing").invalidNec
-
     } else {
       val header   = fontState.header.get
       val nameV    = fontState.name.validNec
@@ -111,6 +131,7 @@ final object FIGfont {
       val charsV = fontState
         .loadedChars
         .traverse(buildChar(fontState, _))
+        .andThen(validatedRequiredChars)
         .andThen { chars =>
           val loadedTaggedCount = chars.size - requiredChars.size
           val codetagCount      = header.codetagCount.getOrElse(loadedTaggedCount)
@@ -128,6 +149,19 @@ final object FIGfont {
       (hashV, nameV, header.validNec, commentV, hLayoutV, vLayoutV, charsV)
         .mapN(FIGfont.apply)
     }
+
+  /**
+   * Check all required characters are present
+   */
+  def validatedRequiredChars(chars: Vector[FIGcharacter]): FigletResult[Vector[FIGcharacter]] = {
+    val loadedCharset = chars.map(_.name).toSet
+    val missing       = requiredChars.toSet diff loadedCharset mkString (", ")
+
+    if (missing.nonEmpty)
+      FIGcharacterError(s"Missing definition for required FIGlet characters: $missing").invalidNec
+    else
+      chars.validNec
+  }
 
   /**
    * Build the FIGfont by parsing the character builder state

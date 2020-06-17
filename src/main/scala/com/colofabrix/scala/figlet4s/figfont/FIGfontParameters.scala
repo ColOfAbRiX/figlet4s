@@ -146,7 +146,7 @@ object FIGfontParameters {
             UniversalVerticalSmushingLayout.validNec
         }
         .getOrElse(FullHeightVerticalLayout.validNec)
-    }
+  }
 
   /** Use full height vertical layout */
   final case object FullHeightVerticalLayout extends VerticalLayout

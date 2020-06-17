@@ -17,6 +17,7 @@ class HorizontalFittingRenderer extends HorizontalTextRenderer[HorizontalFitting
   protected def append(first: FIGure, second: FIGure): FIGure = {
     val zipped = (first.lastLine zip second.lastLine)
 
+    // Find how many total whitespaces can be removed without overlapping
     val trim = zipped
       .foldLeft(Int.MaxValue) {
         case (maxTrim, (fLine, sLine)) =>
@@ -29,6 +30,7 @@ class HorizontalFittingRenderer extends HorizontalTextRenderer[HorizontalFitting
     val rightTrimRE = s" {0,$trim}$$".r
     val leftTrimRE  = List.tabulate(trim + 1)(i => s"^ {0,$i}".r)
 
+    // Remove on each line at most as many whitespaces as allowed
     val appended = zipped
       .map {
         case (fLine, sLine) =>
