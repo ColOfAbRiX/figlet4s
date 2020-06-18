@@ -22,10 +22,12 @@ final case class FIGheader private[figlet4s] (
 ) {
   override def toString(): String = {
     val oldLayoutNum      = oldLayout.map(_.value).sum.toString
-    val printDirectionNum = printDirection.map(x => s" ${x.value}").getOrElse("")
-    val fullLayoutNum     = fullLayout.map(x => s" ${x.map(_.value).sum}").getOrElse("")
-    val codetagCountNum   = codetagCount.map(x => s" $x").getOrElse("")
-    s"$signature$hardblank $height $baseline $maxLength $oldLayoutNum $commentLines $printDirectionNum $fullLayoutNum $codetagCountNum"
+    val printDirectionNum = printDirection.map(x => s" ${x.value.toString}").getOrElse("")
+    val fullLayoutNum     = fullLayout.map(x => s" ${x.map(_.value).sum.toString}").getOrElse("")
+    val codetagCountNum   = codetagCount.map(x => s" ${x.toString}").getOrElse("")
+
+    s"$signature$hardblank ${height.toString} ${baseline.toString} ${maxLength.toString} $oldLayoutNum " +
+    s"${commentLines.toString} $printDirectionNum $fullLayoutNum $codetagCountNum"
   }
 }
 
@@ -71,24 +73,27 @@ final object FIGheader {
 
   private def validateSignature(signature: String): FigletResult[String] =
     Option
-      .when(signature == "flf2a")(signature)
+      .when(signature === "flf2a")(signature)
       .toValidNec(FIGheaderError(s"Wrong FLF signature: $signature"))
 
   private def validateHardblank(hardblank: String): FigletResult[String] =
     Option
-      .when(hardblank.length == 1)(hardblank)
+      .when(hardblank.length === 1)(hardblank)
       .toValidNec(FIGheaderError(s"The hardblank '$hardblank' is not composed of only one character"))
 
+  // TODO: Must be positive
   private def validateHeight(height: String): FigletResult[Int] =
     height
       .toIntOption
       .toValidNec(FIGheaderError(s"Couldn't parse header field 'height': $height"))
 
+  // TODO: Must be positive
   private def validateBaseline(baseline: String): FigletResult[Int] =
     baseline
       .toIntOption
       .toValidNec(FIGheaderError(s"Couldn't parse header field 'baseline': $baseline"))
 
+  // TODO: Must be positive
   private def validateMaxLength(maxlength: String): FigletResult[Int] =
     maxlength
       .toIntOption
@@ -100,6 +105,7 @@ final object FIGheader {
       .map(OldLayout(_))
       .toValidNec(FIGheaderError(s"Couldn't parse header field 'oldLayout': $oldLayout"))
 
+  // TODO: Must be positive
   private def validateCommentLines(commentLines: String): FigletResult[Int] =
     commentLines
       .toIntOption
@@ -110,7 +116,7 @@ final object FIGheader {
       value
         .toIntOption
         .map(PrintDirection(_))
-        .toValidNec(FIGheaderError(s"Couldn't parse header field 'printDirection': $printDirection"))
+        .toValidNec(FIGheaderError(s"Couldn't parse header field 'printDirection': ${printDirection.toString}"))
     }
 
   private def validateFullLayout(fullLayout: Option[String]): FigletResult[Option[Vector[FullLayout]]] =
@@ -118,13 +124,13 @@ final object FIGheader {
       value
         .toIntOption
         .map(FullLayout(_))
-        .toValidNec(FIGheaderError(s"Couldn't parse header field 'fullLayout': $fullLayout"))
+        .toValidNec(FIGheaderError(s"Couldn't parse header field 'fullLayout': ${fullLayout.toString}"))
     }
 
   private def validateCodetagCount(codetagCount: Option[String]): FigletResult[Option[Int]] =
     codetagCount.traverse { value =>
       value
         .toIntOption
-        .toValidNec(FIGheaderError(s"Couldn't parse header field 'codetagCount': $codetagCount"))
+        .toValidNec(FIGheaderError(s"Couldn't parse header field 'codetagCount': ${codetagCount.toString}"))
     }
 }

@@ -16,7 +16,7 @@ final class FullWidthRenderer extends HorizontalTextRenderer[FullWidthHorizontal
         .map { case (f, s) => f + s }
 
     first.copy(
-      lines = first.lines.init ++ Vector(appended),
+      lines = first.lines.dropRight(1) ++ Vector(appended),
       value = first.value + second.value,
     )
   }

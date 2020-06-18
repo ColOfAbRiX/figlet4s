@@ -39,9 +39,10 @@ final case class FIGfont private[figlet4s] (
       .map(_.replace(header.hardblank, " "))
 }
 
+@SuppressWarnings(Array("org.wartremover.warts.OptionPartial", "org.wartremover.warts.TraversableOps"))
 final object FIGfont {
   /** State to build a font that is filled while scanning input lines */
-  private case class FontBuilderState(
+  final private case class FontBuilderState(
       name: String,
       header: Option[FIGheader] = None,
       commentLines: Vector[String] = Vector.empty,
@@ -53,7 +54,8 @@ final object FIGfont {
   )
 
   /** State to build a character that is filled while scanning input lines */
-  private case class CharBuilderState(
+  @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
+  final private case class CharBuilderState(
       name: Char,
       lines: Vector[String],
       comment: Option[String],
@@ -61,7 +63,7 @@ final object FIGfont {
   )
 
   /**
-   * Creates a new FIGfont with the given parameters
+   * Creates a validated FIGfont with the given parameters
    */
   def apply(
       name: String,
@@ -73,12 +75,17 @@ final object FIGfont {
 
     val hLayoutV = HorizontalLayout.fromHeader(header)
     val vLayoutV = VerticalLayout.fromHeader(header)
-    val charsV = validatedRequiredChars(chars)
-      .map {
-        _.map(_.copy(fontId = hash))
-          .map(char => char.name -> char)
-          .toMap
-      }
+    val charsV =
+      chars
+        .validNec
+        .andThen(validatedRequiredChars)
+        .andThen(validatedCharsUniformity)
+        .map { validChars =>
+          validChars
+            .map(_.copy(fontId = hash))
+            .map(char => char.name -> char)
+            .toMap
+        }
 
     (hLayoutV, vLayoutV, charsV).mapN {
       FIGfont(hash, name, header, comment, _, _, _)
@@ -97,13 +104,14 @@ final object FIGfont {
       }
       .andThen(buildFont _)
 
+  /** List of required characters that all FIGfont must define */
   private val requiredChars = ((32 to 126) ++ Seq(196, 214, 220, 228, 246, 252, 223)).map(_.toChar)
 
   /**
    * Processes a line calling the appropriate action based on the current state
    */
   private def processLine(state: FontBuilderState, line: String, index: Int): FigletResult[FontBuilderState] =
-    if (index == 0)
+    if (index === 0)
       buildHeader(state, line)
     else if (index <= state.header.get.commentLines)
       buildComment(state, line)
@@ -116,9 +124,9 @@ final object FIGfont {
    * Build the FIGfont by parsing the font builder state
    */
   private def buildFont(fontState: FontBuilderState): FigletResult[FIGfont] =
-    if (fontState.loadedCharLines.size != 0) {
+    if (fontState.loadedCharLines.size =!= 0) {
       // Check we didn't stop in the middle of a character
-      FIGcharacterError("Incomplete character definition").invalidNec
+      FIGcharacterError("Incomplete character definition at the end of the file").invalidNec
 
     } else {
       val header   = fontState.header.get
@@ -136,12 +144,12 @@ final object FIGfont {
           val loadedTaggedCount = chars.size - requiredChars.size
           val codetagCount      = header.codetagCount.getOrElse(loadedTaggedCount)
 
-          if (loadedTaggedCount == codetagCount)
+          if (loadedTaggedCount === codetagCount)
             chars.validNec
           else
             FIGFontError(
-              s"The number of loaded tagged fonts $loadedTaggedCount doesn't correspond to the value indicated " +
-              s"in the header ${codetagCount}",
+              s"The number of loaded tagged fonts ${loadedTaggedCount.toString} doesn't correspond to the value " +
+              s"indicated in the header ${codetagCount.toString}",
             ).invalidNec
         }
         .map(_.map(c => c.name -> c).toMap)
@@ -153,7 +161,7 @@ final object FIGfont {
   /**
    * Check all required characters are present
    */
-  def validatedRequiredChars(chars: Vector[FIGcharacter]): FigletResult[Vector[FIGcharacter]] = {
+  private def validatedRequiredChars(chars: Vector[FIGcharacter]): FigletResult[Vector[FIGcharacter]] = {
     val loadedCharset = chars.map(_.name).toSet
     val missing       = requiredChars.toSet diff loadedCharset mkString (", ")
 
@@ -162,6 +170,17 @@ final object FIGfont {
     else
       chars.validNec
   }
+
+  /**
+   * Check that the list of FIGcharacter are all uniform
+   */
+  private def validatedCharsUniformity(chars: Vector[FIGcharacter]): FigletResult[Vector[FIGcharacter]] =
+    if (chars.map(_.lines.size).toSeq.length =!= 1)
+      FIGcharacterError(s"All FIGcharacters must have the same number of lines").invalidNec
+    else if (chars.map(_.fontId).toSeq.length =!= 1)
+      FIGcharacterError(s"All FIGcharacters must have the same fontId, even if empty").invalidNec
+    else
+      chars.validNec
 
   /**
    * Build the FIGfont by parsing the character builder state
@@ -255,7 +274,9 @@ final object FIGfont {
     val splitFontTag = tagLine.replaceFirst(" +", "###").split("###").toVector
     Option
       .when(splitFontTag.size > 0)(splitFontTag(0))
-      .toValidNec(FIGcharacterError(s"Missing character code in the tag at line ${tagLineIndex + 1}: $tagLine"))
+      .toValidNec(
+        FIGcharacterError(s"Missing character code in the tag at line ${(tagLineIndex + 1).toString}: $tagLine"),
+      )
       .andThen(parseCharCode(tagLineIndex, _))
   }
 
@@ -282,6 +303,6 @@ final object FIGfont {
     else if (code.matches("^-?0\\d+$"))
       Integer.parseInt(code, 8).toChar.validNec
     else
-      FIGcharacterError(s"Couldn't convert character code '$code' defined at line ${index + 1}").invalidNec
+      FIGcharacterError(s"Couldn't convert character code '$code' defined at line ${(index + 1).toString}").invalidNec
 
 }

@@ -15,11 +15,13 @@ final case class FIGure private[figlet4s] (
   /**
    * The width of the FIGure
    */
+  @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
   val width: Int = lines.head.head.size
 
   /**
    * Cached access to the last line of the FIGure
    */
+  @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
   lazy val lastLine: FIGline = lines.last
 
   /**

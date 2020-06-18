@@ -1,7 +1,9 @@
 package com.colofabrix.scala.figlet4s.figfont
 
+import cats.implicits._
 import enumeratum.values._
 import com.colofabrix.scala.figlet4s.Utils._
+import cats.kernel.Eq
 
 /**
  * Parameters and configuration settings used by FIGheaders
@@ -29,7 +31,7 @@ private[figfont] object FIGheaderParameters {
   /**
    * Full layout parameter
    */
-  sealed abstract class FullLayout(val value: Int) extends IntEnumEntry
+  sealed abstract class FullLayout(val value: Int) extends IntEnumEntry with Product with Serializable
 
   object FullLayout extends IntEnum[FullLayout] {
 
@@ -48,6 +50,8 @@ private[figfont] object FIGheaderParameters {
     final case object VerticalLineVerticalSuperSmushing extends FullLayout(value = 4096)
     final case object UseVerticalFitting                extends FullLayout(value = 8192)
     final case object UseVerticalSmushing               extends FullLayout(value = 16384)
+
+    implicit val oldLayoutEq: Eq[FullLayout] = Eq.fromUniversalEquals
 
     /**
      * Obtains the list of requested setting starting from the Integer provided
@@ -101,20 +105,22 @@ private[figfont] object FIGheaderParameters {
     final case object OldBigXHorizontalSmushing           extends OldLayout(value = 16)
     final case object OldHardblankHorizontalSmushing      extends OldLayout(value = 32)
 
+    implicit val oldLayoutEq: Eq[OldLayout] = Eq.fromUniversalEquals
+
     /**
      * Obtains the list of requested setting starting from the Integer provided
      */
     def apply(requestedSettings: Int): Vector[OldLayout] =
       if (requestedSettings < 0)
         Vector(OldFullWidthLayout)
-      else if (requestedSettings == 0)
+      else if (requestedSettings === 0)
         Vector(OldHorizontalFittingLayout)
       else
         values
           .toVector
-          .filter(_ != OldHorizontalFittingLayout)
+          .filter(_ =!= OldHorizontalFittingLayout)
           .flatMap { setting =>
-            if ((requestedSettings.toBitSet & setting.value.toBitSet) == setting.value.toBitSet) Vector(setting)
+            if ((requestedSettings.toBitSet & setting.value.toBitSet) === setting.value.toBitSet) Vector(setting)
             else Vector()
           }
 

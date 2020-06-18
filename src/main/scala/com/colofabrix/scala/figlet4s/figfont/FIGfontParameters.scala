@@ -43,7 +43,7 @@ object FIGfontParameters {
             FullWidthHorizontalLayout.validNec
           else if (settings.contains(UseHorizontalFitting) && !settings.contains(UseHorizontalSmushing))
             HorizontalFittingLayout.validNec
-          else if (settings.contains(UseHorizontalSmushing) && selectedSmushingRules.size != 0)
+          else if (settings.contains(UseHorizontalSmushing) && selectedSmushingRules.size =!= 0)
             HorizontalSmushingRules.fromHeader(header).map(ControlledHorizontalSmushingLayout(_))
           else
             UniversalHorizontalSmushingLayout.validNec
@@ -140,7 +140,7 @@ object FIGfontParameters {
             FullHeightVerticalLayout.validNec
           else if (settings.contains(UseVerticalFitting) && !settings.contains(UseVerticalSmushing))
             VerticalFittingLayout.validNec
-          else if (settings.contains(UseVerticalSmushing) && selectedSmushingRules.size != 0)
+          else if (settings.contains(UseVerticalSmushing) && selectedSmushingRules.size =!= 0)
             VerticalSmushingRules.fromHeader(header).map(ControlledVerticalSmushingLayout(_))
           else
             UniversalVerticalSmushingLayout.validNec

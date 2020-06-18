@@ -27,8 +27,8 @@ class HorizontalFittingRenderer extends HorizontalTextRenderer[HorizontalFitting
           Math.min(spaces, maxTrim)
       }
 
-    val rightTrimRE = s" {0,$trim}$$".r
-    val leftTrimRE  = List.tabulate(trim + 1)(i => s"^ {0,$i}".r)
+    val rightTrimRE = s" {0,${trim.toString}}$$".r
+    val leftTrimRE  = List.tabulate(trim + 1)(i => s"^ {0,${i.toString}}".r)
 
     // Remove on each line at most as many whitespaces as allowed
     val appended = zipped
@@ -40,7 +40,7 @@ class HorizontalFittingRenderer extends HorizontalTextRenderer[HorizontalFitting
       }
 
     first.copy(
-      lines = first.lines.init ++ Vector(appended),
+      lines = first.lines.dropRight(1) ++ Vector(appended),
       value = first.value + second.value,
     )
   }
