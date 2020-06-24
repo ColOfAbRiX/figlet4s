@@ -10,14 +10,15 @@ import sbt.librarymanagement.ModuleID
  *   https://amirkarimi.me/2017/05/17/how-to-apply-settings-to-multiple-projects-using-sbt-triggered-plugins.html
  */
 object AllProjectsAutoPlugin extends AutoPlugin {
+  import autoImport._
+
   object autoImport {
     val projectPackage      = settingKey[String]("The root package of a project")
     val bundledDependencies = settingKey[Seq[Seq[ModuleID]]]("Declares managed dependencies as collection of bundles.")
   }
-  import autoImport._
 
-  override def trigger: PluginTrigger = AllRequirements
-  override def globalSettings: Seq[Setting[_]] = Seq(
+  override def trigger: PluginTrigger           = AllRequirements
+  override def globalSettings: Seq[Setting[_]]  = Seq(
     projectPackage := (ThisBuild / organization).value,
     bundledDependencies := Seq(),
   )

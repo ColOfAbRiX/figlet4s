@@ -49,7 +49,9 @@ final object FIGheader {
     val splitLine = line.split(" ").toVector
 
     if (splitLine.length < 6 || splitLine.length > 9)
-      FIGheaderError(s"Wrong number of parameters in FLF header. Found ${splitLine.length.toString} parameters").invalidNec
+      FIGheaderError(
+        s"Wrong number of parameters in FLF header. Found ${splitLine.length.toString} parameters",
+      ).invalidNec
     else {
       val (signatureText, hardblankText) = splitLine(SIGNATURE_INDEX).splitAt(5)
 

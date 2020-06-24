@@ -7,7 +7,6 @@ import scala.io._
 /**
  * "FIGlet" stands for "Frank, Ian and Glenn's LETters and this is a pure Scala implementation
  */
-@SuppressWarnings(Array("org.wartremover.warts.Throw"))
 object Figlet4s {
   import java.io.File
 
@@ -33,6 +32,7 @@ object Figlet4s {
   /**
    * Loads a string as a FIGure given a font name
    */
+  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   def renderString(text: String, fontName: String = "standard"): FIGure =
     loadFontInternal(fontName)
       .map(renderString(text, _))
