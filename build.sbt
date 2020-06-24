@@ -43,7 +43,6 @@ lazy val figlet4s: Project = project
         CatsCoreDep,
         CatsKernelDep,
         EnumeratumDep,
-        NewtypeDep,
         PPrintDep,
       ),
   )

@@ -3,6 +3,7 @@ package com.colofabrix.scala.figlet4s.figfont
 import cats.implicits._
 import com.colofabrix.scala.figlet4s._
 import scala.util.matching.Regex
+import _root_.cats.data.Validated
 
 /**
  * A single FIGlet character part of a FIGfont
@@ -30,11 +31,21 @@ final object FIGcharacter {
       comment: Option[String],
       position: Int,
   ): FigletResult[FIGcharacter] = {
+    val maxLengthV  = Validated.condNec(
+      maxLength > 0,
+      maxLength,
+      FIGheaderError(s"Value of 'maxLength' must be positive: ${maxLength.toString}"),
+    )
+    val argHeightV  = Validated.condNec(
+      height > 0,
+      height,
+      FIGheaderError(s"Value of 'height' must be positive: ${height.toString}"),
+    )
     val nameV       = if (name =!= '\uffff') name.validNec else FIGcharacterError(s"Name '-1' is illegal").invalidNec
     val endmarkV    = validateEndmark(name, position, lines)
     val cleanLinesV = endmarkV andThen cleanLines(lines)
-    val widthV      = cleanLinesV andThen validateWidth(name, maxLength, position)
-    val heightV     = cleanLinesV andThen validateHeight(name, position, height)
+    val widthV      = maxLengthV.andThen { cleanLinesV andThen validateWidth(name, _, position) }
+    val heightV     = argHeightV.andThen { cleanLinesV andThen validateHeight(name, position, _) }
 
     heightV andThen { _ =>
       (fontId.validNec, nameV, cleanLinesV, endmarkV, widthV, comment.validNec, position.validNec)

@@ -4,6 +4,7 @@ import cats.data.Validated._
 import cats.implicits._
 import com.colofabrix.scala.figlet4s._
 import com.colofabrix.scala.figlet4s.figfont.FIGheaderParameters._
+import _root_.cats.data.Validated
 
 /**
  * FIGLettering Font file header that contains raw configuration settings for the FIGfont
@@ -83,23 +84,29 @@ final object FIGheader {
       .when(hardblank.length === 1)(hardblank)
       .toValidNec(FIGheaderError(s"The hardblank '$hardblank' is not composed of only one character"))
 
-  // TODO: Must be positive
   private def validateHeight(height: String): FigletResult[Int] =
     height
       .toIntOption
       .toValidNec(FIGheaderError(s"Couldn't parse header field 'height': $height"))
+      .andThen { value =>
+        Validated.condNec(value > 0, value, FIGheaderError(s"Field 'height' must be positive: $height"))
+      }
 
-  // TODO: Must be positive
   private def validateBaseline(baseline: String): FigletResult[Int] =
     baseline
       .toIntOption
       .toValidNec(FIGheaderError(s"Couldn't parse header field 'baseline': $baseline"))
+      .andThen { value =>
+        Validated.condNec(value > 0, value, FIGheaderError(s"Field 'baseline' must be positive: $baseline"))
+      }
 
-  // TODO: Must be positive
-  private def validateMaxLength(maxlength: String): FigletResult[Int] =
-    maxlength
+  private def validateMaxLength(maxLength: String): FigletResult[Int] =
+    maxLength
       .toIntOption
-      .toValidNec(FIGheaderError(s"Couldn't parse header field 'maxLength': $maxlength"))
+      .toValidNec(FIGheaderError(s"Couldn't parse header field 'maxLength': $maxLength"))
+      .andThen { value =>
+        Validated.condNec(value > 0, value, FIGheaderError(s"Field 'maxLength' must be positive: $maxLength"))
+      }
 
   private def validateOldLayout(oldLayout: String): FigletResult[Vector[OldLayout]] =
     oldLayout
@@ -107,11 +114,13 @@ final object FIGheader {
       .map(OldLayout(_))
       .toValidNec(FIGheaderError(s"Couldn't parse header field 'oldLayout': $oldLayout"))
 
-  // TODO: Must be positive
   private def validateCommentLines(commentLines: String): FigletResult[Int] =
     commentLines
       .toIntOption
       .toValidNec(FIGheaderError(s"Couldn't parse header field 'commentLines': $commentLines"))
+      .andThen { value =>
+        Validated.condNec(value > 0, value, FIGheaderError(s"Field 'commentLines' must be positive: $commentLines"))
+      }
 
   private def validatePrintDirection(printDirection: Option[String]): FigletResult[Option[PrintDirection]] =
     printDirection.traverse { value =>
