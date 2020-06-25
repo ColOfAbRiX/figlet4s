@@ -28,7 +28,7 @@ final case class FIGfont private[figlet4s] (
    * The empty character
    */
   val zero: FIGcharacter =
-    FIGcharacter(id, 0.toChar, Vector.fill(header.height)(""), '@', 0, None, -1)
+    FIGcharacter(id, 0.toChar, SubLines.zero(header.height), '@', 0, None, -1)
 
   /**
    * Processes a character to a representable format
@@ -36,7 +36,8 @@ final case class FIGfont private[figlet4s] (
   def process(char: Char): Vector[String] =
     this(char)
       .lines
-      .map(_.replace(header.hardblank, " "))
+      .replace(header.hardblank, " ")
+      .value
 }
 
 @SuppressWarnings(Array("org.wartremover.warts.OptionPartial", "org.wartremover.warts.TraversableOps"))
@@ -175,7 +176,7 @@ final object FIGfont {
    * Check that the list of FIGcharacter are all uniform
    */
   private def validatedCharsUniformity(chars: Vector[FIGcharacter]): FigletResult[Vector[FIGcharacter]] =
-    if (chars.map(_.lines.size).toSeq.length =!= 1)
+    if (chars.map(_.lines.length).toSeq.length =!= 1)
       FIGcharacterError(s"All FIGcharacters must have the same number of lines").invalidNec
     else if (chars.map(_.fontId).toSeq.length =!= 1)
       FIGcharacterError(s"All FIGcharacters must have the same fontId, even if empty").invalidNec
@@ -188,7 +189,7 @@ final object FIGfont {
   private def buildChar(fontState: FontBuilderState, charState: CharBuilderState): FigletResult[FIGcharacter] =
     fontState
       .header.map(
-        FIGcharacter(fontState.hash, _, charState.name, charState.lines, charState.comment, charState.position),
+        FIGcharacter(fontState.hash, _, charState.name, SubLines(charState.lines), charState.comment, charState.position),
       )
       .get
 

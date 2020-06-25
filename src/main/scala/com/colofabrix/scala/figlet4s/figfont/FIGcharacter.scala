@@ -1,9 +1,9 @@
 package com.colofabrix.scala.figlet4s.figfont
 
+import cats.data.Validated
 import cats.implicits._
 import com.colofabrix.scala.figlet4s._
 import scala.util.matching.Regex
-import _root_.cats.data.Validated
 
 /**
  * A single FIGlet character part of a FIGfont
@@ -11,12 +11,14 @@ import _root_.cats.data.Validated
 final case class FIGcharacter private[figlet4s] (
     fontId: String,
     name: Char,
-    lines: Vector[String],
+    lines: SubLines,
     endmark: Char,
     width: Int,
     comment: Option[String],
     position: Int,
-)
+) {
+  lazy val columns: SubColumns = lines.toSubcolumns
+}
 
 final object FIGcharacter {
   /**
@@ -27,7 +29,7 @@ final object FIGcharacter {
       maxLength: Int,
       height: Int,
       name: Char,
-      lines: Vector[String],
+      lines: SubLines,
       comment: Option[String],
       position: Int,
   ): FigletResult[FIGcharacter] = {
@@ -60,7 +62,7 @@ final object FIGcharacter {
       fontId: String,
       header: FIGheader,
       name: Char,
-      lines: Vector[String],
+      lines: SubLines,
       comment: Option[String],
       position: Int,
   ): FigletResult[FIGcharacter] =
@@ -69,8 +71,8 @@ final object FIGcharacter {
   /**
    * Validates all lines endmarks
    */
-  private def validateEndmark(name: Char, position: Int, lines: Vector[String]): FigletResult[Char] = {
-    val allEndmarks = lines.map(_.last).toSet
+  private def validateEndmark(name: Char, position: Int, lines: SubLines): FigletResult[Char] = {
+    val allEndmarks = lines.value.map(_.last).toSet
     allEndmarks
       .headOption
       .filter(_ => allEndmarks.size === 1)
@@ -85,7 +87,7 @@ final object FIGcharacter {
   /**
    * Removes the endmarks from the lines of the character
    */
-  private def cleanLines(lines: Vector[String])(endmark: Char): FigletResult[Vector[String]] = {
+  private def cleanLines(lines: SubLines)(endmark: Char): FigletResult[SubLines] = {
     val find = Regex.quote(endmark.toString) + "{1,2}$"
     lines.map(_.replaceAll(find, "")).validNec
   }
@@ -93,10 +95,8 @@ final object FIGcharacter {
   /**
    * Validates the width of each line
    */
-  private def validateWidth(name: Char, maxLength: Int, position: Int)(
-      cleanLines: Vector[String],
-  ): FigletResult[Int] = {
-    val allLinesWidth = cleanLines.map(_.length).toSet
+  private def validateWidth(name: Char, maxLength: Int, position: Int)(cleanLines: SubLines): FigletResult[Int] = {
+    val allLinesWidth = cleanLines.value.map(_.length).toSet
     if (maxLength <= 0)
       FIGcharacterError(s"The argument 'maxLength' must be greater than zero: ${maxLength.toString}").invalidNec
     else
@@ -118,10 +118,10 @@ final object FIGcharacter {
   /**
    * Validates the height of each line
    */
-  private def validateHeight(name: Char, position: Int, height: Int)(cleanLines: Vector[String]): FigletResult[Int] =
+  private def validateHeight(name: Char, position: Int, height: Int)(cleanLines: SubLines): FigletResult[Int] =
     if (height <= 0)
       FIGcharacterError(s"The argument 'height' must be greater than zero: ${height.toString}").invalidNec
-    else if (cleanLines.size === height)
+    else if (cleanLines.value.size === height)
       height.validNec[FigletError]
     else
       FIGcharacterError(

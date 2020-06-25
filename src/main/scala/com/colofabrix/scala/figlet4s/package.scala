@@ -16,14 +16,11 @@ package object figlet4s {
     def foreachLine[A](f: String => A): Unit =
       figure.cleanLines.foreach(_.foreach(f))
 
-    def foreachFIGline[A](f: FIGline => A): Unit =
-      figure.cleanLines.foreach(f)
-
     def print(): Unit =
       figure.foreachLine(println)
 
     def build(): String =
-      figure.lines.map(_.mkString("\n")).mkString("\n")
+      figure.lines.map(_.value.mkString("\n")).mkString("\n")
   }
 
 }

@@ -15,7 +15,7 @@ class HorizontalFittingRenderer extends HorizontalTextRenderer[HorizontalFitting
    * Appends two FIGures using the rule of the current layout
    */
   protected def append(first: FIGure, second: FIGure): FIGure = {
-    val zipped = (first.lastLine zip second.lastLine)
+    val zipped = (first.lastLine.value zip second.lastLine.value)
 
     // Find how many total whitespaces can be removed without overlapping
     val trim = zipped
@@ -40,7 +40,7 @@ class HorizontalFittingRenderer extends HorizontalTextRenderer[HorizontalFitting
       }
 
     first.copy(
-      lines = first.lines.dropRight(1) ++ Vector(appended),
+      lines = first.lines.dropRight(1) ++ Vector(SubLines(appended)),
       value = first.value + second.value,
     )
   }

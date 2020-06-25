@@ -10,32 +10,29 @@ import com.colofabrix.scala.figlet4s.figfont.FIGure._
 final case class FIGure private[figlet4s] (
     font: FIGfont,
     value: String,
-    lines: Vector[FIGline],
+    lines: Vector[SubLines],
 ) {
   /**
    * The width of the FIGure
    */
   @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
-  val width: Int = lines.head.head.size
+  val width: Int = lines.head.value.head.size
 
   /**
    * Cached access to the last line of the FIGure
    */
   @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
-  lazy val lastLine: FIGline = lines.last
+  lazy val lastLine: SubLines = lines.last
 
   /**
    * Lines stripped of their hardblanks
    */
-  val cleanLines: Vector[FIGline] =
-    Nested(lines)
+  val cleanLines: Vector[SubLines] =
+    lines
       .map(_.replace(font.header.hardblank.toString, " "))
-      .value
 }
 
 object FIGure {
-  type FIGline = Vector[String]
-
   def apply(font: FIGfont): FIGure =
     FIGure(font.zero, font)
 
