@@ -27,7 +27,7 @@ final case class FIGfont private[figlet4s] (
   /**
    * The empty character
    */
-  val zero: FIGcharacter =
+  lazy val zero: FIGcharacter =
     FIGcharacter(id, 0.toChar, SubLines.zero(header.height), '@', 0, None, -1)
 
   /**

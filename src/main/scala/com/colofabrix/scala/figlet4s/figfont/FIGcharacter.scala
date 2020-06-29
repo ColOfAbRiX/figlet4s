@@ -6,7 +6,7 @@ import com.colofabrix.scala.figlet4s._
 import scala.util.matching.Regex
 
 /**
- * A single FIGlet character part of a FIGfont
+ * The definition of a single FIGlet character, part of a FIGfont, composed of SubLines
  */
 final case class FIGcharacter private[figlet4s] (
     fontId: String,
@@ -18,6 +18,9 @@ final case class FIGcharacter private[figlet4s] (
     position: Int,
 ) {
   lazy val columns: SubColumns = lines.toSubcolumns
+
+  override def toString(): String =
+    lines.value.mkString("\n")
 }
 
 final object FIGcharacter {

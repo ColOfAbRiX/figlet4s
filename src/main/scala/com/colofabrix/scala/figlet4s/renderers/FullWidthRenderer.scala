@@ -11,14 +11,8 @@ final class FullWidthRenderer extends HorizontalTextRenderer[FullWidthHorizontal
    * Appends two FIGures using the rule of the current layout
    */
   def append(first: FIGure, second: FIGure): FIGure = {
-    val appended =
-      (first.lastLine.value zip second.lastLine.value)
-        .map { case (f, s) => f + s }
-
-    first.copy(
-      lines = first.lines.dropRight(1) ++ Vector(SubLines(appended)),
-      value = first.value + second.value,
-    )
+    val appended = first.zipLinesWith(second)(_ + _)
+    first.replace(second.value, appended)
   }
 }
 

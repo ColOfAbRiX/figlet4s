@@ -24,12 +24,7 @@ trait HorizontalTextRenderer[A <: HorizontalLayout] {
         case (accumulator, current) =>
           Option(append(accumulator, current))
             .filter(_.width <= options.maxWidth.getOrElse(Int.MaxValue))
-            .getOrElse {
-              accumulator.copy(
-                lines = accumulator.lastLine +: Vector(current.lastLine),
-                value = accumulator.value + current.value,
-              )
-            }
+            .getOrElse(accumulator.append(current))
       }
 
   /**
