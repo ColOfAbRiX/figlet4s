@@ -3,47 +3,57 @@ package com.colofabrix.scala.figlet4s.renderers
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
 import scala.util.matching.Regex
+import scala.annotation.tailrec
 
 /**
  * Renders a String with the specified FIGfont using the Full Width layout
  */
 class HorizontalFittingRenderer extends HorizontalTextRenderer[HorizontalFittingLayout.type] {
-  private val fullRightTrimRE: Regex = " +$".r
-  private val fullLeftTrimRE: Regex  = "^ +".r
-
   /**
    * Appends two FIGures using the rule of the current layout
    */
   protected def append(first: FIGure, second: FIGure): FIGure = {
-    val zipped = (first.lastLine.value zip second.lastLine.value)
-
-    // Find how many total whitespaces can be removed without overlapping
-    val trim = zipped
-      .foldLeft(Int.MaxValue) {
-        case (maxTrim, (fLine, sLine)) =>
-          val fSpaces = fLine.length - fullRightTrimRE.replaceAllIn(fLine, "").length
-          val sSpaces = sLine.length - fullLeftTrimRE.replaceAllIn(sLine, "").length
-          val spaces  = fSpaces + sSpaces
-          Math.min(spaces, maxTrim)
-      }
-
-    val rightTrimRE = s" {0,${trim.toString}}$$".r
-    val leftTrimRE  = List.tabulate(trim + 1)(i => s"^ {0,${i.toString}}".r)
-
-    // Remove on each line at most as many whitespaces as allowed
-    val appended = zipped
-      .map {
-        case (fLine, sLine) =>
-          val fTrimmed = rightTrimRE.replaceAllIn(fLine, "")
-          val sTrim    = trim - (fLine.length - fTrimmed.length)
-          fTrimmed + leftTrimRE(sTrim).replaceAllIn(sLine, "")
-      }
-
-    first.copy(
-      lines = first.lines.dropRight(1) ++ Vector(SubLines(appended)),
-      value = first.value + second.value,
-    )
+    val result = append(first.lastColumns.value, second.lastColumns.value, Vector.empty[String])
+    first.replace(second.copy(lines = Vector(SubColumns(result).toSublines)))
   }
+
+  @tailrec
+  private def append(first: Vector[String], second: Vector[String], result: Vector[String]): Vector[String] = {
+    if (first.isEmpty)
+      result ++ second
+    else if (second.isEmpty)
+      first ++ result
+    else {
+      val ((initFirst, Vector(lastFirst)), (Vector(headSecond), tailSecond)) =
+        (first.splitAt(first.length - 1), second.splitAt(1))
+
+      val columnMerge = mergeColumns(MergeColumn(initFirst, lastFirst, headSecond, tailSecond))
+      val nextResult  = Vector(columnMerge.resultFirst, result, columnMerge.resultSecond).flatten
+
+      append(columnMerge.unprocessedFirst, columnMerge.unprocessedSecond, nextResult)
+    }
+  }
+
+  private case class MergeColumn(
+      unprocessedFirst: Vector[String],
+      lastColumnFirst: String,
+      firstColumnSecond: String,
+      unprocessedSecond: Vector[String],
+  )
+
+  private case class MergeResult(
+      unprocessedFirst: Vector[String],
+      unprocessedSecond: Vector[String],
+      resultFirst: Vector[String],
+      resultSecond: Vector[String],
+  )
+
+  private def mergeColumns(data: MergeColumn) = MergeResult(
+    data.unprocessedFirst,
+    data.unprocessedSecond,
+    if (data.lastColumnFirst.trim.nonEmpty) Vector(data.lastColumnFirst) else Vector.empty,
+    if (data.firstColumnSecond.trim.nonEmpty) Vector(data.firstColumnSecond) else Vector.empty,
+  )
 }
 
 object HorizontalFittingRenderer {

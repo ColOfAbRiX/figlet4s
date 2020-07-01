@@ -3,6 +3,7 @@ package com.colofabrix.scala.figlet4s.figfont
 import cats.data.Nested
 import cats.implicits._
 import com.colofabrix.scala.figlet4s.figfont.FIGure._
+import cats.data.State
 
 /**
  * A FIGure that is a rendered String with a specific FIGfont and built built from multiple FIGcharacters
@@ -27,7 +28,13 @@ final case class FIGure private[figlet4s] (
    * Cached access to the last line of the FIGure as SubLines
    */
   @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
-  lazy val lastLine: SubLines = lines.last
+  lazy val lastLines: SubLines = lines.last
+
+  /**
+   * Cached access to the last line of the FIGure as SubColumns
+   */
+  @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
+  lazy val lastColumns: SubColumns = columns.last
 
   /**
    * Lines stripped of their hardblanks
@@ -36,27 +43,25 @@ final case class FIGure private[figlet4s] (
     lines
       .map(_.replace(font.header.hardblank.toString, " "))
 
-  /**
-   * Appends the last line of "that" FIGure to the last line of this FIGure
-   */
-  def append(that: FIGure): FIGure =
+  private[figlet4s] def append(that: FIGure): FIGure =
     this.copy(
       value = this.value + that.value,
-      lines = this.lastLine +: Vector(that.lastLine),
+      lines = this.lines :+ that.lastLines,
     )
 
-  /**
-   * Replace the last line of this FIGure with the last line of "that" FIGure
-   */
-  def replace(value: String, line: SubLines): FIGure =
+  private[figlet4s] def replace(that: FIGure): FIGure =
     this.copy(
-      lines = this.lines.dropRight(1) ++ Vector(line),
-      value = this.value + value,
+      value = this.value + that.value,
+      lines = this.lines.dropRight(1) :+ that.lastLines,
     )
 
-  def zipLinesWith(that: FIGure)(f: (String, String) => String): SubLines = {
-    val processed = (this.lastLine.value zip that.lastLine.value).map(f.tupled)
-    SubLines(processed)
+  def appendMappedLines(that: FIGure)(f: (String, String) => String): FIGure = {
+    val zipped    = this.lastLines.value zip that.lastLines.value
+    val processed = zipped.map(f.tupled)
+    this.copy(
+      value = this.value + value,
+      lines = this.lines.dropRight(1) ++ Vector(SubLines(processed)),
+    )
   }
 }
 

@@ -37,6 +37,7 @@ object Main extends App {
 * Support for vertical layout
 * Support for control files `*.flc`
 * Support for zipped fonts
+* Test and improve speed and memory performance
 
 ## License
 

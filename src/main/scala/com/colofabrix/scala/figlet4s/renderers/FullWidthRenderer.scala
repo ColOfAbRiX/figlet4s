@@ -7,13 +7,13 @@ import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
  * Renders a String with the specified FIGfont using the Full Width layout
  */
 final class FullWidthRenderer extends HorizontalTextRenderer[FullWidthHorizontalLayout.type] {
+
   /**
    * Appends two FIGures using the rule of the current layout
    */
-  def append(first: FIGure, second: FIGure): FIGure = {
-    val appended = first.zipLinesWith(second)(_ + _)
-    first.replace(second.value, appended)
-  }
+  def append(first: FIGure, second: FIGure): FIGure =
+    first.appendMappedLines(second)(_ + _)
+
 }
 
 object FullWidthRenderer {
