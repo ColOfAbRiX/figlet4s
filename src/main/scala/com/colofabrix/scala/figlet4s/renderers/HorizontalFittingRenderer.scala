@@ -1,9 +1,12 @@
 package com.colofabrix.scala.figlet4s.renderers
 
+import cats.data.Nested
+import cats.implicits._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
-import scala.util.matching.Regex
+import Math._
 import scala.annotation.tailrec
+import scala.util.matching.Regex
 
 /**
  * Renders a String with the specified FIGfont using the Full Width layout
@@ -13,47 +16,46 @@ class HorizontalFittingRenderer extends HorizontalTextRenderer[HorizontalFitting
    * Appends two FIGures using the rule of the current layout
    */
   protected def append(first: FIGure, second: FIGure): FIGure = {
-    val result = append(first.lastColumns.value, second.lastColumns.value, Vector.empty[String])
+    val result = merge(first.lastColumns.value, second.lastColumns.value, 0, 0)
     first.replace(second.copy(lines = Vector(SubColumns(result).toSublines)))
   }
 
   @tailrec
-  private def append(first: Vector[String], second: Vector[String], result: Vector[String]): Vector[String] = {
-    if (first.isEmpty)
-      result ++ second
-    else if (second.isEmpty)
-      first ++ result
+  private def merge(a: Vector[String], b: Vector[String], aOffset: Int, bOffset: Int): Vector[String] = {
+    if (aOffset === a.length - 1 || a.length === 0)
+      b
+    else if (bOffset === b.length - 1 || b.length === 0)
+      a
     else {
-      val ((initFirst, Vector(lastFirst)), (Vector(headSecond), tailSecond)) =
-        (first.splitAt(first.length - 1), second.splitAt(1))
+      // Calculate if the offset of A or B can be moved
+      val (aMove, bMove) =
+        (a(a.length - aOffset - 1) zip b(bOffset))
+          .foldLeft((0, 0)) {
+            case (result, (' ', ' ')) => (max(result._1, 1), max(result._2, 1))
+            case (result, (_, ' '))   => (max(result._1, 0), max(result._2, 1))
+            case (result, (' ', _))   => (max(result._1, 1), max(result._2, 0))
+            case (result, (_, _))     => (max(result._1, 0), max(result._2, 0))
+          }
 
-      val columnMerge = mergeColumns(MergeColumn(initFirst, lastFirst, headSecond, tailSecond))
-      val nextResult  = Vector(columnMerge.resultFirst, result, columnMerge.resultSecond).flatten
-
-      append(columnMerge.unprocessedFirst, columnMerge.unprocessedSecond, nextResult)
+      if (aMove =!= 0 && bMove =!= 0)
+        // If one of the offsets can be moved, keep moving
+        merge(a, b, aOffset + aMove, bOffset + bMove)
+      else {
+        // Offset can't be moved further, merge what overlaps
+        val (left, aOverlap)  = a.splitAt(aOffset)
+        val (bOverlap, right) = b.splitAt(bOffset)
+        val merged            =
+          (aOverlap zip bOverlap)
+            .map {
+              case (" ", " ")  => " "
+              case (aStr, " ") => aStr
+              case (" ", bStr) => bStr
+              case (_, _)      => "!"
+            }
+        left ++ merged ++ right
+      }
     }
   }
-
-  private case class MergeColumn(
-      unprocessedFirst: Vector[String],
-      lastColumnFirst: String,
-      firstColumnSecond: String,
-      unprocessedSecond: Vector[String],
-  )
-
-  private case class MergeResult(
-      unprocessedFirst: Vector[String],
-      unprocessedSecond: Vector[String],
-      resultFirst: Vector[String],
-      resultSecond: Vector[String],
-  )
-
-  private def mergeColumns(data: MergeColumn) = MergeResult(
-    data.unprocessedFirst,
-    data.unprocessedSecond,
-    if (data.lastColumnFirst.trim.nonEmpty) Vector(data.lastColumnFirst) else Vector.empty,
-    if (data.firstColumnSecond.trim.nonEmpty) Vector(data.firstColumnSecond) else Vector.empty,
-  )
 }
 
 object HorizontalFittingRenderer {
