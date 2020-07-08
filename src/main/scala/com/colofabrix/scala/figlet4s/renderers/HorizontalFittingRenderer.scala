@@ -1,9 +1,9 @@
 package com.colofabrix.scala.figlet4s.renderers
 
-import cats.data.Nested
 import cats.implicits._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
+import com.colofabrix.scala.figlet4s.Utils._
 import Math._
 import scala.annotation.tailrec
 import scala.util.matching.Regex
@@ -16,46 +16,42 @@ class HorizontalFittingRenderer extends HorizontalTextRenderer[HorizontalFitting
    * Appends two FIGures using the rule of the current layout
    */
   protected def append(first: FIGure, second: FIGure): FIGure = {
-    val result = merge(first.lastColumns.value, second.lastColumns.value, 0, 0)
-    first.replace(second.copy(lines = Vector(SubColumns(result).toSublines)))
+    val result = merge(first.lastColumns.value, second.lastColumns.value, 0, Vector.empty)
+    first.replace(
+      second.copy(
+        lines = Vector(SubColumns(result).toSublines)
+      )
+    )
   }
 
   @tailrec
-  private def merge(a: Vector[String], b: Vector[String], aOffset: Int, bOffset: Int): Vector[String] = {
-    if (aOffset === a.length - 1 || a.length === 0)
-      b
-    else if (bOffset === b.length - 1 || b.length === 0)
-      a
+  private def merge(a: Vector[String], b: Vector[String], overlap: Int, partial: Vector[String]): Vector[String] =
+    if (a.length === 0) b
+    else if (b.length === 0) a
     else {
-      // Calculate if the offset of A or B can be moved
-      val (aMove, bMove) =
-        (a(a.length - aOffset - 1) zip b(bOffset))
-          .foldLeft((0, 0)) {
-            case (result, (' ', ' ')) => (max(result._1, 1), max(result._2, 1))
-            case (result, (_, ' '))   => (max(result._1, 0), max(result._2, 1))
-            case (result, (' ', _))   => (max(result._1, 1), max(result._2, 0))
-            case (result, (_, _))     => (max(result._1, 0), max(result._2, 0))
-          }
+      val (left, aOverlap)  = a.splitAt(a.length - overlap)
+      val (bOverlap, right) = b.splitAt(overlap)
 
-      if (aMove =!= 0 && bMove =!= 0)
-        // If one of the offsets can be moved, keep moving
-        merge(a, b, aOffset + aMove, bOffset + bMove)
-      else {
-        // Offset can't be moved further, merge what overlaps
-        val (left, aOverlap)  = a.splitAt(aOffset)
-        val (bOverlap, right) = b.splitAt(bOffset)
-        val merged            =
-          (aOverlap zip bOverlap)
-            .map {
-              case (" ", " ")  => " "
-              case (aStr, " ") => aStr
-              case (" ", bStr) => bStr
-              case (_, _)      => "!"
-            }
-        left ++ merged ++ right
+      val testMerge =
+        (aOverlap zip bOverlap)
+          .traverse {
+            case (aOverlapColumn, bOverlapColumn) =>
+              (aOverlapColumn zip bOverlapColumn)
+                .traverse {
+                  case (' ', ' ')  => Some(' ')
+                  case (aStr, ' ') => Some(aStr)
+                  case (' ', bStr) => Some(bStr)
+                  case (_, _)      => None
+                }
+                .map(_.mkString)
+          }
+          .map(left ++ _ ++ right)
+
+      testMerge match {
+        case None        => partial
+        case Some(value) => merge(a, b, overlap + 1, value)
       }
     }
-  }
 }
 
 object HorizontalFittingRenderer {
