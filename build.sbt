@@ -10,8 +10,7 @@ ThisBuild / developers := List(
 )
 
 // Compiler options
-// ThisBuild / scalacOptions ++= Compiler.TpolecatOptions ++ Compiler.StrictOptions ++ Seq("-P:splain:all")
-ThisBuild / scalacOptions ++= Compiler.TpolecatOptions ++ Seq("-P:splain:all")
+ThisBuild / scalacOptions ++= Compiler.TpolecatOptions ++ Compiler.StrictOptions ++ Seq("-P:splain:all")
 
 // Wartremover
 ThisBuild / wartremoverExcluded ++= (baseDirectory.value * "**" / "src" / "test").get
@@ -20,6 +19,7 @@ ThisBuild / wartremoverErrors ++= Warts.allBut(
   Wart.DefaultArguments,
   Wart.Nothing,
   Wart.Overloading,
+  Wart.StringPlusAny,
   Wart.ToString,
 )
 

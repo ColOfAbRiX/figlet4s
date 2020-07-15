@@ -11,12 +11,12 @@ import cats.data.State
 final case class FIGure private[figlet4s] (
     font: FIGfont,
     value: String,
-    lines: Vector[SubLines],
+    columns: Vector[SubColumns],
 ) {
   /**
-   * The FIGure represented with columns
+   * The FIGure represented with lines
    */
-  lazy val columns: Vector[SubColumns] = lines.map(_.toSubcolumns)
+  lazy val lines: Vector[SubLines] = columns.map(_.toSublines)
 
   /**
    * The width of the FIGure
@@ -43,26 +43,26 @@ final case class FIGure private[figlet4s] (
     lines
       .map(_.replace(font.header.hardblank.toString, " "))
 
-  private[figlet4s] def append(that: FIGure): FIGure =
-    this.copy(
-      value = this.value + that.value,
-      lines = this.lines :+ that.lastLines,
-    )
+  // private[figlet4s] def append(that: FIGure): FIGure =
+  //   this.copy(
+  //     value = this.value + that.value,
+  //     lines = this.lines :+ that.lastLines,
+  //   )
 
-  private[figlet4s] def replace(that: FIGure): FIGure =
-    this.copy(
-      value = this.value + that.value,
-      lines = this.lines.dropRight(1) :+ that.lastLines,
-    )
+  // private[figlet4s] def replace(that: FIGure): FIGure =
+  //   this.copy(
+  //     value = this.value + that.value,
+  //     lines = this.lines.dropRight(1) :+ that.lastLines,
+  //   )
 
-  def appendMappedLines(that: FIGure)(f: (String, String) => String): FIGure = {
-    val zipped    = this.lastLines.value zip that.lastLines.value
-    val processed = zipped.map(f.tupled)
-    this.copy(
-      value = this.value + value,
-      lines = this.lines.dropRight(1) ++ Vector(SubLines(processed)),
-    )
-  }
+  // def appendMappedLines(that: FIGure)(f: (String, String) => String): FIGure = {
+  //   val zipped    = this.lastLines.value zip that.lastLines.value
+  //   val processed = zipped.map(f.tupled)
+  //   this.copy(
+  //     value = this.value + value,
+  //     lines = this.lines.dropRight(1) ++ Vector(SubLines(processed)),
+  //   )
+  // }
 }
 
 object FIGure {
@@ -70,8 +70,8 @@ object FIGure {
     FIGure(font.zero, font)
 
   def apply(char: FIGcharacter, font: FIGfont): FIGure =
-    FIGure(font, char.name.toString, Vector(char.lines))
+    FIGure(font, char.name.toString, Vector(char.columns))
 
   def apply(char: Char, font: FIGfont): FIGure =
-    FIGure(font, char.toString, Vector(font(char).lines))
+    FIGure(font, char.toString, Vector(font(char).columns))
 }

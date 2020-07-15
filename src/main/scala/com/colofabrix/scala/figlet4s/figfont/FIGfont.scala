@@ -3,7 +3,7 @@ package com.colofabrix.scala.figlet4s.figfont
 import cats.data.Validated._
 import cats.implicits._
 import com.colofabrix.scala.figlet4s._
-import com.colofabrix.scala.figlet4s.Utils._
+import com.colofabrix.scala.figlet4s.utils._
 import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
 
 /**
@@ -149,8 +149,8 @@ final object FIGfont {
             chars.validNec
           else
             FIGFontError(
-              s"The number of loaded tagged fonts ${loadedTaggedCount.toString} doesn't correspond to the value " +
-              s"indicated in the header ${codetagCount.toString}",
+              s"The number of loaded tagged fonts $loadedTaggedCount doesn't correspond to the value " +
+              s"indicated in the header $codetagCount",
             ).invalidNec
         }
         .map(_.map(c => c.name -> c).toMap)
@@ -276,7 +276,7 @@ final object FIGfont {
     Option
       .when(splitFontTag.size > 0)(splitFontTag(0))
       .toValidNec(
-        FIGcharacterError(s"Missing character code in the tag at line ${(tagLineIndex + 1).toString}: $tagLine"),
+        FIGcharacterError(s"Missing character code in the tag at line ${tagLineIndex}: $tagLine"),
       )
       .andThen(parseCharCode(tagLineIndex, _))
   }
@@ -304,6 +304,6 @@ final object FIGfont {
     else if (code.matches("^-?0\\d+$"))
       Integer.parseInt(code, 8).toChar.validNec
     else
-      FIGcharacterError(s"Couldn't convert character code '$code' defined at line ${(index + 1).toString}").invalidNec
+      FIGcharacterError(s"Couldn't convert character code '$code' defined at line ${index + 1}").invalidNec
 
 }

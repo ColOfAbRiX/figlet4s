@@ -2,14 +2,19 @@ package com.colofabrix.scala.figlet4s.renderers
 
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
+import com.colofabrix.scala.figlet4s.renderers.MergeAction
+import com.colofabrix.scala.figlet4s.renderers.MergeAction._
 
 class UniversalHorizontalSmushingRenderer extends HorizontalTextRenderer[UniversalHorizontalSmushingLayout.type] {
   /**
    * Appends two FIGures using the rule of the current layout
    */
-  protected def append(first: FIGure, second: FIGure): FIGure = {
-    ???
-  }
+  protected def appendColumns(first: SubColumns, second: SubColumns): SubColumns =
+    MergeAction.process(first, second) {
+      case (' ', ' ')  => Continue(' ')
+      case (aStr, ' ') => Continue(aStr)
+      case (_, bStr)   => CurrentLast(bStr)
+    }
 }
 
 object UniversalHorizontalSmushingRenderer {

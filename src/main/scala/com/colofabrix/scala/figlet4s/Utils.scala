@@ -8,7 +8,8 @@ import java.security.MessageDigest
 import scala.collection.immutable.BitSet
 import scala.language.higherKinds
 
-private[figlet4s] object Utils {
+private[figlet4s] object utils {
+
   implicit class BinaryInt(val self: Int) extends AnyVal {
     /**
      * Converts the Int to a BitSet
@@ -74,4 +75,5 @@ private[figlet4s] object Utils {
     new FunctionK[IndexedSeq, Vector] { def apply[X](isx: IndexedSeq[X]): Vector[X] = isx.toVector   },
     new FunctionK[Vector, IndexedSeq] { def apply[X](vx: Vector[X]): IndexedSeq[X] = vx.toIndexedSeq },
   )
+
 }

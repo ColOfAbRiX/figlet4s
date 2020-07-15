@@ -2,7 +2,7 @@ package com.colofabrix.scala.figlet4s.figfont
 
 import cats.implicits._
 import enumeratum.values._
-import com.colofabrix.scala.figlet4s.Utils._
+import com.colofabrix.scala.figlet4s.utils._
 import cats.kernel.Eq
 
 /**

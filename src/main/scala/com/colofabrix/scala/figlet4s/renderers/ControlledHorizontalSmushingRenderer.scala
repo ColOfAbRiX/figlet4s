@@ -7,5 +7,14 @@ class ControlledHorizontalSmushingRenderer extends HorizontalTextRenderer[Contro
   /**
    * Appends two FIGures using the rule of the current layout
    */
-  def append(first: FIGure, second: FIGure): FIGure = ???
+  protected def appendColumns(first: SubColumns, second: SubColumns): SubColumns =
+    ???
+}
+
+object ControlledHorizontalSmushingRenderer {
+  def render(text: String, font: FIGfont, options: RenderOptions): FIGure =
+    new ControlledHorizontalSmushingRenderer().render(text, font, options)
+
+  def render(text: String, font: FIGfont): FIGure =
+    new ControlledHorizontalSmushingRenderer().render(text, font)
 }

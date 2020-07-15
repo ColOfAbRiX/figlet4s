@@ -23,12 +23,11 @@ final case class FIGheader private[figlet4s] (
 ) {
   override def toString(): String = {
     val oldLayoutNum      = oldLayout.map(_.value).sum.toString
-    val printDirectionNum = printDirection.map(x => s" ${x.value.toString}").getOrElse("")
-    val fullLayoutNum     = fullLayout.map(x => s" ${x.map(_.value).sum.toString}").getOrElse("")
-    val codetagCountNum   = codetagCount.map(x => s" ${x.toString}").getOrElse("")
+    val printDirectionNum = printDirection.map(x => s" ${x.value}").getOrElse("")
+    val fullLayoutNum     = fullLayout.map(x => s" ${x.map(_.value).sum}").getOrElse("")
+    val codetagCountNum   = codetagCount.map(x => s" $x").getOrElse("")
 
-    s"$signature$hardblank ${height.toString} ${baseline.toString} ${maxLength.toString} $oldLayoutNum " +
-    s"${commentLines.toString} $printDirectionNum $fullLayoutNum $codetagCountNum"
+    s"$signature$hardblank $height $baseline $maxLength $oldLayoutNum $commentLines $printDirectionNum $fullLayoutNum $codetagCountNum"
   }
 }
 
@@ -51,7 +50,7 @@ final object FIGheader {
 
     if (splitLine.length < 6 || splitLine.length > 9)
       FIGheaderError(
-        s"Wrong number of parameters in FLF header. Found ${splitLine.length.toString} parameters",
+        s"Wrong number of parameters in FLF header. Found ${splitLine.length} parameters",
       ).invalidNec
     else {
       val (signatureText, hardblankText) = splitLine(SIGNATURE_INDEX).splitAt(5)
@@ -127,7 +126,7 @@ final object FIGheader {
       value
         .toIntOption
         .map(PrintDirection(_))
-        .toValidNec(FIGheaderError(s"Couldn't parse header field 'printDirection': ${printDirection.toString}"))
+        .toValidNec(FIGheaderError(s"Couldn't parse header field 'printDirection': $printDirection"))
     }
 
   private def validateFullLayout(fullLayout: Option[String]): FigletResult[Option[Vector[FullLayout]]] =
@@ -135,13 +134,13 @@ final object FIGheader {
       value
         .toIntOption
         .map(FullLayout(_))
-        .toValidNec(FIGheaderError(s"Couldn't parse header field 'fullLayout': ${fullLayout.toString}"))
+        .toValidNec(FIGheaderError(s"Couldn't parse header field 'fullLayout': $fullLayout"))
     }
 
   private def validateCodetagCount(codetagCount: Option[String]): FigletResult[Option[Int]] =
     codetagCount.traverse { value =>
       value
         .toIntOption
-        .toValidNec(FIGheaderError(s"Couldn't parse header field 'codetagCount': ${codetagCount.toString}"))
+        .toValidNec(FIGheaderError(s"Couldn't parse header field 'codetagCount': $codetagCount"))
     }
 }

@@ -17,23 +17,27 @@ trait HorizontalTextRenderer[A <: HorizontalLayout] {
   /**
    * Renders a String into a FIGure
    */
-  def render(text: String, font: FIGfont, options: RenderOptions): FIGure =
-    text
-      .map(FIGure(_, font))
-      .foldLeft(empty(font)) {
-        case (accumulator, current) =>
-          Option(append(accumulator, current))
-            .filter(_.width <= options.maxWidth.getOrElse(Int.MaxValue))
-            .getOrElse(accumulator.append(current))
+  def render(text: String, font: FIGfont, opts: RenderOptions): FIGure = {
+    val result = text
+      .map(font(_).columns)
+      .foldLeft(Vector(empty(font)))(appendChar(opts))
+    FIGure(font, text, result)
+  }
+
+  private def appendChar(opts: RenderOptions)(accumulator: Vector[SubColumns], column: SubColumns): Vector[SubColumns] =
+    accumulator
+      .lastOption
+      .map { lastLine =>
+        accumulator.drop(1) :+ appendColumns(lastLine, column)
       }
+      .filter(_.length <= opts.maxWidth.getOrElse(Int.MaxValue))
+      .getOrElse(accumulator :+ column)
 
   /**
-   * Creates an empty FIGure of the currently used FIGfont
+   * Appends SubColumns of two FIGures
    */
-  protected def empty(font: FIGfont): FIGure = FIGure(font)
+  protected def appendColumns(first: SubColumns, second: SubColumns): SubColumns
 
-  /**
-   * Appends two FIGures using the rule of the current layout
-   */
-  protected def append(first: FIGure, second: FIGure): FIGure
+  private def empty(font: FIGfont): SubColumns =
+    font.zero.lines.toSubcolumns
 }
