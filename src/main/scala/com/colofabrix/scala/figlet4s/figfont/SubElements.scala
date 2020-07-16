@@ -9,6 +9,9 @@ final case class SubLines(value: Vector[String]) extends SubElementOps[SubLines]
 
   lazy val toSubcolumns: SubColumns =
     SubColumns(value.transpose.map(_.mkString))
+
+  override def toString(): String =
+    value.mkString
 }
 
 object SubLines {
@@ -25,6 +28,9 @@ final case class SubColumns(value: Vector[String]) extends SubElementOps[SubColu
 
   lazy val toSublines: SubLines =
     SubLines(value.transpose.map(_.mkString))
+
+  override def toString(): String =
+    value.map(_.toVector).transpose.map(_.mkString("|", "", "|")).mkString("\n")
 }
 
 object SubColumns {

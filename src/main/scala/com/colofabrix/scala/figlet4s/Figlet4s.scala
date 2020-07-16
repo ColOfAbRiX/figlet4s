@@ -42,7 +42,7 @@ object Figlet4s {
    * Loads a string as a FIGure given a FIGfont
    */
   def renderString(text: String, font: FIGfont): FIGure =
-    UniversalHorizontalSmushingRenderer.render(text, font)
+    HorizontalFittingRenderer.render(text, font)
 
   /**
    * Loads one of the internal FIGfont

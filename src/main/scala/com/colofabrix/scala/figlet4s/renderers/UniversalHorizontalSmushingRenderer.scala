@@ -13,6 +13,7 @@ class UniversalHorizontalSmushingRenderer extends HorizontalTextRenderer[Univers
     MergeAction.process(first, second) {
       case (' ', ' ')  => Continue(' ')
       case (aStr, ' ') => Continue(aStr)
+      case (' ', bStr) => Continue(bStr)
       case (_, bStr)   => CurrentLast(bStr)
     }
 }

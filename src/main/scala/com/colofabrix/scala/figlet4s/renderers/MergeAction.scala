@@ -103,9 +103,14 @@ object MergeAction {
   private def merge(a: Vector[String], b: Vector[String], overlap: Int, partial: Vector[String])(
       f: (Char, Char) => MergeAction[Char],
   ): Vector[String] = {
-    if (a.length === 0) b
-    else if (b.length === 0) a
-    else if (a.length < overlap || b.length < overlap) partial
+    if (a.length === 0)
+      b
+    else if (b.length === 0)
+      a
+    else if (a.length < overlap || b.length < overlap)
+      partial
+    else if (overlap === 0)
+      merge(a, b, 1, a ++ b)(f)
     else {
       // Split the columns into left, right, A-overlapping and B-overlapping
       val (left, aOverlap)  = a.splitAt(a.length - overlap)
@@ -122,13 +127,7 @@ object MergeAction {
                 .traverse(f.tupled)
                 .map(_.mkString)
           }
-          .map { x =>
-            println(s"x: $x")
-            x
-          }
           .map(left ++ _ ++ right)
-
-      println(mergedOverlapping)
 
       // Given the result of the merge, decide how to proceed
       mergedOverlapping match {
