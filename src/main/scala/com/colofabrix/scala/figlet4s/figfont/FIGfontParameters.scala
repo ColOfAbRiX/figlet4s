@@ -44,7 +44,7 @@ object FIGfontParameters {
           else if (settings.contains(UseHorizontalFitting) && !settings.contains(UseHorizontalSmushing))
             HorizontalFittingLayout.validNec
           else if (settings.contains(UseHorizontalSmushing) && selectedSmushingRules.size =!= 0)
-            HorizontalSmushingRules.fromHeader(header).map(ControlledHorizontalSmushingLayout(_))
+            HorizontalSmushingRule.fromHeader(header).map(ControlledHorizontalSmushingLayout(_))
           else
             UniversalHorizontalSmushingLayout.validNec
         }
@@ -75,18 +75,18 @@ object FIGfontParameters {
   final case object UniversalHorizontalSmushingLayout extends HorizontalLayout
 
   /** Use controlled horizontal smushing */
-  final case class ControlledHorizontalSmushingLayout(rules: Vector[HorizontalSmushingRules]) extends HorizontalLayout
+  final case class ControlledHorizontalSmushingLayout(rules: Vector[HorizontalSmushingRule]) extends HorizontalLayout
 
   /**
    * Rules for Horizontal Smushing
    */
-  sealed trait HorizontalSmushingRules extends Product with Serializable
+  sealed trait HorizontalSmushingRule extends Product with Serializable
 
-  object HorizontalSmushingRules {
+  object HorizontalSmushingRule {
     /**
      * Interprets the header settings and returns the selected Horizontal Smushing Rules
      */
-    def fromHeader(header: FIGheader): FigletResult[Vector[HorizontalSmushingRules]] =
+    def fromHeader(header: FIGheader): FigletResult[Vector[HorizontalSmushingRule]] =
       header
         .fullLayout
         .map { settings =>
@@ -104,22 +104,22 @@ object FIGfontParameters {
   }
 
   /** Apply "equal" character horizontal smushing */
-  final case object EqualCharacterHorizontalSmushing extends HorizontalSmushingRules
+  final case object EqualCharacterHorizontalSmushing extends HorizontalSmushingRule
 
   /** Apply "underscore" horizontal smushing */
-  final case object UnderscoreHorizontalSmushing extends HorizontalSmushingRules
+  final case object UnderscoreHorizontalSmushing extends HorizontalSmushingRule
 
   /** Apply "hierarchy" horizontal smushing */
-  final case object HierarchyHorizontalSmushing extends HorizontalSmushingRules
+  final case object HierarchyHorizontalSmushing extends HorizontalSmushingRule
 
   /** Apply "opposite pair" horizontal smushing rule 4 */
-  final case object OppositePairHorizontalSmushing extends HorizontalSmushingRules
+  final case object OppositePairHorizontalSmushing extends HorizontalSmushingRule
 
   /** Apply "big X" horizontal smushing rule 5 */
-  final case object BigXHorizontalSmushing extends HorizontalSmushingRules
+  final case object BigXHorizontalSmushing extends HorizontalSmushingRule
 
   /** Apply "hardblank" horizontal smushing rule 6 */
-  final case object HardblankHorizontalSmushing extends HorizontalSmushingRules
+  final case object HardblankHorizontalSmushing extends HorizontalSmushingRule
 
   /**
    * Vertical Layout

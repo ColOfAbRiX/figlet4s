@@ -18,14 +18,20 @@ object Main extends App {
   // Simple "Hello world" with default font (standard)
   Figlet4s.renderString("Hello, World!").print()
 
+  // Setting options
+  val alligatorFont80 = RenderOptionsBuilder()
+    .withInternalFont("alligator")
+    .withMaxWidth(80)
+
   // Selecting a specific internal font
-  Figlet4s.renderString("Hello, World!", "dosrebel").print()
+  Figlet4s.renderString("Hello, World!", alligatorFont80).print()
 
   // List the available internal fonts
   Figlet4s.internalFonts.foreach(println)
 
   // Loading and printing a font
-  val aCustomFont =  Figlet4s.loadFont("path/to/font.flf")
+  val aCustomFont = RenderOptionsBuilder()
+    .withFont("path/to/font.flf")
   Figlet4s.renderString("Hello, World!", aCustomFont).print()
 }
 ```
@@ -33,7 +39,6 @@ object Main extends App {
 ## Planned features
 
 * Support for generic effects
-* Support for _Controlled Smushing_ is not present
 * Support for vertical layout
 * Support for control files `*.flc`
 * Support for zipped fonts

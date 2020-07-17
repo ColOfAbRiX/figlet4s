@@ -36,8 +36,12 @@ final case class FIGfont private[figlet4s] (
   def process(char: Char): Vector[String] =
     this(char)
       .lines
-      .replace(header.hardblank, " ")
+      .replace(header.hardblank.toString, " ")
       .value
+
+  override def toString(): String =
+    s"FIGfont(id=$id, name=$name, header=$header, comment=$comment, hLayout=$hLayout, vLayout=$vLayout, " +
+    s"characters=$characters)"
 }
 
 @SuppressWarnings(Array("org.wartremover.warts.OptionPartial", "org.wartremover.warts.TraversableOps"))

@@ -11,7 +11,7 @@ import _root_.cats.data.Validated
  */
 final case class FIGheader private[figlet4s] (
     signature: String,
-    hardblank: String,
+    hardblank: Char,
     height: Int,
     baseline: Int,
     maxLength: Int,
@@ -21,7 +21,12 @@ final case class FIGheader private[figlet4s] (
     fullLayout: Option[Vector[FullLayout]],
     codetagCount: Option[Int],
 ) {
-  override def toString(): String = {
+  override def toString(): String =
+    s"FIGheader(signature=$signature, hardblank=$hardblank, height=$height, baseline=$baseline, maxLength=$maxLength, " +
+    s"oldLayout=$oldLayout, commentLines=$commentLines, printDirection=$printDirection, fullLayout=$fullLayout, " +
+    s"codetagCount=$codetagCount)"
+
+  def singleLine(): String = {
     val oldLayoutNum      = oldLayout.map(_.value).sum.toString
     val printDirectionNum = printDirection.map(x => s" ${x.value}").getOrElse("")
     val fullLayoutNum     = fullLayout.map(x => s" ${x.map(_.value).sum}").getOrElse("")
@@ -78,10 +83,11 @@ final object FIGheader {
       .when(signature === "flf2a")(signature)
       .toValidNec(FIGheaderError(s"Wrong FLF signature: $signature"))
 
-  private def validateHardblank(hardblank: String): FigletResult[String] =
+  private def validateHardblank(hardblank: String): FigletResult[Char] =
     Option
       .when(hardblank.length === 1)(hardblank)
       .toValidNec(FIGheaderError(s"The hardblank '$hardblank' is not composed of only one character"))
+      .map(_.charAt(0))
 
   private def validateHeight(height: String): FigletResult[Int] =
     height

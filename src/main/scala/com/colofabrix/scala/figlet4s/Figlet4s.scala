@@ -1,5 +1,6 @@
 package com.colofabrix.scala.figlet4s
 
+import cats.implicits._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.renderers._
 import scala.io._
@@ -30,19 +31,22 @@ object Figlet4s {
   }
 
   /**
-   * Loads a string as a FIGure given a font name
+   * Loads a string as a FIGure
    */
-  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
-  def renderString(text: String, fontName: String = "standard"): FIGure =
-    loadFontInternal(fontName)
-      .map(renderString(text, _))
-      .fold(e => throw e.head, identity)
+  def renderString(text: String, options: RenderOptions): FIGure = {
+    HorizontalTextRenderer.render(text, options)
+  }
 
   /**
-   * Loads a string as a FIGure given a FIGfont
+   * Loads a string as a FIGure
    */
-  def renderString(text: String, font: FIGfont): FIGure =
-    HorizontalTextRenderer.render(text, font)
+  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
+  def renderString(text: String, optionsBuilder: RenderOptionsBuilder): FIGure = {
+    optionsBuilder
+      .build()
+      .map(renderString(text, _))
+      .fold(e => throw e.head, identity)
+  }
 
   /**
    * Loads one of the internal FIGfont

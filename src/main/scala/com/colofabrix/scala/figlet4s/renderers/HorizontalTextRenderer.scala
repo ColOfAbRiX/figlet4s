@@ -17,105 +17,102 @@ object HorizontalTextRenderer {
   /**
    * Renders a String into a FIGure for a given FIGfont and options
    */
-  def render(text: String, font: FIGfont, options: RenderOptions = RenderOptions()): FIGure = {
+  def render(text: String, options: RenderOptions): FIGure = {
+    val font          = options.font
     val empty         = font.zero.lines.toSubcolumns
     val chosenLayout  = options.layout.getOrElse(font.hLayout)
-    val mergeStrategy = layout2mergeStrategy(font)(chosenLayout)
+    val mergeStrategy = layout2mergeStrategy(font.header.hardblank)(chosenLayout)
 
     val result = text
       .map(font(_).columns)
-      .foldLeft(Vector(empty))(mergeStep(options, mergeStrategy))
+      .foldLeft(Vector(empty))(appendCharacter(options, mergeStrategy))
 
     FIGure(font, text, result)
   }
 
   /**
-   * Returns the merge strategy function given a layout
+   * Appends a new character to the accumulator or creates a new line for it
    */
-  private def layout2mergeStrategy(font: FIGfont): PartialFunction[HorizontalLayout, MergeStrategy] = {
-    case FullWidthHorizontalLayout                 => fullWidthStrategy
-    case HorizontalFittingLayout                   => horizontalFittingStrategy
-    case UniversalHorizontalSmushingLayout         => controlledHorizontalSmushingStrategy
-    case ControlledHorizontalSmushingLayout(rules) => universalHorizontalSmushingStrategy(rules, font)
-  }
-
-  private def mergeStep(
+  private def appendCharacter(
       options: RenderOptions,
       merge: MergeStrategy,
   )(accumulator: Vector[SubColumns], column: SubColumns): Vector[SubColumns] =
     accumulator
       .lastOption
-      .map { lastLine =>
-        accumulator.drop(1) :+ merge(lastLine, column)
-      }
-      .filter(_.length <= options.maxWidth.getOrElse(Int.MaxValue))
+      .map(lastLine => accumulator.drop(1) :+ merge(lastLine, column))
+      .filter(_.length <= options.maxWidth)
       .getOrElse(accumulator :+ column)
+
+  /**
+   * Returns the merge strategy function given a layout
+   */
+  private def layout2mergeStrategy(hardblank: Char): PartialFunction[HorizontalLayout, MergeStrategy] = {
+    case FullWidthHorizontalLayout                 => fullWidthStrategy
+    case HorizontalFittingLayout                   => horizontalFittingStrategy(hardblank)
+    case UniversalHorizontalSmushingLayout         => controlledHorizontalSmushingStrategy(hardblank)
+    case ControlledHorizontalSmushingLayout(rules) => universalHorizontalSmushingStrategy(rules, hardblank)
+  }
 
   /**
    * Encodes the Full Width horizontal layout
    */
-  private def fullWidthStrategy: MergeStrategy = { (first, second) =>
-    merge(first, second) {
+  private def fullWidthStrategy: MergeStrategy =
+    mergeColumnWith {
       case (_, _) => Stop
     }
-  }
 
   /**
    * Encodes the Horizontal Fitting horizontal layout
    */
-  private def horizontalFittingStrategy: MergeStrategy = { (first, second) =>
-    merge(first, second) {
-      case (' ', ' ')   => Continue(' ')
-      case (aChar, ' ') => Continue(aChar)
-      case (' ', bChar) => Continue(bChar)
-      case (_, _)       => Stop
+  private def horizontalFittingStrategy(hardblank: Char): MergeStrategy =
+    mergeColumnWith {
+      case (' ', ' ')                          => Continue(' ')
+      case (a, ' ') if a =!= hardblank         => Continue(a)
+      case (' ', bChar) if bChar =!= hardblank => Continue(bChar)
+      case (_, _)                              => Stop
     }
-  }
 
   /**
    * Encodes the Controlled Horizontal Smushing horizontal layout
    */
-  private def controlledHorizontalSmushingStrategy: MergeStrategy = { (first, second) =>
-    merge(first, second) {
-      case (' ', ' ')   => Continue(' ')
-      case (aChar, ' ') => Continue(aChar)
-      case (' ', bChar) => Continue(bChar)
-      case (_, bChar)   => CurrentLast(bChar)
+  private def controlledHorizontalSmushingStrategy(hardblank: Char): MergeStrategy =
+    mergeColumnWith {
+      case (' ', ' ')                          => Continue(' ')
+      case (a, ' ') if a =!= hardblank         => Continue(a)
+      case (' ', bChar) if bChar =!= hardblank => Continue(bChar)
+      case (' ', bChar) if bChar === hardblank => Stop
+      case (_, bChar)                          => CurrentLast(bChar)
     }
-  }
 
   /**
    * Encodes the Universal Horizontal Smushing horizontal layout
    */
-  private def universalHorizontalSmushingStrategy(
-      rules: Vector[HorizontalSmushingRules],
-      font: FIGfont,
-  ): MergeStrategy = { (first, second) =>
-    merge(first, second) {
-      case (' ', ' ')     => Continue(' ')
-      case (aChar, ' ')   => Continue(aChar)
-      case (' ', bChar)   => Continue(bChar)
-      case (aChar, bChar) =>
+  private def universalHorizontalSmushingStrategy(rules: Vector[HorizontalSmushingRule], hardblank: Char): MergeStrategy =
+    mergeColumnWith {
+      case (' ', ' ')                          => Continue(' ')
+      case (a, ' ') if a =!= hardblank         => Continue(a)
+      case (' ', bChar) if bChar =!= hardblank => Continue(bChar)
+      case (' ', bChar) if bChar === hardblank => Stop
+      case (a, bChar)                          =>
         rules
-          .map(rule2smushingStrategy(font))
-          .map(f => f(aChar, bChar))
+          .map(rule2smushingStrategy(hardblank))
+          .map(f => f(a, bChar))
           .collectFirst {
             case Some(value) => CurrentLast(value)
           }
           .getOrElse(CurrentLast(bChar))
     }
-  }
 
   /**
    * Returns a smushing strategy function given the smushing rule
    */
-  private def rule2smushingStrategy(font: FIGfont): PartialFunction[HorizontalSmushingRules, SmushingStrategy] = {
-    case EqualCharacterHorizontalSmushing => equalCharacterSmushingRule(font.header.hardblank.charAt(0))
+  private def rule2smushingStrategy(hardblank: Char): PartialFunction[HorizontalSmushingRule, SmushingStrategy] = {
+    case EqualCharacterHorizontalSmushing => equalCharacterSmushingRule(hardblank)
     case UnderscoreHorizontalSmushing     => underscoreSmushingRule
     case HierarchyHorizontalSmushing      => hierarchySmushingRule
     case OppositePairHorizontalSmushing   => oppositePairSmushingRule
     case BigXHorizontalSmushing           => bigXSmushingRule
-    case HardblankHorizontalSmushing      => hardblankSmushingRule(font.header.hardblank.charAt(0))
+    case HardblankHorizontalSmushing      => hardblankSmushingRule(hardblank)
   }
 
   /**
@@ -130,11 +127,11 @@ object HorizontalTextRenderer {
    * An underscore ("_") will be replaced by any of: "|", "/", "\", "[", "]", "{", "}", "(", ")", "<" or ">".
    */
   private def underscoreSmushingRule: SmushingStrategy = { (a, b) =>
-    val replace = Vector('|', '/', '\\', '[', ']', '{', '}', '(', ')', '<', '>')
+    val replaceWith = "|/\\[]{}()<>"
     (a, b) match {
-      case ('_', _) if replace.contains(b) => Some(b)
-      case (_, '_') if replace.contains(a) => Some(a)
-      case _                               => None
+      case ('_', _) if replaceWith.contains(b) => Some(b)
+      case (_, '_') if replaceWith.contains(a) => Some(a)
+      case _                                   => None
     }
   }
 
@@ -256,8 +253,9 @@ object HorizontalTextRenderer {
     - It uses the result of the merge of the previous recursive call and stops more processing
    */
 
-  private def merge(a: SubColumns, b: SubColumns)(f: (Char, Char) => MergeAction[Char]): SubColumns =
+  private def mergeColumnWith(f: (Char, Char) => MergeAction[Char]): MergeStrategy = { (a, b) =>
     SubColumns(merge(a.value, b.value, 0, Vector.empty)(f))
+  }
 
   @tailrec
   private def merge(a: Vector[String], b: Vector[String], overlap: Int, partial: Vector[String])(
