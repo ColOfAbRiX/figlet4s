@@ -15,6 +15,8 @@ trait Libraries {
 
   // Generic
   lazy val CatsCoreDep   = "org.typelevel" %% "cats-core"   % CatsVersion
+  lazy val CatsEffectDep = "org.typelevel" %% "cats-effect" % CatsVersion
+  lazy val CatsFreeDep   = "org.typelevel" %% "cats-free"   % CatsVersion
   lazy val CatsKernelDep = "org.typelevel" %% "cats-kernel" % CatsVersion
   lazy val EnumeratumDep = "com.beachape"  %% "enumeratum"  % EnumeratumVersion
   lazy val PPrintDep     = "com.lihaoyi"   %% "pprint"      % PPrintVersion

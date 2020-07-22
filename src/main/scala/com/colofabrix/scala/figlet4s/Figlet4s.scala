@@ -3,14 +3,13 @@ package com.colofabrix.scala.figlet4s
 import cats.implicits._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.renderers._
+import java.io.File
 import scala.io._
 
 /**
  * "FIGlet" stands for "Frank, Ian and Glenn's LETters and this is a pure Scala implementation
  */
 object Figlet4s {
-  import java.io.File
-
   /**
    * The list of available internal fonts
    */
@@ -31,55 +30,44 @@ object Figlet4s {
   }
 
   /**
-   * Loads a string as a FIGure
+   * Renders a given text as a FIGure
    */
   def renderString(text: String, options: RenderOptions): FIGure = {
     HorizontalTextRenderer.render(text, options)
   }
 
   /**
-   * Loads a string as a FIGure
-   */
-  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
-  def renderString(text: String, optionsBuilder: RenderOptionsBuilder): FIGure = {
-    optionsBuilder
-      .build()
-      .map(renderString(text, _))
-      .fold(e => throw e.head, identity)
-  }
-
-  /**
    * Loads one of the internal FIGfont
    */
-  def loadFontInternal(fontName: String = "standard"): FigletResult[FIGfont] = {
+  def loadFontInternal(name: String = "standard"): FigletResult[FIGfont] = {
     val decoder = Codec("ISO8859_1")
       .decoder
       .onMalformedInput(java.nio.charset.CodingErrorAction.REPORT)
 
     val lines = Source
-      .fromResource(s"fonts/$fontName.flf")(decoder)
+      .fromResource(s"fonts/$name.flf")(decoder)
       .getLines()
       .toVector
 
-    FIGfont(fontName, lines)
+    FIGfont(name, lines)
   }
 
   /**
    * Load a FIGfont from file
    */
-  def loadFont(fontPath: String, fontEncoding: String = "ISO8859_1"): FigletResult[FIGfont] = {
-    val decoder = Codec(fontEncoding)
+  def loadFont(path: String, encoding: String = "ISO8859_1"): FigletResult[FIGfont] = {
+    val decoder = Codec(encoding)
       .decoder
       .onMalformedInput(java.nio.charset.CodingErrorAction.REPORT)
 
-    val fontFile = new File(fontPath)
-    val fontName = fontFile.getName.split('.').init.mkString("")
+    val file = new File(path)
+    val name = file.getName.split('.').init.mkString("")
 
     val lines = Source
-      .fromFile(fontFile)(decoder)
+      .fromFile(file)(decoder)
       .getLines()
       .toVector
 
-    FIGfont(fontName, lines)
+    FIGfont(name, lines)
   }
 }

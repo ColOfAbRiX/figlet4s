@@ -1,9 +1,10 @@
 package com.colofabrix.scala.figlet4s.renderers
 
 import cats.implicits._
+import com.colofabrix.scala.figlet4s._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
-import com.colofabrix.scala.figlet4s.renderers.MergeAction
+import com.colofabrix.scala.figlet4s.renderers._
 import com.colofabrix.scala.figlet4s.renderers.MergeAction._
 import scala.annotation.tailrec
 

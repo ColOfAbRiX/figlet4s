@@ -41,6 +41,8 @@ lazy val figlet4s: Project = project
     version := "0.1.0",
     libraryDependencies ++= Seq(
       CatsCoreDep,
+      CatsEffectDep,
+      CatsFreeDep,
       CatsKernelDep,
       EnumeratumDep,
       PPrintDep,

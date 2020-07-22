@@ -1,4 +1,4 @@
-package com.colofabrix.scala.figlet4s.renderers
+package com.colofabrix.scala.figlet4s
 
 import cats.implicits._
 import com.colofabrix.scala.figlet4s._
@@ -6,6 +6,7 @@ import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
 import com.colofabrix.scala.figlet4s.Figlet4s
 import RenderOptionsBuilder._
+import cats.instances.string
 
 /**
  * Rendering options, including the FIGfont to use
@@ -19,24 +20,20 @@ final case class RenderOptions(
 /**
  * Commodity builder for Rendering Options
  */
-class RenderOptionsBuilder private (private val options: BuildData) {
-  /**
-   * Build a RenderOptions with the set configuration
-   */
-  def build(): FigletResult[RenderOptions] = {
+class RenderOptionsBuilder private (private val options: Figlet4sData) {
+  /** Renders a given text as a FIGure */
+  def render(): FigletResult[FIGure] = {
     val defaultFontV = Figlet4s.loadFontInternal("standard")
     (options.font, defaultFontV).mapN { (fontO, defaultFont) =>
       val font = fontO.getOrElse(defaultFont)
-      buildInner(options, font)
+      Figlet4s.renderString(options.text, buildRenderOptions(options, font))
     }
   }
 
-  private def buildInner(buildData: BuildData, font: FIGfont): RenderOptions =
-    RenderOptions(
-      font = font,
-      layout = buildData.layout,
-      maxWidth = buildData.maxWidth,
-    )
+  /** Renders a given text as a FIGure throwing an exception for any issue */
+  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
+  def unsafeRender(): FIGure =
+    render().fold(e => throw e.head, identity)
 
   /** Use the default FIGfont */
   def defaultFont(): RenderOptionsBuilder =
@@ -44,17 +41,13 @@ class RenderOptionsBuilder private (private val options: BuildData) {
 
   /** Use the internal FIGfont with the specified fontName */
   def withInternalFont(fontName: String): RenderOptionsBuilder = {
-    val font = Figlet4s
-      .loadFontInternal(fontName)
-      .map(Some(_))
+    val font = Figlet4s.loadFontInternal(fontName).map(Some(_))
     setFont(font)
   }
 
   /** Use the FIGfont with the specified fontPath */
   def withFont(fontPath: String): RenderOptionsBuilder = {
-    val font = Figlet4s
-      .loadFont(fontPath)
-      .map(Some(_))
+    val font = Figlet4s.loadFont(fontPath).map(Some(_))
     setFont(font)
   }
 
@@ -78,7 +71,18 @@ class RenderOptionsBuilder private (private val options: BuildData) {
   def withMaxWidth(maxWidth: Int): RenderOptionsBuilder =
     setMaxWidth(maxWidth)
 
+  /** Use the specified Max Width */
+  def text(text: String): RenderOptionsBuilder =
+    setText(text)
+
   //  Support  //
+
+  private def buildRenderOptions(buildData: Figlet4sData, font: FIGfont): RenderOptions =
+    RenderOptions(
+      font = font,
+      layout = buildData.layout,
+      maxWidth = buildData.maxWidth,
+    )
 
   private def setFont(font: FigletResult[Option[FIGfont]]) =
     new RenderOptionsBuilder(options.copy(font = font))
@@ -88,14 +92,22 @@ class RenderOptionsBuilder private (private val options: BuildData) {
 
   private def setMaxWidth(maxWidth: Int) =
     new RenderOptionsBuilder(options.copy(maxWidth = maxWidth))
+
+  private def setText(text: String) =
+    new RenderOptionsBuilder(options.copy(text = text))
 }
 
 object RenderOptionsBuilder {
-  final private case class BuildData(
+  final private case class Figlet4sData(
+      text: String = "",
       font: FigletResult[Option[FIGfont]] = None.validNec,
       layout: Option[HorizontalLayout] = None,
       maxWidth: Int = Int.MaxValue,
   )
 
-  def apply(): RenderOptionsBuilder = new RenderOptionsBuilder(BuildData())
+  def apply(): RenderOptionsBuilder =
+    new RenderOptionsBuilder(Figlet4sData())
+
+  def apply(text: String): RenderOptionsBuilder =
+    new RenderOptionsBuilder(Figlet4sData(text = text))
 }
