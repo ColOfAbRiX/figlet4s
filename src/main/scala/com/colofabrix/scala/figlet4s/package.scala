@@ -19,8 +19,11 @@ package object figlet4s {
     def print(): Unit =
       figure.foreachLine(println)
 
-    def build(): String =
-      figure.lines.map(_.value.mkString("\n")).mkString("\n")
+    def asVector(): Vector[String] =
+      figure.lines.map(_.value.mkString("\n"))
+
+    def asString(): String =
+      asVector().mkString("\n")
   }
 
 }
