@@ -1,28 +1,32 @@
 package com.colofabrix.scala.figlet4s
 
-import com.colofabrix.scala.figlet4s.figfont.FIGure
+import cats.effect._
+import com.colofabrix.scala.figlet4s.figfont._
 
 package object catsio {
 
-  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   implicit class RenderOptionsBuilderOps(val self: RenderOptionsBuilder) extends AnyVal {
     /**
-     * Renders a given text as a FIGure and throws exceptions in case of errors
+     * Renders a given text as a FIGure inside Cat's IO monad
      */
-    def unsafeRender(): FIGure = {
-      val font = self
-        .font
-        .fold(e => throw e.head, identity)
-        .getOrElse(Figlet4s.loadFontInternal())
+    def unsafeRender(): IO[FIGure] =
+      for {
+        font     <- self.font.fold(e => IO.raiseError(e.head), IO(_))
+        safeFont <- font.map(IO(_)).getOrElse(Figlet4s.loadFontInternal())
+        options  <- buildOptions(safeFont)
+        rendered <- Figlet4s.renderString(self.text, options)
+      } yield rendered
 
-      val options = RenderOptions(
-        font = font,
-        layout = self.layout,
-        maxWidth = self.maxWidth,
-      )
+    //  Support  //
 
-      Figlet4s.renderString(self.text, options)
-    }
+    private def buildOptions(font: FIGfont): IO[RenderOptions] =
+      IO.pure {
+        RenderOptions(
+          font = font,
+          layout = self.layout,
+          maxWidth = self.maxWidth,
+        )
+      }
   }
 
 }

@@ -1,9 +1,6 @@
 package com.colofabrix.scala.figlet4s.renderers
 
 import cats._
-import cats.data._
-import cats.implicits._
-import com.colofabrix.scala.figlet4s.figfont.SubColumns
 
 /**
  * Result of the merge of data like SubColumns
