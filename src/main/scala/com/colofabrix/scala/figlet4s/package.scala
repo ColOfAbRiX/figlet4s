@@ -11,8 +11,6 @@ package object figlet4s {
   type FigletResult[A] = Validated[NonEmptyChain[FigletError], A]
 
   implicit class FIGureOps(val figure: FIGure) extends AnyVal {
-    import com.colofabrix.scala.figlet4s.figfont.FIGure._
-
     def foreachLine[A](f: String => A): Unit =
       figure.cleanLines.foreach(_.foreach(f))
 

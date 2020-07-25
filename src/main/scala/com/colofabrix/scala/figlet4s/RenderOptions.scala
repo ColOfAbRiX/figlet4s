@@ -1,11 +1,8 @@
 package com.colofabrix.scala.figlet4s
 
 import cats.implicits._
-import cats.instances.string
-import com.colofabrix.scala.figlet4s._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
-import RenderOptionsBuilder._
 
 /**
  * Rendering options, including the FIGfont to use
@@ -16,31 +13,6 @@ final case class RenderOptions(
     maxWidth: Int,
 )
 
-object ImpureBuilder {
-
-  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
-  implicit class ImpureBuilderOps(val self: RenderOptionsBuilder) extends AnyVal {
-    /**
-     * Renders a given text as a FIGure
-     */
-    def unsafeRender(): FIGure = {
-      val font = self
-        .font
-        .fold(e => throw e.head, identity)
-        .getOrElse(Figlet4sUnsafe.loadFontInternal("standard"))
-
-      val options = RenderOptions(
-        font = font,
-        layout = self.layout,
-        maxWidth = self.maxWidth,
-      )
-
-      Figlet4sAPI.renderString(self.text, options)
-    }
-  }
-
-}
-
 /**
  * Commodity builder for Rendering Options
  */
@@ -50,6 +22,15 @@ final class RenderOptionsBuilder private[figlet4s] (
     val layout: Option[HorizontalLayout] = None,
     val maxWidth: Int = Int.MaxValue,
 ) {
+
+  //  Text  //
+
+  /** Use the specified Max Width */
+  def text(text: String): RenderOptionsBuilder =
+    copy(text = text)
+
+  //  Font  //
+
   /** Use the default FIGfont */
   def defaultFont(): RenderOptionsBuilder =
     copy(font = None.validNec)
@@ -70,6 +51,8 @@ final class RenderOptionsBuilder private[figlet4s] (
   def withFont(font: FIGfont): RenderOptionsBuilder =
     copy(font = Some(font).validNec)
 
+  //  Horizontal layout  //
+
   /** Use the default Horizontal Layout */
   def defaultHorizontalLayout(): RenderOptionsBuilder =
     copy(layout = None)
@@ -77,6 +60,8 @@ final class RenderOptionsBuilder private[figlet4s] (
   /** Use the specified Horizontal Layout */
   def withHorizontalLayout(layout: HorizontalLayout): RenderOptionsBuilder =
     copy(layout = Some(layout))
+
+  //  Max width  //
 
   /** Use the default Max Width */
   def defaultMaxWidth(): RenderOptionsBuilder =
@@ -86,9 +71,7 @@ final class RenderOptionsBuilder private[figlet4s] (
   def withMaxWidth(maxWidth: Int): RenderOptionsBuilder =
     copy(maxWidth = maxWidth)
 
-  /** Use the specified Max Width */
-  def text(text: String): RenderOptionsBuilder =
-    copy(text = text)
+  //  Support  //
 
   private def copy(
       text: String = this.text,
