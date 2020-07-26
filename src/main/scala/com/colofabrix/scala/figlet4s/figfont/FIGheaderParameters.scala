@@ -25,7 +25,7 @@ private[figfont] object FIGheaderParameters {
      */
     def apply(value: Int): PrintDirection = withValue(value)
 
-    val values = findValues
+    val values: Vector[PrintDirection] = findValues.toVector
   }
 
   /**
@@ -63,7 +63,7 @@ private[figfont] object FIGheaderParameters {
           else Vector()
         }
 
-    val values = findValues.toVector
+    val values: Vector[FullLayout] = findValues.toVector
 
     /**
      * The settings that belongs to Horizontal Smushing
@@ -117,13 +117,12 @@ private[figfont] object FIGheaderParameters {
         Vector(OldHorizontalFittingLayout)
       else
         values
-          .toVector
           .filter(_ =!= OldHorizontalFittingLayout)
           .flatMap { setting =>
             if ((requestedSettings.toBitSet & setting.value.toBitSet) === setting.value.toBitSet) Vector(setting)
             else Vector()
           }
 
-    val values = findValues
+    val values: Vector[OldLayout] = findValues.toVector
   }
 }

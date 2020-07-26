@@ -1,14 +1,17 @@
-package com.colofabrix.scala.figlet4s
+package com.colofabrix.scala.figlet4s.api
 
+import java.io.File
+import scala.io._
 import cats._
 import cats.effect._
 import cats.implicits._
+import com.colofabrix.scala.figlet4s.RenderOptions
+import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont._
-import com.colofabrix.scala.figlet4s.renderers._
-import java.io.File
-import scala.io._
+import com.colofabrix.scala.figlet4s.rendering._
 
-private[figlet4s] object Figlet4sAPI {
+private[figlet4s] object InternalAPI {
+
   /**
    * The list of available internal fonts
    */

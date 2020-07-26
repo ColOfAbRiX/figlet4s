@@ -2,7 +2,7 @@ package com.colofabrix.scala.figlet4s.figfont
 
 import cats.data.Validated._
 import cats.implicits._
-import com.colofabrix.scala.figlet4s._
+import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.utils._
 import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
 
@@ -45,7 +45,7 @@ final case class FIGfont private[figlet4s] (
 }
 
 @SuppressWarnings(Array("org.wartremover.warts.OptionPartial", "org.wartremover.warts.TraversableOps"))
-final object FIGfont {
+object FIGfont {
   /** State to build a font that is filled while scanning input lines */
   final private case class FontBuilderState(
       name: String,
@@ -107,7 +107,7 @@ final object FIGfont {
         case (i @ Invalid(_), _)           => i
         case (Valid(state), (line, index)) => processLine(state, line, index)
       }
-      .andThen(buildFont _)
+      .andThen(buildFont)
 
   /** List of required characters that all FIGfont must define */
   private val requiredChars = ((32 to 126) ++ Seq(196, 214, 220, 228, 246, 252, 223)).map(_.toChar)
@@ -180,9 +180,9 @@ final object FIGfont {
    * Check that the list of FIGcharacter are all uniform
    */
   private def validatedCharsUniformity(chars: Vector[FIGcharacter]): FigletResult[Vector[FIGcharacter]] =
-    if (chars.map(_.lines.length).toSeq.length =!= 1)
+    if (chars.map(_.lines.length).length =!= 1)
       FIGcharacterError(s"All FIGcharacters must have the same number of lines").invalidNec
-    else if (chars.map(_.fontId).toSeq.length =!= 1)
+    else if (chars.map(_.fontId).length =!= 1)
       FIGcharacterError(s"All FIGcharacters must have the same fontId, even if empty").invalidNec
     else
       chars.validNec
@@ -278,9 +278,9 @@ final object FIGfont {
   private def parseTagName(tagLine: String, tagLineIndex: Int): FigletResult[Char] = {
     val splitFontTag = tagLine.replaceFirst(" +", "###").split("###").toVector
     Option
-      .when(splitFontTag.size > 0)(splitFontTag(0))
+      .when(splitFontTag.nonEmpty)(splitFontTag(0))
       .toValidNec(
-        FIGcharacterError(s"Missing character code in the tag at line ${tagLineIndex}: $tagLine"),
+        FIGcharacterError(s"Missing character code in the tag at line $tagLineIndex: $tagLine"),
       )
       .andThen(parseCharCode(tagLineIndex, _))
   }

@@ -2,9 +2,9 @@ package com.colofabrix.scala.figlet4s
 
 import cats._
 import cats.arrow.FunctionK
-import cats.data._
 import cats.effect._
 import cats.implicits._
+import com.colofabrix.scala.figlet4s.errors._
 import java.math.BigInteger
 import java.security.MessageDigest
 import scala.annotation.tailrec
@@ -13,6 +13,22 @@ import scala.collection.immutable.BitSet
 private[figlet4s] object utils {
 
   //  Traversable from Isomorphism (https://stackoverflow.com/a/48833659/1215156)  //
+
+  /**
+   * Traversable instance for Seq
+   */
+  implicit val seqTraverse: Traverse[Seq] = traverseFromIso(
+    new FunctionK[Seq, Vector] { def apply[X](sx: Seq[X]): Vector[X] = sx.toVector },
+    new FunctionK[Vector, Seq] { def apply[X](vx: Vector[X]): Seq[X] = vx          },
+  )
+
+  /**
+   * Traversable instance for IndexedSeq
+   */
+  implicit val indexedSeqTraverse: Traverse[IndexedSeq] = traverseFromIso(
+    new FunctionK[IndexedSeq, Vector] { def apply[X](isx: IndexedSeq[X]): Vector[X] = isx.toVector },
+    new FunctionK[Vector, IndexedSeq] { def apply[X](vx: Vector[X]): IndexedSeq[X] = vx            },
+  )
 
   private def traverseFromIso[F[_], Z[_]](forward: F ~> Z, inverse: Z ~> F)(
       implicit
@@ -25,25 +41,18 @@ private[figlet4s] object utils {
       def foldRight[A, B](fa: F[A], lb: Eval[B])(f: (A, Eval[B]) => Eval[B]): Eval[B] =
         zt.foldRight(forward(fa), lb)(f)
 
-      def traverse[G[_], A, B](fa: F[A])(f: (A) => G[B])(
+      def traverse[G[_], A, B](fa: F[A])(f: A => G[B])(
           implicit
           appG: Applicative[G],
       ): G[F[B]] =
-        (zt.traverse(forward(fa))(f)(appG)).map(zb => inverse(zb))
+        zt.traverse(forward(fa))(f)(appG).map(zb => inverse(zb))
     }
-
-  implicit val seqTraverse: Traverse[Seq] = traverseFromIso(
-    new FunctionK[Seq, Vector] { def apply[X](sx: Seq[X]): Vector[X] = sx.toVector },
-    new FunctionK[Vector, Seq] { def apply[X](vx: Vector[X]): Seq[X] = vx          },
-  )
-
-  implicit val indexedSeqTraverse: Traverse[IndexedSeq] = traverseFromIso(
-    new FunctionK[IndexedSeq, Vector] { def apply[X](isx: IndexedSeq[X]): Vector[X] = isx.toVector   },
-    new FunctionK[Vector, IndexedSeq] { def apply[X](vx: Vector[X]): IndexedSeq[X] = vx.toIndexedSeq },
-  )
 
   //  Sync[Id]  //
 
+  /**
+   * Sync instance for Id
+   */
   @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   implicit val syncId: Sync[Id] = new Sync[Id] {
     import scala.util._
@@ -83,19 +92,25 @@ private[figlet4s] object utils {
 
   //  Misc  //
 
-  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
-  implicit class ValidatedOps[E, A](val self: Validated[NonEmptyChain[Throwable], A]) extends AnyVal {
+  /**
+   * Enrichment methods for FigletResult to extract or transform the value
+   */
+  implicit class FigletResultExtract[E, A](val self: FigletResult[A]) extends AnyVal {
     /**
      * Unsafely returns the value inside the Validated or throws an exception with the first error
      */
+    @SuppressWarnings(Array("org.wartremover.warts.Throw"))
     def unsafeGet: A = self.fold(e => throw e.head, identity)
 
     /**
-     * Transforms the Validated into a Cat's IO
+     * Transforms the Validated into a Cat's IO capturing the first error in IO
      */
     def asIO: IO[A] = self.fold(e => IO.raiseError(e.head), IO(_))
   }
 
+  /**
+   * Enrichment methods for Int for binary conversion
+   */
   implicit class BinaryInt(val self: Int) extends AnyVal {
     /**
      * Converts the Int to a BitSet
@@ -119,11 +134,14 @@ private[figlet4s] object utils {
     def toBitSet: BitSet = toBitSet(32)
   }
 
+  /**
+   * Enrichment methods for String to calculate the MD5 hash
+   */
   implicit class MD5String(val self: String) extends AnyVal {
     /**
      * MD5 hash of the string
      */
-    def md5(): String = {
+    def md5: String = {
       val md     = MessageDigest.getInstance("MD5")
       val digest = md.digest(self.getBytes)
       val bigInt = new BigInteger(1, digest)

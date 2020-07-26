@@ -2,7 +2,7 @@ package com.colofabrix.scala.figlet4s.figfont
 
 import cats.data.Validated
 import cats.implicits._
-import com.colofabrix.scala.figlet4s._
+import com.colofabrix.scala.figlet4s.errors._
 import scala.util.matching.Regex
 
 /**
@@ -23,7 +23,7 @@ final case class FIGcharacter private[figlet4s] (
     lines.value.mkString("\n")
 }
 
-final object FIGcharacter {
+object FIGcharacter {
   /**
    * Creates a validated FIGcharacter
    */

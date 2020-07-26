@@ -1,6 +1,8 @@
 package com.colofabrix.scala.figlet4s
 
 import cats.implicits._
+import com.colofabrix.scala.figlet4s.api.InternalAPI
+import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
 
@@ -37,13 +39,13 @@ final class RenderOptionsBuilder private[figlet4s] (
 
   /** Use the internal FIGfont with the specified fontName */
   def withInternalFont(fontName: String): RenderOptionsBuilder = {
-    val font = Figlet4sAPI.loadFontInternal(fontName).map(Some(_))
+    val font = InternalAPI.loadFontInternal(fontName).map(Some(_))
     copy(font = font)
   }
 
   /** Use the FIGfont with the specified fontPath */
   def withFont(fontPath: String): RenderOptionsBuilder = {
-    val font = Figlet4sAPI.loadFont(fontPath).map(Some(_))
+    val font = InternalAPI.loadFont(fontPath).map(Some(_))
     copy(font = font)
   }
 
@@ -81,12 +83,4 @@ final class RenderOptionsBuilder private[figlet4s] (
   ) = {
     new RenderOptionsBuilder(text, font, layout, maxWidth)
   }
-}
-
-object RenderOptionsBuilder {
-  def apply(): RenderOptionsBuilder =
-    new RenderOptionsBuilder()
-
-  def apply(text: String): RenderOptionsBuilder =
-    new RenderOptionsBuilder(text = text)
 }

@@ -1,10 +1,10 @@
-package com.colofabrix.scala.figlet4s.renderers
+package com.colofabrix.scala.figlet4s.rendering
 
 import cats.implicits._
 import com.colofabrix.scala.figlet4s._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
-import com.colofabrix.scala.figlet4s.renderers.MergeAction._
+import com.colofabrix.scala.figlet4s.rendering.MergeAction._
 import scala.annotation.tailrec
 
 /**
@@ -277,7 +277,6 @@ object HorizontalTextRenderer {
       // For each overlapping column apply the merge function to the matching pairs of characters
       val mergedOverlapping =
         (aOverlap zip bOverlap)
-          .toVector
           .traverse {
             case (aActiveColumn, bActiveColumn) =>
               (aActiveColumn zip bActiveColumn)

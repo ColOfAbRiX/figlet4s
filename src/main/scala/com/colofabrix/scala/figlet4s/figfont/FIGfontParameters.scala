@@ -1,7 +1,7 @@
 package com.colofabrix.scala.figlet4s.figfont
 
 import cats.implicits._
-import com.colofabrix.scala.figlet4s._
+import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont.FIGheaderParameters._
 import com.colofabrix.scala.figlet4s.figfont.FIGheaderParameters.OldLayout._
 import com.colofabrix.scala.figlet4s.figfont.FIGheaderParameters.FullLayout._
@@ -44,7 +44,7 @@ object FIGfontParameters {
           else if (settings.contains(UseHorizontalFitting) && !settings.contains(UseHorizontalSmushing))
             HorizontalFittingLayout.validNec
           else if (settings.contains(UseHorizontalSmushing) && selectedSmushingRules.size =!= 0)
-            HorizontalSmushingRule.fromHeader(header).map(ControlledHorizontalSmushingLayout(_))
+            HorizontalSmushingRule.fromHeader(header).map(ControlledHorizontalSmushingLayout)
           else
             UniversalHorizontalSmushingLayout.validNec
         }
@@ -141,7 +141,7 @@ object FIGfontParameters {
           else if (settings.contains(UseVerticalFitting) && !settings.contains(UseVerticalSmushing))
             VerticalFittingLayout.validNec
           else if (settings.contains(UseVerticalSmushing) && selectedSmushingRules.size =!= 0)
-            VerticalSmushingRules.fromHeader(header).map(ControlledVerticalSmushingLayout(_))
+            VerticalSmushingRules.fromHeader(header).map(ControlledVerticalSmushingLayout)
           else
             UniversalVerticalSmushingLayout.validNec
         }

@@ -1,23 +1,36 @@
 package com.colofabrix.scala.figlet4s
 
-/**
- * FIGLet Error
- */
-sealed trait FigletError extends Throwable
+import cats.data._
 
-/** An error when loading from files */
-final case class FigletLoadingError(inner: Throwable) extends FigletError
+object errors {
 
-/**
- * Errors for FIGLet Files
- */
-sealed trait FLFError extends FigletError
+  //  Error management  //
 
-/** FLF Header Error */
-final case class FIGheaderError(message: String) extends FLFError
+  /**
+   * A result of a processing operation that might include errors
+   */
+  type FigletResult[A] = Validated[NonEmptyChain[FigletError], A]
 
-/** FLF Character Error */
-final case class FIGcharacterError(message: String) extends FLFError
+  /**
+   * FIGLet Error
+   */
+  sealed trait FigletError extends Throwable
 
-/** FLF Font Error */
-final case class FIGFontError(message: String) extends FLFError
+  /** An error when loading from files */
+  final case class FigletLoadingError(inner: Throwable) extends FigletError
+
+  /**
+   * Errors for FIGLet Files
+   */
+  sealed trait FLFError extends FigletError
+
+  /** FLF Header Error */
+  final case class FIGheaderError(message: String) extends FLFError
+
+  /** FLF Character Error */
+  final case class FIGcharacterError(message: String) extends FLFError
+
+  /** FLF Font Error */
+  final case class FIGFontError(message: String) extends FLFError
+
+}

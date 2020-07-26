@@ -1,10 +1,10 @@
 package com.colofabrix.scala.figlet4s.figfont
 
+import cats.data.Validated
 import cats.data.Validated._
 import cats.implicits._
-import com.colofabrix.scala.figlet4s._
+import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont.FIGheaderParameters._
-import _root_.cats.data.Validated
 
 /**
  * FIGLettering Font file header that contains raw configuration settings for the FIGfont
