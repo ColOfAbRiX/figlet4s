@@ -1,43 +1,58 @@
 package com.colofabrix.scala.figlet4s
 
 import cats._
+import cats.implicits._
 import com.colofabrix.scala.figlet4s.api._
 import com.colofabrix.scala.figlet4s.figfont._
+import com.colofabrix.scala.figlet4s.rendering.RenderOptions
 import com.colofabrix.scala.figlet4s.utils._
 
 package object unsafe {
 
-  implicit class RenderOptionsBuilderOps(val self: RenderOptionsBuilder) extends OptionsBuilderClientAPI[Id] {
+  implicit class OptionsBuilderOps(val self: OptionsBuilder) extends OptionsBuilderClientAPI[Id] {
+    private val buildOptions = self.compile[Id]
+
     /** The text to render */
-    def text: Id[String] = self.text
+    def text: String = buildOptions.text
 
     /** Renders a given text as a FIGure and throws exceptions in case of errors */
     def render(): FIGure =
-      Figlet4s.renderString(self.text, options)
+      Figlet4s.renderString(buildOptions.text, options)
 
     /** Builds an instance of RenderOptions */
     def options: RenderOptions = {
-      val font = self
-        .font
-        .unsafeGet
-        .getOrElse(Figlet4s.loadFontInternal())
+      val font =
+        buildOptions
+          .font
+          .getOrElse(Figlet4s.loadFontInternal().validNec)
+          .unsafeGet
 
-      RenderOptions(font, self.layout, self.maxWidth)
+      val horizontalLayout =
+        buildOptions
+          .horizontalLayout
+          .getOrElse(font.hLayout)
+
+      val maxWidth =
+        buildOptions
+          .maxWidth
+          .getOrElse(Int.MaxValue)
+
+      RenderOptions(font, horizontalLayout, maxWidth)
     }
   }
 
-  implicit class FIGureOps(val figure: FIGure) extends FIGureClientAPI[Id] {
+  implicit class FIGureOps(val self: FIGure) extends FIGureClientAPI[Id] {
     /** Apply a function to each line of the FIGure */
     def foreachLine[A](f: String => A): Unit =
-      figure.cleanLines.foreach(_.foreach(f))
+      self.cleanLines.foreach(_.foreach(f))
 
     /** Print the FIGure */
     def print(): Unit =
-      figure.foreachLine(println)
+      self.foreachLine(println)
 
     /** The figure as a Vector of String */
     def asVector(): Vector[String] =
-      figure.lines.map(_.value.mkString("\n"))
+      self.lines.map(_.value.mkString("\n"))
 
     /** The figure as single String */
     def asString(): String =

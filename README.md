@@ -19,7 +19,7 @@ object Main extends App {
   Figlet4s.renderString("Hello, World!").print()
 
   // Setting options
-  val alligatorFont80 = RenderOptionsBuilder()
+  val alligatorFont80 = OptionsBuilder()
     .withInternalFont("alligator")
     .withMaxWidth(80)
 
@@ -30,7 +30,7 @@ object Main extends App {
   Figlet4s.internalFonts.foreach(println)
 
   // Loading and printing a font
-  val aCustomFont = RenderOptionsBuilder()
+  val aCustomFont = OptionsBuilder()
     .withFont("path/to/font.flf")
   Figlet4s.renderString("Hello, World!", aCustomFont).print()
 }
@@ -38,7 +38,6 @@ object Main extends App {
 
 ## Planned features
 
-* Support for generic effects
 * Support for vertical layout
 * Support for control files `*.flc`
 * Support for zipped fonts

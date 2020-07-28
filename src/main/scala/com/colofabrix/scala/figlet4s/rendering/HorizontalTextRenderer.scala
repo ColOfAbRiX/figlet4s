@@ -20,7 +20,7 @@ object HorizontalTextRenderer {
   def render(text: String, options: RenderOptions): FIGure = {
     val font          = options.font
     val empty         = font.zero.lines.toSubcolumns
-    val chosenLayout  = options.layout.getOrElse(font.hLayout)
+    val chosenLayout  = options.horizontalLayout
     val mergeStrategy = layout2mergeStrategy(font.header.hardblank)(chosenLayout)
 
     val result = text

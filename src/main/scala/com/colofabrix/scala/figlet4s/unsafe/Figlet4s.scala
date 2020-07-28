@@ -1,9 +1,11 @@
 package com.colofabrix.scala.figlet4s.unsafe
 
 import cats._
+import com.colofabrix.scala.figlet4s.OptionsBuilder.SetTextAction
 import com.colofabrix.scala.figlet4s._
 import com.colofabrix.scala.figlet4s.api._
 import com.colofabrix.scala.figlet4s.figfont._
+import com.colofabrix.scala.figlet4s.rendering.RenderOptions
 import com.colofabrix.scala.figlet4s.utils._
 
 /**
@@ -26,17 +28,17 @@ object Figlet4s extends Figlet4sClientAPI[Id] {
       .unsafeGet
 
   /** Loads a FIGfont from file */
-  def loadFont(path: String, encoding: String = "ISO8859_1"): FIGfont =
+  def loadFont(path: String, encoding: String): FIGfont =
     InternalAPI
       .loadFont[Id](path, encoding)
       .unsafeGet
 
   /** Returns a new options builder with default settings */
-  def builder(): RenderOptionsBuilder =
-    new RenderOptionsBuilder()
+  def builder(): OptionsBuilder =
+    new OptionsBuilder()
 
   /** Returns a new options builder with default settings and a set text */
-  def builder(text: String): RenderOptionsBuilder =
-    new RenderOptionsBuilder(text = text)
+  def builder(text: String): OptionsBuilder =
+    new OptionsBuilder(SetTextAction(text) :: Nil)
 
 }

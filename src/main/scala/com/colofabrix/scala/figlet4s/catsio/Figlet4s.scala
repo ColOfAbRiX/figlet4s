@@ -1,10 +1,12 @@
 package com.colofabrix.scala.figlet4s.catsio
 
 import cats.effect._
+import com.colofabrix.scala.figlet4s.OptionsBuilder.SetTextAction
 import com.colofabrix.scala.figlet4s._
 import com.colofabrix.scala.figlet4s.api._
 import com.colofabrix.scala.figlet4s.utils._
 import com.colofabrix.scala.figlet4s.figfont._
+import com.colofabrix.scala.figlet4s.rendering.RenderOptions
 
 /**
  * "FIGlet" stands for "Frank, Ian and Glenn's LETters and this is a pure Scala implementation
@@ -32,11 +34,11 @@ object Figlet4s extends Figlet4sClientAPI[IO] {
       .flatMap(_.asIO)
 
   /** Returns a new options builder with default settings */
-  def builder(): RenderOptionsBuilder =
-    new RenderOptionsBuilder()
+  def builder(): OptionsBuilder =
+    new OptionsBuilder()
 
   /** Returns a new options builder with default settings and a set text */
-  def builder(text: String): RenderOptionsBuilder =
-    new RenderOptionsBuilder(text = text)
+  def builder(text: String): OptionsBuilder =
+    new OptionsBuilder(SetTextAction(text) :: Nil)
 
 }

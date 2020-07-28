@@ -2,33 +2,61 @@ package com.colofabrix.scala.figlet4s
 
 import cats.effect._
 import com.colofabrix.scala.figlet4s.api._
+import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters.HorizontalLayout
 import com.colofabrix.scala.figlet4s.figfont._
+import com.colofabrix.scala.figlet4s.rendering._
 import com.colofabrix.scala.figlet4s.utils._
 
 package object catsio {
 
-  implicit class RenderOptionsBuilderOps(val self: RenderOptionsBuilder) extends OptionsBuilderClientAPI[IO] {
+  implicit class OptionsBuilderOps(val self: OptionsBuilder) extends OptionsBuilderClientAPI[IO] {
+    private val buildOptions = self.compile[IO]
+
     /** The text to render */
-    def text: IO[String] = IO.pure(self.text)
+    def text: IO[String] = buildOptions.map(_.text)
 
     /** Renders the text into a FIGure */
     def render(): IO[FIGure] =
       for {
         options  <- options
-        rendered <- InternalAPI.renderString[IO](self.text, options)
+        text     <- text
+        rendered <- InternalAPI.renderString[IO](text, options)
       } yield rendered
 
     /** Returns the render options */
     def options: IO[RenderOptions] =
       for {
-        font     <- self.font.asIO
-        safeFont <- font.map(IO(_)).getOrElse(defaultFont)
-      } yield RenderOptions(safeFont, self.layout, self.maxWidth)
+        font             <- builtFont
+        horizontalLayout <- builtHorizontalLayout
+        maxWidth         <- builtMaxWidth
+      } yield {
+        RenderOptions(font, horizontalLayout, maxWidth)
+      }
 
     //  Support  //
 
-    private def defaultFont: IO[FIGfont] =
+    private def builtFont: IO[FIGfont] =
+      for {
+        optionFont <- buildOptions.map(_.font.map(_.asIO))
+        font       <- optionFont.getOrElse(builtDefaultFont)
+      } yield font
+
+    private def builtDefaultFont: IO[FIGfont] =
       InternalAPI.loadFontInternal[IO]().flatMap(_.asIO)
+
+    private def builtHorizontalLayout: IO[HorizontalLayout] =
+      for {
+        font          <- builtFont
+        optionHLayout <- buildOptions.map(_.horizontalLayout)
+        hLayout       <- IO.pure(optionHLayout.getOrElse(font.hLayout))
+      } yield hLayout
+
+    private def builtMaxWidth: IO[Int] =
+      for {
+        optionMaxWidth <- buildOptions.map(_.maxWidth)
+        maxWidth       <- IO.pure(optionMaxWidth.getOrElse(Int.MaxValue))
+      } yield maxWidth
+
   }
 
   implicit class FIGureOps(val figure: FIGure) extends FIGureClientAPI[IO] {

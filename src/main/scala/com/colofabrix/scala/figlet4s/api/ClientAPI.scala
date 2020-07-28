@@ -2,6 +2,7 @@ package com.colofabrix.scala.figlet4s.api
 
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s._
+import com.colofabrix.scala.figlet4s.rendering.RenderOptions
 
 /**
  * Common interface of all implementations of Figlet4s
@@ -20,10 +21,10 @@ trait Figlet4sClientAPI[F[_]] {
   def loadFont(path: String, encoding: String): F[FIGfont]
 
   /** Returns a new options builder with default settings */
-  def builder(): RenderOptionsBuilder
+  def builder(): OptionsBuilder
 
   /** Returns a new options builder with default settings and a set text */
-  def builder(text: String): RenderOptionsBuilder
+  def builder(text: String): OptionsBuilder
 }
 
 /**

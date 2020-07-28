@@ -51,7 +51,7 @@ private[figlet4s] object utils {
   //  Sync[Id]  //
 
   /**
-   * Sync instance for Id
+   * Sync instance for Id for impure calculations
    */
   @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   implicit val syncId: Sync[Id] = new Sync[Id] {
