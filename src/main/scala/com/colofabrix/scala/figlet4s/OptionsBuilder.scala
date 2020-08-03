@@ -57,40 +57,43 @@ class OptionsBuilder(builderActions: List[BuilderActions] = List.empty) {
 
   //  Compiler  //
 
+  /**
+   * Compiler to execute Actions to obtain BuildData, generic in the effect
+   */
   private[figlet4s] def compile[F[_]: Sync]: F[BuildData] =
     builderActions
       .foldM(BuildData()) {
-        case (buildData, DefaultFontAction)                  =>
+        case (buildData, DefaultFontAction) =>
           InternalAPI
             .loadFontInternal[F]("standard")
             .map { font =>
               buildData.copy(font = Some(font))
             }
 
-        case (buildData, DefaultHorizontalLayout)            =>
+        case (buildData, DefaultHorizontalLayout) =>
           Sync[F].pure(buildData.copy(horizontalLayout = None))
 
-        case (buildData, DefaultMaxWidthAction)              =>
+        case (buildData, DefaultMaxWidthAction) =>
           Sync[F].pure(buildData.copy(maxWidth = None))
 
         //  Text  //
 
-        case (buildData, SetTextAction(text))                =>
+        case (buildData, SetTextAction(text)) =>
           Sync[F].pure(buildData.copy(text = text))
 
         //  Max Width  //
 
-        case (buildData, SetMaxWidthAction(maxWidth))        =>
+        case (buildData, SetMaxWidthAction(maxWidth)) =>
           Sync[F].pure(buildData.copy(maxWidth = Some(maxWidth)))
 
         //  Horizontal Layout  //
 
-        case (buildData, SetHorizontalLayout(layout))        =>
+        case (buildData, SetHorizontalLayout(layout)) =>
           Sync[F].pure(buildData.copy(horizontalLayout = Some(layout)))
 
         //  Fonts  //
 
-        case (buildData, SetFontAction(font))                =>
+        case (buildData, SetFontAction(font)) =>
           Sync[F].pure(buildData.copy(font = Some(font.validNec)))
 
         case (buildData, LoadFontAction(fontPath, encoding)) =>
@@ -100,7 +103,7 @@ class OptionsBuilder(builderActions: List[BuilderActions] = List.empty) {
               buildData.copy(font = Some(font))
             }
 
-        case (buildData, LoadInternalFontAction(fontName))   =>
+        case (buildData, LoadInternalFontAction(fontName)) =>
           InternalAPI
             .loadFontInternal(fontName)
             .map { font =>

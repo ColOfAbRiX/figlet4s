@@ -36,12 +36,12 @@ object FIGcharacter {
       comment: Option[String],
       position: Int,
   ): FigletResult[FIGcharacter] = {
-    val maxLengthV  = Validated.condNec(
+    val maxLengthV = Validated.condNec(
       maxLength > 0,
       maxLength,
       FIGheaderError(s"Value of 'maxLength' must be positive: $maxLength"),
     )
-    val argHeightV  = Validated.condNec(
+    val argHeightV = Validated.condNec(
       height > 0,
       height,
       FIGheaderError(s"Value of 'height' must be positive: $height"),

@@ -61,7 +61,7 @@ private[figlet4s] object utils {
       x
 
     def suspend[A](thunk: => Id[A]): Id[A] =
-      pure(thunk)
+      thunk
 
     def flatMap[A, B](fa: Id[A])(f: A => Id[B]): Id[B] =
       f(fa)
@@ -75,7 +75,7 @@ private[figlet4s] object utils {
 
     def bracketCase[A, B](resource: Id[A])(use: A => Id[B])(release: (A, ExitCase[Throwable]) => Id[Unit]): Id[B] =
       Try(use(resource)) match {
-        case Failure(error)  =>
+        case Failure(error) =>
           release(resource, ExitCase.Error(error))
           throw error
         case Success(result) =>

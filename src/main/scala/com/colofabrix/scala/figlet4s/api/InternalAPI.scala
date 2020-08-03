@@ -68,19 +68,15 @@ private[figlet4s] object InternalAPI {
         .onMalformedInput(java.nio.charset.CodingErrorAction.REPORT)
     }
 
-  private def withFile[F[_]: Sync](path: String, decoder: Codec): Resource[F, BufferedSource] = {
-    val acquire = Sync[F].delay {
-      Source.fromFile(new File(path))(decoder)
+  private def withFile[F[_]: Sync](path: String, decoder: Codec): Resource[F, BufferedSource] =
+    Resource.liftF {
+      Sync[F].delay(Source.fromFile(new File(path))(decoder))
     }
-    Resource.fromAutoCloseable(acquire)
-  }
 
-  private def withResource[F[_]: Sync](path: String, decoder: Codec): Resource[F, BufferedSource] = {
-    val acquire = Sync[F].delay {
-      Source.fromResource(path)(decoder)
+  private def withResource[F[_]: Sync](path: String, decoder: Codec): Resource[F, BufferedSource] =
+    Resource.liftF {
+      Sync[F].delay(Source.fromResource(path)(decoder))
     }
-    Resource.fromAutoCloseable(acquire)
-  }
 
   private def interpretFile[F[_]: Sync](path: String)(source: BufferedSource): F[FigletResult[FIGfont]] =
     Sync[F].delay {

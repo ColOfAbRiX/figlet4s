@@ -25,6 +25,12 @@ trait Figlet4sClientAPI[F[_]] {
 
   /** Returns a new options builder with default settings and a set text */
   def builder(text: String): OptionsBuilder
+
+  /** Returns a new options builder with default settings */
+  def builderF(): F[OptionsBuilder]
+
+  /** Returns a new options builder with default settings and a set text */
+  def builderF(text: String): F[OptionsBuilder]
 }
 
 /**

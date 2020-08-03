@@ -1,7 +1,6 @@
 package com.colofabrix.scala.figlet4s.rendering
 
 import cats.implicits._
-import com.colofabrix.scala.figlet4s._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
 import com.colofabrix.scala.figlet4s.rendering.MergeAction._
@@ -93,7 +92,7 @@ object HorizontalTextRenderer {
       case (a, ' ') if a =!= hardblank         => Continue(a)
       case (' ', bChar) if bChar =!= hardblank => Continue(bChar)
       case (' ', bChar) if bChar === hardblank => Stop
-      case (a, bChar)                          =>
+      case (a, bChar) =>
         rules
           .map(rule2smushingStrategy(hardblank))
           .map(f => f(a, bChar))

@@ -80,7 +80,7 @@ object FIGfont {
 
     val hLayoutV = HorizontalLayout.fromHeader(header)
     val vLayoutV = VerticalLayout.fromHeader(header)
-    val charsV   =
+    val charsV =
       chars
         .validNec
         .andThen(validatedRequiredChars)

@@ -9,30 +9,116 @@ FIGdriver Standard](figfont_reference.txt).
 Its interface is based on the unix command `figlet` and takes ideas from the Python library
 `PyFiglet`.
 
-## Example
+## Example using impure functions
+
+### Quick start
+
+This simple example shows step-by-step how to use Figlet4s.
+
+You first obtain an option builder that is used to set the options you want. After that you request the renderer to
+convert the text into a FIGure that can be printed at the end.
 
 ```scala
-import com.colofabrix.scala.figlet4s._
+import com.colofabrix.scala.figlet4s.unsafe._
 
-object Main extends App {
-  // Simple "Hello world" with default font (standard)
-  Figlet4s.renderString("Hello, World!").print()
+object QuickStartMain extends App {
 
-  // Setting options
-  val alligatorFont80 = OptionsBuilder()
-    .withInternalFont("alligator")
-    .withMaxWidth(80)
+  // Obtain an options builder with the default options and a set text
+  val builder = Figlet4s.builder("Hello, World!")
 
-  // Selecting a specific internal font
-  Figlet4s.renderString("Hello, World!", alligatorFont80).print()
+  // Render the text into a FIGure using the default options
+  val figure = builder.render()
 
-  // List the available internal fonts
-  Figlet4s.internalFonts.foreach(println)
+  // Print the FIGure
+  figure.print()
+ 
+  // The rendered FIGure as a single string or as a list of strings (one for each line)
+  val renderedText = figure.asString()
+  val renderedLines = figure.asVector() 
 
-  // Loading and printing a font
-  val aCustomFont = OptionsBuilder()
-    .withFont("path/to/font.flf")
-  Figlet4s.renderString("Hello, World!", aCustomFont).print()
+}
+```
+
+### Showcasing options
+
+```scala
+import com.colofabrix.scala.figlet4s.unsafe._
+import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
+
+object ShowcaseOptionsMain extends App {
+
+  Figlet4s
+    .builder("Hello, World!")                       // Create the options builder
+    .withMaxWidth(80)                               // Max width of the text
+    .withInternalFont("alligator")                  // Set the font
+    .withHorizontalLayout(HorizontalFittingLayout)  // Choose a layout
+    .defaultMaxWidth()                              // Go back to the default max width
+    .text("Hello, Scala!")                          // Using a different text
+    .render()                                       // Render the text to a FIGure
+    .print()                                        // Print the FIGURE
+
+}
+```
+
+Full list of settings:
+
+* `text`: Use the specified Text Width 
+* `defaultFont`: Use the default FIGfont 
+* `withInternalFont`: Use the internal FIGfont with the specified fontName 
+* `withFont`: Use the FIGfont with the specified fontPath 
+* `withFont`: Use the specified FIGfont 
+* `defaultHorizontalLayout`: Use the default Horizontal Layout 
+* `withHorizontalLayout`: Use the specified Horizontal Layout 
+* `defaultMaxWidth`: Use the default Max Width 
+* `withMaxWidth`: Use the specified Max Width 
+
+## Example using cat's IO
+
+### Quick start
+
+This is the same example as above, only using IOApp
+
+```scala
+import cats.effect.IOApp
+import com.colofabrix.scala.figlet4s.catsio._
+
+object QuickStartIOMain extends IOApp {
+
+  def run(args: List[String]): IO[ExitCode] =
+    for {
+      builder <- Figlet4s.builderF("Hello, World!")
+      figure  <- builder.render()
+      _       <- figure.print()
+    } yield ExitCode.Success
+
+}
+```
+
+### Showcasing options
+
+This is the same example as above, only using IOApp. You can find a more comprehensive list of options in the example
+above
+
+```scala
+import cats.effect.IOApp
+import com.colofabrix.scala.figlet4s.catsio._
+import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
+
+object ShowcaseOptionsIOMain extends IOApp {
+
+  def run(args: List[String]): IO[ExitCode] =
+    for {
+      figure <- Figlet4s
+                  .builder("Hello, World!")                      // Create the options builder
+                  .withMaxWidth(80)                              // Max width of the text
+                  .withInternalFont("alligator")                 // Set the font
+                  .withHorizontalLayout(HorizontalFittingLayout) // Choose a layout
+                  .defaultMaxWidth()                             // Go back to the default max width
+                  .text("Hello, Scala!")                         // Using a different text
+                  .render()                                      // Render the text to a FIGure
+      _ <- figure.print()
+    } yield ExitCode.Success
+
 }
 ```
 
