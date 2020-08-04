@@ -9,25 +9,23 @@ object Main extends App {
   private def unsafeTest() = {
     import com.colofabrix.scala.figlet4s.unsafe._
     Figlet4s
-      .builder("Fa & Cl")
+      .builder("Fa")
       .withInternalFont("alligator")
-      .withHorizontalLayout(HorizontalFittingLayout)
       .render()
       .print()
   }
-
-  private def ioTest() = {
-    import com.colofabrix.scala.figlet4s.catsio._
-    val ioapp = for {
-      figure <- Figlet4s
-                  .builder("Fa & Cl")
-                  .withInternalFont("standard")
-                  .render()
-      _ <- figure.print()
-    } yield ()
-    ioapp.unsafeRunSync()
-  }
-
   unsafeTest()
-  ioTest()
+
+  //private def ioTest() = {
+  //  import com.colofabrix.scala.figlet4s.catsio._
+  //  val ioapp = for {
+  //    figure <- Figlet4s
+  //                .builder("Fa & Cl")
+  //                .withInternalFont("standard")
+  //                .render()
+  //    _ <- figure.print()
+  //  } yield ()
+  //  ioapp.unsafeRunSync()
+  //}
+  //ioTest()
 }

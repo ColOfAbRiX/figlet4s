@@ -48,8 +48,8 @@ object HorizontalTextRenderer {
   private def layout2mergeStrategy(hardblank: Char): PartialFunction[HorizontalLayout, MergeStrategy] = {
     case FullWidthHorizontalLayout                 => fullWidthStrategy
     case HorizontalFittingLayout                   => horizontalFittingStrategy(hardblank)
-    case UniversalHorizontalSmushingLayout         => controlledHorizontalSmushingStrategy(hardblank)
-    case ControlledHorizontalSmushingLayout(rules) => universalHorizontalSmushingStrategy(rules, hardblank)
+    case UniversalHorizontalSmushingLayout         => universalHorizontalSmushingStrategy(hardblank)
+    case ControlledHorizontalSmushingLayout(rules) => controlledHorizontalSmushingStrategy(rules, hardblank)
   }
 
   /**
@@ -72,9 +72,9 @@ object HorizontalTextRenderer {
     }
 
   /**
-   * Encodes the Controlled Horizontal Smushing horizontal layout
+   * Encodes the Universal Horizontal Smushing horizontal layout
    */
-  private def controlledHorizontalSmushingStrategy(hardblank: Char): MergeStrategy =
+  private def universalHorizontalSmushingStrategy(hardblank: Char): MergeStrategy =
     mergeColumnWith {
       case (' ', ' ')                          => Continue(' ')
       case (a, ' ') if a =!= hardblank         => Continue(a)
@@ -84,9 +84,12 @@ object HorizontalTextRenderer {
     }
 
   /**
-   * Encodes the Universal Horizontal Smushing horizontal layout
+   * Encodes the Controlled Horizontal Smushing horizontal layout
    */
-  private def universalHorizontalSmushingStrategy(rules: Vector[HorizontalSmushingRule], hardblank: Char): MergeStrategy =
+  private def controlledHorizontalSmushingStrategy(
+      rules: Vector[HorizontalSmushingRule],
+      hardblank: Char,
+  ): MergeStrategy =
     mergeColumnWith {
       case (' ', ' ')                          => Continue(' ')
       case (a, ' ') if a =!= hardblank         => Continue(a)
@@ -197,7 +200,7 @@ object HorizontalTextRenderer {
 
   Each FIGure is broken down in SubColumns:
 
-  FIGure A
+  FIGure A                                        | A-overlapping |
   +--------+         +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+
   |  _____ |         | |   | |   |_|   |_|   |_|   |_|   |_|   | |
   | |  ___||         | |   |||   | |   | |   |_|   |_|   |_|   |||
@@ -207,7 +210,18 @@ object HorizontalTextRenderer {
   |        |         | |   | |   | |   | |   | |   | |   | |   | |
   +--------+         +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+
                                                    |             |
-                                                   |             | --- Final overlap = 3 columns
+                                                   |             |  Final overlap = 3 columns
+  Resulting FIGure                                 |             | /
+  +-------------+    +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+
+  |  _____      |    | |   | |   |_|   |_|   |_|   |_|   |_|   | |   | |   | |   | |   | |   | |
+  | |  ___|__ _ |    | |   |||   | |   | |   |_|   |_|   |_|   |||   |_|   |_|   | |   |_|   | |
+  | | |_  / _` || -> | | + ||| + | | + ||| + |_| + | | + | | + |/| + | | + |_| + |`| + | | + |||
+  | |  _|| (_| || -> | | + ||| + | | + | | + |_| + ||| + ||| + | | + |(| + |_| + ||| + | | + |||
+  | |_|   \__,_||    | |   |||   |_|   |||   | |   | |   | |   |\|   |_|   |_|   |,|   |_|   |||
+  |             |    | |   | |   | |   | |   | |   | |   | |   | |   | |   | |   | |   | |   | |
+  +-------------+    +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+
+                                                   |             |
+                                                   |             |
   FIGure B                                         |             |
   +--------+                                       +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+
   |        |                                       | |   | |   | |   | |   | |   | |   | |   | |
@@ -217,17 +231,7 @@ object HorizontalTextRenderer {
   |  \__,_||                                       | |   | |   |\|   |_|   |_|   |,|   |_|   |||
   |        |                                       | |   | |   | |   | |   | |   | |   | |   | |
   +--------+                                       +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+
-                                                   |             |
-                                                   |             |
-  Resulting FIGure                                 |             |
-  +-------------+    +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+
-  |  _____      |    | |   | |   |_|   |_|   |_|   |_|   |_|   | |   | |   | |   | |   | |   | |
-  | |  ___|__ _ |    | |   |||   | |   | |   |_|   |_|   |_|   |||   |_|   |_|   | |   |_|   | |
-  | | |_  / _` || -> | | + ||| + | | + ||| + |_| + | | + | | + |/| + | | + |_| + |`| + | | + |||
-  | |  _|| (_| || -> | | + ||| + | | + | | + |_| + ||| + ||| + | | + |(| + |_| + ||| + | | + |||
-  | |_|   \__,_||    | |   |||   |_|   |||   | |   | |   | |   |\|   |_|   |_|   |,|   |_|   |||
-  |             |    | |   | |   | |   | |   | |   | |   | |   | |   | |   | |   | |   | |   | |
-  +-------------+    +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+
+                                                  | B-overlapping |
 
   Merge of overlapping columns with the custom merge function
 

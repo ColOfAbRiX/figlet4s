@@ -11,7 +11,6 @@ trait Libraries {
   lazy val CatsVersion       = "2.1.1"
   lazy val EnumeratumVersion = "1.6.1"
   lazy val NewtypeVersion    = "0.4.4"
-  lazy val PPrintVersion     = "0.5.9"
 
   // Generic
   lazy val CatsCoreDep   = "org.typelevel" %% "cats-core"   % CatsVersion
@@ -19,6 +18,5 @@ trait Libraries {
   lazy val CatsFreeDep   = "org.typelevel" %% "cats-free"   % CatsVersion
   lazy val CatsKernelDep = "org.typelevel" %% "cats-kernel" % CatsVersion
   lazy val EnumeratumDep = "com.beachape"  %% "enumeratum"  % EnumeratumVersion
-  lazy val PPrintDep     = "com.lihaoyi"   %% "pprint"      % PPrintVersion
 
 }

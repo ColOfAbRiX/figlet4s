@@ -19,6 +19,12 @@ package object unsafe {
     def render(): FIGure =
       Figlet4s.renderString(buildOptions.text, options)
 
+    /** Renders a given text into a FIGure */
+    def render(text: String): Id[FIGure] =
+      self
+        .text(text)
+        .render()
+
     /** Builds an instance of RenderOptions */
     def options: RenderOptions = {
       val font =

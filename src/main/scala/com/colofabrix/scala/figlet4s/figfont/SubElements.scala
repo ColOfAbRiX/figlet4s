@@ -20,8 +20,7 @@ object SubLines {
 }
 
 /**
- * W
- * Represents the SubLines in Figlet which are the String that compose each column of the FIGure or of a FIGcharacter
+ * Represents the SubColumns in Figlet which are the String that compose each column of the FIGure or of a FIGcharacter
  */
 final case class SubColumns(value: Vector[String]) extends SubElementOps[SubColumns] {
   protected def pure(value: Vector[String]): SubColumns =

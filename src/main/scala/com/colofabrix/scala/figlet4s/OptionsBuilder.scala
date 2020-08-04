@@ -11,7 +11,7 @@ import com.colofabrix.scala.figlet4s.figfont._
 /**
  * Builder of rendering options
  */
-class OptionsBuilder(builderActions: List[BuilderActions] = List.empty) {
+final class OptionsBuilder(private val builderActions: List[BuilderActions] = List.empty) {
 
   /** Use the specified Text Width */
   def text(text: String): OptionsBuilder =
@@ -55,13 +55,40 @@ class OptionsBuilder(builderActions: List[BuilderActions] = List.empty) {
   def withMaxWidth(maxWidth: Int): OptionsBuilder =
     new OptionsBuilder(SetMaxWidthAction(maxWidth) :: builderActions)
 
-  //  Compiler  //
+  /** Compiler to execute Actions to obtain BuildData, generic in the effect */
+  private[figlet4s] def compile[F[_]: Sync]: F[BuildData] =
+    OptionsBuilder.compile(this)
+
+}
+
+private[figlet4s] object OptionsBuilder {
+
+  sealed trait BuilderActions extends Product with Serializable
+
+  final case object DefaultFontAction       extends BuilderActions
+  final case object DefaultHorizontalLayout extends BuilderActions
+  final case object DefaultMaxWidthAction   extends BuilderActions
+
+  final case class SetTextAction(text: String)                        extends BuilderActions
+  final case class SetMaxWidthAction(maxWidth: Int)                   extends BuilderActions
+  final case class SetHorizontalLayout(layout: HorizontalLayout)      extends BuilderActions
+  final case class SetFontAction(font: FIGfont)                       extends BuilderActions
+  final case class LoadFontAction(fontPath: String, encoding: String) extends BuilderActions
+  final case class LoadInternalFontAction(fontName: String)           extends BuilderActions
+
+  final case class BuildData(
+      text: String = "",
+      font: Option[FigletResult[FIGfont]] = None,
+      horizontalLayout: Option[HorizontalLayout] = None,
+      maxWidth: Option[Int] = None,
+  )
 
   /**
    * Compiler to execute Actions to obtain BuildData, generic in the effect
    */
-  private[figlet4s] def compile[F[_]: Sync]: F[BuildData] =
-    builderActions
+  def compile[F[_]: Sync](self: OptionsBuilder): F[BuildData] =
+    self
+      .builderActions
       .foldM(BuildData()) {
         case (buildData, DefaultFontAction) =>
           InternalAPI
@@ -110,28 +137,4 @@ class OptionsBuilder(builderActions: List[BuilderActions] = List.empty) {
               buildData.copy(font = Some(font))
             }
       }
-}
-
-private[figlet4s] object OptionsBuilder {
-
-  sealed trait BuilderActions extends Product with Serializable
-
-  final case object DefaultFontAction       extends BuilderActions
-  final case object DefaultHorizontalLayout extends BuilderActions
-  final case object DefaultMaxWidthAction   extends BuilderActions
-
-  final case class SetTextAction(text: String)                        extends BuilderActions
-  final case class SetMaxWidthAction(maxWidth: Int)                   extends BuilderActions
-  final case class SetHorizontalLayout(layout: HorizontalLayout)      extends BuilderActions
-  final case class SetFontAction(font: FIGfont)                       extends BuilderActions
-  final case class LoadFontAction(fontPath: String, encoding: String) extends BuilderActions
-  final case class LoadInternalFontAction(fontName: String)           extends BuilderActions
-
-  final case class BuildData(
-      text: String = "",
-      font: Option[FigletResult[FIGfont]] = None,
-      horizontalLayout: Option[HorizontalLayout] = None,
-      maxWidth: Option[Int] = None,
-  )
-
 }

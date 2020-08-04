@@ -20,6 +20,8 @@ trait Figlet4sClientAPI[F[_]] {
   /** Loads a FIGfont from file */
   def loadFont(path: String, encoding: String): F[FIGfont]
 
+  //  Builder  //
+
   /** Returns a new options builder with default settings */
   def builder(): OptionsBuilder
 
@@ -42,6 +44,9 @@ trait OptionsBuilderClientAPI[F[_]] {
 
   /** Renders the text into a FIGure */
   def render(): F[FIGure]
+
+  /** Renders a given text into a FIGure */
+  def render(text: String): F[FIGure]
 
   /** Returns the render options */
   def options: F[RenderOptions]

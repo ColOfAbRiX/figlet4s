@@ -23,6 +23,12 @@ package object catsio {
         rendered <- InternalAPI.renderString[IO](text, options)
       } yield rendered
 
+    /** Renders a given text into a FIGure */
+    def render(text: String): IO[FIGure] =
+      self
+        .text(text)
+        .render()
+
     /** Returns the render options */
     def options: IO[RenderOptions] =
       for {
@@ -56,7 +62,6 @@ package object catsio {
         optionMaxWidth <- buildOptions.map(_.maxWidth)
         maxWidth       <- IO.pure(optionMaxWidth.getOrElse(Int.MaxValue))
       } yield maxWidth
-
   }
 
   implicit class FIGureOps(val figure: FIGure) extends FIGureClientAPI[IO] {
