@@ -8,9 +8,17 @@ import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
 object Main extends App {
   private def unsafeTest() = {
     import com.colofabrix.scala.figlet4s.unsafe._
+
     Figlet4s
-      .builder("Fa")
+      .builder("Fabrizio & Claire")
       .withInternalFont("alligator")
+      .withHorizontalLayout(UniversalHorizontalSmushingLayout)
+      .render()
+      .print()
+
+    Figlet4s
+      .builder("Fabrizio & Claire")
+      .withHorizontalLayout(UniversalHorizontalSmushingLayout)
       .render()
       .print()
   }

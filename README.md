@@ -6,7 +6,9 @@ support for Cats and minimal dependencies.
 This implementation follows the rules established in the [The FIGfont Version 2 FIGfont and
 FIGdriver Standard](figfont_reference.txt).
 
-## Installing dependencies
+## Setup
+
+### SBT
 
 TODO
 
@@ -121,6 +123,11 @@ object ShowcaseOptionsIOMain extends IOApp {
 
 ## Using the Figlet4s client
 
+If, for whatever reason, you prefer to not use the options builder, you can build the option object manually and call
+the rendering functions.
+
+### Using impure functions
+ 
 ```scala
 import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
 import com.colofabrix.scala.figlet4s.rendering.RenderOptions
@@ -136,9 +143,41 @@ object LowLevelMain extends App {
   // Build the render options
   val options = RenderOptions(font, layout, maxWidth)
  
-  // Render a string
-  Figlet4s.renderString("Hello, World!", options)
+  // Render a string into a FIGure
+  val figure = Figlet4s.renderString("Hello, World!", options)
+
+  // Print the FIGure
+  figure.print()
  
+}
+```
+
+### Using cats' IO
+
+```scala
+import cats.effect.IOApp
+import com.colofabrix.scala.figlet4s.catsio._
+import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
+import com.colofabrix.scala.figlet4s.rendering.RenderOptions
+
+object ShowcaseOptionsIOMain extends IOApp {
+
+  def run(args: List[String]): IO[ExitCode] = {
+    // Load a font, choose the layout and max width
+    val font     = Figlet4s.loadFontInternal("alligator")
+    val layout   = HorizontalFittingLayout
+    val maxWidth = 120
+   
+    // Build the render options
+    val options = RenderOptions(font, layout, maxWidth)
+   
+    // Render a string into a FIGure and print it
+    for {
+      figure <- Figlet4s.renderString("Hello, World!", options)
+      _      <- figure.print()
+    } yield ExitCode.Success
+  }
+
 }
 ```
 
@@ -186,6 +225,7 @@ FIGcharacter.
 
 * Support for control files `*.flc`
 * Support for zipped fonts
+* Support for right-to-left
 * Support for vertical layout
 * Test and improve speed and memory performance
 

@@ -66,7 +66,7 @@ object HorizontalTextRenderer {
   private def horizontalFittingStrategy(hardblank: Char): MergeStrategy =
     mergeColumnWith {
       case (' ', ' ')                          => Continue(' ')
-      case (a, ' ') if a =!= hardblank         => Continue(a)
+      case (aChar, ' ') if aChar =!= hardblank => Continue(aChar)
       case (' ', bChar) if bChar =!= hardblank => Continue(bChar)
       case (_, _)                              => Stop
     }
@@ -76,11 +76,11 @@ object HorizontalTextRenderer {
    */
   private def universalHorizontalSmushingStrategy(hardblank: Char): MergeStrategy =
     mergeColumnWith {
-      case (' ', ' ')                          => Continue(' ')
-      case (a, ' ') if a =!= hardblank         => Continue(a)
-      case (' ', bChar) if bChar =!= hardblank => Continue(bChar)
-      case (' ', bChar) if bChar === hardblank => Stop
-      case (_, bChar)                          => CurrentLast(bChar)
+      case (aChar, ' ')                      => Continue(aChar)
+      case (' ', bChar)                      => Continue(bChar)
+      case (aChar, _) if aChar === hardblank => Stop
+      case (_, bChar) if bChar === hardblank => Stop
+      case (_, bChar)                        => CurrentLast(bChar)
     }
 
   /**
@@ -91,14 +91,14 @@ object HorizontalTextRenderer {
       hardblank: Char,
   ): MergeStrategy =
     mergeColumnWith {
-      case (' ', ' ')                          => Continue(' ')
-      case (a, ' ') if a =!= hardblank         => Continue(a)
-      case (' ', bChar) if bChar =!= hardblank => Continue(bChar)
-      case (' ', bChar) if bChar === hardblank => Stop
-      case (a, bChar) =>
+      case (aChar, ' ')                      => Continue(aChar)
+      case (' ', bChar)                      => Continue(bChar)
+      case (aChar, _) if aChar === hardblank => Stop
+      case (_, bChar) if bChar === hardblank => Stop
+      case (aChar, bChar) =>
         rules
           .map(rule2smushingStrategy(hardblank))
-          .map(f => f(a, bChar))
+          .map(f => f(aChar, bChar))
           .collectFirst {
             case Some(value) => CurrentLast(value)
           }
@@ -235,14 +235,14 @@ object HorizontalTextRenderer {
 
   Merge of overlapping columns with the custom merge function
 
-  +-+     +-+                                +-+
-  |_|  +  | |  ->  Continue("_")             |_|
-  |_|  +  | |  ->  Continue("_")             |_|
-  | |  +  | |  ->  Continue(" ") -> Continue(| |)
-  | |  +  |||  ->  Continue("|")             |||
-  | |  +  | |  ->  Continue(" ")             | |
-  | |  +  | |  ->  Continue("_")             |_|
-  +-+     +-+                                +-+
+  +-+     +-+                                 +-+
+  |_|  +  | |  ->  Continue("_")              |_|
+  |_|  +  | |  ->  Continue("_")              |_|
+  | |  +  | |  ->  Continue(" ") -> Continue( | | )
+  | |  +  |||  ->  Continue("|")              |||
+  | |  +  | |  ->  Continue(" ")              | |
+  | |  +  | |  ->  Continue("_")              |_|
+  +-+     +-+                                 +-+
 
   NOTES:
   - Each recursive call of the algorithm works with one active column from each FIGure at the time.

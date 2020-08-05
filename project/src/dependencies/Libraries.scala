@@ -10,7 +10,6 @@ trait Libraries {
   // Versions
   lazy val CatsVersion       = "2.1.1"
   lazy val EnumeratumVersion = "1.6.1"
-  lazy val NewtypeVersion    = "0.4.4"
 
   // Generic
   lazy val CatsCoreDep   = "org.typelevel" %% "cats-core"   % CatsVersion

@@ -8,7 +8,7 @@ import sbt._
 trait CompilerPlugins {
 
   // Versions
-  lazy val SplainVersion      = "0.5.6"
+  lazy val SplainVersion      = "0.5.7"
   lazy val WartRemoverVersion = "2.4.9"
 
   // Dependencies
