@@ -3,8 +3,8 @@ package com.colofabrix.scala.figlet4s.figfont
 import cats.data.Validated._
 import cats.implicits._
 import com.colofabrix.scala.figlet4s.errors._
-import com.colofabrix.scala.figlet4s.utils._
 import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
+import com.colofabrix.scala.figlet4s.utils._
 
 /**
  * A FIGlet Font is a map of characters to their FIGrepresentation and the typographic settings used to display them

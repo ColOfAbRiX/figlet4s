@@ -36,7 +36,7 @@ final case class FIGheader private[figlet4s] (
   }
 }
 
-final object FIGheader {
+object FIGheader {
   private val SIGNATURE_INDEX: Int      = 0
   private val HEIGHT_INDEX: Int         = 1
   private val BASELINE_INDEX: Int       = 2

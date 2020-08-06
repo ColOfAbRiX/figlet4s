@@ -1,9 +1,9 @@
 -J-Dfile.encoding=UTF8
 -J-Duser.timezone=UTC
--J-Xms128M
--J-Xmx512G
--J-Xss1m
 -J-XX:+TieredCompilation
 -J-XX:+UseParallelGC
 -J-XX:MaxHeapSize=512G
 -J-XX:ReservedCodeCacheSize=64M
+-J-Xms128M
+-J-Xmx512G
+-J-Xss1m

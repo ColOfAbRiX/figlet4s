@@ -1,7 +1,7 @@
 package com.colofabrix.scala.figlet4s.api
 
-import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s._
+import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.rendering.RenderOptions
 
 /**

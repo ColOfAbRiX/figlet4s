@@ -1,8 +1,8 @@
 package com.colofabrix.scala.figlet4s.rendering
 
 import cats.implicits._
-import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
+import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.rendering.MergeAction._
 import scala.annotation.tailrec
 

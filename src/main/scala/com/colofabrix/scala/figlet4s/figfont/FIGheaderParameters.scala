@@ -1,9 +1,9 @@
 package com.colofabrix.scala.figlet4s.figfont
 
 import cats.implicits._
-import enumeratum.values._
-import com.colofabrix.scala.figlet4s.utils._
 import cats.kernel.Eq
+import com.colofabrix.scala.figlet4s.utils._
+import enumeratum.values._
 
 /**
  * Parameters and configuration settings used by FIGheaders

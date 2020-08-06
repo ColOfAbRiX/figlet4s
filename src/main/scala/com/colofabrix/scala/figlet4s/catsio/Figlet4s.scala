@@ -4,9 +4,9 @@ import cats.effect._
 import com.colofabrix.scala.figlet4s.OptionsBuilder.SetTextAction
 import com.colofabrix.scala.figlet4s._
 import com.colofabrix.scala.figlet4s.api._
-import com.colofabrix.scala.figlet4s.utils._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.rendering.RenderOptions
+import com.colofabrix.scala.figlet4s.utils._
 
 /**
  * "FIGlet" stands for "Frank, Ian and Glenn's LETters and this is a pure Scala implementation

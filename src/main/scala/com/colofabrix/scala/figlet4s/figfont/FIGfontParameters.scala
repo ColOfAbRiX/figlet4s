@@ -2,9 +2,9 @@ package com.colofabrix.scala.figlet4s.figfont
 
 import cats.implicits._
 import com.colofabrix.scala.figlet4s.errors._
-import com.colofabrix.scala.figlet4s.figfont.FIGheaderParameters._
-import com.colofabrix.scala.figlet4s.figfont.FIGheaderParameters.OldLayout._
 import com.colofabrix.scala.figlet4s.figfont.FIGheaderParameters.FullLayout._
+import com.colofabrix.scala.figlet4s.figfont.FIGheaderParameters.OldLayout._
+import com.colofabrix.scala.figlet4s.figfont.FIGheaderParameters._
 
 /**
  * Parameters and configuration settings used by FIGfonts.

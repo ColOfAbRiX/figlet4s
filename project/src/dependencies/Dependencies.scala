@@ -5,6 +5,7 @@ package dependencies
  */
 object Dependencies extends Libraries with CompilerPlugins {
 
-  lazy val ScalaLangVersion = "2.13.2"
+  // Scala language version
+  lazy val ScalaLangVersion = "2.13.3"
 
 }

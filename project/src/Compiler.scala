@@ -2,6 +2,8 @@ object Compiler {
 
   private lazy val cores = java.lang.Runtime.getRuntime.availableProcessors
 
+  // format: off
+
   // Compiler options
   // https://nathankleyn.com/2019/05/13/recommended-scalac-flags-for-2-13/
   lazy val TpolecatOptions: Seq[String] = Seq(
@@ -40,15 +42,16 @@ object Compiler {
     "-Ywarn-unused:privates",                    // Warn if a private member is unused.
     "-Ywarn-value-discard",                      // Warn when non-Unit expression results are unused.
     "-Ymacro-annotations",                       // Enable macro annotations
-    "-Ybackend-parallelism",
-    cores.toString,                              // Enable paralellisation
+    "-Ybackend-parallelism", cores.toString,     // Enable paralellisation
     "-Ycache-plugin-class-loader:last-modified", // Enables caching of classloaders for compiler plugins
     "-Ycache-macro-class-loader:last-modified",  // and macro definitions. This can lead to performance improvements.
   )
 
   // Stricter compile option to filter out in specific situation
   lazy val StrictOptions: Set[String] = Set[String](
-    "-Xfatal-warnings", // Fail the compilation if there are any warnings.
+    "-Xfatal-warnings",                          // Fail the compilation if there are any warning.
   )
+
+  // format: on
 
 }
