@@ -9,16 +9,32 @@ object Main extends App {
   private def unsafeTest() = {
     import com.colofabrix.scala.figlet4s.unsafe._
 
-    Figlet4s
-      .builder("Fabrizio & Claire")
-      .withInternalFont("alligator")
-      .withHorizontalLayout(UniversalHorizontalSmushingLayout)
+    val common = Figlet4s.builder("Fabrizio & Claire 123")
+
+    //  First  //
+
+    val first = common
+      .withHorizontalLayout(
+        ControlledHorizontalSmushingLayout(
+          Vector(UnderscoreHorizontalSmushing, HierarchyHorizontalSmushing, OppositePairHorizontalSmushing),
+        ),
+      )
+    println(first.options.horizontalLayout)
+
+    first
       .render()
       .print()
 
-    Figlet4s
-      .builder("Fabrizio & Claire")
-      .withHorizontalLayout(UniversalHorizontalSmushingLayout)
+    //  Second  //
+
+    val second = common
+      .withInternalFont("alligator")
+      .withHorizontalLayout(
+        ControlledHorizontalSmushingLayout(Vector(EqualCharacterHorizontalSmushing, HardblankHorizontalSmushing)),
+      )
+    println(second.options.horizontalLayout)
+
+    second
       .render()
       .print()
   }

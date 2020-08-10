@@ -11,9 +11,9 @@ object MergeAction {
 
   /** Represents a "keep the value and continue" condition */
   final case class Continue[A](value: A) extends MergeAction[A]
-  /** Represents a "stop processing, keep the value" condition */
+  /** Represents a "stop processing, keep use the value of the current iteration" condition */
   final case class CurrentLast[A](value: A) extends MergeAction[A]
-  /** Represents a "stop processing, use last value" condition */
+  /** Represents a "stop processing, use value of last iteration" condition */
   final case object Stop extends MergeAction[Nothing]
 
   implicit val applicativeMergeAction: Applicative[MergeAction] = new Applicative[MergeAction] {

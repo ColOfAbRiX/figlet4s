@@ -1,5 +1,14 @@
 # Figlet4s
 
+```
+ _____ _       _      _   _  _
+|  ___(_) __ _| | ___| |_| || |  ___
+| |_  | |/ _` | |/ _ \ __| || |_/ __|
+|  _| | | (_| | |  __/ |_|__   _\__ \
+|_|   |_|\__, |_|\___|\__|  |_| |___/
+         |___/
+```
+
 This is an implementation of [FIGlet](http://www.figlet.org/) in pure Scala with integrated fonts,
 support for Cats and minimal dependencies.
 
@@ -221,12 +230,14 @@ following a specific layout.
 Represents the SubLines/SubColumns in Figlet which are the String that compose each line/column of the FIGure or of a
 FIGcharacter.
 
-## Planned features
+## Planned features and TODO
 
 * Support for control files `*.flc`
 * Support for zipped fonts
 * Support for right-to-left
 * Support for vertical layout
+* Split the Cat's IO package into a separate dependency
+* Controlled smushing and universal smushing should be the same option
 * Test and improve speed and memory performance
 
 ## License

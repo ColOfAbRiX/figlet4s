@@ -65,10 +65,11 @@ object HorizontalTextRenderer {
    */
   private def horizontalFittingStrategy(hardblank: Char): MergeStrategy =
     mergeColumnWith {
-      case (' ', ' ')                          => Continue(' ')
-      case (aChar, ' ') if aChar =!= hardblank => Continue(aChar)
-      case (' ', bChar) if bChar =!= hardblank => Continue(bChar)
-      case (_, _)                              => Stop
+      case (aChar, ' ')                      => Continue(aChar)
+      case (' ', bChar)                      => Continue(bChar)
+      case (aChar, _) if aChar === hardblank => Stop
+      case (_, bChar) if bChar === hardblank => Stop
+      case (_, _)                            => Stop
     }
 
   /**
@@ -91,10 +92,8 @@ object HorizontalTextRenderer {
       hardblank: Char,
   ): MergeStrategy =
     mergeColumnWith {
-      case (aChar, ' ')                      => Continue(aChar)
-      case (' ', bChar)                      => Continue(bChar)
-      case (aChar, _) if aChar === hardblank => Stop
-      case (_, bChar) if bChar === hardblank => Stop
+      case (aChar, ' ') => Continue(aChar)
+      case (' ', bChar) => Continue(bChar)
       case (aChar, bChar) =>
         rules
           .map(rule2smushingStrategy(hardblank))
@@ -102,7 +101,10 @@ object HorizontalTextRenderer {
           .collectFirst {
             case Some(value) => CurrentLast(value)
           }
-          .getOrElse(CurrentLast(bChar))
+          .getOrElse {
+            if (aChar === hardblank || bChar === hardblank) Stop
+            else CurrentLast(bChar)
+          }
     }
 
   /**
