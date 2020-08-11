@@ -5,21 +5,29 @@
 |  ___(_) __ _| | ___| |_| || |  ___
 | |_  | |/ _` | |/ _ \ __| || |_/ __|
 |  _| | | (_| | |  __/ |_|__   _\__ \
-|_|   |_|\__, |_|\___|\__|  |_| |___/
+|_|   |_|\__, |_|\___|\__|  |_| |___/  Figlet, but in Scala
          |___/
 ```
 
 This is an implementation of [FIGlet](http://www.figlet.org/) in pure Scala with integrated fonts,
-support for Cats and minimal dependencies.
+support for Cats' IO and minimal dependencies.
 
-This implementation follows the rules established in the [The FIGfont Version 2 FIGfont and
-FIGdriver Standard](figfont_reference.txt).
+This implementation follows the rules defined in [The FIGfont Version 2 FIGfont and FIGdriver Standard](figfont_reference.txt).
+
+## DISCLAIMER
+
+This is a pre-release version, several bugs exists, the API is not yet stable, it supports only one version of Scala
+and no binaries have beer released yet.
+
+Please join me in building Figlet4s!
 
 ## Setup
 
-Currently supports Scala version 2.13.
+Supports Scala version 2.13.
 
 ### SBT
+
+Not released to Maven Central yet
 
 ## Using impure functions
 
@@ -228,15 +236,27 @@ following a specific layout.
 Represents the SubLines/SubColumns in Figlet which are the String that compose each line/column of the FIGure or of a
 FIGcharacter.
 
-## Planned features and TODO
+## Planned features, TODOs and Bugs
+
+### Features
 
 * Support for control files `*.flc`
 * Support for zipped fonts
 * Support for right-to-left
 * Support for vertical layout
-* Split the Cat's IO package into a separate dependency
+
+### TODO
+
+* SBT code do deploy on maven central
+* Split the Cat's IO package into a separate dependency and create two sections on the README to reflect this.
 * Controlled smushing and universal smushing should be the same option
 * Test and improve speed and memory performance
+* Add support for Scala 2.12 and look if Scala 3 support is feasible
+
+### Bugs
+
+* Controlled smushing leaves a blank space between letters in the place of a hardblank with the "alligator" font but
+  it behaves correctly on the "standard" font.
 
 ## License
 

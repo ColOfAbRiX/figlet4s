@@ -67,7 +67,7 @@ package object unsafe {
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Throw"))
-  implicit class FigletResultOps[E, A](val self: FigletResult[A]) extends AnyVal {
+  implicit private class FigletResultOps[E, A](val self: FigletResult[A]) extends AnyVal {
     /** Unsafely returns the value inside the Validated or throws an exception with the first error */
     def unsafeGet: A = self.fold(e => throw e.head, identity)
   }
