@@ -1,11 +1,9 @@
 package com.colofabrix.scala.figlet4s.unsafe
 
 import cats._
-import com.colofabrix.scala.figlet4s.OptionsBuilder.SetTextAction
-import com.colofabrix.scala.figlet4s._
 import com.colofabrix.scala.figlet4s.api._
 import com.colofabrix.scala.figlet4s.figfont._
-import com.colofabrix.scala.figlet4s.rendering.RenderOptions
+import com.colofabrix.scala.figlet4s.options._
 import com.colofabrix.scala.figlet4s.utils._
 
 /**
@@ -39,7 +37,7 @@ object Figlet4s extends Figlet4sClientAPI[Id] {
 
   /** Returns a new options builder with default settings and a set text */
   def builder(text: String): OptionsBuilder =
-    new OptionsBuilder(SetTextAction(text) :: Nil)
+    new OptionsBuilder(OptionsBuilder.SetTextAction(text) :: Nil)
 
   /** Returns a new options builder with default settings */
   def builderF(): OptionsBuilder =

@@ -1,7 +1,7 @@
-package com.colofabrix.scala.figlet4s.rendering
+package com.colofabrix.scala.figlet4s.options
 
 import com.colofabrix.scala.figlet4s.figfont.FIGfont
-import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
+import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters.HorizontalLayout
 
 /**
  * Rendering options, including the FIGfont to use

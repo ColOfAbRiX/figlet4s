@@ -17,9 +17,9 @@ FIGdriver Standard](figfont_reference.txt).
 
 ## Setup
 
-### SBT
+Currently supports Scala version 2.13.
 
-TODO
+### SBT
 
 ## Using impure functions
 
@@ -139,7 +139,6 @@ the rendering functions.
  
 ```scala
 import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
-import com.colofabrix.scala.figlet4s.rendering.RenderOptions
 import com.colofabrix.scala.figlet4s.unsafe._
 
 object LowLevelMain extends App {
@@ -167,7 +166,6 @@ object LowLevelMain extends App {
 import cats.effect.IOApp
 import com.colofabrix.scala.figlet4s.catsio._
 import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
-import com.colofabrix.scala.figlet4s.rendering.RenderOptions
 
 object ShowcaseOptionsIOMain extends IOApp {
 

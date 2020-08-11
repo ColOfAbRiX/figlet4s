@@ -2,10 +2,9 @@ package com.colofabrix.scala.figlet4s
 
 import cats.effect._
 import com.colofabrix.scala.figlet4s.api._
-import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters.HorizontalLayout
+import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont._
-import com.colofabrix.scala.figlet4s.rendering._
-import com.colofabrix.scala.figlet4s.utils._
+import com.colofabrix.scala.figlet4s.options._
 
 package object catsio {
 
@@ -50,7 +49,7 @@ package object catsio {
     private def builtDefaultFont: IO[FIGfont] =
       InternalAPI.loadFontInternal[IO]().flatMap(_.asIO)
 
-    private def builtHorizontalLayout: IO[HorizontalLayout] =
+    private def builtHorizontalLayout: IO[FIGfontParameters.HorizontalLayout] =
       for {
         font          <- builtFont
         optionHLayout <- buildOptions.map(_.horizontalLayout)
@@ -82,6 +81,11 @@ package object catsio {
     /** The figure as single String */
     def asString(): IO[String] =
       asVector().map(_.mkString("\n"))
+  }
+
+  implicit class FigletResultOps[E, A](val self: FigletResult[A]) extends AnyVal {
+    /** Transforms the Validated into a Cat's IO capturing the first error in IO */
+    def asIO: IO[A] = self.fold(e => IO.raiseError(e.head), IO(_))
   }
 
 }

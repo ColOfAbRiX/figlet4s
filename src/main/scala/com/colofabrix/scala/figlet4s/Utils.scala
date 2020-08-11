@@ -4,7 +4,6 @@ import cats._
 import cats.arrow.FunctionK
 import cats.effect._
 import cats.implicits._
-import com.colofabrix.scala.figlet4s.errors._
 import java.math.BigInteger
 import java.security.MessageDigest
 import scala.annotation.tailrec
@@ -91,22 +90,6 @@ private[figlet4s] object utils {
   }
 
   //  Misc  //
-
-  /**
-   * Enrichment methods for FigletResult to extract or transform the value
-   */
-  implicit class FigletResultExtract[E, A](val self: FigletResult[A]) extends AnyVal {
-    /**
-     * Unsafely returns the value inside the Validated or throws an exception with the first error
-     */
-    @SuppressWarnings(Array("org.wartremover.warts.Throw"))
-    def unsafeGet: A = self.fold(e => throw e.head, identity)
-
-    /**
-     * Transforms the Validated into a Cat's IO capturing the first error in IO
-     */
-    def asIO: IO[A] = self.fold(e => IO.raiseError(e.head), IO(_))
-  }
 
   /**
    * Enrichment methods for Int for binary conversion

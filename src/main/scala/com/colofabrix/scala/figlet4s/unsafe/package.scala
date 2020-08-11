@@ -3,8 +3,9 @@ package com.colofabrix.scala.figlet4s
 import cats._
 import cats.implicits._
 import com.colofabrix.scala.figlet4s.api._
+import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont._
-import com.colofabrix.scala.figlet4s.rendering.RenderOptions
+import com.colofabrix.scala.figlet4s.options._
 import com.colofabrix.scala.figlet4s.utils._
 
 package object unsafe {
@@ -63,6 +64,12 @@ package object unsafe {
     /** The figure as single String */
     def asString(): String =
       asVector().mkString("\n")
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
+  implicit class FigletResultOps[E, A](val self: FigletResult[A]) extends AnyVal {
+    /** Unsafely returns the value inside the Validated or throws an exception with the first error */
+    def unsafeGet: A = self.fold(e => throw e.head, identity)
   }
 
 }

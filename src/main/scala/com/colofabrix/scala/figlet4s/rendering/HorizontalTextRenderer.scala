@@ -5,6 +5,7 @@ import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.rendering.MergeAction._
 import scala.annotation.tailrec
+import com.colofabrix.scala.figlet4s.options.RenderOptions
 
 /**
  * Renderer for Horizontal Layouts
@@ -92,8 +93,10 @@ object HorizontalTextRenderer {
       hardblank: Char,
   ): MergeStrategy =
     mergeColumnWith {
-      case (aChar, ' ') => Continue(aChar)
-      case (' ', bChar) => Continue(bChar)
+      case (aChar, ' ')                          => Continue(aChar)
+      case (' ', bChar)                          => Continue(bChar)
+      case (aChar, bChar) if aChar === hardblank => CurrentLast(bChar)
+      case (aChar, bChar) if bChar === hardblank => CurrentLast(aChar)
       case (aChar, bChar) =>
         rules
           .map(rule2smushingStrategy(hardblank))
@@ -183,79 +186,90 @@ object HorizontalTextRenderer {
   }
 
   /*
-  Explanation of the general algorithm
+  Explanation of the general algorithm with final `overlap = 3`
 
-  Merged FIGures (using Horizontal Fitting as example renderer):
 
-     FIGure A   FIGure B      Resulting FIGure
-    /        \ /       \     /               \
-    +-----+---+---+-----+    +-----+---+-----+
-    |  ___|__ |   |     |    |  ___|__ |     |
-    | |  _|__||   |__ _ |    | |  _|__||__ _ |
-    | | |_|   |  /| _` || -> | | |_|  /| _` ||
-    | |  _||  | | |(_| || -> | |  _||| |(_| ||
-    | |_| |   |  \|__,_||    | |_| |  \|__,_||
-    |     |   |   |     |    |     |   |     |
-    +-----+---+---+-----+    +-----+---+-----+
-          \     /                    |
-       Overlap area               Merged
+  Example merged FIGures (using Horizontal Fitting as example renderer):
 
-  Each FIGure is broken down in SubColumns:
+     FIGure A   FIGure B        Resulting FIGure
+    /        \ /       \       /               \
+    +-----+---+---+-----+      +-----+---+-----+
+    |  ___|__ |   |     |      |  ___|__ |     |
+    | |  _|__||   |__ _ |      | |  _|__||__ _ |
+    | | |_|   |  /| _` ||  ->  | | |_|  /| _` ||
+    | |  _||  | | |(_| ||  ->  | |  _||| |(_| ||
+    | |_| |   |  \|__,_||      | |_| |  \|__,_||
+    |     |   |   |     |      |     |   |     |
+    +-----+---+---+-----+      +-----+---+-----+
+           \     /                     |
+        Overlap area                 Merged
 
-  FIGure A                                        | A-overlapping |
-  +--------+         +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+
-  |  _____ |         | |   | |   |_|   |_|   |_|   |_|   |_|   | |
-  | |  ___||         | |   |||   | |   | |   |_|   |_|   |_|   |||
-  | | |_   |      -> | | + ||| + | | + ||| + |_| + | | + | | + | |
-  | |  _|  |      -> | | + ||| + | | + | | + |_| + ||| + | | + | |
-  | |_|    |         | |   |||   |_|   |||   | |   | |   | |   | |
-  |        |         | |   | |   | |   | |   | |   | |   | |   | |
-  +--------+         +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+
-                                                   |             |
-                                                   |             |  Final overlap = 3 columns
-  Resulting FIGure                                 |             | /
-  +-------------+    +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+
-  |  _____      |    | |   | |   |_|   |_|   |_|   |_|   |_|   | |   | |   | |   | |   | |   | |
-  | |  ___|__ _ |    | |   |||   | |   | |   |_|   |_|   |_|   |||   |_|   |_|   | |   |_|   | |
-  | | |_  / _` || -> | | + ||| + | | + ||| + |_| + | | + | | + |/| + | | + |_| + |`| + | | + |||
-  | |  _|| (_| || -> | | + ||| + | | + | | + |_| + ||| + ||| + | | + |(| + |_| + ||| + | | + |||
-  | |_|   \__,_||    | |   |||   |_|   |||   | |   | |   | |   |\|   |_|   |_|   |,|   |_|   |||
-  |             |    | |   | |   | |   | |   | |   | |   | |   | |   | |   | |   | |   | |   | |
-  +-------------+    +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+
-                                                   |             |
-                                                   |             |
-  FIGure B                                         |             |
-  +--------+                                       +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+
-  |        |                                       | |   | |   | |   | |   | |   | |   | |   | |
-  |   __ _ |                                       | |   | |   | |   |_|   |_|   | |   |_|   | |
-  |  / _` ||      ->                               | | + | | + |/| + | | + |_| + |`| + | | + |||
-  | | (_| ||      ->                               | | + ||| + | | + |(| + |_| + ||| + | | + |||
-  |  \__,_||                                       | |   | |   |\|   |_|   |_|   |,|   |_|   |||
-  |        |                                       | |   | |   | |   | |   | |   | |   | |   | |
-  +--------+                                       +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+
-                                                  | B-overlapping |
 
-  Merge of overlapping columns with the custom merge function
+  In this example each FIGure is broken down in SubColumns with final `overlap = 3`:
 
-  +-+     +-+                                 +-+
-  |_|  +  | |  ->  Continue("_")              |_|
-  |_|  +  | |  ->  Continue("_")              |_|
-  | |  +  | |  ->  Continue(" ") -> Continue( | | )
-  | |  +  |||  ->  Continue("|")              |||
-  | |  +  | |  ->  Continue(" ")              | |
-  | |  +  | |  ->  Continue("_")              |_|
-  +-+     +-+                                 +-+
+  FIGure A                                          | A-overlapping |
+  +--------+           +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+
+  |  _____ |           | |   | |   |_|   |_|   |_|   |_|   |_|   | |
+  | |  ___||           | |   |||   | |   | |   |_|   |_|   |_|   |||
+  | | |_   |       ->  | | + ||| + | | + ||| + |_| + | | + | | + | |
+  | |  _|  |       ->  | | + ||| + | | + | | + |_| + ||| + | | + | |
+  | |_|    |           | |   |||   |_|   |||   | |   | |   | |   | |
+  |        |           | |   | |   | |   | |   | |  /| |   | |   | |
+  +--------+           +-+   +-+   +-+   +-+   +-+ / +-+   +-+   +-+
+                                                  /  |             |
+                                  A active column    |             |-- Final overlap = 3 columns
+  Resulting FIGure                                   |             |
+  +-------------+      +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+
+  |  _____      |      | |   | |   |_|   |_|   |_|   |_|   |_|   | |   | |   | |   | |   | |   | |
+  | |  ___|__ _ |      | |   |||   | |   | |   |_|   |_|   |_|   |||   |_|   |_|   | |   |_|   | |
+  | | |_  / _` ||  ->  | | + ||| + | | + ||| + |_| + | | + | | + |/| + | | + |_| + |`| + | | + |||
+  | |  _|| (_| ||  ->  | | + ||| + | | + | | + |_| + ||| + ||| + | | + |(| + |_| + ||| + | | + |||
+  | |_|   \__,_||      | |   |||   |_|   |||   | |   | |   | |   |\|   |_|   |_|   |,|   |_|   |||
+  |             |      | |   | |   | |   | |   | |   | |   | |   | |   | |   | |   | |   | |   | |
+  +-------------+      +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+
+                                                     |             |
+                                  B active column    |             |
+  FIGure B                                        \  |             |
+  +--------+                                       \ +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+
+  |        |                                        \| |   | |   | |   | |   | |   | |   | |   | |
+  |   __ _ |                                         | |   | |   | |   |_|   |_|   | |   |_|   | |
+  |  / _` ||      ->                                 | | + | | + |/| + | | + |_| + |`| + | | + |||
+  | | (_| ||      ->                                 | | + ||| + | | + |(| + |_| + ||| + | | + |||
+  |  \__,_||                                         | |   | |   |\|   |_|   |_|   |,|   |_|   |||
+  |        |                                         | |   | |   | |   | |   | |   | |   | |   | |
+  +--------+                                         +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+
+                                                    | B-overlapping |
+
+
+  Merge of a single overlapping column with the custom merge function `f`:
+
+  +-+     +-+                                                 +-+
+  |_|  +  | |  ->  f('_', ' ') = Continue('_')                |_|
+  |_|  +  | |  ->  f('_', ' ') = Continue('_')                |_|
+  | |  +  | |  ->  f(' ', ' ') = Continue(' ')  ->  Continue( | | )
+  | |  +  |||  ->  f(' ', '|') = Continue('|')                |||
+  | |  +  | |  ->  f(' ', ' ') = Continue(' ')                | |
+  | |  +  | |  ->  f(' ', ' ') = Continue('_')                |_|
+  +-+     +-+                                                 +-+
+
 
   NOTES:
-  - Each recursive call of the algorithm works with one active column from each FIGure at the time.
-  - A custom merge strategy function is used to determine how the two active columns are merged.
-  - The custom merge function works by accepting corresponding character from the two active column and by returning the
-    character resulting from their merger. Together with this the function can instruct the algorithm on how to proceed
-    next.
-  - Once the two columns have been merged the algorithm decides what to do next:
-    - It stores the result of the merge and does a recursive call to merge the next column
-    - It stores the result of the merge and stops more processing
-    - It uses the result of the merge of the previous recursive call and stops more processing
+  - Each recursive iteration works with a certain number of overlapping columns and once the overlapping area has been
+    processed it decides between 3 options:
+    - the overlap of the current iteration results in a valid merge the overlap can be increased further and thus runs a
+      new iteration with `overlap + 1`;
+    - the overlap of the current iteration results in a valid merge but the overlap cannot be increased and returns the
+      result of the current iteration as the final result;
+    - the overlap of the current iteration does not results in a valid merge and the result of the previous iteration is
+      used as the final result.
+  - At `overlap = n` the `n - 1` overlap values have already passed through the merge algorithm and their result is
+    assumed to be a valid merge.
+  - The "A active column" and the "B active column" (see figures above) are the columns that decide the result of the
+    iteration.
+  - Each pair of corresponding characters of the active columns are passed to a custom merge function.
+  - The custom merge function returns the character resulting from merge of the two corresponding character together
+    with the decision of how to proceed with the algorithm.
+  - The result value of the custom merge function is an Applicative Functor.
    */
 
   private def mergeColumnWith(f: (Char, Char) => MergeAction[Char]): MergeStrategy = { (a, b) =>
@@ -270,10 +284,10 @@ object HorizontalTextRenderer {
       b
     else if (b.length === 0)
       a
-    else if (a.length < overlap || b.length < overlap)
-      partial
     else if (overlap === 0)
       merge(a, b, 1, a ++ b)(f)
+    else if (overlap >= a.length || overlap >= b.length)
+      partial
     else {
       // Split the columns into left, right, A-overlapping and B-overlapping
       val (left, aOverlap)  = a.splitAt(a.length - overlap)
