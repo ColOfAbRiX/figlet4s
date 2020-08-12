@@ -83,7 +83,7 @@ package object catsio {
       asVector().map(_.mkString("\n"))
   }
 
-  implicit private class FigletResultOps[E, A](val self: FigletResult[A]) extends AnyVal {
+  implicit private[catsio] class FigletResultOps[E, A](val self: FigletResult[A]) extends AnyVal {
     /** Transforms the Validated into a Cat's IO capturing the first error in IO */
     def asIO: IO[A] = self.fold(e => IO.raiseError(e.head), IO(_))
   }

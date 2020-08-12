@@ -3,15 +3,16 @@ package com.colofabrix.scala.figlet4s.rendering
 import cats.implicits._
 import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
 import com.colofabrix.scala.figlet4s.figfont._
+import com.colofabrix.scala.figlet4s.options._
 import com.colofabrix.scala.figlet4s.rendering.MergeAction._
-import scala.annotation.tailrec
-import com.colofabrix.scala.figlet4s.options.RenderOptions
 
 /**
  * Renderer for Horizontal Layouts
  */
 object HorizontalTextRenderer {
-  private type MergeStrategy    = (SubColumns, SubColumns) => SubColumns
+  /** Function that merges two SubElements */
+  private type MergeStrategy = (SubColumns, SubColumns) => SubColumns
+  /** Function that smushes two characters */
   private type SmushingStrategy = (Char, Char) => Option[Char]
 
   /**
@@ -49,8 +50,8 @@ object HorizontalTextRenderer {
   private def layout2mergeStrategy(hardblank: Char): PartialFunction[HorizontalLayout, MergeStrategy] = {
     case FullWidthHorizontalLayout                 => fullWidthStrategy
     case HorizontalFittingLayout                   => horizontalFittingStrategy(hardblank)
-    case UniversalHorizontalSmushingLayout         => universalHorizontalSmushingStrategy(hardblank)
-    case ControlledHorizontalSmushingLayout(rules) => controlledHorizontalSmushingStrategy(rules, hardblank)
+    case UniversalHorizontalSmushingLayout         => horizontalSmushingStrategy(Vector.empty, hardblank)
+    case ControlledHorizontalSmushingLayout(rules) => horizontalSmushingStrategy(rules, hardblank)
   }
 
   /**
@@ -74,29 +75,12 @@ object HorizontalTextRenderer {
     }
 
   /**
-   * Encodes the Universal Horizontal Smushing horizontal layout
+   * Encodes the Horizontal Smushing horizontal layout
    */
-  private def universalHorizontalSmushingStrategy(hardblank: Char): MergeStrategy =
+  private def horizontalSmushingStrategy(rules: Vector[HorizontalSmushingRule], hardblank: Char): MergeStrategy =
     mergeColumnWith {
-      case (aChar, ' ')                      => Continue(aChar)
-      case (' ', bChar)                      => Continue(bChar)
-      case (aChar, _) if aChar === hardblank => Stop
-      case (_, bChar) if bChar === hardblank => Stop
-      case (_, bChar)                        => CurrentLast(bChar)
-    }
-
-  /**
-   * Encodes the Controlled Horizontal Smushing horizontal layout
-   */
-  private def controlledHorizontalSmushingStrategy(
-      rules: Vector[HorizontalSmushingRule],
-      hardblank: Char,
-  ): MergeStrategy =
-    mergeColumnWith {
-      case (aChar, ' ')                          => Continue(aChar)
-      case (' ', bChar)                          => Continue(bChar)
-      case (aChar, bChar) if aChar === hardblank => CurrentLast(bChar)
-      case (aChar, bChar) if bChar === hardblank => CurrentLast(aChar)
+      case (aChar, ' ') => Continue(aChar)
+      case (' ', bChar) => Continue(bChar)
       case (aChar, bChar) =>
         rules
           .map(rule2smushingStrategy(hardblank))
@@ -105,7 +89,8 @@ object HorizontalTextRenderer {
             case Some(value) => CurrentLast(value)
           }
           .getOrElse {
-            if (aChar === hardblank || bChar === hardblank) Stop
+            if (aChar === hardblank) Stop
+            else if (bChar === hardblank) Stop
             else CurrentLast(bChar)
           }
     }
@@ -185,132 +170,7 @@ object HorizontalTextRenderer {
     if (a === hardblank && a === b) Some(a) else None
   }
 
-  /*
-  Explanation of the general algorithm with final `overlap = 3`
-
-
-  Example merged FIGures (using Horizontal Fitting as example renderer):
-
-     FIGure A   FIGure B        Resulting FIGure
-    /        \ /       \       /               \
-    +-----+---+---+-----+      +-----+---+-----+
-    |  ___|__ |   |     |      |  ___|__ |     |
-    | |  _|__||   |__ _ |      | |  _|__||__ _ |
-    | | |_|   |  /| _` ||  ->  | | |_|  /| _` ||
-    | |  _||  | | |(_| ||  ->  | |  _||| |(_| ||
-    | |_| |   |  \|__,_||      | |_| |  \|__,_||
-    |     |   |   |     |      |     |   |     |
-    +-----+---+---+-----+      +-----+---+-----+
-           \     /                     |
-        Overlap area                 Merged
-
-
-  In this example each FIGure is broken down in SubColumns with final `overlap = 3`:
-
-  FIGure A                                          | A-overlapping |
-  +--------+           +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+
-  |  _____ |           | |   | |   |_|   |_|   |_|   |_|   |_|   | |
-  | |  ___||           | |   |||   | |   | |   |_|   |_|   |_|   |||
-  | | |_   |       ->  | | + ||| + | | + ||| + |_| + | | + | | + | |
-  | |  _|  |       ->  | | + ||| + | | + | | + |_| + ||| + | | + | |
-  | |_|    |           | |   |||   |_|   |||   | |   | |   | |   | |
-  |        |           | |   | |   | |   | |   | |  /| |   | |   | |
-  +--------+           +-+   +-+   +-+   +-+   +-+ / +-+   +-+   +-+
-                                                  /  |             |
-                                  A active column    |             |-- Final overlap = 3 columns
-  Resulting FIGure                                   |             |
-  +-------------+      +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+
-  |  _____      |      | |   | |   |_|   |_|   |_|   |_|   |_|   | |   | |   | |   | |   | |   | |
-  | |  ___|__ _ |      | |   |||   | |   | |   |_|   |_|   |_|   |||   |_|   |_|   | |   |_|   | |
-  | | |_  / _` ||  ->  | | + ||| + | | + ||| + |_| + | | + | | + |/| + | | + |_| + |`| + | | + |||
-  | |  _|| (_| ||  ->  | | + ||| + | | + | | + |_| + ||| + ||| + | | + |(| + |_| + ||| + | | + |||
-  | |_|   \__,_||      | |   |||   |_|   |||   | |   | |   | |   |\|   |_|   |_|   |,|   |_|   |||
-  |             |      | |   | |   | |   | |   | |   | |   | |   | |   | |   | |   | |   | |   | |
-  +-------------+      +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+
-                                                     |             |
-                                  B active column    |             |
-  FIGure B                                        \  |             |
-  +--------+                                       \ +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+
-  |        |                                        \| |   | |   | |   | |   | |   | |   | |   | |
-  |   __ _ |                                         | |   | |   | |   |_|   |_|   | |   |_|   | |
-  |  / _` ||      ->                                 | | + | | + |/| + | | + |_| + |`| + | | + |||
-  | | (_| ||      ->                                 | | + ||| + | | + |(| + |_| + ||| + | | + |||
-  |  \__,_||                                         | |   | |   |\|   |_|   |_|   |,|   |_|   |||
-  |        |                                         | |   | |   | |   | |   | |   | |   | |   | |
-  +--------+                                         +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+
-                                                    | B-overlapping |
-
-
-  Merge of a single overlapping column with the custom merge function `f`:
-
-  +-+     +-+                                                 +-+
-  |_|  +  | |  ->  f('_', ' ') = Continue('_')                |_|
-  |_|  +  | |  ->  f('_', ' ') = Continue('_')                |_|
-  | |  +  | |  ->  f(' ', ' ') = Continue(' ')  ->  Continue( | | )
-  | |  +  |||  ->  f(' ', '|') = Continue('|')                |||
-  | |  +  | |  ->  f(' ', ' ') = Continue(' ')                | |
-  | |  +  | |  ->  f(' ', ' ') = Continue('_')                |_|
-  +-+     +-+                                                 +-+
-
-
-  NOTES:
-  - Each recursive iteration works with a certain number of overlapping columns and once the overlapping area has been
-    processed it decides between 3 options:
-    - the overlap of the current iteration results in a valid merge the overlap can be increased further and thus runs a
-      new iteration with `overlap + 1`;
-    - the overlap of the current iteration results in a valid merge but the overlap cannot be increased and returns the
-      result of the current iteration as the final result;
-    - the overlap of the current iteration does not results in a valid merge and the result of the previous iteration is
-      used as the final result.
-  - At `overlap = n` the `n - 1` overlap values have already passed through the merge algorithm and their result is
-    assumed to be a valid merge.
-  - The "A active column" and the "B active column" (see figures above) are the columns that decide the result of the
-    iteration.
-  - Each pair of corresponding characters of the active columns are passed to a custom merge function.
-  - The custom merge function returns the character resulting from merge of the two corresponding character together
-    with the decision of how to proceed with the algorithm.
-  - The result value of the custom merge function is an Applicative Functor.
-   */
-
   private def mergeColumnWith(f: (Char, Char) => MergeAction[Char]): MergeStrategy = { (a, b) =>
-    SubColumns(merge(a.value, b.value, 0, Vector.empty)(f))
-  }
-
-  @tailrec
-  private def merge(a: Vector[String], b: Vector[String], overlap: Int, partial: Vector[String])(
-      f: (Char, Char) => MergeAction[Char],
-  ): Vector[String] = {
-    if (a.length === 0)
-      b
-    else if (b.length === 0)
-      a
-    else if (overlap === 0)
-      merge(a, b, 1, a ++ b)(f)
-    else if (overlap >= a.length || overlap >= b.length)
-      partial
-    else {
-      // Split the columns into left, right, A-overlapping and B-overlapping
-      val (left, aOverlap)  = a.splitAt(a.length - overlap)
-      val (bOverlap, right) = b.splitAt(overlap)
-
-      // For each overlapping column apply the merge function to the matching pairs of characters
-      val mergedOverlapping =
-        (aOverlap zip bOverlap)
-          .traverse {
-            case (aActiveColumn, bActiveColumn) =>
-              (aActiveColumn zip bActiveColumn)
-                .toVector
-                .traverse(f.tupled)
-                .map(_.mkString)
-          }
-          .map(left ++ _ ++ right)
-
-      // Given the result of the merge, decide how to proceed
-      mergedOverlapping match {
-        case Stop                 => partial
-        case CurrentLast(current) => current
-        case Continue(value)      => merge(a, b, overlap + 1, value)(f)
-      }
-    }
+    SubColumns(Rendering.merge(a.value, b.value, 0, Vector.empty)(f))
   }
 }

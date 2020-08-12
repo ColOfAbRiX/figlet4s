@@ -17,9 +17,10 @@ This implementation follows the rules defined in [The FIGfont Version 2 FIGfont 
 ## DISCLAIMER
 
 This is a pre-release version, several bugs exists, the API is not yet stable, it supports only one version of Scala
-and no binaries have beer released yet.
+and no binaries have been released yet.
 
-Please join me in building Figlet4s!
+Please join me in building Figlet4s! You help in testing features, finding bugs and suggest improvements is very
+welcome!
 
 ## Setup
 
@@ -27,7 +28,7 @@ Supports Scala version 2.13.
 
 ### SBT
 
-Not released to Maven Central yet
+Not released on Maven Central.
 
 ## Using impure functions
 
@@ -252,6 +253,8 @@ FIGcharacter.
 * Controlled smushing and universal smushing should be the same option
 * Test and improve speed and memory performance
 * Add support for Scala 2.12 and look if Scala 3 support is feasible
+* Create proper Scaladoc documentation for API
+* Explain better the various options available in the README
 
 ### Bugs
 

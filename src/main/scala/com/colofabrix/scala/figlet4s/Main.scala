@@ -9,7 +9,7 @@ object Main extends App {
   private def unsafeTest() = {
     import com.colofabrix.scala.figlet4s.unsafe._
 
-    val common = Figlet4s.builder("Fabrizio & Claire 123")
+    val common = Figlet4s.builder("F abrizio & Claire 123")
 
     //  First  //
 
@@ -28,7 +28,7 @@ object Main extends App {
     //  Second  //
 
     val second = common
-      .withInternalFont("alligator")
+      .withInternalFont("alligator2")
       .withHorizontalLayout(
         ControlledHorizontalSmushingLayout(Vector(EqualCharacterHorizontalSmushing, HardblankHorizontalSmushing)),
       )
