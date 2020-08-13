@@ -44,7 +44,7 @@ package object unsafe {
           .maxWidth
           .getOrElse(Int.MaxValue)
 
-      RenderOptions(font, horizontalLayout, maxWidth)
+      RenderOptions(font, maxWidth, horizontalLayout, HorizontalLayout2.FullWidth, PrintDirection.LeftToRight)
     }
   }
 

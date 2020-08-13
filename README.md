@@ -9,10 +9,10 @@
          |___/
 ```
 
-This is an implementation of [FIGlet](http://www.figlet.org/) in pure Scala with integrated fonts,
-support for Cats' IO and minimal dependencies.
+This is an implementation of [FIGlet](http://www.figlet.org/) in pure Scala with integrated fonts, minimal dependencies,
+extensive error reporting and support for Cats' IO.
 
-This implementation follows the rules defined in [The FIGfont Version 2 FIGfont and FIGdriver Standard](figfont_reference.txt).
+This implementation follows the standard defined in [The FIGfont Version 2 FIGfont and FIGdriver Standard](figfont_reference.txt).
 
 ## DISCLAIMER
 
@@ -80,7 +80,7 @@ object ShowcaseOptionsMain extends App {
     .withHorizontalLayout(HorizontalFittingLayout)  // Choose a layout
     .text("Hello, Scala!")                          // Change the text to render
     .render()                                       // Render the text to a FIGure
-    .print()                                        // Print the FIGURE
+    .print()                                        // Print the FIGure
 
 }
 ```
@@ -248,9 +248,9 @@ FIGcharacter.
 
 ### TODO
 
-* SBT code do deploy on maven central
+* SBT code to deploy on maven central
 * Split the Cat's IO package into a separate dependency and create two sections on the README to reflect this.
-* Controlled smushing and universal smushing should be the same option
+* Controlled smushing and universal smushing should be the same option for the end user
 * Test and improve speed and memory performance
 * Add support for Scala 2.12 and look if Scala 3 support is feasible
 * Create proper Scaladoc documentation for API

@@ -1,6 +1,6 @@
 package com.colofabrix.scala.figlet4s
 
-import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
+//import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
 
 /**
  * "FIGlet" stands for "Frank, Ian and Glenn's LETters and this is a pure Scala implementation
@@ -9,32 +9,30 @@ object Main extends App {
   private def unsafeTest() = {
     import com.colofabrix.scala.figlet4s.unsafe._
 
-    val common = Figlet4s.builder("F abrizio & Claire 123")
-
-    //  First  //
-
-    val first = common
-      .withHorizontalLayout(
-        ControlledHorizontalSmushingLayout(
-          Vector(UnderscoreHorizontalSmushing, HierarchyHorizontalSmushing, OppositePairHorizontalSmushing),
-        ),
-      )
-    println(first.options.horizontalLayout)
-
-    first
+    val builder1 = Figlet4s
+      .builder("Fabrizio & Claire")
+      .withInternalFont("4max")
+    //println(s"Header: ${builder1.options.font.header}")
+    //println(s"Options: ${builder1.options}")
+    builder1
       .render()
       .print()
 
-    //  Second  //
-
-    val second = common
+    val builder2 = Figlet4s
+      .builder("Fabrizio & Claire")
       .withInternalFont("alligator2")
-      .withHorizontalLayout(
-        ControlledHorizontalSmushingLayout(Vector(EqualCharacterHorizontalSmushing, HardblankHorizontalSmushing)),
-      )
-    println(second.options.horizontalLayout)
+    //println(s"Header: ${builder2.options.font.header}")
+    //println(s"Options: ${builder2.options}")
+    builder2
+      .render()
+      .print()
 
-    second
+    val builder3 = Figlet4s
+      .builder("Fabrizio & Claire")
+      .withInternalFont("standard")
+    //println(s"Header: ${builder3.options.font.header}")
+    //println(s"Options: ${builder3.options}")
+    builder3
       .render()
       .print()
   }

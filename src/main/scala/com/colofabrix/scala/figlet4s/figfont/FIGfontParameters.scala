@@ -8,7 +8,7 @@ import com.colofabrix.scala.figlet4s.figfont.FIGheaderParameters._
 
 /**
  * Parameters and configuration settings used by FIGfonts.
- * It is a Scala-friendly mapping of the FIGheaderParameters
+ * It is a Scala-friendly mapping of the FIGheaderParameters and it's meant for internal use only
  */
 object FIGfontParameters {
   /**
@@ -24,7 +24,7 @@ object FIGfontParameters {
      * If the header defines fullLayout then oldLayout is ignored
      */
     def fromHeader(header: FIGheader): FigletResult[HorizontalLayout] =
-      (fromOldlayout(header), fromFullLayout(header))
+      (fromOldLayout(header), fromFullLayout(header))
         .mapN { (oldHorizontal, fullHorizontal) =>
           fullHorizontal
             .getOrElse(oldHorizontal)
@@ -52,7 +52,7 @@ object FIGfontParameters {
     /**
      * Interprets the "oldLayout" part of the header settings and returns the selected Horizontal Layout
      */
-    def fromOldlayout(header: FIGheader): FigletResult[HorizontalLayout] = {
+    def fromOldLayout(header: FIGheader): FigletResult[HorizontalLayout] = {
       val settings = header.oldLayout
       if (settings.contains(OldFullWidthLayout))
         FullWidthHorizontalLayout.validNec

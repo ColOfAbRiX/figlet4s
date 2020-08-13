@@ -45,6 +45,14 @@ final class OptionsBuilder(private val builderActions: List[BuilderActions] = Li
   def withHorizontalLayout(layout: HorizontalLayout): OptionsBuilder =
     new OptionsBuilder(SetHorizontalLayout(layout) :: builderActions)
 
+  /** Use the default Horizontal Layout */
+  def defaultHorizontalLayout2(): OptionsBuilder =
+    new OptionsBuilder(DefaultHorizontalLayout :: builderActions)
+
+  /** Use the specified Horizontal Layout */
+  def withHorizontalLayout2(layout: HorizontalLayout2): OptionsBuilder =
+    new OptionsBuilder(SetHorizontalLayout2(layout) :: builderActions)
+
   //  Max Width  //
 
   /** Use the default Max Width */
@@ -65,13 +73,15 @@ private[figlet4s] object OptionsBuilder {
 
   sealed trait BuilderActions extends Product with Serializable
 
-  final case object DefaultFontAction       extends BuilderActions
-  final case object DefaultHorizontalLayout extends BuilderActions
-  final case object DefaultMaxWidthAction   extends BuilderActions
+  final case object DefaultFontAction        extends BuilderActions
+  final case object DefaultHorizontalLayout  extends BuilderActions
+  final case object DefaultHorizontalLayout2 extends BuilderActions
+  final case object DefaultMaxWidthAction    extends BuilderActions
 
   final case class SetTextAction(text: String)                        extends BuilderActions
   final case class SetMaxWidthAction(maxWidth: Int)                   extends BuilderActions
   final case class SetHorizontalLayout(layout: HorizontalLayout)      extends BuilderActions
+  final case class SetHorizontalLayout2(layout: HorizontalLayout2)    extends BuilderActions
   final case class SetFontAction(font: FIGfont)                       extends BuilderActions
   final case class LoadFontAction(fontPath: String, encoding: String) extends BuilderActions
   final case class LoadInternalFontAction(fontName: String)           extends BuilderActions
@@ -80,6 +90,7 @@ private[figlet4s] object OptionsBuilder {
       text: String = "",
       font: Option[FigletResult[FIGfont]] = None,
       horizontalLayout: Option[HorizontalLayout] = None,
+      horizontalLayout2: Option[HorizontalLayout2] = None,
       maxWidth: Option[Int] = None,
   )
 
@@ -90,18 +101,6 @@ private[figlet4s] object OptionsBuilder {
     self
       .builderActions
       .foldM(BuildData()) {
-        case (buildData, DefaultFontAction) =>
-          InternalAPI
-            .loadFontInternal[F]("standard")
-            .map { font =>
-              buildData.copy(font = Some(font))
-            }
-
-        case (buildData, DefaultHorizontalLayout) =>
-          Sync[F].pure(buildData.copy(horizontalLayout = None))
-
-        case (buildData, DefaultMaxWidthAction) =>
-          Sync[F].pure(buildData.copy(maxWidth = None))
 
         //  Text  //
 
@@ -110,15 +109,34 @@ private[figlet4s] object OptionsBuilder {
 
         //  Max Width  //
 
+        case (buildData, DefaultMaxWidthAction) =>
+          Sync[F].pure(buildData.copy(maxWidth = None))
+
         case (buildData, SetMaxWidthAction(maxWidth)) =>
           Sync[F].pure(buildData.copy(maxWidth = Some(maxWidth)))
 
         //  Horizontal Layout  //
 
+        case (buildData, DefaultHorizontalLayout) =>
+          Sync[F].pure(buildData.copy(horizontalLayout = None))
+
+        case (buildData, DefaultHorizontalLayout2) =>
+          Sync[F].pure(buildData.copy(horizontalLayout2 = None))
+
         case (buildData, SetHorizontalLayout(layout)) =>
           Sync[F].pure(buildData.copy(horizontalLayout = Some(layout)))
 
+        case (buildData, SetHorizontalLayout2(layout)) =>
+          Sync[F].pure(buildData.copy(horizontalLayout2 = Some(layout)))
+
         //  Fonts  //
+
+        case (buildData, DefaultFontAction) =>
+          InternalAPI
+            .loadFontInternal[F]("standard")
+            .map { font =>
+              buildData.copy(font = Some(font))
+            }
 
         case (buildData, SetFontAction(font)) =>
           Sync[F].pure(buildData.copy(font = Some(font.validNec)))

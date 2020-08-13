@@ -40,8 +40,12 @@ final case class FIGfont private[figlet4s] (
       .value
 
   override def toString(): String =
-    s"FIGfont(id=$id, name=$name, header=$header, comment=$comment, hLayout=$hLayout, vLayout=$vLayout, " +
-    s"characters=$characters)"
+    s"FIGfont(id=$id," +
+    s"name=$name, " +
+    s"header=$header, " +
+    s"comment=$comment, " +
+    s"hLayout=$hLayout, " +
+    s"vLayout=$vLayout)"
 }
 
 @SuppressWarnings(Array("org.wartremover.warts.OptionPartial", "org.wartremover.warts.TraversableOps"))
@@ -70,12 +74,7 @@ object FIGfont {
   /**
    * Creates a validated FIGfont with the given parameters
    */
-  def apply(
-      name: String,
-      header: FIGheader,
-      comment: String,
-      chars: Vector[FIGcharacter],
-  ): FigletResult[FIGfont] = {
+  def apply(name: String, header: FIGheader, comment: String, chars: Vector[FIGcharacter]): FigletResult[FIGfont] = {
     val hash = (name + header.toString + comment + chars.mkString).md5
 
     val hLayoutV = HorizontalLayout.fromHeader(header)
@@ -140,6 +139,11 @@ object FIGfont {
       val commentV = fontState.commentLines.mkString("\n").validNec
       val hLayoutV = HorizontalLayout.fromHeader(header)
       val vLayoutV = VerticalLayout.fromHeader(header)
+
+      println("")
+      println(s"Name: ${fontState.name}")
+      println(s"Header layout: ${header.oldLayout}")
+      println(s"Font layout: $hLayoutV")
 
       val charsV = fontState
         .loadedChars
@@ -280,7 +284,7 @@ object FIGfont {
     Option
       .when(splitFontTag.nonEmpty)(splitFontTag(0))
       .toValidNec(
-        FIGcharacterError(s"Missing character code in the tag at line $tagLineIndex: $tagLine"),
+        FIGcharacterError(s"Missing character code in the tag at line ${tagLineIndex + 1}: $tagLine"),
       )
       .andThen(parseCharCode(tagLineIndex, _))
   }

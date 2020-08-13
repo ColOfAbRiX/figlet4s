@@ -35,7 +35,7 @@ package object catsio {
         horizontalLayout <- builtHorizontalLayout
         maxWidth         <- builtMaxWidth
       } yield {
-        RenderOptions(font, horizontalLayout, maxWidth)
+        RenderOptions(font, maxWidth, horizontalLayout, HorizontalLayout2.FullWidth, PrintDirection.LeftToRight)
       }
 
     //  Support  //
