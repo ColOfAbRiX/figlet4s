@@ -142,7 +142,7 @@ object FIGfont {
 
       println("")
       println(s"Name: ${fontState.name}")
-      println(s"Header layout: ${header.oldLayout}")
+      println(s"Header layout: $header")
       println(s"Font layout: $hLayoutV")
 
       val charsV = fontState
