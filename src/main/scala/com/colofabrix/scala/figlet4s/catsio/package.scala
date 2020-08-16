@@ -34,8 +34,9 @@ package object catsio {
         font             <- builtFont
         horizontalLayout <- builtHorizontalLayout
         maxWidth         <- builtMaxWidth
+        printDirection   <- builtPrintDirection
       } yield {
-        RenderOptions(font, maxWidth, horizontalLayout, HorizontalLayout2.FullWidth, PrintDirection.LeftToRight)
+        RenderOptions(font, maxWidth, horizontalLayout, printDirection)
       }
 
     //  Support  //
@@ -61,6 +62,12 @@ package object catsio {
         optionMaxWidth <- buildOptions.map(_.maxWidth)
         maxWidth       <- IO.pure(optionMaxWidth.getOrElse(Int.MaxValue))
       } yield maxWidth
+
+    private def builtPrintDirection: IO[PrintDirection] =
+      for {
+        optionDirection <- buildOptions.map(_.printDirection)
+        printDirection  <- IO.pure(optionDirection.getOrElse(PrintDirection.LeftToRight))
+      } yield printDirection
   }
 
   implicit class FIGureOps(val figure: FIGure) extends FIGureClientAPI[IO] {

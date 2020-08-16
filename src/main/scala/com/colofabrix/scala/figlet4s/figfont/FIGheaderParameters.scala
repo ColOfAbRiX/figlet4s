@@ -8,7 +8,7 @@ import enumeratum.values._
 /**
  * Parameters and configuration settings used by FIGheaders
  */
-private[figfont] object FIGheaderParameters {
+private[figlet4s] object FIGheaderParameters {
   /**
    * Print direction parameter
    */

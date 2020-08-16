@@ -3,11 +3,12 @@ package com.colofabrix.scala.figlet4s.rendering
 import cats.implicits._
 import com.colofabrix.scala.figlet4s.rendering.MergeAction._
 import scala.annotation.tailrec
+import com.colofabrix.scala.figlet4s.figfont.SubColumns
 
 /**
  * Rendering functions
  *
- * Explanation of the general algorithm with final `overlap = 3`
+ * Explanation of the general algorithm with final `overlap = 3` and print direction left-to-right
  *
  * Example merged FIGures (using Horizontal Fitting as example renderer):
  *
@@ -89,9 +90,27 @@ import scala.annotation.tailrec
  * - The result value of the custom merge function is an Applicative Functor.
  */
 object Rendering {
+  /** Function that merges two SubElements */
+  type MergeStrategy = (SubColumns, SubColumns) => SubColumns
+
+  /** Function that smushes two characters */
+  type SmushingStrategy = (Char, Char) => Option[Char]
+
+  def mergeColumnWith(f: (Char, Char) => MergeAction[Char]): MergeStrategy = { (a, b) =>
+    println(s"Merge\n$a\nwith\n$b")
+    val g = { (a: Char, b: Char) =>
+      val result = f(a, b)
+      println(s"a: $a, b: $b => $result")
+      result
+    }
+    val result = SubColumns(merge(a.value, b.value, 0, Vector.empty)(g))
+    println(s"Result:\n$result")
+    println("")
+    result
+  }
 
   @tailrec
-  def merge(a: Vector[String], b: Vector[String], overlap: Int, previous: Vector[String])(
+  private def merge(a: Vector[String], b: Vector[String], overlap: Int, previous: Vector[String])(
       f: (Char, Char) => MergeAction[Char],
   ): Vector[String] = {
     if (a.length === 0)

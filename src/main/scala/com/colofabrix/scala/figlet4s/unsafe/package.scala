@@ -34,17 +34,22 @@ package object unsafe {
           .getOrElse(Figlet4s.loadFontInternal().validNec)
           .unsafeGet
 
-      val horizontalLayout =
-        buildOptions
-          .horizontalLayout
-          .getOrElse(font.hLayout)
+      val horizontalLayout = HorizontalLayout.toInternalLayout(
+        buildOptions.horizontalLayout,
+        font
+      )
 
       val maxWidth =
         buildOptions
           .maxWidth
           .getOrElse(Int.MaxValue)
 
-      RenderOptions(font, maxWidth, horizontalLayout, HorizontalLayout2.FullWidth, PrintDirection.LeftToRight)
+      val printDirection =
+        buildOptions
+          .printDirection
+          .getOrElse(PrintDirection.LeftToRight)
+
+      RenderOptions(font, maxWidth, horizontalLayout, printDirection)
     }
   }
 

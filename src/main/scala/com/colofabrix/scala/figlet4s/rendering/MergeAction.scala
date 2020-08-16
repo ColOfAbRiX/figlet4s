@@ -5,19 +5,19 @@ import cats._
 /**
  * Result of the merge of data like SubColumns
  */
-sealed trait MergeAction[+A]
+sealed trait MergeAction[@specialized(Char) +A]
 
 object MergeAction {
 
   /** Represents a "keep the value and continue" condition */
-  final case class Continue[A](value: A) extends MergeAction[A]
+  final case class Continue[@specialized(Char) A](value: A) extends MergeAction[A]
   /** Represents a "stop processing, keep use the value of the current iteration" condition */
-  final case class CurrentLast[A](value: A) extends MergeAction[A]
+  final case class CurrentLast[@specialized(Char) A](value: A) extends MergeAction[A]
   /** Represents a "stop processing, use value of last iteration" condition */
   final case object Stop extends MergeAction[Nothing]
 
   implicit val applicativeMergeAction: Applicative[MergeAction] = new Applicative[MergeAction] {
-    def pure[A](x: A): MergeAction[A] =
+    def pure[@specialized(Char) A](x: A): MergeAction[A] =
       Continue(x)
 
     def ap[A, B](ff: MergeAction[A => B])(fa: MergeAction[A]): MergeAction[B] =

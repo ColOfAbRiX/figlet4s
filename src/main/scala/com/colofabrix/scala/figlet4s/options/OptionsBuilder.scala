@@ -4,94 +4,100 @@ import cats.effect.Sync
 import cats.implicits._
 import com.colofabrix.scala.figlet4s.api.InternalAPI
 import com.colofabrix.scala.figlet4s.errors._
-import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options.OptionsBuilder._
 
 /**
  * Builder of rendering options
  */
-final class OptionsBuilder(private val builderActions: List[BuilderActions] = List.empty) {
+final class OptionsBuilder(private val builderActions: List[BuilderAction] = List.empty) {
 
   /** Use the specified Text Width */
   def text(text: String): OptionsBuilder =
-    new OptionsBuilder(SetTextAction(text) :: builderActions)
+    addAction(SetTextAction(text))
 
   //  Font  //
 
   /** Use the default FIGfont */
   def defaultFont(): OptionsBuilder =
-    new OptionsBuilder(DefaultFontAction :: builderActions)
+    addAction(DefaultFontAction)
 
   /** Use the internal FIGfont with the specified fontName */
   def withInternalFont(fontName: String): OptionsBuilder =
-    new OptionsBuilder(LoadInternalFontAction(fontName) :: builderActions)
+    addAction(LoadInternalFontAction(fontName))
 
   /** Use the FIGfont with the specified fontPath */
   def withFont(fontPath: String, encoding: String = "ISO8859_1"): OptionsBuilder =
-    new OptionsBuilder(LoadFontAction(fontPath, encoding) :: builderActions)
+    addAction(LoadFontAction(fontPath, encoding))
 
   /** Use the specified FIGfont */
   def withFont(font: FIGfont): OptionsBuilder =
-    new OptionsBuilder(SetFontAction(font) :: builderActions)
+    addAction(SetFontAction(font))
 
   //  Horizontal Layout  //
 
   /** Use the default Horizontal Layout */
   def defaultHorizontalLayout(): OptionsBuilder =
-    new OptionsBuilder(DefaultHorizontalLayout :: builderActions)
+    addAction(DefaultHorizontalLayout)
 
   /** Use the specified Horizontal Layout */
   def withHorizontalLayout(layout: HorizontalLayout): OptionsBuilder =
-    new OptionsBuilder(SetHorizontalLayout(layout) :: builderActions)
-
-  /** Use the default Horizontal Layout */
-  def defaultHorizontalLayout2(): OptionsBuilder =
-    new OptionsBuilder(DefaultHorizontalLayout :: builderActions)
-
-  /** Use the specified Horizontal Layout */
-  def withHorizontalLayout2(layout: HorizontalLayout2): OptionsBuilder =
-    new OptionsBuilder(SetHorizontalLayout2(layout) :: builderActions)
+    addAction(SetHorizontalLayout(layout))
 
   //  Max Width  //
 
   /** Use the default Max Width */
   def defaultMaxWidth(): OptionsBuilder =
-    new OptionsBuilder(DefaultMaxWidthAction :: builderActions)
+    addAction(DefaultMaxWidthAction)
 
   /** Use the specified Max Width */
   def withMaxWidth(maxWidth: Int): OptionsBuilder =
-    new OptionsBuilder(SetMaxWidthAction(maxWidth) :: builderActions)
+    addAction(SetMaxWidthAction(maxWidth))
+
+  //  Print Direction  //
+
+  /** Use the default Max Width */
+  def defaultPrintDirection(): OptionsBuilder =
+    addAction(DefaultPrintDirection)
+
+  /** Use the specified Max Width */
+  def withPrintDirection(direction: PrintDirection): OptionsBuilder =
+    addAction(SetPrintDirection(direction))
+
+  //  Support  //
 
   /** Compiler to execute Actions to obtain BuildData, generic in the effect */
   private[figlet4s] def compile[F[_]: Sync]: F[BuildData] =
     OptionsBuilder.compile(this)
 
+  private def addAction(action: BuilderAction): OptionsBuilder =
+    new OptionsBuilder(action :: builderActions)
+
 }
 
 private[figlet4s] object OptionsBuilder {
 
-  sealed trait BuilderActions extends Product with Serializable
+  sealed trait BuilderAction extends Product with Serializable
 
-  final case object DefaultFontAction        extends BuilderActions
-  final case object DefaultHorizontalLayout  extends BuilderActions
-  final case object DefaultHorizontalLayout2 extends BuilderActions
-  final case object DefaultMaxWidthAction    extends BuilderActions
+  final case object DefaultFontAction       extends BuilderAction
+  final case object DefaultHorizontalLayout extends BuilderAction
+  final case object DefaultMaxWidthAction   extends BuilderAction
+  final case object DefaultPrintDirection   extends BuilderAction
 
-  final case class SetTextAction(text: String)                        extends BuilderActions
-  final case class SetMaxWidthAction(maxWidth: Int)                   extends BuilderActions
-  final case class SetHorizontalLayout(layout: HorizontalLayout)      extends BuilderActions
-  final case class SetHorizontalLayout2(layout: HorizontalLayout2)    extends BuilderActions
-  final case class SetFontAction(font: FIGfont)                       extends BuilderActions
-  final case class LoadFontAction(fontPath: String, encoding: String) extends BuilderActions
-  final case class LoadInternalFontAction(fontName: String)           extends BuilderActions
+  final case class LoadFontAction(fontPath: String, encoding: String) extends BuilderAction
+  final case class LoadInternalFontAction(fontName: String)           extends BuilderAction
+  final case class SetFontAction(font: FIGfont)                       extends BuilderAction
+  final case class SetHorizontalLayout(layout: HorizontalLayout)      extends BuilderAction
+  final case class SetMaxWidthAction(maxWidth: Int)                   extends BuilderAction
+  final case class SetPrintDirection(direction: PrintDirection)       extends BuilderAction
+  final case class SetTextAction(text: String)                        extends BuilderAction
 
   final case class BuildData(
-      text: String = "",
       font: Option[FigletResult[FIGfont]] = None,
       horizontalLayout: Option[HorizontalLayout] = None,
-      horizontalLayout2: Option[HorizontalLayout2] = None,
       maxWidth: Option[Int] = None,
+      printDirection: Option[PrintDirection] = None,
+      text: String = "",
   )
 
   /**
@@ -120,14 +126,16 @@ private[figlet4s] object OptionsBuilder {
         case (buildData, DefaultHorizontalLayout) =>
           Sync[F].pure(buildData.copy(horizontalLayout = None))
 
-        case (buildData, DefaultHorizontalLayout2) =>
-          Sync[F].pure(buildData.copy(horizontalLayout2 = None))
-
         case (buildData, SetHorizontalLayout(layout)) =>
           Sync[F].pure(buildData.copy(horizontalLayout = Some(layout)))
 
-        case (buildData, SetHorizontalLayout2(layout)) =>
-          Sync[F].pure(buildData.copy(horizontalLayout2 = Some(layout)))
+        //  Print Direction  //
+
+        case (buildData, DefaultPrintDirection) =>
+          Sync[F].pure(buildData.copy(printDirection = None))
+
+        case (buildData, SetPrintDirection(direction)) =>
+          Sync[F].pure(buildData.copy(printDirection = Some(direction)))
 
         //  Fonts  //
 

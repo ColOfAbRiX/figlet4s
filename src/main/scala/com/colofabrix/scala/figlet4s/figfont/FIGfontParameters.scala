@@ -10,7 +10,7 @@ import com.colofabrix.scala.figlet4s.figfont.FIGheaderParameters._
  * Parameters and configuration settings used by FIGfonts.
  * It is a Scala-friendly mapping of the FIGheaderParameters and it's meant for internal use only
  */
-object FIGfontParameters {
+private[figlet4s] object FIGfontParameters {
   /**
    * Horizontal Layout
    */

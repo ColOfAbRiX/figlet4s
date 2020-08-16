@@ -5,16 +5,12 @@ import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options._
 import com.colofabrix.scala.figlet4s.rendering.MergeAction._
+import com.colofabrix.scala.figlet4s.rendering.Rendering._
 
 /**
  * Renderer for Horizontal Layouts
  */
 object HorizontalTextRenderer {
-  /** Function that merges two SubElements */
-  private type MergeStrategy = (SubColumns, SubColumns) => SubColumns
-  /** Function that smushes two characters */
-  private type SmushingStrategy = (Char, Char) => Option[Char]
-
   /**
    * Renders a String into a FIGure for a given FIGfont and options
    */
@@ -52,19 +48,6 @@ object HorizontalTextRenderer {
     case HorizontalFittingLayout                   => horizontalFittingStrategy
     case UniversalHorizontalSmushingLayout         => universalHorizontalSmushingStrategy(hardblank)
     case ControlledHorizontalSmushingLayout(rules) => controlledHorizontalSmushingStrategy(rules, hardblank)
-  }
-
-  private def mergeColumnWith(f: (Char, Char) => MergeAction[Char]): MergeStrategy = { (a, b) =>
-    //println(s"Merge\n$a\nwith\n$b")
-    val g = { (a: Char, b: Char) =>
-      val result = f(a, b)
-      //println(s"a: $a, b: $b => $result")
-      result
-    }
-    val result = SubColumns(Rendering.merge(a.value, b.value, 0, Vector.empty)(g))
-    //println(s"Result:\n$result")
-    //println("")
-    result
   }
 
   /**

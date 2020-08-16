@@ -9,17 +9,17 @@ object Main extends App {
   private def unsafeTest() = {
     import com.colofabrix.scala.figlet4s.unsafe._
 
-    val builder1 = Figlet4s
-      .builder("Fabrizio & Claire")
-      .withInternalFont("4max")
-    //println(s"Header: ${builder1.options.font.header}")
-    //println(s"Options: ${builder1.options}")
-    builder1
-      .render()
-      .print()
+    //val builder1 = Figlet4s
+    //  .builder("io &")
+    //  .withInternalFont("4max")
+    ////println(s"Header: ${builder1.options.font.header}")
+    ////println(s"Options: ${builder1.options}")
+    //builder1
+    //  .render()
+    //  .print()
 
     val builder2 = Figlet4s
-      .builder("Fabrizio & Claire")
+      .builder("io &")
       .withInternalFont("alligator2")
     //println(s"Header: ${builder2.options.font.header}")
     //println(s"Options: ${builder2.options}")
@@ -27,14 +27,14 @@ object Main extends App {
       .render()
       .print()
 
-    val builder3 = Figlet4s
-      .builder("Fabrizio & Claire")
-      .withInternalFont("standard")
-    //println(s"Header: ${builder3.options.font.header}")
-    //println(s"Options: ${builder3.options}")
-    builder3
-      .render()
-      .print()
+    //val builder3 = Figlet4s
+    //  .builder("io &")
+    //  .withInternalFont("standard")
+    ////println(s"Header: ${builder3.options.font.header}")
+    ////println(s"Options: ${builder3.options}")
+    //builder3
+    //  .render()
+    //  .print()
   }
   unsafeTest()
 
