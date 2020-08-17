@@ -3,7 +3,7 @@ package com.colofabrix.scala.figlet4s.rendering
 import cats.implicits._
 import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
 import com.colofabrix.scala.figlet4s.figfont._
-import com.colofabrix.scala.figlet4s.options._
+import com.colofabrix.scala.figlet4s.options.RenderOptions
 import com.colofabrix.scala.figlet4s.rendering.MergeAction._
 import com.colofabrix.scala.figlet4s.rendering.Rendering._
 
@@ -44,10 +44,11 @@ object HorizontalTextRenderer {
    * Returns the merge strategy function given a layout
    */
   private def layout2mergeStrategy(hardblank: Char): PartialFunction[HorizontalLayout, MergeStrategy] = {
-    case FullWidthHorizontalLayout                 => fullWidthStrategy
-    case HorizontalFittingLayout                   => horizontalFittingStrategy
-    case UniversalHorizontalSmushingLayout         => universalHorizontalSmushingStrategy(hardblank)
-    case ControlledHorizontalSmushingLayout(rules) => controlledHorizontalSmushingStrategy(rules, hardblank)
+    case HorizontalLayout.FullWidthHorizontalLayout         => fullWidthStrategy
+    case HorizontalLayout.HorizontalFittingLayout           => horizontalFittingStrategy
+    case HorizontalLayout.UniversalHorizontalSmushingLayout => universalHorizontalSmushingStrategy(hardblank)
+    case HorizontalLayout.ControlledHorizontalSmushingLayout(rules) =>
+      controlledHorizontalSmushingStrategy(rules, hardblank)
   }
 
   /**
@@ -107,12 +108,12 @@ object HorizontalTextRenderer {
    * Returns a smushing strategy function given the smushing rule
    */
   private def rule2smushingStrategy(hardblank: Char): PartialFunction[HorizontalSmushingRule, SmushingStrategy] = {
-    case EqualCharacterHorizontalSmushing => equalCharacterSmushingRule(hardblank)
-    case UnderscoreHorizontalSmushing     => underscoreSmushingRule
-    case HierarchyHorizontalSmushing      => hierarchySmushingRule
-    case OppositePairHorizontalSmushing   => oppositePairSmushingRule
-    case BigXHorizontalSmushing           => bigXSmushingRule
-    case HardblankHorizontalSmushing      => hardblankSmushingRule(hardblank)
+    case HorizontalSmushingRule.EqualCharacterHorizontalSmushing => equalCharacterSmushingRule(hardblank)
+    case HorizontalSmushingRule.UnderscoreHorizontalSmushing     => underscoreSmushingRule
+    case HorizontalSmushingRule.HierarchyHorizontalSmushing      => hierarchySmushingRule
+    case HorizontalSmushingRule.OppositePairHorizontalSmushing   => oppositePairSmushingRule
+    case HorizontalSmushingRule.BigXHorizontalSmushing           => bigXSmushingRule
+    case HorizontalSmushingRule.HardblankHorizontalSmushing      => hardblankSmushingRule(hardblank)
   }
 
   /**

@@ -6,6 +6,7 @@ import com.colofabrix.scala.figlet4s.api.InternalAPI
 import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options.OptionsBuilder._
+import com.colofabrix.scala.figlet4s.utils.ADT
 
 /**
  * Builder of rendering options
@@ -66,9 +67,8 @@ final class OptionsBuilder(private val builderActions: List[BuilderAction] = Lis
 
   //  Support  //
 
-  /** Compiler to execute Actions to obtain BuildData, generic in the effect */
   private[figlet4s] def compile[F[_]: Sync]: F[BuildData] =
-    OptionsBuilder.compile(this)
+    OptionsBuilder.compile[F](this)
 
   private def addAction(action: BuilderAction): OptionsBuilder =
     new OptionsBuilder(action :: builderActions)
@@ -77,7 +77,11 @@ final class OptionsBuilder(private val builderActions: List[BuilderAction] = Lis
 
 private[figlet4s] object OptionsBuilder {
 
-  sealed trait BuilderAction extends Product with Serializable
+  /**
+   * The BuilderAction data structure is used to defer the call of the API at last moment, after all the settings have
+   * been decided.
+   */
+  sealed trait BuilderAction extends ADT
 
   final case object DefaultFontAction       extends BuilderAction
   final case object DefaultHorizontalLayout extends BuilderAction
@@ -100,67 +104,86 @@ private[figlet4s] object OptionsBuilder {
       text: String = "",
   )
 
+  private type ActionCompiler[F[_]] = PartialFunction[(BuildData, BuilderAction), F[BuildData]]
+
   /**
-   * Compiler to execute Actions to obtain BuildData, generic in the effect
+   * Compiler to run BuilderAction that create BuildData, generic in the effect
    */
   def compile[F[_]: Sync](self: OptionsBuilder): F[BuildData] =
     self
       .builderActions
-      .foldM(BuildData()) {
+      .foldM(BuildData())(aggregate(allCompilers))
 
-        //  Text  //
+  private def allCompilers[F[_]: Sync]: List[ActionCompiler[F]] =
+    List(
+      compileText[F],
+      compileMaxWidth[F],
+      compileHorizontalLayout[F],
+      compilePrintDirection[F],
+      compileFonts[F],
+    )
 
-        case (buildData, SetTextAction(text)) =>
-          Sync[F].pure(buildData.copy(text = text))
+  /** Compiles the settings for Text */
+  private def compileText[F[_]: Sync]: ActionCompiler[F] = {
+    case (buildData, SetTextAction(text)) =>
+      Sync[F].pure(buildData.copy(text = text))
+  }
 
-        //  Max Width  //
+  /** Compiles the settings for Fonts */
+  private def compileFonts[F[_]: Sync]: ActionCompiler[F] = {
+    case (buildData, DefaultFontAction) =>
+      InternalAPI
+        .loadFontInternal[F]("standard")
+        .map { font =>
+          buildData.copy(font = Some(font))
+        }
 
-        case (buildData, DefaultMaxWidthAction) =>
-          Sync[F].pure(buildData.copy(maxWidth = None))
+    case (buildData, SetFontAction(font)) =>
+      Sync[F].pure(buildData.copy(font = Some(font.validNec)))
 
-        case (buildData, SetMaxWidthAction(maxWidth)) =>
-          Sync[F].pure(buildData.copy(maxWidth = Some(maxWidth)))
+    case (buildData, LoadFontAction(fontPath, encoding)) =>
+      InternalAPI
+        .loadFont[F](fontPath, encoding)
+        .map { font =>
+          buildData.copy(font = Some(font))
+        }
 
-        //  Horizontal Layout  //
+    case (buildData, LoadInternalFontAction(fontName)) =>
+      InternalAPI
+        .loadFontInternal[F](fontName)
+        .map { font =>
+          buildData.copy(font = Some(font))
+        }
+  }
 
-        case (buildData, DefaultHorizontalLayout) =>
-          Sync[F].pure(buildData.copy(horizontalLayout = None))
+  /** Compiles the settings for Max Width */
+  private def compileMaxWidth[F[_]: Sync]: ActionCompiler[F] = {
+    case (buildData, DefaultMaxWidthAction) =>
+      Sync[F].pure(buildData.copy(maxWidth = None))
 
-        case (buildData, SetHorizontalLayout(layout)) =>
-          Sync[F].pure(buildData.copy(horizontalLayout = Some(layout)))
+    case (buildData, SetMaxWidthAction(maxWidth)) =>
+      Sync[F].pure(buildData.copy(maxWidth = Some(maxWidth)))
+  }
 
-        //  Print Direction  //
+  /** Compiles the settings for Horizontal Layout */
+  private def compileHorizontalLayout[F[_]: Sync]: ActionCompiler[F] = {
+    case (buildData, DefaultHorizontalLayout) =>
+      Sync[F].pure(buildData.copy(horizontalLayout = None))
 
-        case (buildData, DefaultPrintDirection) =>
-          Sync[F].pure(buildData.copy(printDirection = None))
+    case (buildData, SetHorizontalLayout(layout)) =>
+      Sync[F].pure(buildData.copy(horizontalLayout = Some(layout)))
+  }
 
-        case (buildData, SetPrintDirection(direction)) =>
-          Sync[F].pure(buildData.copy(printDirection = Some(direction)))
+  /** Compiles the settings for Print Direction */
+  private def compilePrintDirection[F[_]: Sync]: ActionCompiler[F] = {
+    case (buildData, DefaultPrintDirection) =>
+      Sync[F].pure(buildData.copy(printDirection = None))
 
-        //  Fonts  //
+    case (buildData, SetPrintDirection(direction)) =>
+      Sync[F].pure(buildData.copy(printDirection = Some(direction)))
+  }
 
-        case (buildData, DefaultFontAction) =>
-          InternalAPI
-            .loadFontInternal[F]("standard")
-            .map { font =>
-              buildData.copy(font = Some(font))
-            }
+  private def aggregate[F[_]: Sync](data: List[ActionCompiler[F]]): (BuildData, BuilderAction) => F[BuildData] =
+    Function.untupled(data.reduce(_ orElse _))
 
-        case (buildData, SetFontAction(font)) =>
-          Sync[F].pure(buildData.copy(font = Some(font.validNec)))
-
-        case (buildData, LoadFontAction(fontPath, encoding)) =>
-          InternalAPI
-            .loadFont[F](fontPath, encoding)
-            .map { font =>
-              buildData.copy(font = Some(font))
-            }
-
-        case (buildData, LoadInternalFontAction(fontName)) =>
-          InternalAPI
-            .loadFontInternal(fontName)
-            .map { font =>
-              buildData.copy(font = Some(font))
-            }
-      }
 }

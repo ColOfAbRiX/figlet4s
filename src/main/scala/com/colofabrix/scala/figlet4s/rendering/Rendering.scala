@@ -96,17 +96,11 @@ object Rendering {
   /** Function that smushes two characters */
   type SmushingStrategy = (Char, Char) => Option[Char]
 
+  /**
+   * Merges two columns applying a custom merge function to each pair of character of the two columns
+   */
   def mergeColumnWith(f: (Char, Char) => MergeAction[Char]): MergeStrategy = { (a, b) =>
-    println(s"Merge\n$a\nwith\n$b")
-    val g = { (a: Char, b: Char) =>
-      val result = f(a, b)
-      println(s"a: $a, b: $b => $result")
-      result
-    }
-    val result = SubColumns(merge(a.value, b.value, 0, Vector.empty)(g))
-    println(s"Result:\n$result")
-    println("")
-    result
+    SubColumns(merge(a.value, b.value, 0, Vector.empty)(f))
   }
 
   @tailrec

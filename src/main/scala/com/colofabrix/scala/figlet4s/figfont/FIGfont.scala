@@ -14,8 +14,7 @@ final case class FIGfont private[figlet4s] (
     name: String,
     header: FIGheader,
     comment: String,
-    hLayout: HorizontalLayout,
-    vLayout: VerticalLayout,
+    settings: FIGfontSettings,
     characters: Map[Char, FIGcharacter],
 ) {
   /**
@@ -39,13 +38,12 @@ final case class FIGfont private[figlet4s] (
       .replace(header.hardblank.toString, " ")
       .value
 
-  override def toString(): String =
+  override def toString: String =
     s"FIGfont(id=$id," +
     s"name=$name, " +
     s"header=$header, " +
     s"comment=$comment, " +
-    s"hLayout=$hLayout, " +
-    s"vLayout=$vLayout)"
+    s"settings=$settings)"
 }
 
 @SuppressWarnings(Array("org.wartremover.warts.OptionPartial", "org.wartremover.warts.TraversableOps"))
@@ -91,8 +89,12 @@ object FIGfont {
             .toMap
         }
 
-    (hLayoutV, vLayoutV, charsV).mapN {
-      FIGfont(hash, name, header, comment, _, _, _)
+    val settingsV = (hLayoutV, vLayoutV).mapN {
+      FIGfontSettings(_, _, PrintDirection.fromHeader(header))
+    }
+
+    (settingsV, charsV).mapN {
+      FIGfont(hash, name, header, comment, _, _)
     }
   }
 
@@ -139,11 +141,9 @@ object FIGfont {
       val commentV = fontState.commentLines.mkString("\n").validNec
       val hLayoutV = HorizontalLayout.fromHeader(header)
       val vLayoutV = VerticalLayout.fromHeader(header)
-
-      println("")
-      println(s"Name: ${fontState.name}")
-      println(s"Header layout: $header")
-      println(s"Font layout: $hLayoutV")
+      val settingsV = (hLayoutV, vLayoutV).mapN {
+        FIGfontSettings(_, _, PrintDirection.fromHeader(header))
+      }
 
       val charsV = fontState
         .loadedChars
@@ -163,7 +163,7 @@ object FIGfont {
         }
         .map(_.map(c => c.name -> c).toMap)
 
-      (hashV, nameV, header.validNec, commentV, hLayoutV, vLayoutV, charsV)
+      (hashV, nameV, header.validNec, commentV, settingsV, charsV)
         .mapN(FIGfont.apply)
     }
 
@@ -172,7 +172,7 @@ object FIGfont {
    */
   private def validatedRequiredChars(chars: Vector[FIGcharacter]): FigletResult[Vector[FIGcharacter]] = {
     val loadedCharset = chars.map(_.name).toSet
-    val missing       = requiredChars.toSet diff loadedCharset mkString (", ")
+    val missing       = requiredChars.toSet diff loadedCharset mkString ", "
 
     if (missing.nonEmpty)
       FIGcharacterError(s"Missing definition for required FIGlet characters: $missing").invalidNec

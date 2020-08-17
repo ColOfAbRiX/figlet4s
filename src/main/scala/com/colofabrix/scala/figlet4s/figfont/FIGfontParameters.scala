@@ -5,18 +5,29 @@ import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont.FIGheaderParameters.FullLayout._
 import com.colofabrix.scala.figlet4s.figfont.FIGheaderParameters.OldLayout._
 import com.colofabrix.scala.figlet4s.figfont.FIGheaderParameters._
+import com.colofabrix.scala.figlet4s.utils._
 
 /**
  * Parameters and configuration settings used by FIGfonts.
- * It is a Scala-friendly mapping of the FIGheaderParameters and it's meant for internal use only
+ *
+ * These settings are a Scala-friendly mapping of the FIGheaderParameters meant for internal processing but generally
+ * discouraged for the end-user.
  */
 private[figlet4s] object FIGfontParameters {
   /**
    * Horizontal Layout
    */
-  sealed trait HorizontalLayout extends Product with Serializable
+  sealed trait HorizontalLayout extends ADT
 
   object HorizontalLayout {
+    /** Use full width horizontal layout */
+    final case object FullWidthHorizontalLayout extends HorizontalLayout
+    /** Use horizontal fitting (kerning) layout */
+    final case object HorizontalFittingLayout extends HorizontalLayout
+    /** Use universal horizontal smushing */
+    final case object UniversalHorizontalSmushingLayout extends HorizontalLayout
+    /** Use controlled horizontal smushing */
+    final case class ControlledHorizontalSmushingLayout(rules: Vector[HorizontalSmushingRule]) extends HorizontalLayout
 
     /**
      * Interprets the header settings and returns the selected Horizontal Layout
@@ -65,24 +76,25 @@ private[figlet4s] object FIGfontParameters {
     }
   }
 
-  /** Use full width horizontal layout */
-  final case object FullWidthHorizontalLayout extends HorizontalLayout
-
-  /** Use horizontal fitting (kerning) layout */
-  final case object HorizontalFittingLayout extends HorizontalLayout
-
-  /** Use universal horizontal smushing */
-  final case object UniversalHorizontalSmushingLayout extends HorizontalLayout
-
-  /** Use controlled horizontal smushing */
-  final case class ControlledHorizontalSmushingLayout(rules: Vector[HorizontalSmushingRule]) extends HorizontalLayout
-
   /**
    * Rules for Horizontal Smushing
    */
-  sealed trait HorizontalSmushingRule extends Product with Serializable
+  sealed trait HorizontalSmushingRule extends ADT
 
   object HorizontalSmushingRule {
+    /** Apply "equal" character horizontal smushing */
+    final case object EqualCharacterHorizontalSmushing extends HorizontalSmushingRule
+    /** Apply "underscore" horizontal smushing */
+    final case object UnderscoreHorizontalSmushing extends HorizontalSmushingRule
+    /** Apply "hierarchy" horizontal smushing */
+    final case object HierarchyHorizontalSmushing extends HorizontalSmushingRule
+    /** Apply "opposite pair" horizontal smushing rule 4 */
+    final case object OppositePairHorizontalSmushing extends HorizontalSmushingRule
+    /** Apply "big X" horizontal smushing rule 5 */
+    final case object BigXHorizontalSmushing extends HorizontalSmushingRule
+    /** Apply "hardblank" horizontal smushing rule 6 */
+    final case object HardblankHorizontalSmushing extends HorizontalSmushingRule
+
     /**
      * Interprets the "fullLayout" header settings and returns the selected Horizontal Smushing Rules
      */
@@ -122,30 +134,21 @@ private[figlet4s] object FIGfontParameters {
         .getOrElse(FIGFontError(s"The oldLayout setting doesn't include any horizontal smushing rule").invalidNec)
   }
 
-  /** Apply "equal" character horizontal smushing */
-  final case object EqualCharacterHorizontalSmushing extends HorizontalSmushingRule
-
-  /** Apply "underscore" horizontal smushing */
-  final case object UnderscoreHorizontalSmushing extends HorizontalSmushingRule
-
-  /** Apply "hierarchy" horizontal smushing */
-  final case object HierarchyHorizontalSmushing extends HorizontalSmushingRule
-
-  /** Apply "opposite pair" horizontal smushing rule 4 */
-  final case object OppositePairHorizontalSmushing extends HorizontalSmushingRule
-
-  /** Apply "big X" horizontal smushing rule 5 */
-  final case object BigXHorizontalSmushing extends HorizontalSmushingRule
-
-  /** Apply "hardblank" horizontal smushing rule 6 */
-  final case object HardblankHorizontalSmushing extends HorizontalSmushingRule
-
   /**
    * Vertical Layout
    */
-  sealed trait VerticalLayout extends Product with Serializable
+  sealed trait VerticalLayout extends ADT
 
   object VerticalLayout {
+    /** Use full height vertical layout */
+    final case object FullHeightVerticalLayout extends VerticalLayout
+    /** Use vertical fitting layout */
+    final case object VerticalFittingLayout extends VerticalLayout
+    /** Use universal vertical smushing */
+    final case object UniversalVerticalSmushingLayout extends VerticalLayout
+    /** Use controlled vertical smushing */
+    final case class ControlledVerticalSmushingLayout(rules: Vector[VerticalSmushingRules]) extends VerticalLayout
+
     /**
      * Interprets the header settings and returns the selected Vertical Layout
      */
@@ -167,24 +170,23 @@ private[figlet4s] object FIGfontParameters {
         .getOrElse(FullHeightVerticalLayout.validNec)
   }
 
-  /** Use full height vertical layout */
-  final case object FullHeightVerticalLayout extends VerticalLayout
-
-  /** Use vertical fitting layout */
-  final case object VerticalFittingLayout extends VerticalLayout
-
-  /** Use universal vertical smushing */
-  final case object UniversalVerticalSmushingLayout extends VerticalLayout
-
-  /** Use controlled vertical smushing */
-  final case class ControlledVerticalSmushingLayout(rules: Vector[VerticalSmushingRules]) extends VerticalLayout
-
   /**
    * Rules for Vertical Smushing
    */
-  sealed trait VerticalSmushingRules extends Product with Serializable
+  sealed trait VerticalSmushingRules extends ADT
 
   object VerticalSmushingRules {
+    /** Apply "equal" character vertical smushing */
+    final case object EqualCharacterVerticalSmushing extends VerticalSmushingRules
+    /** Apply "underscore" vertical smushing */
+    final case object UnderscoreVerticalSmushing extends VerticalSmushingRules
+    /** Apply "hierarchy" vertical smushing */
+    final case object HierarchyVerticalSmushing extends VerticalSmushingRules
+    /** Apply "horizontal line" vertical smushing */
+    final case object HorizontalLineVerticalSmushing extends VerticalSmushingRules
+    /** Apply "vertical line" vertical smushing */
+    final case object VerticalLineVerticalSuperSmushing extends VerticalSmushingRules
+
     /**
      * Interprets the header settings and returns the selected Vertical Smushing Rules
      */
@@ -204,19 +206,26 @@ private[figlet4s] object FIGfontParameters {
         .validNec
   }
 
-  /** Apply "equal" character vertical smushing */
-  final case object EqualCharacterVerticalSmushing extends VerticalSmushingRules
+  /**
+   * Option to choose the rendering direction
+   */
+  sealed trait PrintDirection extends ADT
 
-  /** Apply "underscore" vertical smushing */
-  final case object UnderscoreVerticalSmushing extends VerticalSmushingRules
+  object PrintDirection {
 
-  /** Apply "hierarchy" vertical smushing */
-  final case object HierarchyVerticalSmushing extends VerticalSmushingRules
+    /** Render left-to-right */
+    final case object LeftToRight extends PrintDirection
+    /** Render right-to-left */
+    final case object RightToLeft extends PrintDirection
 
-  /** Apply "horizontal line" vertical smushing */
-  final case object HorizontalLineVerticalSmushing extends VerticalSmushingRules
-
-  /** Apply "vertical line" vertical smushing */
-  final case object VerticalLineVerticalSuperSmushing extends VerticalSmushingRules
-
+    /**
+     * Interprets the header settings and returns the selected PrintDirection
+     */
+    def fromHeader(header: FIGheader): PrintDirection =
+      header.printDirection match {
+        case Some(FIGheaderParameters.PrintDirection.LeftToRight) => LeftToRight
+        case Some(FIGheaderParameters.PrintDirection.RightToLeft) => RightToLeft
+        case None                                                 => LeftToRight
+      }
+  }
 }

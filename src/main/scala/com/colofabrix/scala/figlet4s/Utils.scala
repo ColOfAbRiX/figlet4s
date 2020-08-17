@@ -11,6 +11,11 @@ import scala.collection.immutable.BitSet
 
 private[figlet4s] object utils {
 
+  /**
+   * Common trait for ADTs
+   */
+  trait ADT extends Product with Serializable
+
   //  Traversable from Isomorphism (https://stackoverflow.com/a/48833659/1215156)  //
 
   /**

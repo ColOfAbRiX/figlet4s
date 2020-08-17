@@ -9,7 +9,7 @@ final case class RenderOptions(
     font: FIGfont,
     maxWidth: Int,
     horizontalLayout: FIGfontParameters.HorizontalLayout,
-    printDirection: FIGheaderParameters.PrintDirection,
+    printDirection: FIGfontParameters.PrintDirection,
 ) {
   override def toString: String =
     s"RenderOptions(font=${font.name}, " +

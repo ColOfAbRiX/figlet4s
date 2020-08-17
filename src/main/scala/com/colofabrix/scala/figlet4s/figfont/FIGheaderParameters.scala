@@ -6,9 +6,12 @@ import com.colofabrix.scala.figlet4s.utils._
 import enumeratum.values._
 
 /**
- * Parameters and configuration settings used by FIGheaders
+ * Parameters and configuration settings used by FIGheaders.
+ *
+ * These settings are a one-to-one mapping from the FLF format and not suited for internal higher-level processing. As
+ * such they shouldn't be used internally and they're here only to represent the FLF header.
  */
-private[figlet4s] object FIGheaderParameters {
+private[figfont] object FIGheaderParameters {
   /**
    * Print direction parameter
    */
@@ -31,7 +34,7 @@ private[figlet4s] object FIGheaderParameters {
   /**
    * Full layout parameter
    */
-  sealed abstract class FullLayout(val value: Int) extends IntEnumEntry with Product with Serializable
+  sealed abstract class FullLayout(val value: Int) extends IntEnumEntry with ADT
 
   object FullLayout extends IntEnum[FullLayout] {
 

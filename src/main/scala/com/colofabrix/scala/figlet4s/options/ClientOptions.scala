@@ -1,35 +1,57 @@
 package com.colofabrix.scala.figlet4s.options
 
 import com.colofabrix.scala.figlet4s.figfont._
+import com.colofabrix.scala.figlet4s.utils._
+import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters.{ HorizontalLayout => FontHorizontalLayout }
+import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters.{ PrintDirection => FontDirection }
 
 /**
  * Option to chose the desired horizontal rendering layout
  */
-sealed trait HorizontalLayout extends Product with Serializable
+sealed trait HorizontalLayout extends ADT
 
 object HorizontalLayout {
 
-  final case object FullWidth               extends HorizontalLayout
-  final case object HorizontalFitting       extends HorizontalLayout
-  final case object HorizontalSmushing      extends HorizontalLayout
+  /**
+   * Full width. Display all FIGcharacters at their full width, which may be fixed or variable, depending on the font
+   */
+  final case object FullWidth extends HorizontalLayout
+
+  /**
+   * Kerning. As many blanks as possible are removed between FIGcharacters, so that they touch, but the FIGcharacters
+   * are not smushed.
+   */
+  final case object HorizontalFitting extends HorizontalLayout
+
+  /**
+   * Smushing. The FIGcharacters are displayed as close together as possible, and overlapping sub-characters are
+   * removed. Exactly which sub-characters count as overlapping depends on the font's layout mode, which is defined by
+   * the font's author. It will not smush a font whose author specified kerning or full width as the default layout mode
+   */
+  final case object HorizontalSmushing extends HorizontalLayout
+
+  /**
+   * Forced smushing. The FIGcharacters are displayed as close together as possible, and overlapping sub-characters are
+   * removed. Exactly which sub-characters count as overlapping depends on the font's layout mode, which is defined by
+   * the font's author. It will attempt to smush the character even if the font author specified kerning or full width
+   * as the default layout mode.
+   */
   final case object ForceHorizontalSmushing extends HorizontalLayout
 
   /**
    * Converts the option HorizontalLayout into the FIGfont parameter HorizontalLayout
    */
-  def toInternalLayout(layout: HorizontalLayout, font: FIGfont): FIGfontParameters.HorizontalLayout = {
-    import FIGfontParameters._
-
-    layout match {
-      case FullWidth          => FullWidthHorizontalLayout
-      case HorizontalFitting  => HorizontalFittingLayout
-      case HorizontalSmushing => font.hLayout
-      case ForceHorizontalSmushing =>
-        font.hLayout match {
-          case ControlledHorizontalSmushingLayout(_) => font.hLayout
-          case _                                     => UniversalHorizontalSmushingLayout
-        }
-    }
+  def toInternalLayout(font: FIGfont): PartialFunction[HorizontalLayout, FontHorizontalLayout] = {
+    case FullWidth          => FontHorizontalLayout.FullWidthHorizontalLayout
+    case HorizontalFitting  => FontHorizontalLayout.HorizontalFittingLayout
+    case HorizontalSmushing => font.settings.hLayout
+    case ForceHorizontalSmushing =>
+      font.settings.hLayout match {
+        case FontHorizontalLayout.ControlledHorizontalSmushingLayout(_) =>
+          font.settings.hLayout
+        case _ =>
+          FontHorizontalLayout.UniversalHorizontalSmushingLayout
+      }
   }
 
 }
@@ -37,7 +59,7 @@ object HorizontalLayout {
 /**
  * Option to choose the rendering direction
  */
-sealed trait PrintDirection extends Product with Serializable
+sealed trait PrintDirection extends ADT
 
 object PrintDirection {
 
@@ -47,12 +69,27 @@ object PrintDirection {
   final case object RightToLeft extends PrintDirection
 
   /**
-   * Converts the option HorizontalLayout into the FIGheader parameter HorizontalLayout
+   * Converts the option HorizontalLayout into the FIGfont parameter HorizontalLayout
    */
-  def toInternalLayout(layout: PrintDirection): FIGheaderParameters.PrintDirection =
-    layout match {
-      case LeftToRight => FIGheaderParameters.PrintDirection.LeftToRight
-      case RightToLeft => FIGheaderParameters.PrintDirection.RightToLeft
-    }
+  def toInternalLayout: PartialFunction[PrintDirection, FontDirection] = {
+    case LeftToRight => FontDirection.LeftToRight
+    case RightToLeft => FontDirection.RightToLeft
+  }
+
+}
+
+/**
+ * Option to choose the justification of the text (TODO)
+ */
+sealed trait Justification extends ADT
+
+object Justification {
+
+  /** Centers the output horizontally */
+  final case object Center extends Justification
+  /** Makes the output flush-left */
+  final case object FlushLeft extends Justification
+  /** Makes it flush-right */
+  final case object FlushRight extends Justification
 
 }

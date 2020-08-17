@@ -34,9 +34,8 @@ package object unsafe {
           .getOrElse(Figlet4s.loadFontInternal().validNec)
           .unsafeGet
 
-      val horizontalLayout = HorizontalLayout.toInternalLayout(
-        buildOptions.horizontalLayout,
-        font
+      val horizontalLayout = HorizontalLayout.toInternalLayout(font)(
+        buildOptions.horizontalLayout.getOrElse(PrintDirection.LeftToRight),
       )
 
       val maxWidth =
