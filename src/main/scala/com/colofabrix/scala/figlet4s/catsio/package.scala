@@ -32,11 +32,12 @@ package object catsio {
     def options: IO[RenderOptions] =
       for {
         font             <- builtFont
-        horizontalLayout <- builtHorizontalLayout
         maxWidth         <- builtMaxWidth
-        printDirection   <- builtPrintDirection
+        horizontalLayout <- buildOptions.map(_.horizontalLayout)
+        printDirection   <- buildOptions.map(_.printDirection)
+        justification    <- buildOptions.map(_.justification)
       } yield {
-        RenderOptions(font, maxWidth, horizontalLayout, printDirection)
+        RenderOptions(font, maxWidth, horizontalLayout, printDirection, justification)
       }
 
     //  Support  //
@@ -50,24 +51,11 @@ package object catsio {
     private def builtDefaultFont: IO[FIGfont] =
       InternalAPI.loadFontInternal[IO]().flatMap(_.asIO)
 
-    private def builtHorizontalLayout: IO[FIGfontParameters.HorizontalLayout] =
-      for {
-        font          <- builtFont
-        optionHLayout <- buildOptions.map(_.horizontalLayout)
-        hLayout       <- IO.pure(optionHLayout.getOrElse(font.hLayout))
-      } yield hLayout
-
     private def builtMaxWidth: IO[Int] =
       for {
         optionMaxWidth <- buildOptions.map(_.maxWidth)
         maxWidth       <- IO.pure(optionMaxWidth.getOrElse(Int.MaxValue))
       } yield maxWidth
-
-    private def builtPrintDirection: IO[PrintDirection] =
-      for {
-        optionDirection <- buildOptions.map(_.printDirection)
-        printDirection  <- IO.pure(optionDirection.getOrElse(PrintDirection.LeftToRight))
-      } yield printDirection
   }
 
   implicit class FIGureOps(val figure: FIGure) extends FIGureClientAPI[IO] {

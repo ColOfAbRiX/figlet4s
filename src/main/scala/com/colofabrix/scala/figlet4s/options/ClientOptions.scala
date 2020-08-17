@@ -39,9 +39,15 @@ object HorizontalLayout {
   final case object ForceHorizontalSmushing extends HorizontalLayout
 
   /**
+   * Use the default value specified in the FIGfont
+   */
+  final case object FontDefault extends HorizontalLayout
+
+  /**
    * Converts the option HorizontalLayout into the FIGfont parameter HorizontalLayout
    */
   def toInternalLayout(font: FIGfont): PartialFunction[HorizontalLayout, FontHorizontalLayout] = {
+    case FontDefault        => font.settings.hLayout
     case FullWidth          => FontHorizontalLayout.FullWidthHorizontalLayout
     case HorizontalFitting  => FontHorizontalLayout.HorizontalFittingLayout
     case HorizontalSmushing => font.settings.hLayout
@@ -67,13 +73,16 @@ object PrintDirection {
   final case object LeftToRight extends PrintDirection
   /** Render right-to-left */
   final case object RightToLeft extends PrintDirection
+  /** Use the default value specified in the FIGfont */
+  final case object FontDefault extends PrintDirection
 
   /**
-   * Converts the option HorizontalLayout into the FIGfont parameter HorizontalLayout
+   * Converts the option PrintDirection into the FIGfont parameter PrintDirection
    */
-  def toInternalLayout: PartialFunction[PrintDirection, FontDirection] = {
+  def toInternalLayout(font: FIGfont): PartialFunction[PrintDirection, FontDirection] = {
     case LeftToRight => FontDirection.LeftToRight
     case RightToLeft => FontDirection.RightToLeft
+    case FontDefault => font.settings.printDirection
   }
 
 }
@@ -91,5 +100,7 @@ object Justification {
   final case object FlushLeft extends Justification
   /** Makes it flush-right */
   final case object FlushRight extends Justification
+  /** Use the default value specified in the FIGfont */
+  final case object FontDefault extends Justification
 
 }

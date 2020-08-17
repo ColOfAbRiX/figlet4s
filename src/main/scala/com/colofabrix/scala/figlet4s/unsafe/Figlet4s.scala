@@ -31,6 +31,8 @@ object Figlet4s extends Figlet4sClientAPI[Id] {
       .loadFont[Id](path, encoding)
       .unsafeGet
 
+  //  Builder  //
+
   /** Returns a new options builder with default settings */
   def builder(): OptionsBuilder =
     new OptionsBuilder()

@@ -4,20 +4,21 @@ import cats.implicits._
 import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options.RenderOptions
+import com.colofabrix.scala.figlet4s.options.{ HorizontalLayout => ClientHorizontalLayout }
 import com.colofabrix.scala.figlet4s.rendering.MergeAction._
 import com.colofabrix.scala.figlet4s.rendering.Rendering._
 
 /**
  * Renderer for Horizontal Layouts
  */
-object HorizontalTextRenderer {
+private[figlet4s] object HorizontalTextRenderer {
   /**
    * Renders a String into a FIGure for a given FIGfont and options
    */
   def render(text: String, options: RenderOptions): FIGure = {
     val font          = options.font
     val empty         = font.zero.lines.toSubcolumns
-    val chosenLayout  = options.horizontalLayout
+    val chosenLayout  = ClientHorizontalLayout.toInternalLayout(font)(options.horizontalLayout)
     val mergeStrategy = layout2mergeStrategy(font.header.hardblank)(chosenLayout)
 
     val result = text

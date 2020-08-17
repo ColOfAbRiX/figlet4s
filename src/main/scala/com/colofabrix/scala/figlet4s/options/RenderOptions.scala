@@ -8,12 +8,14 @@ import com.colofabrix.scala.figlet4s.figfont._
 final case class RenderOptions(
     font: FIGfont,
     maxWidth: Int,
-    horizontalLayout: FIGfontParameters.HorizontalLayout,
-    printDirection: FIGfontParameters.PrintDirection,
+    horizontalLayout: HorizontalLayout,
+    printDirection: PrintDirection,
+    justification: Justification,
 ) {
   override def toString: String =
     s"RenderOptions(font=${font.name}, " +
     s"maxWidth=$maxWidth, " +
     s"horizontalLayout=$horizontalLayout, " +
-    s"printDirection=$printDirection)"
+    s"printDirection=$printDirection, " +
+    s"justification=$justification)"
 }

@@ -21,7 +21,7 @@ package object unsafe {
       Figlet4s.renderString(buildOptions.text, options)
 
     /** Renders a given text into a FIGure */
-    def render(text: String): Id[FIGure] =
+    def render(text: String): FIGure =
       self
         .text(text)
         .render()
@@ -34,21 +34,18 @@ package object unsafe {
           .getOrElse(Figlet4s.loadFontInternal().validNec)
           .unsafeGet
 
-      val horizontalLayout = HorizontalLayout.toInternalLayout(font)(
-        buildOptions.horizontalLayout.getOrElse(PrintDirection.LeftToRight),
-      )
-
       val maxWidth =
         buildOptions
           .maxWidth
           .getOrElse(Int.MaxValue)
 
-      val printDirection =
-        buildOptions
-          .printDirection
-          .getOrElse(PrintDirection.LeftToRight)
-
-      RenderOptions(font, maxWidth, horizontalLayout, printDirection)
+      RenderOptions(
+        font,
+        maxWidth,
+        buildOptions.horizontalLayout,
+        buildOptions.printDirection,
+        buildOptions.justification,
+      )
     }
   }
 

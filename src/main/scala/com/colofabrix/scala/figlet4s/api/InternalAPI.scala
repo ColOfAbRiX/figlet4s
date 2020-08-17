@@ -5,10 +5,10 @@ import cats.effect._
 import cats.implicits._
 import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont._
+import com.colofabrix.scala.figlet4s.options._
 import com.colofabrix.scala.figlet4s.rendering._
 import java.io.File
 import scala.io._
-import com.colofabrix.scala.figlet4s.options.RenderOptions
 
 /**
  * Layer of API internal to figlet4s, used to have uniform and generic access to resources when implementing client APIs

@@ -89,7 +89,7 @@ import com.colofabrix.scala.figlet4s.figfont.SubColumns
  *   with the decision of how to proceed with the algorithm.
  * - The result value of the custom merge function is an Applicative Functor.
  */
-object Rendering {
+private[figlet4s] object Rendering {
   /** Function that merges two SubElements */
   type MergeStrategy = (SubColumns, SubColumns) => SubColumns
 

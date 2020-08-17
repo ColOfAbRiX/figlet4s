@@ -11,7 +11,7 @@ import com.colofabrix.scala.figlet4s.utils.ADT
 /**
  * Builder of rendering options
  */
-final class OptionsBuilder(private val builderActions: List[BuilderAction] = List.empty) {
+final class OptionsBuilder(private val actions: List[BuilderAction] = List.empty) {
 
   /** Use the specified Text Width */
   def text(text: String): OptionsBuilder =
@@ -57,13 +57,23 @@ final class OptionsBuilder(private val builderActions: List[BuilderAction] = Lis
 
   //  Print Direction  //
 
-  /** Use the default Max Width */
+  /** Use the default Print Direction */
   def defaultPrintDirection(): OptionsBuilder =
     addAction(DefaultPrintDirection)
 
-  /** Use the specified Max Width */
+  /** Use the specified Print Direction */
   def withPrintDirection(direction: PrintDirection): OptionsBuilder =
     addAction(SetPrintDirection(direction))
+
+  //  Justification  //
+
+  /** Use the default Justification */
+  def defaultJustification(): OptionsBuilder =
+    addAction(DefaultJustification)
+
+  /** Use the specified Justification */
+  def withJustification(justification: Justification): OptionsBuilder =
+    addAction(SetJustification(justification))
 
   //  Support  //
 
@@ -71,20 +81,21 @@ final class OptionsBuilder(private val builderActions: List[BuilderAction] = Lis
     OptionsBuilder.compile[F](this)
 
   private def addAction(action: BuilderAction): OptionsBuilder =
-    new OptionsBuilder(action :: builderActions)
+    new OptionsBuilder(action :: actions)
 
 }
 
 private[figlet4s] object OptionsBuilder {
 
   /**
-   * The BuilderAction data structure is used to defer the call of the API at last moment, after all the settings have
-   * been decided.
+   * The BuilderAction data structure is used to defer the call of the API at rendering time, to avoid dealing with
+   * calls that might fail (like loading a font) while the user is constructing the the options.
    */
   sealed trait BuilderAction extends ADT
 
   final case object DefaultFontAction       extends BuilderAction
   final case object DefaultHorizontalLayout extends BuilderAction
+  final case object DefaultJustification    extends BuilderAction
   final case object DefaultMaxWidthAction   extends BuilderAction
   final case object DefaultPrintDirection   extends BuilderAction
 
@@ -92,15 +103,17 @@ private[figlet4s] object OptionsBuilder {
   final case class LoadInternalFontAction(fontName: String)           extends BuilderAction
   final case class SetFontAction(font: FIGfont)                       extends BuilderAction
   final case class SetHorizontalLayout(layout: HorizontalLayout)      extends BuilderAction
+  final case class SetJustification(justification: Justification)     extends BuilderAction
   final case class SetMaxWidthAction(maxWidth: Int)                   extends BuilderAction
   final case class SetPrintDirection(direction: PrintDirection)       extends BuilderAction
   final case class SetTextAction(text: String)                        extends BuilderAction
 
   final case class BuildData(
       font: Option[FigletResult[FIGfont]] = None,
-      horizontalLayout: Option[HorizontalLayout] = None,
+      horizontalLayout: HorizontalLayout = HorizontalLayout.FontDefault,
+      justification: Justification = Justification.FontDefault,
       maxWidth: Option[Int] = None,
-      printDirection: Option[PrintDirection] = None,
+      printDirection: PrintDirection = PrintDirection.FontDefault,
       text: String = "",
   )
 
@@ -111,16 +124,17 @@ private[figlet4s] object OptionsBuilder {
    */
   def compile[F[_]: Sync](self: OptionsBuilder): F[BuildData] =
     self
-      .builderActions
+      .actions
       .foldM(BuildData())(aggregate(allCompilers))
 
   private def allCompilers[F[_]: Sync]: List[ActionCompiler[F]] =
     List(
-      compileText[F],
-      compileMaxWidth[F],
-      compileHorizontalLayout[F],
-      compilePrintDirection[F],
       compileFonts[F],
+      compileHorizontalLayout[F],
+      compileJustification[F],
+      compileMaxWidth[F],
+      compilePrintDirection[F],
+      compileText[F],
     )
 
   /** Compiles the settings for Text */
@@ -168,21 +182,31 @@ private[figlet4s] object OptionsBuilder {
   /** Compiles the settings for Horizontal Layout */
   private def compileHorizontalLayout[F[_]: Sync]: ActionCompiler[F] = {
     case (buildData, DefaultHorizontalLayout) =>
-      Sync[F].pure(buildData.copy(horizontalLayout = None))
+      Sync[F].pure(buildData.copy(horizontalLayout = HorizontalLayout.FontDefault))
 
     case (buildData, SetHorizontalLayout(layout)) =>
-      Sync[F].pure(buildData.copy(horizontalLayout = Some(layout)))
+      Sync[F].pure(buildData.copy(horizontalLayout = layout))
   }
 
   /** Compiles the settings for Print Direction */
   private def compilePrintDirection[F[_]: Sync]: ActionCompiler[F] = {
     case (buildData, DefaultPrintDirection) =>
-      Sync[F].pure(buildData.copy(printDirection = None))
+      Sync[F].pure(buildData.copy(printDirection = PrintDirection.FontDefault))
 
     case (buildData, SetPrintDirection(direction)) =>
-      Sync[F].pure(buildData.copy(printDirection = Some(direction)))
+      Sync[F].pure(buildData.copy(printDirection = direction))
   }
 
+  /** Compiles the settings for Justification */
+  private def compileJustification[F[_]: Sync]: ActionCompiler[F] = {
+    case (buildData, DefaultJustification) =>
+      Sync[F].pure(buildData.copy(printDirection = PrintDirection.FontDefault))
+
+    case (buildData, SetJustification(justification)) =>
+      Sync[F].pure(buildData.copy(justification = justification))
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
   private def aggregate[F[_]: Sync](data: List[ActionCompiler[F]]): (BuildData, BuilderAction) => F[BuildData] =
     Function.untupled(data.reduce(_ orElse _))
 

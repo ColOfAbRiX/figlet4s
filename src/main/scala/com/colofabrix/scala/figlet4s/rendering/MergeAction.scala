@@ -7,7 +7,7 @@ import cats._
  */
 sealed trait MergeAction[@specialized(Char) +A]
 
-object MergeAction {
+private[figlet4s] object MergeAction {
 
   /** Represents a "keep the value and continue" condition */
   final case class Continue[@specialized(Char) A](value: A) extends MergeAction[A]
