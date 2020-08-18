@@ -39,7 +39,7 @@ object Figlet4s extends Figlet4sClientAPI[Id] {
 
   /** Returns a new options builder with default settings and a set text */
   def builder(text: String): OptionsBuilder =
-    new OptionsBuilder(OptionsBuilder.SetTextAction(text) :: Nil)
+    new OptionsBuilder(BuilderAction.SetTextAction(text) :: Nil)
 
   /** Returns a new options builder with default settings */
   def builderF(): OptionsBuilder =

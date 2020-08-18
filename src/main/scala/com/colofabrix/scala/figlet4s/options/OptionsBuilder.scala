@@ -5,8 +5,8 @@ import cats.implicits._
 import com.colofabrix.scala.figlet4s.api.InternalAPI
 import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont._
+import com.colofabrix.scala.figlet4s.options.BuilderAction._
 import com.colofabrix.scala.figlet4s.options.OptionsBuilder._
-import com.colofabrix.scala.figlet4s.utils.ADT
 
 /**
  * Builder of rendering options
@@ -77,36 +77,17 @@ final class OptionsBuilder(private val actions: List[BuilderAction] = List.empty
 
   //  Support  //
 
-  private[figlet4s] def compile[F[_]: Sync]: F[BuildData] =
+  private[figlet4s] def compile[F[_]: Sync]: F[BuildData] = {
+    println(s"Actions: ${this.actions}")
     OptionsBuilder.compile[F](this)
+  }
 
   private def addAction(action: BuilderAction): OptionsBuilder =
-    new OptionsBuilder(action :: actions)
+    new OptionsBuilder(action :: this.actions.filter(BuilderAction.sameActionAs(action)))
 
 }
 
 private[figlet4s] object OptionsBuilder {
-
-  /**
-   * The BuilderAction data structure is used to defer the call of the API at rendering time, to avoid dealing with
-   * calls that might fail (like loading a font) while the user is constructing the the options.
-   */
-  sealed trait BuilderAction extends ADT
-
-  final case object DefaultFontAction       extends BuilderAction
-  final case object DefaultHorizontalLayout extends BuilderAction
-  final case object DefaultJustification    extends BuilderAction
-  final case object DefaultMaxWidthAction   extends BuilderAction
-  final case object DefaultPrintDirection   extends BuilderAction
-
-  final case class LoadFontAction(fontPath: String, encoding: String) extends BuilderAction
-  final case class LoadInternalFontAction(fontName: String)           extends BuilderAction
-  final case class SetFontAction(font: FIGfont)                       extends BuilderAction
-  final case class SetHorizontalLayout(layout: HorizontalLayout)      extends BuilderAction
-  final case class SetJustification(justification: Justification)     extends BuilderAction
-  final case class SetMaxWidthAction(maxWidth: Int)                   extends BuilderAction
-  final case class SetPrintDirection(direction: PrintDirection)       extends BuilderAction
-  final case class SetTextAction(text: String)                        extends BuilderAction
 
   final case class BuildData(
       font: Option[FigletResult[FIGfont]] = None,

@@ -11,7 +11,7 @@ import com.colofabrix.scala.figlet4s.utils._
 package object unsafe {
 
   implicit class OptionsBuilderOps(val self: OptionsBuilder) extends OptionsBuilderClientAPI[Id] {
-    private val buildOptions = self.compile[Id]
+    private lazy val buildOptions = self.compile[Id]
 
     /** The text to render */
     def text: String = buildOptions.text
