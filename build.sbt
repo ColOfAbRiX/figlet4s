@@ -1,5 +1,7 @@
 import dependencies.Dependencies._
 
+val figlet4sVersion = "0.1.0"
+
 // General
 Global / onChangedBuildSource := ReloadOnSourceChanges
 ThisBuild / organization := "com.colofabrix.scala.figlet4s"
@@ -10,7 +12,7 @@ ThisBuild / developers := List(
 )
 
 // Compiler options
-ThisBuild / scalacOptions ++= Compiler.TpolecatOptions ++ Compiler.StrictOptions ++ Seq("-P:splain:all")
+ThisBuild / scalacOptions ++= Compiler.TpolecatOptions_2_13 ++ Compiler.StrictOptions ++ Seq("-P:splain:all")
 
 // Wartremover
 ThisBuild / wartremoverExcluded ++= (baseDirectory.value * "**" / "src" / "test").get
@@ -32,19 +34,39 @@ ThisBuild / libraryDependencies ++= Seq(
   WartremoverPlugin,
 )
 
-// Root project
-lazy val figlet4s: Project = project
-  .in(file("."))
+// Figlet4s
+lazy val figlet4s: Project = project.in(file("."))
+
+// Figlet4s Core project
+lazy val figlet4sCore: Project = project
+  .in(file("figlet4s-core"))
   .settings(
     name := "figlet4s",
     description := "Scala FIGlet implementation",
-    version := "0.1.0",
+    version := figlet4sVersion,
     libraryDependencies ++= Seq(
       CatsCoreDep,
       CatsEffectDep,
-      CatsFreeDep,
       CatsKernelDep,
       EnumeratumDep,
-      ScalaTestDep
+      ScalaTestFlatSpecDep,
+      ScalaTestShouldMatchersDep,
+    ),
+  )
+
+// Figlet4s-Cats project
+lazy val figlet4sCats: Project = project
+  .in(file("figlet4s-catsio"))
+  .dependsOn(figlet4sCore)
+  .settings(
+    name := "figlet4s-catsio",
+    description := "Cats IO extension for Figlet4s",
+    version := figlet4sVersion,
+    libraryDependencies ++= Seq(
+      CatsCoreDep,
+      CatsEffectDep,
+      CatsKernelDep,
+      ScalaTestFlatSpecDep,
+      ScalaTestShouldMatchersDep,
     ),
   )

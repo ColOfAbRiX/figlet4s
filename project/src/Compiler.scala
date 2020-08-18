@@ -4,9 +4,9 @@ object Compiler {
 
   // format: off
 
-  // Compiler options
+  // Compiler options for Scala 2.13
   // https://nathankleyn.com/2019/05/13/recommended-scalac-flags-for-2-13/
-  lazy val TpolecatOptions: Seq[String] = Seq(
+  lazy val TpolecatOptions_2_13: Seq[String] = Seq(
     "-deprecation",                              // Emit warning and location for usages of deprecated APIs.
     "-explaintypes",                             // Explain type errors in more detail.
     "-feature",                                  // Emit warning and location for usages of features that should be imported explicitly.

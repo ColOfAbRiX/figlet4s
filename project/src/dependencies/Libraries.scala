@@ -14,11 +14,11 @@ trait Libraries {
   lazy val ScalaTestVersion  = "3.2.0"
 
   // Libraries
-  lazy val CatsCoreDep   = "org.typelevel" %% "cats-core"   % CatsVersion
-  lazy val CatsEffectDep = "org.typelevel" %% "cats-effect" % CatsEffectVersion
-  lazy val CatsFreeDep   = "org.typelevel" %% "cats-free"   % CatsVersion
-  lazy val CatsKernelDep = "org.typelevel" %% "cats-kernel" % CatsVersion
-  lazy val EnumeratumDep = "com.beachape"  %% "enumeratum"  % EnumeratumVersion
-  lazy val ScalaTestDep  = "org.scalatest" %% "scalatest"   % ScalaTestVersion % Test
+  lazy val CatsCoreDep                = "org.typelevel" %% "cats-core"                % CatsVersion
+  lazy val CatsEffectDep              = "org.typelevel" %% "cats-effect"              % CatsEffectVersion
+  lazy val CatsKernelDep              = "org.typelevel" %% "cats-kernel"              % CatsVersion
+  lazy val EnumeratumDep              = "com.beachape"  %% "enumeratum"               % EnumeratumVersion % Compile
+  lazy val ScalaTestFlatSpecDep       = "org.scalatest" %% "scalatest-flatspec"       % ScalaTestVersion % Test
+  lazy val ScalaTestShouldMatchersDep = "org.scalatest" %% "scalatest-shouldmatchers" % ScalaTestVersion % Test
 
 }

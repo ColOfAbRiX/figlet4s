@@ -43,13 +43,13 @@ private[figlet4s] object BuilderAction {
   /** Determines if two actions belong to the same group by using Action Tags */
   def sameActionAs(a: BuilderAction)(b: BuilderAction): Boolean =
     (a, b) match {
-      case (_: FontTag, _: FontTag)                         => false
-      case (_: HorizontalLayoutTag, _: HorizontalLayoutTag) => false
-      case (_: JustificationTag, _: JustificationTag)       => false
-      case (_: MaxWidthActionTag, _: MaxWidthActionTag)     => false
-      case (_: PrintDirectionTag, _: PrintDirectionTag)     => false
-      case (_: TextTag, _: TextTag)                         => false
-      case _                                                => true
+      case (_: FontTag, _: FontTag)                         => true
+      case (_: HorizontalLayoutTag, _: HorizontalLayoutTag) => true
+      case (_: JustificationTag, _: JustificationTag)       => true
+      case (_: MaxWidthActionTag, _: MaxWidthActionTag)     => true
+      case (_: PrintDirectionTag, _: PrintDirectionTag)     => true
+      case (_: TextTag, _: TextTag)                         => true
+      case _                                                => false
     }
 
 }

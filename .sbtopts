@@ -2,8 +2,8 @@
 -J-Duser.timezone=UTC
 -J-XX:+TieredCompilation
 -J-XX:+UseParallelGC
--J-XX:MaxHeapSize=512G
--J-XX:ReservedCodeCacheSize=64M
--J-Xms128M
--J-Xmx512G
+-J-XX:MaxHeapSize=128M
+-J-XX:ReservedCodeCacheSize=16M
+-J-Xms32M
+-J-Xmx128G
 -J-Xss1m

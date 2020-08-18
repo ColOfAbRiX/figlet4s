@@ -77,13 +77,11 @@ final class OptionsBuilder(private val actions: List[BuilderAction] = List.empty
 
   //  Support  //
 
-  private[figlet4s] def compile[F[_]: Sync]: F[BuildData] = {
-    println(s"Actions: ${this.actions}")
+  private[figlet4s] def compile[F[_]: Sync]: F[BuildData] =
     OptionsBuilder.compile[F](this)
-  }
 
   private def addAction(action: BuilderAction): OptionsBuilder =
-    new OptionsBuilder(action :: this.actions.filter(BuilderAction.sameActionAs(action)))
+    new OptionsBuilder(action :: this.actions.filter(!BuilderAction.sameActionAs(action)(_)))
 
 }
 
