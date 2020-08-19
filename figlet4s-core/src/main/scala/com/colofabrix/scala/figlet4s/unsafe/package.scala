@@ -65,7 +65,7 @@ package object unsafe {
 
     /** The figure as a Vector of String */
     def asVector(): Vector[String] =
-      self.lines.map(_.value.mkString("\n"))
+      self.cleanLines.map(_.value.mkString("\n"))
 
     /** The figure as single String */
     def asString(): String =

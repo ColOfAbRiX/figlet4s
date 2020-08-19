@@ -45,4 +45,5 @@ object Figlet4s extends Figlet4sClientAPI[IO] {
   /** Returns a new options builder with default settings and a set text */
   def builderF(text: String): IO[OptionsBuilder] =
     IO.pure(builder(text))
+
 }

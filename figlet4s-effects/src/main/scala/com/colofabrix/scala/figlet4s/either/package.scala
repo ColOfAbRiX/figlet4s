@@ -78,7 +78,7 @@ package object either {
 
     /** The figure as a Vector of String */
     def asVector(): FigletEither[Vector[String]] = Right {
-      figure.lines.map(_.value.mkString("\n"))
+      figure.cleanLines.map(_.value.mkString("\n"))
     }
 
     /** The figure as single String */

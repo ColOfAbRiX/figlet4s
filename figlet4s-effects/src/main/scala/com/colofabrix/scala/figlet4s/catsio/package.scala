@@ -70,7 +70,7 @@ package object catsio {
 
     /** The figure as a Vector of String */
     def asVector(): IO[Vector[String]] = IO.pure {
-      figure.lines.map(_.value.mkString("\n"))
+      figure.cleanLines.map(_.value.mkString("\n"))
     }
 
     /** The figure as single String */

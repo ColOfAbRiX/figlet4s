@@ -10,9 +10,10 @@
 ```
 
 This is an implementation of [FIGlet](http://www.figlet.org/) in pure Scala with integrated fonts, minimal dependencies,
-extensive error reporting and support for Cats' IO.
+extensive error reporting and support for effects including Cats `IO`.
 
-This implementation follows the standard defined in [The FIGfont Version 2 FIGfont and FIGdriver Standard](figfont_reference.txt).
+This implementation follows the standard defined in
+[The FIGfont Version 2 FIGfont and FIGdriver Standard](figfont_reference.txt).
 
 ## DISCLAIMER
 
@@ -26,22 +27,18 @@ welcome!
 
 Supports Scala version 2.13.
 
-### SBT
+Not released on Maven Central yet.
 
-Not released on Maven Central.
+## Quick start
 
-## Using impure functions
-
-These examples show step-by-step how to use Figlet4s. In this scenario we don't want to use any particular effect,
-and we want errors to be thrown as exceptions.
-
-### Quick start
+These examples show step-by-step how to use Figlet4s. This is the basic scenario where we assume users don't want to use
+or don't want to deal with effects, and we want errors to be thrown as exceptions.
 
 The general way to use Figlet4s involves 3 steps:
 
-* first obtain a builder
-* configure the options of the builder, if needed
-* render a text into a FIGure
+* first obtain a builder to set the options;
+* then configure the options of the builder, if needed;
+* last render a text into a FIGure
 
 ```scala
 import com.colofabrix.scala.figlet4s.unsafe._
@@ -60,140 +57,113 @@ object QuickStartMain extends App {
 }
 ```
 
-### Changing options
+### Setting options
 
 In this example we see some options that you can configure, and we see a more compact way of making the calls, without
 storing objects at each step.
- 
 
 ```scala
 import com.colofabrix.scala.figlet4s.unsafe._
-import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
+import com.colofabrix.scala.figlet4s.options._
 
 object ShowcaseOptionsMain extends App {
 
   Figlet4s
-    .builder("Hello, World!")                       // Create the options builder with a text to render
-    .withMaxWidth(80)                               // Max width of the text
-    .withInternalFont("alligator")                  // Set the font
-    .defaultMaxWidth()                              // Go back to the default max  width
-    .withHorizontalLayout(HorizontalFittingLayout)  // Choose a layout
-    .text("Hello, Scala!")                          // Change the text to render
-    .render()                                       // Render the text to a FIGure
-    .print()                                        // Print the FIGure
+    .builder("Hello, World!")      // Create the options builder with a text to render
+    .withMaxWidth(80)              // Max width of the text
+    .withInternalFont("alligator") // Set the font
+    .defaultMaxWidth()             // Go back to the default max  width
+    .withHorizontalLayout(
+      HorizontalLayout.FullWidth   // Choose a layout
+    )
+    .text("Hello, Scala!")         // Change the text to render
+    .render()                      // Render the text to a FIGure
+    .print()                       // Print the FIGure
 
 }
+
 ```
 
-## Using cats' IO
+### Using the Figlet4s client
 
-To use cats' IO you import the package `com.colofabrix.scala.figlet4s.catsio` which provides objects, implicits and
-enrichments to work with `IO`. All the functions and their arguments remain unchanged from the impure version, but the
-return types are wrapped in the cats' `IO` monad.
-
-### Quick start
-
-This is the same example as in the impure version above, only it uses cats' `IO` and `IOApp`.
-
-```scala
-import cats.effect.IOApp
-import com.colofabrix.scala.figlet4s.catsio._
-
-object QuickStartIOMain extends IOApp {
-
-  def run(args: List[String]): IO[ExitCode] =
-    for {
-      builder <- Figlet4s.builderF()              // Obtain an options builder
-      figure  <- builder.render("Hello, World!")  // Render a text into a FIGure
-      _       <- figure.print()                   // Print the FIGure
-    } yield ExitCode.Success
-
-}
-```
-
-### Changing options
-
-This is the same example as above, only using IOApp. You can find a more comprehensive list of options in the example
-above.
-
-```scala
-import cats.effect.IOApp
-import com.colofabrix.scala.figlet4s.catsio._
-import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
-
-object ShowcaseOptionsIOMain extends IOApp {
-
-  def run(args: List[String]): IO[ExitCode] =
-    for {
-      figure <- Figlet4s
-                  .builder("Hello, World!")                      // Create the options builder with a text to render
-                  .withMaxWidth(80)                              // Max width of the text
-                  .withInternalFont("alligator")                 // Set the font
-                  .defaultMaxWidth()                             // Go back to the default max width
-                  .withHorizontalLayout(HorizontalFittingLayout) // Choose a layout
-                  .text("Hello, Scala!")                         // Change the text to render
-                  .render()                                      // Render the text to a FIGure
-      _ <- figure.print()
-    } yield ExitCode.Success
-
-}
-```
-
-## Using the Figlet4s client
-
-If, for whatever reason, you prefer to not use the options builder, you can build the option object manually and call
-the rendering functions.
-
-### Using impure functions
+If you need to have more fine-grained control on the operations, or you prefer to not use the option builder, you can
+call the API primitives yourself to fill the ``RenderOptions`.
  
 ```scala
-import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
 import com.colofabrix.scala.figlet4s.unsafe._
+import com.colofabrix.scala.figlet4s.options._
 
 object LowLevelMain extends App {
 
   // Load a font, choose the layout and max width
-  val font     = Figlet4s.loadFontInternal("alligator")
-  val layout   = HorizontalFittingLayout
-  val maxWidth = 120
- 
+  val font           = Figlet4s.loadFontInternal("alligator")
+  val maxWidth       = 120
+  val layout         = HorizontalLayout.HorizontalFitting
+  val printDirection = PrintDirection.LeftToRight
+
   // Build the render options
-  val options = RenderOptions(font, layout, maxWidth)
- 
+  val options = RenderOptions(font, maxWidth, layout, printDirection)
+
   // Render a string into a FIGure
   val figure = Figlet4s.renderString("Hello, World!", options)
 
   // Print the FIGure
   figure.print()
- 
+
 }
 ```
 
-### Using cats' IO
+## Using Effects
+
+The API of the core Figlet4s library are impure (like loading a font from a file), and the functions return pure values
+(like a `FIGfont`) as well as throwing exception when errors occur.
+
+The `figlet4s-effects` dependency adds support for various effects. In particular, at the moment, the library supports:
+
+* Scala `Either`
+* Cats `Sync`
+
+that can be used by importing the corresponding package. The effectful API have exactly the same signature as their
+unsafe version, but the result is wrapped inside the effect monad.
+
+### Example using Cats IO
 
 ```scala
-import cats.effect.IOApp
+import cats.effect._
 import com.colofabrix.scala.figlet4s.catsio._
-import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
 
-object ShowcaseOptionsIOMain extends IOApp {
+object IOMain extends IOApp {
 
-  def run(args: List[String]): IO[ExitCode] = {
-    // Load a font, choose the layout and max width
-    val font     = Figlet4s.loadFontInternal("alligator")
-    val layout   = HorizontalFittingLayout
-    val maxWidth = 120
-   
-    // Build the render options
-    val options = RenderOptions(font, layout, maxWidth)
-   
-    // Render a string into a FIGure and print it
+  def run(args: List[String]): IO[ExitCode] =
     for {
-      figure <- Figlet4s.renderString("Hello, World!", options)
-      _      <- figure.print()
+      builder <- Figlet4s.builderF()             // Obtain an options builder
+      figure  <- builder.render("Hello, World!") // Render a text into a FIGure
+      _       <- figure.print()                  // Print the FIGure
     } yield ExitCode.Success
-  }
 
+}
+```
+
+### Example using Scala Either
+
+```scala
+import com.colofabrix.scala.figlet4s.either._
+
+object EitherMain extends App {
+
+  val result = for {
+    builder <- Figlet4s.builderF()
+    figure  <- builder.render("Hello, World!")
+    lines   <- figure.asVector()
+  } yield lines
+
+  result match {
+    case Left(error) =>
+      println(s"Error occurred while working with FIGlet: $error")
+    case Right(value) =>
+      value.foreach(println)
+  }
+  
 }
 ```
 
