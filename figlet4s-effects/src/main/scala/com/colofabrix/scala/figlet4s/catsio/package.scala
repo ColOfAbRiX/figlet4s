@@ -1,6 +1,6 @@
 package com.colofabrix.scala.figlet4s
 
-import cats.effect._
+import _root_.cats.effect._
 import com.colofabrix.scala.figlet4s.api._
 import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont._
@@ -9,7 +9,7 @@ import com.colofabrix.scala.figlet4s.options._
 package object catsio {
 
   implicit class OptionsBuilderOps(val self: OptionsBuilder) extends OptionsBuilderClientAPI[IO] {
-    private val buildOptions = self.compile[IO]
+    private lazy val buildOptions = self.compile[IO]
 
     /** The text to render */
     def text: IO[String] = buildOptions.map(_.text)
@@ -78,8 +78,8 @@ package object catsio {
       asVector().map(_.mkString("\n"))
   }
 
+  /** Transforms the FigletResult into a Cat's IO capturing the first error in IO */
   implicit private[catsio] class FigletResultOps[E, A](val self: FigletResult[A]) extends AnyVal {
-    /** Transforms the Validated into a Cat's IO capturing the first error in IO */
     def asIO: IO[A] = self.fold(e => IO.raiseError(e.head), IO(_))
   }
 

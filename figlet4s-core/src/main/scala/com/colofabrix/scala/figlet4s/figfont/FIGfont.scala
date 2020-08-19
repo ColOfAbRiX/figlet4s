@@ -101,7 +101,7 @@ object FIGfont {
   /**
    * Creates a new FIGfont by parsing an input vector of lines representing an FLF file
    */
-  def apply(name: String, lines: Iterable[String]): FigletResult[FIGfont] =
+  def apply(name: String, lines: Iterator[String]): FigletResult[FIGfont] =
     lines
       .zipWithIndex
       .foldLeft(FontBuilderState(name).validNec[FigletError]) {

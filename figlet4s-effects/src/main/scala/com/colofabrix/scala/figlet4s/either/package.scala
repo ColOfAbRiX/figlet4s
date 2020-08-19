@@ -1,7 +1,7 @@
 package com.colofabrix.scala.figlet4s
 
-import cats.implicits._
-import cats.effect._
+import _root_.cats.implicits._
+import _root_.cats.effect._
 import com.colofabrix.scala.figlet4s.api._
 import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont._
@@ -15,7 +15,7 @@ package object either {
   //  OptionsBuilder  //
 
   implicit class OptionsBuilderOps(val self: OptionsBuilder) extends OptionsBuilderClientAPI[FigletEither] {
-    private val buildOptions = self.compile[FigletEither]
+    private lazy val buildOptions = self.compile[FigletEither]
 
     /** The text to render */
     def text: FigletEither[String] = buildOptions.map(_.text)
@@ -88,8 +88,8 @@ package object either {
 
   //  FigletResult  //
 
+  /** Transforms the FigletResult into a Either capturing the first error in the Left side */
   implicit private[either] class FigletResultOps[E, A](val self: FigletResult[A]) extends AnyVal {
-    /** Transforms the Validated into a Either capturing the first error in the Left side */
     def asEither: FigletEither[A] = self.fold(e => Left(e.head), Right(_))
   }
 
@@ -105,7 +105,10 @@ package object either {
       Right(x)
 
     def suspend[A](thunk: => FigletEither[A]): FigletEither[A] =
-      thunk
+      Try(thunk)
+        .toEither
+        .flatMap(identity)
+        .leftFlatMap(raiseError)
 
     def flatMap[A, B](fa: FigletEither[A])(f: A => FigletEither[B]): FigletEither[B] =
       fa.flatMap(f)
@@ -118,29 +121,36 @@ package object either {
         case Right(Left(value))  => tailRecM(value)(f)
       }
 
-    def bracketCase[A, B](acquire: FigletEither[A])(use: A => FigletEither[B])(
+    // format: off
+    def bracketCase[A, B](
+        acquire: FigletEither[A])(
+        use: A => FigletEither[B])(
         release: (A, ExitCase[Throwable]) => FigletEither[Unit],
     ): FigletEither[B] =
-      acquire
-        .flatMap { resource =>
-          use(resource)
-            .flatMap { result =>
-              release(resource, ExitCase.Completed).fold(e => Left(e), _ => Right(result))
-            }
-            .leftFlatMap { e =>
-              release(resource, ExitCase.Error(e)).fold(_ => Left(e), _ => Left(e))
-            }
-        }
+      acquire.flatMap { resource =>
+        use(resource)
+          .flatMap { result =>
+            release(resource, ExitCase.Completed)
+              .flatMap(_ => Right(result))
+              .leftFlatMap(Left(_))
+          }
+          .leftFlatMap { e =>
+            release(resource, ExitCase.Error(e))
+              .flatMap(_ => Left(e))
+              .leftFlatMap(_ => Left(e))
+          }
+      }
+    // format: on
 
-    def raiseError[A](t: Throwable): FigletEither[A] = t match {
-      case fe: FigletException    => Left(fe)
-      case fe: FigletLoadingError => Left(fe)
-      case fe: FIGheaderError     => Left(fe)
-      case fe: FIGcharacterError  => Left(fe)
-      case fe: FIGFontError       => Left(fe)
-      case fe: FigletError        => Left(fe)
-      case _                      => Left(FigletException(t))
-    }
+    def raiseError[A](t: Throwable): FigletEither[A] =
+      t match {
+        case fe: FigletGenericException => Left(fe)
+        case fe: FigletLoadingError     => Left(fe)
+        case fe: FIGheaderError         => Left(fe)
+        case fe: FIGcharacterError      => Left(fe)
+        case fe: FIGFontError           => Left(fe)
+        case t: Throwable               => Left(FigletGenericException(t.getMessage, t))
+      }
 
     def handleErrorWith[A](fa: FigletEither[A])(f: Throwable => FigletEither[A]): FigletEither[A] =
       fa match {

@@ -73,19 +73,29 @@ private[figlet4s] object InternalAPI {
     }
 
   private def withFile[F[_]: Sync](path: String, decoder: Codec): Resource[F, BufferedSource] =
-    Resource.liftF {
-      Sync[F].delay(Source.fromFile(new File(path))(decoder))
+    Resource.fromAutoCloseable {
+      Sync[F]
+        .delay(Source.fromFile(new File(path))(decoder))
+        .adaptError {
+          case t: FigletGenericException => FigletLoadingError(t.message, t.inner)
+          case t: Throwable              => FigletLoadingError(t.toString, t)
+        }
     }
 
   private def withResource[F[_]: Sync](path: String, decoder: Codec): Resource[F, BufferedSource] =
-    Resource.liftF {
-      Sync[F].delay(Source.fromResource(path)(decoder))
+    Resource.fromAutoCloseable {
+      Sync[F]
+        .delay(Source.fromResource(path)(decoder))
+        .adaptError {
+          case t: FigletGenericException => FigletLoadingError(t.message, t.inner)
+          case t: Throwable              => FigletLoadingError(t.toString, t)
+        }
     }
 
   private def interpretFile[F[_]: Sync](path: String)(source: BufferedSource): F[FigletResult[FIGfont]] =
     Sync[F].delay {
       val name  = new File(path).getName.split('.').init.mkString("")
-      val lines = source.getLines().toVector
+      val lines = source.getLines()
       FIGfont(name, lines)
     }
 }
