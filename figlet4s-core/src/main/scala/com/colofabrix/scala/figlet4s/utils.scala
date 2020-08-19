@@ -2,11 +2,9 @@ package com.colofabrix.scala.figlet4s
 
 import cats._
 import cats.arrow.FunctionK
-import cats.effect._
 import cats.implicits._
 import java.math.BigInteger
 import java.security.MessageDigest
-import scala.annotation.tailrec
 import scala.collection.immutable.BitSet
 
 private[figlet4s] object utils {
@@ -51,48 +49,6 @@ private[figlet4s] object utils {
       ): G[F[B]] =
         zt.traverse(forward(fa))(f)(appG).map(zb => inverse(zb))
     }
-
-  //  Sync[Id]  //
-
-  /**
-   * Sync instance for Id for impure calculations
-   */
-  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
-  implicit val syncId: Sync[Id] = new Sync[Id] {
-    import scala.util._
-
-    def pure[A](x: A): Id[A] =
-      x
-
-    def suspend[A](thunk: => Id[A]): Id[A] =
-      thunk
-
-    def flatMap[A, B](fa: Id[A])(f: A => Id[B]): Id[B] =
-      f(fa)
-
-    @tailrec
-    def tailRecM[A, B](a: A)(f: A => Id[Either[A, B]]): Id[B] =
-      f(a) match {
-        case Left(value)  => tailRecM(value)(f)
-        case Right(value) => value
-      }
-
-    def bracketCase[A, B](resource: Id[A])(use: A => Id[B])(release: (A, ExitCase[Throwable]) => Id[Unit]): Id[B] =
-      Try(use(resource)) match {
-        case Failure(error) =>
-          release(resource, ExitCase.Error(error))
-          throw error
-        case Success(result) =>
-          release(resource, ExitCase.Completed)
-          result
-      }
-
-    def raiseError[A](e: Throwable): Id[A] =
-      throw e
-
-    def handleErrorWith[A](fa: Id[A])(f: Throwable => Id[A]): Id[A] =
-      fa
-  }
 
   //  Misc  //
 

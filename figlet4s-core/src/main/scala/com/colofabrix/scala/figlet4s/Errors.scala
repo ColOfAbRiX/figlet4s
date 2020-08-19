@@ -16,6 +16,9 @@ object errors {
    */
   sealed trait FigletError extends Throwable
 
+  /** A generic exception in the system */
+  final case class FigletException(inner: Throwable) extends FigletError
+
   /** An error when loading from files */
   final case class FigletLoadingError(inner: Throwable) extends FigletError
 

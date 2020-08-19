@@ -1,6 +1,5 @@
-package com.colofabrix.scala.figlet4s.unsafe
+package com.colofabrix.scala.figlet4s.either
 
-import cats._
 import com.colofabrix.scala.figlet4s.api._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options._
@@ -8,29 +7,27 @@ import com.colofabrix.scala.figlet4s.options._
 /**
  * "FIGlet" stands for "Frank, Ian and Glenn's LETters and this is a pure Scala implementation
  */
-object Figlet4s extends Figlet4sClientAPI[Id] {
+object Figlet4s extends Figlet4sClientAPI[FigletEither] {
 
   /** The list of available internal fonts */
-  def internalFonts: Vector[String] =
-    InternalAPI.internalFonts[Id]
+  def internalFonts: FigletEither[Vector[String]] =
+    InternalAPI.internalFonts[FigletEither]
 
   /** Renders a given text as a FIGure */
-  def renderString(text: String, options: RenderOptions): FIGure =
-    InternalAPI.renderString[Id](text, options)
+  def renderString(text: String, options: RenderOptions): FigletEither[FIGure] =
+    InternalAPI.renderString[FigletEither](text, options)
 
   /** Loads one of the internal FIGfont */
-  def loadFontInternal(name: String = "standard"): FIGfont =
+  def loadFontInternal(name: String = "standard"): FigletEither[FIGfont] =
     InternalAPI
-      .loadFontInternal[Id](name)
-      .unsafeGet
+      .loadFontInternal[FigletEither](name)
+      .flatMap(_.asEither)
 
   /** Loads a FIGfont from file */
-  def loadFont(path: String, encoding: String): FIGfont =
+  def loadFont(path: String, encoding: String = "ISO8859_1"): FigletEither[FIGfont] =
     InternalAPI
-      .loadFont[Id](path, encoding)
-      .unsafeGet
-
-  //  Builder  //
+      .loadFont[FigletEither](path, encoding)
+      .flatMap(_.asEither)
 
   /** Returns a new options builder with default settings */
   def builder(): OptionsBuilder =
@@ -41,11 +38,11 @@ object Figlet4s extends Figlet4sClientAPI[Id] {
     new OptionsBuilder(BuilderAction.SetTextAction(text) :: Nil)
 
   /** Returns a new options builder with default settings */
-  def builderF(): OptionsBuilder =
-    builder()
+  def builderF(): FigletEither[OptionsBuilder] =
+    Right(builder())
 
   /** Returns a new options builder with default settings and a set text */
-  def builderF(text: String): OptionsBuilder =
-    builder(text)
+  def builderF(text: String): FigletEither[OptionsBuilder] =
+    Right(builder(text))
 
 }

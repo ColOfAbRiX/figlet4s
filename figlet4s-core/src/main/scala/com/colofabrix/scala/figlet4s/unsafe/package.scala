@@ -1,14 +1,17 @@
 package com.colofabrix.scala.figlet4s
 
 import cats._
+import cats.effect._
 import cats.implicits._
 import com.colofabrix.scala.figlet4s.api._
 import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options._
-import com.colofabrix.scala.figlet4s.utils._
+import scala.annotation.tailrec
 
 package object unsafe {
+
+  //  OptionsBuilder  //
 
   implicit class OptionsBuilderOps(val self: OptionsBuilder) extends OptionsBuilderClientAPI[Id] {
     private lazy val buildOptions = self.compile[Id]
@@ -49,6 +52,8 @@ package object unsafe {
     }
   }
 
+  //  FIGure  //
+
   implicit class FIGureOps(val self: FIGure) extends FIGureClientAPI[Id] {
     /** Apply a function to each line of the FIGure */
     def foreachLine[A](f: String => A): Unit =
@@ -67,10 +72,54 @@ package object unsafe {
       asVector().mkString("\n")
   }
 
+  //  FigletResult  //
+
   @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   implicit private[unsafe] class FigletResultOps[E, A](val self: FigletResult[A]) extends AnyVal {
     /** Unsafely returns the value inside the Validated or throws an exception with the first error */
     def unsafeGet: A = self.fold(e => throw e.head, identity)
+  }
+
+  //  Sync[Id]  //
+
+  /**
+   * Sync instance for Id for impure calculations
+   */
+  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
+  implicit val syncId: Sync[Id] = new Sync[Id] {
+    import scala.util._
+
+    def pure[A](x: A): Id[A] =
+      x
+
+    def suspend[A](thunk: => Id[A]): Id[A] =
+      thunk
+
+    def flatMap[A, B](fa: Id[A])(f: A => Id[B]): Id[B] =
+      f(fa)
+
+    @tailrec
+    def tailRecM[A, B](a: A)(f: A => Id[Either[A, B]]): Id[B] =
+      f(a) match {
+        case Left(value)  => tailRecM(value)(f)
+        case Right(value) => value
+      }
+
+    def bracketCase[A, B](acquire: Id[A])(use: A => Id[B])(release: (A, ExitCase[Throwable]) => Id[Unit]): Id[B] =
+      Try(use(acquire)) match {
+        case Failure(error) =>
+          release(acquire, ExitCase.Error(error))
+          throw error
+        case Success(result) =>
+          release(acquire, ExitCase.Completed)
+          result
+      }
+
+    def raiseError[A](e: Throwable): Id[A] =
+      throw e
+
+    def handleErrorWith[A](fa: Id[A])(f: Throwable => Id[A]): Id[A] =
+      fa
   }
 
 }

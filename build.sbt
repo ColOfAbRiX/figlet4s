@@ -54,13 +54,13 @@ lazy val figlet4sCore: Project = project
     ),
   )
 
-// Figlet4s-Cats project
-lazy val figlet4sCats: Project = project
-  .in(file("figlet4s-catsio"))
+// Figlet4s Effects project
+lazy val figlet4sEffects: Project = project
+  .in(file("figlet4s-effects"))
   .dependsOn(figlet4sCore)
   .settings(
-    name := "figlet4s-catsio",
-    description := "Cats IO extension for Figlet4s",
+    name := "figlet4s-effects",
+    description := "Effects extension for Figlet4s",
     version := figlet4sVersion,
     libraryDependencies ++= Seq(
       CatsCoreDep,
