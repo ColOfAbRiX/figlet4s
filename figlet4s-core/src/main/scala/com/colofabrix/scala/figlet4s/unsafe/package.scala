@@ -89,37 +89,54 @@ package object unsafe {
   implicit val syncId: Sync[Id] = new Sync[Id] {
     import scala.util._
 
-    def pure[A](x: A): Id[A] =
+    def pure[A](x: A): Id[A] = {
+      println(s"Sync[Id].pure")
       x
+    }
 
-    def suspend[A](thunk: => Id[A]): Id[A] =
+    def suspend[A](thunk: => Id[A]): Id[A] = {
+      println(s"Sync[Id].suspend")
       thunk
+    }
 
-    def flatMap[A, B](fa: Id[A])(f: A => Id[B]): Id[B] =
+    def flatMap[A, B](fa: Id[A])(f: A => Id[B]): Id[B] = {
+      println(s"Sync[Id].flatMap")
       f(fa)
+    }
 
     @tailrec
-    def tailRecM[A, B](a: A)(f: A => Id[Either[A, B]]): Id[B] =
+    def tailRecM[A, B](a: A)(f: A => Id[Either[A, B]]): Id[B] = {
+      println(s"Sync[Id].tailRecM")
       f(a) match {
         case Left(value)  => tailRecM(value)(f)
         case Right(value) => value
       }
+    }
 
-    def bracketCase[A, B](acquire: Id[A])(use: A => Id[B])(release: (A, ExitCase[Throwable]) => Id[Unit]): Id[B] =
-      Try(use(acquire)) match {
-        case Failure(error) =>
-          release(acquire, ExitCase.Error(error))
-          throw error
-        case Success(result) =>
-          release(acquire, ExitCase.Completed)
-          result
+    def bracketCase[A, B](resource: Id[A])(use: A => Id[B])(release: (A, ExitCase[Throwable]) => Id[Unit]): Id[B] = {
+      println(s"Sync[Id].bracketCase")
+      try {
+        println(s"TRY: $resource")
+        val result = use(resource)
+        release(resource, ExitCase.Completed)
+        result
+      } catch {
+        case e: Exception =>
+          println("CATCH")
+          release(resource, ExitCase.Error(e))
+          throw e
       }
+    }
 
-    def raiseError[A](e: Throwable): Id[A] =
+    def raiseError[A](e: Throwable): Id[A] = {
+      println(s"Sync[Id].raiseError")
       throw e
+    }
 
-    def handleErrorWith[A](fa: Id[A])(f: Throwable => Id[A]): Id[A] =
+    def handleErrorWith[A](fa: Id[A])(f: Throwable => Id[A]): Id[A] = {
+      println(s"Sync[Id].handleErrorWith")
       fa
+    }
   }
 
 }

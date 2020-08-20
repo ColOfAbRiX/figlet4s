@@ -35,7 +35,9 @@ ThisBuild / libraryDependencies ++= Seq(
 )
 
 // Figlet4s
-lazy val figlet4s: Project = project.in(file("."))
+lazy val figlet4s: Project = project
+  .in(file("."))
+  .aggregate(figlet4sCore, figlet4sEffects)
 
 // Figlet4s Core project
 lazy val figlet4sCore: Project = project

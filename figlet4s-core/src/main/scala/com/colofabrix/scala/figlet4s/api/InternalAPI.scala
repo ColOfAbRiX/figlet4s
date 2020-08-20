@@ -8,6 +8,7 @@ import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options._
 import com.colofabrix.scala.figlet4s.rendering._
 import java.io.File
+import scala.collection.Iterator
 import scala.io._
 
 /**
@@ -78,19 +79,35 @@ private[figlet4s] object InternalAPI {
         .delay(Source.fromFile(new File(path))(decoder))
         .adaptError {
           case t: FigletGenericException => FigletLoadingError(t.message, t.inner)
+          case t: FigletError            => t
           case t: Throwable              => FigletLoadingError(t.toString, t)
         }
     }
 
-  private def withResource[F[_]: Sync](path: String, decoder: Codec): Resource[F, BufferedSource] =
-    Resource.fromAutoCloseable {
+  private def withResource[F[_]: Sync](path: String, decoder: Codec): Resource[F, BufferedSource] = {
+    println("withResource")
+    val res = Resource.make {
+      println("Resource.fromAutoCloseable ACQUIRE")
       Sync[F]
-        .delay(Source.fromResource(path)(decoder))
+        .delay {
+          println("Source.fromResource")
+          Source.fromResource(path)(decoder)
+        }
         .adaptError {
           case t: FigletGenericException => FigletLoadingError(t.message, t.inner)
+          case t: FigletError            => t
           case t: Throwable              => FigletLoadingError(t.toString, t)
         }
+    } { file =>
+      println("Resource.fromAutoCloseable RELEASE")
+      Sync[F].delay {
+        println("file.close()")
+        file.close()
+      }
     }
+    println("END withResource")
+    res
+  }
 
   private def interpretFile[F[_]: Sync](path: String)(source: BufferedSource): F[FigletResult[FIGfont]] =
     Sync[F].delay {

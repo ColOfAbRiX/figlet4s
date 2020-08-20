@@ -144,12 +144,8 @@ package object either {
 
     def raiseError[A](t: Throwable): FigletEither[A] =
       t match {
-        case fe: FigletGenericException => Left(fe)
-        case fe: FigletLoadingError     => Left(fe)
-        case fe: FIGheaderError         => Left(fe)
-        case fe: FIGcharacterError      => Left(fe)
-        case fe: FIGFontError           => Left(fe)
-        case t: Throwable               => Left(FigletGenericException(t.getMessage, t))
+        case fe: FigletError => Left(fe)
+        case t: Throwable    => Left(FigletGenericException(t.getMessage, t))
       }
 
     def handleErrorWith[A](fa: FigletEither[A])(f: Throwable => FigletEither[A]): FigletEither[A] =
@@ -157,7 +153,6 @@ package object either {
         case Left(value) => f(value)
         case Right(_)    => fa
       }
-
   }
 
 }

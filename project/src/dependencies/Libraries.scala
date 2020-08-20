@@ -11,7 +11,7 @@ trait Libraries {
   lazy val CatsEffectVersion = "2.1.4"
   lazy val CatsVersion       = "2.1.1"
   lazy val EnumeratumVersion = "1.6.1"
-  lazy val ScalaTestVersion  = "3.2.0"
+  lazy val ScalaTestVersion  = "3.2.1"
 
   // Libraries
   lazy val CatsCoreDep                = "org.typelevel" %% "cats-core"                % CatsVersion
