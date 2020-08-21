@@ -1,10 +1,14 @@
 package com.colofabrix.scala.figlet4s
 
 import cats.data._
+import cats.MonadError
 
 object errors {
 
   //  Error management  //
+
+  type MonadThrowable[F[_]] = MonadError[F, Throwable]
+  def MonadThrowable[F[_]: MonadThrowable]: MonadThrowable[F] = MonadError.apply[F, Throwable]
 
   /**
    * A result of a processing operation that might include errors

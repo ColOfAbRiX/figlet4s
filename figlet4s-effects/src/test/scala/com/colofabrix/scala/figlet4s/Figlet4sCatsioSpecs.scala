@@ -5,6 +5,7 @@ import org.scalatest.flatspec._
 import org.scalatest.matchers.should._
 import com.colofabrix.scala.figlet4s.catsio._
 import com.colofabrix.scala.figlet4s.errors._
+import com.colofabrix.scala.figlet4s.unsafe.Figlet4s
 
 class Figlet4sCatsioSpecs extends AnyFlatSpec with Matchers {
 
@@ -32,7 +33,7 @@ class Figlet4sCatsioSpecs extends AnyFlatSpec with Matchers {
     val result = for {
       builder <- Figlet4s.builderF("~ * Fao & C 123")
       figure  <- builder.withFont("non_existent").render()
-      result  <- figure.asVector()
+      result  <- figure.asString()
     } yield result
 
     assertThrows[FigletError] {
@@ -40,4 +41,7 @@ class Figlet4sCatsioSpecs extends AnyFlatSpec with Matchers {
     }
   }
 
+  it should "return a list with the internal fonts" in {
+    Figlet4s.internalFonts should contain("standard")
+  }
 }

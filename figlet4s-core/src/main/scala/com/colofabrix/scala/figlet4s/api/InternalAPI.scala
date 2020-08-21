@@ -20,28 +20,28 @@ private[figlet4s] object InternalAPI {
    * The list of available internal fonts
    */
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
-  def internalFonts[F[_]: Sync]: F[Vector[String]] =
-    Sync[F].delay {
-      import java.util.zip.ZipInputStream
+  def internalFonts[F[_]: Sync]: F[Vector[String]] = {
+    val jar = getClass.getProtectionDomain.getCodeSource.getLocation
 
-      // Opening the JAR to look at resources
-      val jar = getClass.getProtectionDomain.getCodeSource.getLocation
-      val zip = new ZipInputStream(jar.openStream)
-
-      Iterator
-        .continually(zip.getNextEntry)
-        .takeWhile(_ != null)
-        .map(zipEntry => new File(zipEntry.getName))
-        .filter(path => path.getPath.startsWith("fonts") && path.getName.endsWith(".flf"))
-        .map(_.getName.replace(".flf", ""))
-        .toVector
+    // Opening the JAR to look at resources
+    withResource(new java.util.zip.ZipInputStream(jar.openStream)) { zip =>
+      Sync[F].delay {
+        Iterator
+          .continually(zip.getNextEntry)
+          .takeWhile(_ != null)
+          .map(zipEntry => new File(zipEntry.getName))
+          .filter(path => path.getPath.startsWith("fonts") && path.getName.endsWith(".flf"))
+          .map(_.getName.replace(".flf", ""))
+          .toVector
+      }
     }
+  }
 
   /**
    * Renders a given text as a FIGure
    */
   def renderString[F[_]: Sync](text: String, options: RenderOptions): F[FIGure] =
-    Monad[F].pure {
+    Sync[F].pure {
       HorizontalTextRenderer.render(text, options)
     }
 
@@ -50,9 +50,9 @@ private[figlet4s] object InternalAPI {
    */
   def loadFontInternal[F[_]: Sync](name: String = "standard"): F[FigletResult[FIGfont]] =
     for {
-      path    <- Sync[F].pure(s"fonts/$name.flf")
-      decoder <- fileDecoder("ISO8859_1")
-      font    <- withResource(path, decoder).use(interpretFile[F](path))
+      path    <- Applicative[F].pure(s"fonts/$name.flf")
+      decoder <- fileDecoder[F]("ISO8859_1")
+      font    <- withResource(Source.fromResource(path)(decoder))(interpretFile[F](path))
     } yield font
 
   /**
@@ -60,59 +60,48 @@ private[figlet4s] object InternalAPI {
    */
   def loadFont[F[_]: Sync](path: String, encoding: String): F[FigletResult[FIGfont]] =
     for {
-      decoder <- fileDecoder(encoding)
-      font    <- withFile(path, decoder).use(interpretFile[F](path))
+      decoder <- fileDecoder[F](encoding)
+      font    <- withResource(Source.fromResource(path)(decoder))(interpretFile[F](path))
     } yield font
 
   //  Support  //
 
-  private def fileDecoder[F[_]: Sync](encoding: String): F[Codec] =
-    Sync[F].pure {
+  private def fileDecoder[F[_]: Applicative](encoding: String): F[Codec] =
+    Applicative[F].pure {
       Codec(encoding)
         .decoder
         .onMalformedInput(java.nio.charset.CodingErrorAction.REPORT)
     }
 
-  private def withFile[F[_]: Sync](path: String, decoder: Codec): Resource[F, BufferedSource] =
-    Resource.fromAutoCloseable {
-      Sync[F]
-        .delay(Source.fromFile(new File(path))(decoder))
-        .adaptError {
-          case t: FigletGenericException => FigletLoadingError(t.message, t.inner)
-          case t: FigletError            => t
-          case t: Throwable              => FigletLoadingError(t.toString, t)
-        }
-    }
-
-  private def withResource[F[_]: Sync](path: String, decoder: Codec): Resource[F, BufferedSource] = {
-    println("withResource")
-    val res = Resource.make {
-      println("Resource.fromAutoCloseable ACQUIRE")
-      Sync[F]
-        .delay {
-          println("Source.fromResource")
-          Source.fromResource(path)(decoder)
-        }
-        .adaptError {
-          case t: FigletGenericException => FigletLoadingError(t.message, t.inner)
-          case t: FigletError            => t
-          case t: Throwable              => FigletLoadingError(t.toString, t)
-        }
-    } { file =>
-      println("Resource.fromAutoCloseable RELEASE")
-      Sync[F].delay {
-        println("file.close()")
-        file.close()
-      }
-    }
-    println("END withResource")
-    res
-  }
-
-  private def interpretFile[F[_]: Sync](path: String)(source: BufferedSource): F[FigletResult[FIGfont]] =
-    Sync[F].delay {
+  private def interpretFile[F[_]: Applicative](path: String)(source: BufferedSource): F[FigletResult[FIGfont]] =
+    Applicative[F].pure {
       val name  = new File(path).getName.split('.').init.mkString("")
       val lines = source.getLines()
       FIGfont(name, lines)
     }
+
+  // See: https://medium.com/@dkomanov/scala-try-with-resources-735baad0fd7d
+  @SuppressWarnings(Array("org.wartremover.warts.All"))
+  private def withResource[F[_]: MonadThrowable, R <: AutoCloseable, A](resource: => R)(f: R => F[A]): F[A] = {
+    var exception: Throwable = null
+    try {
+      f(resource)
+    } catch {
+      case e: Throwable =>
+        exception = e
+        MonadThrowable[F].raiseError[A](FigletLoadingError(e.getMessage, e))
+    } finally {
+      if (exception != null) {
+        try {
+          resource.close()
+        } catch {
+          case suppressed: Throwable =>
+            exception.addSuppressed(suppressed)
+        }
+      } else {
+        resource.close()
+      }
+    }
+  }
+
 }
