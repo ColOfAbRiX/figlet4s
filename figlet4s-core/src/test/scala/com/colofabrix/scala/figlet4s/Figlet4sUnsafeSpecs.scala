@@ -1,9 +1,9 @@
 package com.colofabrix.scala.figlet4s
 
-import com.colofabrix.scala.figlet4s.errors.FigletLoadingError
+import com.colofabrix.scala.figlet4s.errors._
+import com.colofabrix.scala.figlet4s.unsafe._
 import org.scalatest.flatspec._
 import org.scalatest.matchers.should._
-import com.colofabrix.scala.figlet4s.unsafe._
 
 class Figlet4sUnsafeSpecs extends AnyFlatSpec with Matchers {
 
@@ -34,7 +34,7 @@ class Figlet4sUnsafeSpecs extends AnyFlatSpec with Matchers {
     }
   }
 
-  it should "return a list with the internal fonts" in {
-//    Figlet4s.internalFonts should contain("standard")
-  }
+  //it should "return a list with the internal fonts" in {
+  //  Figlet4s.internalFonts should contain("standard")
+  //}
 }

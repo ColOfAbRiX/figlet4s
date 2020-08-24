@@ -8,7 +8,6 @@ import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options._
 import com.colofabrix.scala.figlet4s.rendering._
 import java.io.File
-import scala.collection.Iterator
 import scala.io._
 
 /**
@@ -50,7 +49,7 @@ private[figlet4s] object InternalAPI {
    */
   def loadFontInternal[F[_]: Sync](name: String = "standard"): F[FigletResult[FIGfont]] =
     for {
-      path    <- Applicative[F].pure(s"fonts/$name.flf")
+      path    <- Sync[F].pure(s"fonts/$name.flf")
       decoder <- fileDecoder[F]("ISO8859_1")
       font    <- withResource(Source.fromResource(path)(decoder))(interpretFile[F](path))
     } yield font
@@ -80,9 +79,12 @@ private[figlet4s] object InternalAPI {
       FIGfont(name, lines)
     }
 
-  // See: https://medium.com/@dkomanov/scala-try-with-resources-735baad0fd7d
   @SuppressWarnings(Array("org.wartremover.warts.All"))
   private def withResource[F[_]: MonadThrowable, R <: AutoCloseable, A](resource: => R)(f: R => F[A]): F[A] = {
+    // I want to support Id as an effect for this library so that non-FP users can avoid dealing with monads. It's not
+    // possible to create a real Sync[Id] typeclass instance for Id because Id doesn't support a true suspension of
+    // effects. Here I implement a version of opening a resource with a built-in suspension of opening a resource with
+    // exception reporting in MonadError. For the idea see https://medium.com/@dkomanov/scala-try-with-resources-735baad0fd7d
     var exception: Throwable = null
     try {
       f(resource)
@@ -91,16 +93,14 @@ private[figlet4s] object InternalAPI {
         exception = e
         MonadThrowable[F].raiseError[A](FigletLoadingError(e.getMessage, e))
     } finally {
-      if (exception != null) {
+      if (exception == null) resource.close()
+      else
         try {
           resource.close()
         } catch {
           case suppressed: Throwable =>
             exception.addSuppressed(suppressed)
         }
-      } else {
-        resource.close()
-      }
     }
   }
 

@@ -1,12 +1,12 @@
 package com.colofabrix.scala.figlet4s
 
-import _root_.cats.implicits._
-import _root_.cats.effect._
+import cats._
+import cats.effect._
 import com.colofabrix.scala.figlet4s.api._
 import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options._
-import scala.annotation.tailrec
+import scala.util._
 
 package object either {
 
@@ -98,11 +98,20 @@ package object either {
   /**
    * Sync instance for Either
    */
+  @SuppressWarnings(Array("org.wartremover.warts.Throw", "org.wartremover.warts.ImplicitParameter"))
   implicit val syncEither: Sync[FigletEither] = new Sync[FigletEither] {
-    import scala.util._
+    import cats.implicits._
+
+    private val M: Monad[FigletEither] = Monad[FigletEither](catsStdInstancesForEither)
 
     def pure[A](x: A): FigletEither[A] =
-      Right(x)
+      M.pure(x)
+
+    def flatMap[A, B](fa: FigletEither[A])(f: A => FigletEither[B]): FigletEither[B] =
+      M.flatMap(fa)(f)
+
+    def tailRecM[A, B](a: A)(f: A => FigletEither[Either[A, B]]): FigletEither[B] =
+      M.tailRecM(a)(f)
 
     def suspend[A](thunk: => FigletEither[A]): FigletEither[A] =
       Try(thunk)
@@ -110,43 +119,16 @@ package object either {
         .flatMap(identity)
         .leftFlatMap(raiseError)
 
-    def flatMap[A, B](fa: FigletEither[A])(f: A => FigletEither[B]): FigletEither[B] =
-      fa.flatMap(f)
-
-    @tailrec
-    def tailRecM[A, B](a: A)(f: A => FigletEither[Either[A, B]]): FigletEither[B] =
-      f(a) match {
-        case Left(value)         => Left(value)
-        case Right(Right(value)) => Right(value)
-        case Right(Left(value))  => tailRecM(value)(f)
-      }
-
-    // format: off
-    def bracketCase[A, B](
-        acquire: FigletEither[A])(
-        use: A => FigletEither[B])(
-        release: (A, ExitCase[Throwable]) => FigletEither[Unit],
-    ): FigletEither[B] =
-      acquire.flatMap { resource =>
-        use(resource)
-          .flatMap { result =>
-            release(resource, ExitCase.Completed)
-              .flatMap(_ => Right(result))
-              .leftFlatMap(Left(_))
-          }
-          .leftFlatMap { e =>
-            release(resource, ExitCase.Error(e))
-              .flatMap(_ => Left(e))
-              .leftFlatMap(_ => Left(e))
-          }
-      }
-    // format: on
-
     def raiseError[A](t: Throwable): FigletEither[A] =
       t match {
         case fe: FigletError => Left(fe)
-        case t: Throwable    => Left(FigletGenericException(t.getMessage, t))
+        case t: Throwable    => Left(FigletException(t))
       }
+
+    // format: off
+    def bracketCase[A, B](acquire: FigletEither[A])(use: A => FigletEither[B])(release: (A, ExitCase[Throwable]) => FigletEither[Unit]): FigletEither[B] =
+      throw new NotImplementedError("Sync[Either[FigletError, A]] doesn not support Bracket.bracketCase")
+    // format: on
 
     def handleErrorWith[A](fa: FigletEither[A])(f: Throwable => FigletEither[A]): FigletEither[A] =
       fa match {

@@ -7,7 +7,6 @@ import com.colofabrix.scala.figlet4s.api._
 import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options._
-import scala.annotation.tailrec
 
 package object unsafe {
 
@@ -85,54 +84,29 @@ package object unsafe {
   /**
    * Sync instance for Id for impure calculations
    */
-  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
+  @SuppressWarnings(Array("org.wartremover.warts.Throw", "org.wartremover.warts.ImplicitParameter"))
   implicit val syncId: Sync[Id] = new Sync[Id] {
-    import scala.util._
+    private val M: Monad[Id] = Monad[Id](catsInstancesForId)
 
     def pure[A](x: A): Id[A] =
-      x
+      M.pure(x)
+
+    def flatMap[A, B](fa: Id[A])(f: A => Id[B]): Id[B] =
+      M.flatMap(fa)(f)
+
+    def tailRecM[A, B](a: A)(f: A => Id[Either[A, B]]): Id[B] =
+      M.tailRecM(a)(f)
 
     def suspend[A](thunk: => Id[A]): Id[A] =
       thunk
 
-    def flatMap[A, B](fa: Id[A])(f: A => Id[B]): Id[B] =
-      f(fa)
-
-    @tailrec
-    def tailRecM[A, B](a: A)(f: A => Id[Either[A, B]]): Id[B] =
-      f(a) match {
-        case Left(value)  => tailRecM(value)(f)
-        case Right(value) => value
-      }
-
-    @SuppressWarnings(Array("org.wartremover.warts.All"))
-    def bracketCase[A, B](resource: Id[A])(use: A => Id[B])(release: (A, ExitCase[Throwable]) => Id[Unit]): Id[B] = {
-      var exception: Throwable = null
-      try {
-        use(resource)
-      } catch {
-        case e: Throwable =>
-          exception = e
-          raiseError[B](FigletLoadingError(exception.getMessage, exception))
-      } finally {
-        if (exception != null) {
-          try {
-            release(resource, ExitCase.Completed)
-          } catch {
-            case suppressed: Throwable =>
-              exception.addSuppressed(suppressed)
-          }
-        } else {
-          release(resource, ExitCase.Error(FigletLoadingError(exception.getMessage, exception)))
-        }
-      }
-    }
-
     def raiseError[A](e: Throwable): Id[A] =
       throw e
 
-    def handleErrorWith[A](fa: Id[A])(f: Throwable => Id[A]): Id[A] =
-      fa
-  }
+    def bracketCase[A, B](resource: Id[A])(use: A => Id[B])(release: (A, ExitCase[Throwable]) => Id[Unit]): Id[B] =
+      throw new NotImplementedError("Sync[Id] doesn not support Bracket.bracketCase")
 
+    def handleErrorWith[A](fa: Id[A])(f: Throwable => Id[A]): Id[A] =
+      throw new NotImplementedError("Sync[Id] doesn not support ApplicativeError.handleErrorWith")
+  }
 }

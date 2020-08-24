@@ -20,7 +20,7 @@ class Figlet4sEitherSpecs extends AnyFlatSpec with Matchers with EitherValues {
       Figlet4s
         .builder("~ * Fao & C 123")
         .render()
-        .map(_.asString())
+        .flatMap(_.asString())
 
     result should be(Right(expected))
   }
@@ -36,4 +36,7 @@ class Figlet4sEitherSpecs extends AnyFlatSpec with Matchers with EitherValues {
     result.isLeft should be(true)
   }
 
+  //it should "return a list with the internal fonts" in {
+  //  Figlet4s.internalFonts should contain("standard")
+  //}
 }

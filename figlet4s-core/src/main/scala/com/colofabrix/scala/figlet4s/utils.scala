@@ -33,8 +33,7 @@ private[figlet4s] object utils {
   )
 
   private def traverseFromIso[F[_], Z[_]](forward: F ~> Z, inverse: Z ~> F)(
-      implicit
-      zt: Traverse[Z],
+      implicit zt: Traverse[Z],
   ): Traverse[F] =
     new Traverse[F] {
       def foldLeft[A, B](fa: F[A], b: B)(f: (B, A) => B): B =
@@ -44,8 +43,7 @@ private[figlet4s] object utils {
         zt.foldRight(forward(fa), lb)(f)
 
       def traverse[G[_], A, B](fa: F[A])(f: A => G[B])(
-          implicit
-          appG: Applicative[G],
+          implicit appG: Applicative[G],
       ): G[F[B]] =
         zt.traverse(forward(fa))(f)(appG).map(zb => inverse(zb))
     }

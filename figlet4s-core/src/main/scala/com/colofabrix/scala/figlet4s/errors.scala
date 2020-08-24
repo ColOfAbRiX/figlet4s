@@ -20,11 +20,15 @@ object errors {
    */
   sealed trait FigletError extends Throwable
 
-  /** A generic exception in the system */
-  final case class FigletGenericException(message: String, inner: Throwable) extends FigletError
+  /** An exception in FIGlet */
+  final case class FigletException(inner: Throwable) extends FigletError {
+    def message: String = inner.getMessage
+  }
 
   /** An error when loading from files */
-  final case class FigletLoadingError(message: String, inner: Throwable) extends FigletError
+  final case class FigletLoadingError(message: String, inner: Throwable) extends FigletError {
+    override def toString: String = s"FigletLoadingError($message)"
+  }
 
   /**
    * Errors for FIGLet Files
