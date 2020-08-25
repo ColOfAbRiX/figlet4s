@@ -14,7 +14,7 @@ package object either {
 
   //  OptionsBuilder  //
 
-  implicit class OptionsBuilderOps(val self: OptionsBuilder) extends OptionsBuilderClientAPI[FigletEither] {
+  implicit class OptionsBuilderOps(val self: OptionsBuilder) extends OptionsBuilderAPI[FigletEither] {
     private lazy val buildOptions = self.compile[FigletEither]
 
     /** The text to render */
@@ -66,7 +66,7 @@ package object either {
 
   //  FIGure  //
 
-  implicit class FIGureOps(val figure: FIGure) extends FIGureClientAPI[FigletEither] {
+  implicit class FIGureOps(val figure: FIGure) extends FIGureAPI[FigletEither] {
     /** Apply a function to each line of the FIGure */
     def foreachLine[A](f: String => A): FigletEither[Unit] = Right {
       figure.cleanLines.foreach(_.foreach(f))

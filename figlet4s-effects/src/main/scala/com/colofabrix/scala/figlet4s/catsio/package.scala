@@ -8,7 +8,7 @@ import com.colofabrix.scala.figlet4s.options._
 
 package object catsio {
 
-  implicit class OptionsBuilderOps(val self: OptionsBuilder) extends OptionsBuilderClientAPI[IO] {
+  implicit class OptionsBuilderOps(val self: OptionsBuilder) extends OptionsBuilderAPI[IO] {
     private lazy val buildOptions = self.compile[IO]
 
     /** The text to render */
@@ -58,7 +58,7 @@ package object catsio {
       } yield maxWidth
   }
 
-  implicit class FIGureOps(val figure: FIGure) extends FIGureClientAPI[IO] {
+  implicit class FIGureOps(val figure: FIGure) extends FIGureAPI[IO] {
     /** Apply a function to each line of the FIGure */
     def foreachLine[A](f: String => A): IO[Unit] = IO {
       figure.cleanLines.foreach(_.foreach(f))

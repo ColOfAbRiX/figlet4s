@@ -219,12 +219,11 @@ FIGcharacter.
 ### TODO
 
 * SBT code to deploy on maven central
-* Split the Cat's IO package into a separate dependency and create two sections on the README to reflect this.
-* Controlled smushing and universal smushing should be the same option for the end user
 * Test and improve speed and memory performance
 * Add support for Scala 2.12 and look if Scala 3 support is feasible
 * Create proper Scaladoc documentation for API
 * Explain better the various options available in the README
+  * Or create a docsite
 
 ### Bugs
 

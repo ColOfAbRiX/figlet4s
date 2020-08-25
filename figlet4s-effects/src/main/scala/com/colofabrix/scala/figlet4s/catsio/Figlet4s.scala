@@ -8,7 +8,7 @@ import com.colofabrix.scala.figlet4s.options._
 /**
  * "FIGlet" stands for "Frank, Ian and Glenn's LETters and this is a pure Scala implementation
  */
-object Figlet4s extends Figlet4sClientAPI[IO] {
+object Figlet4s extends Figlet4sAPI[IO] {
 
   /** The list of available internal fonts */
   def internalFonts: IO[Vector[String]] =

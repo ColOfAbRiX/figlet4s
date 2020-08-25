@@ -8,34 +8,23 @@ final case class FIGure private[figlet4s] (
     value: String,
     columns: Vector[SubColumns],
 ) {
-  /**
-   * The FIGure represented with lines
-   */
-  lazy val lines: Vector[SubLines] = columns.map(_.toSublines)
+  private val hardblank =
+    font.header.hardblank.toString
 
-  /**
-   * The width of the FIGure
-   */
-  @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
-  val width: Int = lines.head.value.head.length
+  /** The FIGure represented with lines */
+  lazy val lines: Vector[SubLines] =
+    columns.map(_.toSublines)
 
-  /**
-   * Cached access to the last line of the FIGure as SubLines
-   */
-  @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
-  lazy val lastLines: SubLines = lines.last
-
-  /**
-   * Cached access to the last line of the FIGure as SubColumns
-   */
-  @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
-  lazy val lastColumns: SubColumns = columns.last
-
-  /**
-   * Lines stripped of their hardblanks
-   */
+  /** Lines stripped of their hardblanks */
   val cleanLines: Vector[SubLines] =
-    lines.map(_.replace(font.header.hardblank.toString, " "))
+    lines.map(_.replace(hardblank, " "))
+
+  /** The max width of the FIGure */
+  val width: Int =
+    lines
+      .flatMap(_.value.map(_.length))
+      .maxOption
+      .getOrElse(0)
 }
 
 object FIGure {

@@ -32,9 +32,7 @@ private[figlet4s] object utils {
     new FunctionK[Vector, IndexedSeq] { def apply[X](vx: Vector[X]): IndexedSeq[X] = vx            },
   )
 
-  private def traverseFromIso[F[_], Z[_]](forward: F ~> Z, inverse: Z ~> F)(
-      implicit zt: Traverse[Z],
-  ): Traverse[F] =
+  private def traverseFromIso[F[_], Z[_]](forward: F ~> Z, inverse: Z ~> F)(implicit zt: Traverse[Z]): Traverse[F] =
     new Traverse[F] {
       def foldLeft[A, B](fa: F[A], b: B)(f: (B, A) => B): B =
         zt.foldLeft(forward(fa), b)(f)
@@ -42,9 +40,7 @@ private[figlet4s] object utils {
       def foldRight[A, B](fa: F[A], lb: Eval[B])(f: (A, Eval[B]) => Eval[B]): Eval[B] =
         zt.foldRight(forward(fa), lb)(f)
 
-      def traverse[G[_], A, B](fa: F[A])(f: A => G[B])(
-          implicit appG: Applicative[G],
-      ): G[F[B]] =
+      def traverse[G[_], A, B](fa: F[A])(f: A => G[B])(implicit appG: Applicative[G]): G[F[B]] =
         zt.traverse(forward(fa))(f)(appG).map(zb => inverse(zb))
     }
 
