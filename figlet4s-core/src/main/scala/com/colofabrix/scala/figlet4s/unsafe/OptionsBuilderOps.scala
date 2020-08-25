@@ -1,4 +1,4 @@
-package com.colofabrix.scala.figlet4s.unsafeops
+package com.colofabrix.scala.figlet4s.unsafe
 
 import cats._
 import cats.implicits._
@@ -7,40 +7,30 @@ import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options._
 
-private[figlet4s] trait OptionsBuilderOps {
-  import SyncId._
-  import FigletResultOps._
+private[unsafe] trait OptionsBuilderOps {
 
-  @throws(classOf[FigletError])
-  implicit class OptionsBuilderOps(val self: OptionsBuilder)
-      extends OptionsBuilderAPI[Id]
-      with OptionsBuilderEffectfulAPI[Id] {
+  implicit class OptionsBuilderOps(val self: OptionsBuilder) extends OptionsBuilderAPI[Id] {
 
     private lazy val buildOptions = self.compile[Id]
 
     /** The text to render */
+    @throws(classOf[FigletError])
     def text: String = buildOptions.text
 
-    /** The text to render */
-    def textF: String = text
-
     /** Renders a given text as a FIGure and throws exceptions in case of errors */
+    @throws(classOf[FigletError])
     def render(): FIGure =
       Figlet4s.renderString(buildOptions.text, options)
 
     /** Renders a given text into a FIGure */
+    @throws(classOf[FigletError])
     def render(text: String): FIGure =
       self
         .text(text)
         .render()
 
-    /** Renders the text into a FIGure */
-    def renderF(): FIGure = render()
-
-    /** Renders a given text into a FIGure */
-    def renderF(text: String): FIGure = render(text)
-
     /** Builds an instance of RenderOptions */
+    @throws(classOf[FigletError])
     def options: RenderOptions = {
       val font =
         buildOptions

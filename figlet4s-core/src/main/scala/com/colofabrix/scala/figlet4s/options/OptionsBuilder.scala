@@ -2,7 +2,7 @@ package com.colofabrix.scala.figlet4s.options
 
 import cats.effect.Sync
 import cats.implicits._
-import com.colofabrix.scala.figlet4s.api.InternalAPI
+import com.colofabrix.scala.figlet4s.Figlet4sClient
 import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options.BuilderAction._
@@ -125,7 +125,7 @@ private[figlet4s] object OptionsBuilder {
   /** Compiles the settings for Fonts */
   private def compileFonts[F[_]: Sync]: ActionCompiler[F] = {
     case (buildData, DefaultFontAction) =>
-      InternalAPI
+      Figlet4sClient
         .loadFontInternal[F]("standard")
         .map { font =>
           buildData.copy(font = Some(font))
@@ -135,14 +135,14 @@ private[figlet4s] object OptionsBuilder {
       Sync[F].pure(buildData.copy(font = Some(font.validNec)))
 
     case (buildData, LoadFontAction(fontPath, encoding)) =>
-      InternalAPI
+      Figlet4sClient
         .loadFont[F](fontPath, encoding)
         .map { font =>
           buildData.copy(font = Some(font))
         }
 
     case (buildData, LoadInternalFontAction(fontName)) =>
-      InternalAPI
+      Figlet4sClient
         .loadFontInternal[F](fontName)
         .map { font =>
           buildData.copy(font = Some(font))

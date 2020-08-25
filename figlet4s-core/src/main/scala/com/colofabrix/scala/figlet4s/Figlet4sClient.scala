@@ -1,5 +1,7 @@
-package com.colofabrix.scala.figlet4s.api
+package com.colofabrix.scala.figlet4s
 
+import java.io.File
+import scala.io._
 import cats._
 import cats.effect._
 import cats.implicits._
@@ -7,13 +9,11 @@ import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options._
 import com.colofabrix.scala.figlet4s.rendering._
-import java.io.File
-import scala.io._
 
 /**
  * Layer of API internal to figlet4s, used to have uniform and generic access to resources when implementing client APIs
  */
-private[figlet4s] object InternalAPI {
+private[figlet4s] object Figlet4sClient {
 
   /**
    * The list of available internal fonts
@@ -82,9 +82,9 @@ private[figlet4s] object InternalAPI {
   @SuppressWarnings(Array("org.wartremover.warts.All"))
   private def withResource[F[_]: MonadThrowable, R <: AutoCloseable, A](resource: => R)(f: R => F[A]): F[A] = {
     // I want to support Id as an effect for this library so that non-FP users can avoid dealing with monads. It's not
-    // possible to create a real Sync[Id] typeclass instance for Id because Id doesn't support a true suspension of
-    // effects. Here I implement a version of opening a resource with a built-in suspension of opening a resource with
-    // exception reporting in MonadError. For the idea see https://medium.com/@dkomanov/scala-try-with-resources-735baad0fd7d
+    // possible to create a real Sync[Id] instance for Id because Id doesn't support a true suspension of effects.
+    // Here I implement a version of opening a resource with a built-in suspension of opening a resource with exception
+    // reporting in MonadError. See also: https://medium.com/@dkomanov/scala-try-with-resources-735baad0fd7d
     var exception: Throwable = null
     try {
       f(resource)

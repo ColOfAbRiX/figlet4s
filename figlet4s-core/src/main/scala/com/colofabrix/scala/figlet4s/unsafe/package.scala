@@ -1,15 +1,16 @@
-package com.colofabrix.scala.figlet4s.unsafeops
+package com.colofabrix.scala.figlet4s
 
 import cats._
 import cats.effect._
+import com.colofabrix.scala.figlet4s.errors._
 
-private[figlet4s] object SyncId {
+package object unsafe extends OptionsBuilderOps with FIGureOps {
 
   /**
    * Sync instance for Id for impure calculations
    */
   @SuppressWarnings(Array("org.wartremover.warts.Throw"))
-  implicit val syncId: Sync[Id] = new Sync[Id] {
+  implicit private[unsafe] val syncId: Sync[Id] = new Sync[Id] {
     private val M: Monad[Id] = Monad[Id](catsInstancesForId)
 
     def pure[A](x: A): Id[A] =
@@ -32,6 +33,15 @@ private[figlet4s] object SyncId {
 
     def handleErrorWith[A](fa: Id[A])(f: Throwable => Id[A]): Id[A] =
       throw new NotImplementedError("Sync[Id] doesn not support ApplicativeError.handleErrorWith")
+  }
+
+  /**
+   * Unsafely returns the value inside the FigletResult or throws an exception with the first error
+   */
+  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
+  implicit private[unsafe] class FigletResultOps[E, A](val self: FigletResult[A]) extends AnyVal {
+    @throws(classOf[FigletError])
+    def unsafeGet: A = self.fold(e => throw e.head, identity)
   }
 
 }

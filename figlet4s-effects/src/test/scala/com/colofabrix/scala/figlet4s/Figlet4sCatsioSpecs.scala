@@ -10,29 +10,21 @@ class Figlet4sCatsioSpecs extends AnyFlatSpec with Matchers {
 
   private def run[A](a: IO[A]): A = a.unsafeRunSync()
 
-  private val expected =
-    """  /\/|         _____              ___      ____   _ ____  _____ """ + "\n" +
-    """ |/\/  __/\__ |  ___|_ _  ___    ( _ )    / ___| / |___ \|___ / """ + "\n" +
-    """       \    / | |_ / _` |/ _ \   / _ \/\ | |     | | __) | |_ \ """ + "\n" +
-    """       /_  _\ |  _| (_| | (_) | | (_>  < | |___  | |/ __/ ___) |""" + "\n" +
-    """         \/   |_|  \__,_|\___/   \___/\/  \____| |_|_____|____/ """ + "\n" +
-    """                                                                """
-
   "figlet4s-catsio" should "render a test case" in {
     val result = for {
-      builder <- Figlet4s.builderF("~ * Fao & C 123")
+      builder <- Figlet4s.builderF(SpecsData.sampleStandard.input)
       figure  <- builder.render()
-      result  <- figure.asString()
+      result  <- figure.asStringF()
     } yield result
 
-    run(result) should equal(expected)
+    run(result) should equal(SpecsData.sampleStandard.expected)
   }
 
   it should "return an error inside IO" in {
     val result = for {
       builder <- Figlet4s.builderF("~ * Fao & C 123")
       figure  <- builder.withFont("non_existent").render()
-      result  <- figure.asString()
+      result  <- figure.asStringF()
     } yield result
 
     assertThrows[FigletLoadingError] {

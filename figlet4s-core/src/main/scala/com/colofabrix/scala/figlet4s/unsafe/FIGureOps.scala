@@ -1,12 +1,12 @@
-package com.colofabrix.scala.figlet4s.unsafeops
+package com.colofabrix.scala.figlet4s.unsafe
 
 import cats._
 import com.colofabrix.scala.figlet4s.api._
 import com.colofabrix.scala.figlet4s.figfont._
 
-private[figlet4s] trait FIGureOps {
+private[unsafe] trait FIGureOps {
 
-  implicit class FIGureOps(val self: FIGure) extends FIGureAPI[Id] with FIGureEffectfulAPI[Id] {
+  implicit class FIGureOps(val self: FIGure) extends FIGureAPI[Id] {
     /** Apply a function to each line of the FIGure */
     def foreachLine[A](f: String => A): Unit =
       self.cleanLines.foreach(_.foreach(f))
@@ -19,17 +19,9 @@ private[figlet4s] trait FIGureOps {
     def asVector(): Vector[String] =
       self.cleanLines.flatMap(_.value)
 
-    /** The figure as a collection of String, one String per displayed line */
-    def asVectorF(): Id[Vector[String]] =
-      asVector()
-
     /** The figure as single String */
     def asString(): String =
       asVector().mkString("\n")
-
-    /** The figure as single String and newline characters */
-    def asStringF(): Id[String] =
-      asString()
   }
 
 }
