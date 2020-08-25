@@ -26,7 +26,7 @@ class Figlet4sUnsafeSpecs extends AnyFlatSpec with Matchers {
     }
   }
 
-  //it should "return a list with the internal fonts" in {
-  //  Figlet4s.internalFonts should contain("standard")
-  //}
+  it should "return a list with the internal fonts" in {
+    Figlet4s.internalFonts should contain("standard")
+  }
 }

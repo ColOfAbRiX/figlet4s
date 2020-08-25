@@ -1,7 +1,5 @@
 package com.colofabrix.scala.figlet4s
 
-import java.io.File
-import scala.io._
 import cats._
 import cats.effect._
 import cats.implicits._
@@ -9,6 +7,9 @@ import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options._
 import com.colofabrix.scala.figlet4s.rendering._
+import java.io.File
+import java.net._
+import scala.io._
 
 /**
  * Layer of API internal to figlet4s, used to have uniform and generic access to resources when implementing client APIs
@@ -18,21 +19,22 @@ private[figlet4s] object Figlet4sClient {
   /**
    * The list of available internal fonts
    */
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def internalFonts[F[_]: Sync]: F[Vector[String]] = {
-    val jar = getClass.getProtectionDomain.getCodeSource.getLocation
+    val resources =
+      getClass
+        .getProtectionDomain
+        .getCodeSource
+        .getLocation
 
-    // Opening the JAR to look at resources
-    withResource(new java.util.zip.ZipInputStream(jar.openStream)) { zip =>
-      Sync[F].delay {
-        Iterator
-          .continually(zip.getNextEntry)
-          .takeWhile(_ != null)
-          .map(zipEntry => new File(zipEntry.getName))
-          .filter(path => path.getPath.startsWith("fonts") && path.getName.endsWith(".flf"))
-          .map(_.getName.replace(".flf", ""))
-          .toVector
-      }
+    val scheme =
+      resources
+        .toURI
+        .getScheme
+
+    scheme match {
+      case "file" => internalFontsFromFile(resources.toURI)
+      case "jar"  => internalFontsFromJar(resources)
+      case _      => Sync[F].raiseError(FigletException(new RuntimeException("Could not determine the type of artifacts")))
     }
   }
 
@@ -64,6 +66,29 @@ private[figlet4s] object Figlet4sClient {
     } yield font
 
   //  Support  //
+
+  private def internalFontsFromFile[F[_]: Sync](resources: URI): F[Vector[String]] =
+    Sync[F].delay {
+      new java.io.File(resources.resolve("fonts"))
+        .listFiles()
+        .toVector
+        .filter(path => path.getName.endsWith(".flf"))
+        .map(_.getName.replace(".flf", ""))
+    }
+
+  //@SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  private def internalFontsFromJar[F[_]: Sync](resources: URL): F[Vector[String]] =
+    withResource(new java.util.zip.ZipInputStream(resources.openStream)) { zip =>
+      Sync[F].delay {
+        Iterator
+          .continually(zip.getNextEntry)
+          .takeWhile(Option(_).isDefined)
+          .map(zipEntry => new File(zipEntry.getName))
+          .filter(path => path.getPath.startsWith("fonts") && path.getName.endsWith(".flf"))
+          .map(_.getName.replace(".flf", ""))
+          .toVector
+      }
+    }
 
   private def fileDecoder[F[_]: Applicative](encoding: String): F[Codec] =
     Applicative[F].pure {

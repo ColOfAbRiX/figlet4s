@@ -28,7 +28,7 @@ class Figlet4sEitherSpecs extends AnyFlatSpec with Matchers with EitherValues {
     result.isLeft should be(true)
   }
 
-  //it should "return a list with the internal fonts" in {
-  //  Figlet4s.internalFonts should contain("standard")
-  //}
+  it should "return a list with the internal fonts" in {
+    Figlet4s.internalFonts.getOrElse(Vector.empty) should contain("standard")
+  }
 }
