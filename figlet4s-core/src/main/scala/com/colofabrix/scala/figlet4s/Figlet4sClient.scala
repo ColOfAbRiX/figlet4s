@@ -7,7 +7,7 @@ import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options._
 import com.colofabrix.scala.figlet4s.rendering._
-import java.io.File
+import java.io._
 import java.net._
 import scala.io._
 
@@ -25,17 +25,18 @@ private[figlet4s] object Figlet4sClient {
         .getProtectionDomain
         .getCodeSource
         .getLocation
-
-    val scheme =
-      resources
         .toURI
-        .getScheme
 
-    scheme match {
-      case "file" => internalFontsFromFile(resources.toURI)
-      case "jar"  => internalFontsFromJar(resources)
-      case _      => Sync[F].raiseError(FigletException(new RuntimeException("Could not determine the type of artifacts")))
-    }
+    val file = new File(resources)
+
+    if (file.isDirectory)
+      internalFontsFromDirectory(resources)
+    else if (file.getName.toLowerCase.endsWith(".jar"))
+      internalFontsFromJar(resources)
+    else
+      Sync[F].raiseError {
+        FigletException(new RuntimeException("Could not determine the type of artifacts"))
+      }
   }
 
   /**
@@ -67,18 +68,20 @@ private[figlet4s] object Figlet4sClient {
 
   //  Support  //
 
-  private def internalFontsFromFile[F[_]: Sync](resources: URI): F[Vector[String]] =
-    Sync[F].delay {
-      new java.io.File(resources.resolve("fonts"))
-        .listFiles()
-        .toVector
-        .filter(path => path.getName.endsWith(".flf"))
-        .map(_.getName.replace(".flf", ""))
+  private def internalFontsFromDirectory[F[_]: Sync](resources: URI): F[Vector[String]] =
+    withResource(new BufferedReader(new InputStreamReader(resources.resolve("fonts").toURL.openStream()))) { reader =>
+      Sync[F].delay {
+        Iterator
+          .continually(reader.readLine)
+          .takeWhile(Option(_).isDefined)
+          .filter(path => path.endsWith(".flf"))
+          .map(_.replace(".flf", ""))
+          .toVector
+      }
     }
 
-  //@SuppressWarnings(Array("org.wartremover.warts.Equals"))
-  private def internalFontsFromJar[F[_]: Sync](resources: URL): F[Vector[String]] =
-    withResource(new java.util.zip.ZipInputStream(resources.openStream)) { zip =>
+  private def internalFontsFromJar[F[_]: Sync](resources: URI): F[Vector[String]] =
+    withResource(new java.util.zip.ZipInputStream(resources.toURL.openStream)) { zip =>
       Sync[F].delay {
         Iterator
           .continually(zip.getNextEntry)

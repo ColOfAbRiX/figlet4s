@@ -6,15 +6,15 @@ import com.colofabrix.scala.figlet4s.figfont._
 
 private[catsio] trait FIGureOps {
 
-  implicit class FIGureOps(val figure: FIGure) extends FIGureAPI[IO] with FIGureEffectfulAPI[IO] {
+  implicit class FIGureOps(val self: FIGure) extends FIGureAPI[IO] with FIGureEffectfulAPI[IO] {
     /** Apply a function to each line of the FIGure */
     def foreachLine[A](f: String => A): IO[Unit] = IO {
-      figure.cleanLines.foreach(_.foreach(f))
+      self.cleanLines.foreach(_.foreach(f))
     }
 
     /** Print the FIGure */
     def print(): IO[Unit] =
-      figure.foreachLine(println)
+      self.foreachLine(println)
 
     /** The figure as a collection of String, one String per displayed line */
     def asVector(): Vector[String] =
@@ -26,7 +26,7 @@ private[catsio] trait FIGureOps {
 
     /** The figure as a Vector of String */
     def asVectorF(): IO[Vector[String]] = IO.pure {
-      figure.cleanLines.map(_.value.mkString("\n"))
+      self.cleanLines.map(_.value.mkString("\n"))
     }
 
     /** The figure as single String */

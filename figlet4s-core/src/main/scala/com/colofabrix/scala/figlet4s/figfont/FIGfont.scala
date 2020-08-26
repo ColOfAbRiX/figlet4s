@@ -61,7 +61,6 @@ object FIGfont {
   )
 
   /** State to build a character that is filled while scanning input lines */
-  @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   final private case class CharBuilderState(
       name: Char,
       lines: Vector[String],
