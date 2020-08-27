@@ -19,7 +19,7 @@ private[figlet4s] object Figlet4sClient {
   /**
    * The list of available internal fonts
    */
-  def internalFonts[F[_]: Sync]: F[Vector[String]] = {
+  def internalFonts[F[_]: Sync]: F[List[String]] = {
     val resources =
       getClass
         .getProtectionDomain
@@ -68,7 +68,7 @@ private[figlet4s] object Figlet4sClient {
 
   //  Support  //
 
-  private def internalFontsFromDirectory[F[_]: Sync](resources: URI): F[Vector[String]] =
+  private def internalFontsFromDirectory[F[_]: Sync](resources: URI): F[List[String]] =
     withResource(new BufferedReader(new InputStreamReader(resources.resolve("fonts").toURL.openStream()))) { reader =>
       Sync[F].delay {
         Iterator
@@ -76,11 +76,11 @@ private[figlet4s] object Figlet4sClient {
           .takeWhile(Option(_).isDefined)
           .filter(path => path.endsWith(".flf"))
           .map(_.replace(".flf", ""))
-          .toVector
+          .toList
       }
     }
 
-  private def internalFontsFromJar[F[_]: Sync](resources: URI): F[Vector[String]] =
+  private def internalFontsFromJar[F[_]: Sync](resources: URI): F[List[String]] =
     withResource(new java.util.zip.ZipInputStream(resources.toURL.openStream)) { zip =>
       Sync[F].delay {
         Iterator
@@ -89,7 +89,7 @@ private[figlet4s] object Figlet4sClient {
           .map(zipEntry => new File(zipEntry.getName))
           .filter(path => path.getPath.startsWith("fonts") && path.getName.endsWith(".flf"))
           .map(_.getName.replace(".flf", ""))
-          .toVector
+          .toList
       }
     }
 

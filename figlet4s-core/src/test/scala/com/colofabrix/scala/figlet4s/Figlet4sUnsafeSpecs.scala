@@ -7,7 +7,7 @@ import org.scalatest.matchers.should._
 
 class Figlet4sUnsafeSpecs extends AnyFlatSpec with Matchers {
 
-  "figlet4s" should "render a test case" in {
+  "Figlet4s" should "render a test case" in {
     val result = Figlet4s
       .builder(SpecsData.sampleStandard.input)
       .render()
@@ -19,7 +19,7 @@ class Figlet4sUnsafeSpecs extends AnyFlatSpec with Matchers {
   it should "throw an exception" in {
     assertThrows[FigletLoadingError] {
       Figlet4s
-        .builder("~ * Fao & C 123")
+        .builder(SpecsData.sampleStandard.input)
         .withFont("non_existent")
         .render()
         .asString()

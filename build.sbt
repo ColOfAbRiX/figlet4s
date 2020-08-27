@@ -37,7 +37,7 @@ ThisBuild / libraryDependencies ++= Seq(
 // Figlet4s
 lazy val figlet4s: Project = project
   .in(file("."))
-  .aggregate(figlet4sCore, figlet4sEffects)
+  .aggregate(figlet4sCore, figlet4sEffects, figlet4sBenchmarks)
 
 // Figlet4s Core project
 lazy val figlet4sCore: Project = project
@@ -68,6 +68,30 @@ lazy val figlet4sEffects: Project = project
       CatsCoreDep,
       CatsEffectDep,
       CatsKernelDep,
+      ScalaTestFlatSpecDep,
+      ScalaTestShouldMatchersDep,
+    ),
+  )
+
+lazy val Benchmark = config("bench") extend Test
+
+// Figlet4s Benchmarks project
+lazy val figlet4sBenchmarks: Project = project
+  .in(file("figlet4s-benchmarks"))
+  .configs(Benchmark)
+  .dependsOn(figlet4sCore)
+  .settings(
+    name := "figlet4s-benchmarks",
+    description := "Benchmarks for Figlet4s",
+    version := figlet4sVersion,
+    resolvers += SonatypeRepo,
+    testFrameworks += new TestFramework("org.scalameter.ScalaMeterFramework"),
+    logBuffered := false,
+    parallelExecution in Test := false,
+    libraryDependencies ++= Seq(
+      CatsCoreDep,
+      CatsKernelDep,
+      ScalameterDep,
       ScalaTestFlatSpecDep,
       ScalaTestShouldMatchersDep,
     ),
