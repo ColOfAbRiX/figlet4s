@@ -4,6 +4,7 @@ import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.unsafe._
 import org.scalatest.flatspec._
 import org.scalatest.matchers.should._
+import scala.util._
 
 class Figlet4sUnsafeSpecs extends AnyFlatSpec with Matchers {
 
@@ -28,5 +29,23 @@ class Figlet4sUnsafeSpecs extends AnyFlatSpec with Matchers {
 
   it should "return a list with the internal fonts" in {
     Figlet4s.internalFonts should contain("standard")
+  }
+
+  it should "load all internal fonts" in {
+    val result = for {
+      font  <- Figlet4s.internalFonts
+      error <- interpretResult(font)(Try(Figlet4s.loadFontInternal(font)))
+    } yield error
+
+    result shouldBe empty
+  }
+
+  private def interpretResult(font: String): PartialFunction[Try[_], Option[String]] = {
+    case Failure(fe @ FigletError(message)) =>
+      Some(s"${fe.getClass().getSimpleName()} on $font: $message")
+    case Failure(exception: Throwable) =>
+      Some(s"Exception on $font: ${exception.getMessage}")
+    case Success(_) =>
+      None
   }
 }

@@ -63,7 +63,7 @@ private[figlet4s] object Figlet4sClient {
   def loadFont[F[_]: Sync](path: String, encoding: String): F[FigletResult[FIGfont]] =
     for {
       decoder <- fileDecoder[F](encoding)
-      font    <- withResource(Source.fromResource(path)(decoder))(interpretFile[F](path))
+      font    <- withResource(Source.fromFile(path)(decoder))(interpretFile[F](path))
     } yield font
 
   //  Support  //

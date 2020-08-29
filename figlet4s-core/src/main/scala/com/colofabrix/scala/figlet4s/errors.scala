@@ -18,7 +18,13 @@ object errors {
   /**
    * FIGLet Error
    */
-  sealed trait FigletError extends Throwable
+  sealed trait FigletError extends Throwable {
+    def message: String
+  }
+
+  object FigletError {
+    def unapply(error: FigletError): Option[String] = Some(error.message)
+  }
 
   /** An exception in FIGlet */
   final case class FigletException(inner: Throwable) extends FigletError {
@@ -26,9 +32,7 @@ object errors {
   }
 
   /** An error when loading from files */
-  final case class FigletLoadingError(message: String, inner: Throwable) extends FigletError {
-    override def toString: String = s"FigletLoadingError($message)"
-  }
+  final case class FigletLoadingError(message: String, inner: Throwable) extends FigletError
 
   /**
    * Errors for FIGLet Files

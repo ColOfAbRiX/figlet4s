@@ -1,6 +1,7 @@
 package com.colofabrix.scala.figlet4s
 
 import com.colofabrix.scala.figlet4s.either._
+import com.colofabrix.scala.figlet4s.errors._
 import org.scalatest._
 import org.scalatest.flatspec._
 import org.scalatest.matchers.should.Matchers
@@ -30,5 +31,23 @@ class Figlet4sEitherSpecs extends AnyFlatSpec with Matchers with EitherValues {
 
   it should "return a list with the internal fonts" in {
     Figlet4s.internalFonts.getOrElse(Vector.empty) should contain("standard")
+  }
+
+  it should "load all internal fonts" in {
+    val result = for {
+      font  <- Figlet4s.internalFonts.fold(_ => List.empty, identity)
+      error <- interpretResult(font)(Figlet4s.loadFontInternal(font))
+    } yield error
+
+    result shouldBe empty
+  }
+
+  private def interpretResult(font: String): PartialFunction[FigletEither[_], Option[String]] = {
+    case Left(fe @ FigletError(message)) =>
+      Some(s"${fe.getClass().getSimpleName()} on $font: $message")
+    case Left(exception: Throwable) =>
+      Some(s"Exception on $font: ${exception.getMessage}")
+    case Right(_) =>
+      None
   }
 }

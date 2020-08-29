@@ -5,5 +5,5 @@
 -J-XX:MaxHeapSize=128M
 -J-XX:ReservedCodeCacheSize=16M
 -J-Xms32M
--J-Xmx128G
+-J-Xmx256M
 -J-Xss1m
