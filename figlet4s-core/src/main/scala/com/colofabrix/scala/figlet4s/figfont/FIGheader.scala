@@ -60,7 +60,7 @@ object FIGheader {
   def apply(line: String): FigletResult[FIGheader] = {
     val splitLine = line.split(" ").toVector
 
-    if (splitLine.length < 6 || splitLine.length > 9)
+    if (splitLine.length < 6)
       FIGheaderError(
         s"Wrong number of parameters in FLF header. Found ${splitLine.length} parameters",
       ).invalidNec
