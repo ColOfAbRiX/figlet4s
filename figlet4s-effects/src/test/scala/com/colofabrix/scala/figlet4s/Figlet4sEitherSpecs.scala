@@ -2,6 +2,7 @@ package com.colofabrix.scala.figlet4s
 
 import com.colofabrix.scala.figlet4s.either._
 import com.colofabrix.scala.figlet4s.errors._
+import com.colofabrix.scala.figlet4s.figfont._
 import org.scalatest._
 import org.scalatest.flatspec._
 import org.scalatest.matchers.should.Matchers
@@ -42,7 +43,7 @@ class Figlet4sEitherSpecs extends AnyFlatSpec with Matchers with EitherValues {
     result shouldBe empty
   }
 
-  private def interpretResult(font: String): PartialFunction[FigletEither[_], Option[String]] = {
+  private def interpretResult(font: String): PartialFunction[FigletEither[FIGfont], Option[String]] = {
     case Left(fe @ FigletError(message)) =>
       Some(s"${fe.getClass().getSimpleName()} on $font: $message")
     case Left(exception: Throwable) =>

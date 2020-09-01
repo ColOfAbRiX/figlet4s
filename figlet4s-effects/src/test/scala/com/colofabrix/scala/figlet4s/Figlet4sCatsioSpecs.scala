@@ -1,10 +1,12 @@
 package com.colofabrix.scala.figlet4s
 
 import cats.effect._
-import org.scalatest.flatspec._
-import org.scalatest.matchers.should._
+import cats.implicits._
 import com.colofabrix.scala.figlet4s.catsio._
 import com.colofabrix.scala.figlet4s.errors._
+import org.scalatest.flatspec._
+import org.scalatest.matchers.should._
+import com.colofabrix.scala.figlet4s.figfont.FIGfont
 
 class Figlet4sCatsioSpecs extends AnyFlatSpec with Matchers {
 
@@ -35,4 +37,26 @@ class Figlet4sCatsioSpecs extends AnyFlatSpec with Matchers {
   it should "return a list with the internal fonts" in {
     run(Figlet4s.internalFonts) should contain("standard")
   }
+
+  it should "load all internal fonts" in {
+    val result = for {
+      font  <- Figlet4s.internalFonts.unsafeRunSync()
+      error <- interpretResult(font)(Figlet4s.loadFontInternal(font))
+    } yield error
+
+    result shouldBe empty
+  }
+
+  private def interpretResult(font: String)(data: IO[FIGfont]): Option[String] = {
+    data
+      .map(_ => None: Option[String])
+      .recover {
+        case fe @ FigletError(message) =>
+          Some(s"${fe.getClass().getSimpleName()} on $font: $message")
+        case exception: Throwable =>
+          Some(s"Exception on $font: ${exception.getMessage}")
+      }
+      .unsafeRunSync()
+  }
+
 }

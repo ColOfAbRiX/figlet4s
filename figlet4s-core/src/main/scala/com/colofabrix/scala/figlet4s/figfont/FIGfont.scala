@@ -110,7 +110,7 @@ object FIGfont {
       .andThen(buildFont)
 
   /** List of required characters that all FIGfont must define */
-  private val requiredChars = ((32 to 126) ++ Seq(196, 214, 220, 228, 246, 252, 223)).map(_.toChar)
+  val requiredChars: Seq[Char] = ((32 to 126) ++ Seq(196, 214, 220, 228, 246, 252, 223)).map(_.toChar)
 
   /**
    * Processes a line calling the appropriate action based on the current state

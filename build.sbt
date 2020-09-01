@@ -52,6 +52,7 @@ lazy val figlet4sCore: Project = project
       CatsKernelDep,
       EnumeratumDep,
       ScalaTestFlatSpecDep,
+      ScalaTestPlusCheckDep,
       ScalaTestShouldMatchersDep,
     ),
   )
@@ -90,9 +91,6 @@ lazy val figlet4sBenchmarks: Project = project
     parallelExecution in Test := false,
     libraryDependencies ++= Seq(
       CatsCoreDep,
-      CatsKernelDep,
       ScalameterDep,
-      ScalaTestFlatSpecDep,
-      ScalaTestShouldMatchersDep,
     ),
   )
