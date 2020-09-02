@@ -29,15 +29,11 @@ trait Libraries {
   lazy val ScalaTestFlatSpecDep       = "org.scalatest"     %% "scalatest-flatspec"       % ScalaTestVersion  % Test
   lazy val ScalaTestShouldMatchersDep = "org.scalatest"     %% "scalatest-shouldmatchers" % ScalaTestVersion  % Test
 
-  private def version(string: String): (String, String, String) =
-    string.split("\\.").toList match {
-      case List(a, b, c) => (a, b, c)
-    }
+  private def scalatestpluscheck: String = {
+    val major :: minor :: _ :: Nil = ScalaCheckVersion.split("\\.").toList
+    s"scalacheck-$major-$minor"
+  }
 
-  lazy val ScalaTestPlusCheckVersion = "2.0"
-  lazy val ScalaTestPlusCheckDep =
-    "org.scalatestplus" %%
-    s"scalacheck-${version(ScalaCheckVersion)._1}-${version(ScalaCheckVersion)._2}"                %
-    s"${version(ScalaTestVersion)._1}.${version(ScalaTestVersion)._2}.${ScalaTestPlusCheckVersion}" % Test
+  lazy val ScalaTestPlusCheckDep = "org.scalatestplus" %% scalatestpluscheck % s"$ScalaTestVersion.0" % Test
 
 }

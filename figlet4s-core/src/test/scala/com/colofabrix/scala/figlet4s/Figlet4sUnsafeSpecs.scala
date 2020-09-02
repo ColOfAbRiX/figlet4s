@@ -9,9 +9,13 @@ import org.scalatest.flatspec._
 import org.scalatest.matchers.should._
 import org.scalatestplus.scalacheck._
 import scala.util._
-import sys.process._
 
-class Figlet4sUnsafeSpecs extends AnyFlatSpec with ScalaCheckDrivenPropertyChecks with Matchers {
+class Figlet4sUnsafeSpecs
+    extends AnyFlatSpec
+    with ScalaCheckDrivenPropertyChecks
+    with Matchers
+    with Figlet4sMatchers
+    with OriginalFigletTesting {
 
   "Figlet4s" should "render a default test case" in {
     val result = Figlet4s
@@ -54,49 +58,27 @@ class Figlet4sUnsafeSpecs extends AnyFlatSpec with ScalaCheckDrivenPropertyCheck
     result shouldBe empty
   }
 
-  private val figfontCharsGen: Gen[String] = Gen
-    .someOf(FIGfont.requiredChars)
-    .map(x => Random.shuffle(x).mkString)
-    .suchThat(x => x.length < 100 && x.length > 0)
-    .suchThat(x => x.length <= 5 || x.contains(' '))
-    .map(_.mkString)
+  private val figfontCharsGen: Gen[String] =
+    Gen
+      .someOf(FIGfont.requiredChars.filter(_ =!= '\''))
+      .suchThat(x => x.length < 100 && (x.length <= 5 || x.contains(' ')))
+      .map(Random.shuffle(_))
+      .map(_.mkString)
 
   it should "render the texts as the original command line FIGlet does" in {
     assumeExecutableInPath("figlet")
 
     val builder = Figlet4s.builder().withInternalFont("standard")
 
-    forAll(figfontCharsGen) { text =>
-      val maxWidth = builder.options.font.header.maxLength * text.length()
-
-      println(s"Max width: $maxWidth")
-      println(s"Text: $text#")
-      println(s"Text: ${text.map(_.toString + ".").toList}#")
-
-      val computed = builder.text(text).render().asVector()
-      val expected = s"figlet -w $maxWidth '${text}'".lazyLines
-
-      println(s"Expected: \n${expected.mkString("\n")}")
-
-      for ((computedLine, expectedLine) <- (computed zip expected)) {
-        computedLine should equal(expectedLine)
+    forAll((figfontCharsGen, "character "), minSuccessful(50)) { text =>
+      whenever(text.forall(FIGfont.requiredChars.contains(_))) {
+        val computed = builder.text(text).render().asVector()
+        val expected = runFiglet(builder.options, text)
+        for ((computedLine, expectedLine) <- (computed zip expected)) {
+          computedLine should equal(expectedLine)
+        }
       }
     }
   }
-
-  private def executableExists(exec: String): Boolean = {
-    import java.util.regex.Pattern
-    import java.io.File
-    import java.nio.file.Paths
-    System
-      .getenv("PATH")
-      .split(Pattern.quote(File.pathSeparator))
-      .map(path => new File(Paths.get(path, exec).toAbsolutePath().toString()))
-      .exists(file => file.exists() && file.canExecute())
-  }
-
-  private def assumeExecutableInPath(executable: String): Unit =
-    if (!executableExists(executable))
-      cancel(s"Executable $executable doesn't exist. Install $executable to run this test.")
 
 }

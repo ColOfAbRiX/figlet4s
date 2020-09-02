@@ -3,7 +3,7 @@
 -J-XX:+TieredCompilation
 -J-XX:+UseParallelGC
 -J-XX:MaxHeapSize=128M
--J-XX:ReservedCodeCacheSize=32M
+-J-XX:ReservedCodeCacheSize=64M
 -J-Xms32M
 -J-Xmx256M
 -J-Xss1m
