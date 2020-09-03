@@ -16,8 +16,12 @@ final case class FIGure private[figlet4s] (
     columns.map(_.toSublines)
 
   /** Lines stripped of their hardblanks */
-  val cleanLines: Vector[SubLines] =
+  lazy val cleanLines: Vector[SubLines] =
     lines.map(_.replace(hardblank, " "))
+
+  /** Columns stripped of their hardblanks */
+  lazy val cleanColumns: Vector[SubColumns] =
+    columns.map(_.replace(hardblank, " "))
 
   /** The max width of the FIGure */
   val width: Int =

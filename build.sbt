@@ -12,7 +12,8 @@ ThisBuild / developers := List(
 )
 
 // Compiler options
-ThisBuild / scalacOptions ++= Compiler.TpolecatOptions_2_13 ++ Compiler.StrictOptions ++ Seq("-P:splain:all")
+ThisBuild / Compile / scalacOptions := Compiler.TpolecatOptions_2_13 ++ Compiler.StrictOptions ++ Seq("-P:splain:all")
+ThisBuild / Test / scalacOptions := Compiler.TpolecatOptions_2_13 ++ Seq("-P:splain:all")
 
 // Wartremover
 ThisBuild / wartremoverExcluded ++= (baseDirectory.value * "**" / "src" / "test").get
@@ -29,10 +30,7 @@ ThisBuild / wartremoverErrors ++= Warts.allBut(
 ThisBuild / scalafmtOnCompile := true
 
 // Global dependencies and compiler plugins
-ThisBuild / libraryDependencies ++= Seq(
-  SplainPlugin,
-  WartremoverPlugin,
-)
+ThisBuild / libraryDependencies ++= Seq(SplainPlugin, WartremoverPlugin)
 
 // Figlet4s
 lazy val figlet4s: Project = project

@@ -1,11 +1,9 @@
 package com.colofabrix.scala.figlet4s
 
-import cats.implicits._
 import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.testutils._
 import com.colofabrix.scala.figlet4s.unsafe._
-import org.scalacheck._
 import org.scalatest.flatspec._
 import org.scalatest.matchers.should._
 import org.scalatestplus.scalacheck._
@@ -19,18 +17,19 @@ class Figlet4sUnsafeSpecs
     with OriginalFigletTesting {
 
   "Figlet4s" should "render a default test case" in {
-    val result = Figlet4s
-      .builder(SpecsData.sampleStandard.input)
-      .render()
-      .asString()
-
-    result should be(SpecsData.sampleStandard.expected)
+    val computed = defaultBuilder.render(SpecsData.standardInput)
+    val expected = FIGure(
+      defaultBuilder.options.font,
+      SpecsData.standardInput,
+      Vector(SpecsData.standardLines.toSubcolumns),
+    )
+    computed should lookLike(expected)
   }
 
   it should "throw an exception" in {
     assertThrows[FigletLoadingError] {
       Figlet4s
-        .builder(SpecsData.sampleStandard.input)
+        .builder(SpecsData.standardInput)
         .withFont("non_existent")
         .render()
         .asString()
@@ -68,23 +67,6 @@ class Figlet4sUnsafeSpecs
     case Success(_) =>
       None
   }
-
-  private def figlet4sRenderingTest[A](f: String => A): Unit = {
-    assumeExecutableInPath("figlet")
-    forAll((figfontCharsGen, "renderText"), minSuccessful(50)) { text =>
-      whenever(text.forall(FIGfont.requiredChars.contains(_))) {
-        f(text)
-      }
-    }
-  }
-
-  private val figfontCharsGen: Gen[String] =
-    Gen
-      // .someOf(FIGfont.requiredChars)
-      .someOf(Seq('='))
-      .suchThat(x => x.length < 100)
-      .map(Random.shuffle(_))
-      .map(_.mkString)
 
   private val defaultBuilder =
     Figlet4s.builder().withInternalFont("standard")

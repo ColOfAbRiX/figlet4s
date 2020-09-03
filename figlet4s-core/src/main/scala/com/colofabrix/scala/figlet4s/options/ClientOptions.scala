@@ -4,13 +4,16 @@ import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.utils._
 import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters.{ HorizontalLayout => FontHorizontalLayout }
 import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters.{ PrintDirection => FontDirection }
+import enumeratum._
 
 /**
  * Option to chose the desired horizontal rendering layout
  */
-sealed trait HorizontalLayout extends ADT
+sealed trait HorizontalLayout extends ADT with EnumEntry
 
-object HorizontalLayout {
+object HorizontalLayout extends Enum[HorizontalLayout] {
+
+  val values = findValues
 
   /**
    * Full width. Display all FIGcharacters at their full width, which may be fixed or variable, depending on the font
@@ -65,9 +68,11 @@ object HorizontalLayout {
 /**
  * Option to choose the rendering direction
  */
-sealed trait PrintDirection extends ADT
+sealed trait PrintDirection extends ADT with EnumEntry
 
-object PrintDirection {
+object PrintDirection extends Enum[PrintDirection] {
+
+  val values = findValues
 
   /** Render left-to-right */
   final case object LeftToRight extends PrintDirection
@@ -90,9 +95,11 @@ object PrintDirection {
 /**
  * Option to choose the justification of the text (TODO)
  */
-sealed trait Justification extends ADT
+sealed trait Justification extends ADT with EnumEntry
 
-object Justification {
+object Justification extends Enum[Justification] {
+
+  val values = findValues
 
   /** Centers the output horizontally */
   final case object Center extends Justification

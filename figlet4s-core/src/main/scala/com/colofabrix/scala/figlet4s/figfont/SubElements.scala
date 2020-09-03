@@ -61,12 +61,6 @@ trait SubElementOps[A <: SubElementOps[A]] {
   def foreach[U](f: String => U): Unit =
     value.foreach(f)
 
-  def zip(that: A): Iterable[(String, String)] =
-    this.value zip that.value
-
-  def zipAll(missingThis: String, missingThat: String)(that: A): Iterable[(String, String)] =
-    this.value.zipAll(that.value, missingThis, missingThat)
-
   def replace(oldValue: String, newValue: String): A =
     pure(value.map(_.replace(oldValue, newValue)))
 }
