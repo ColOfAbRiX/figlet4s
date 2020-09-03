@@ -7,11 +7,14 @@ final case class SubLines(value: Vector[String]) extends SubElementOps[SubLines]
   protected def pure(value: Vector[String]): SubLines =
     SubLines(value)
 
+  lazy val width: Int =
+    value.map(_.length).headOption.getOrElse(0)
+
   lazy val toSubcolumns: SubColumns =
     SubColumns(value.transpose.map(_.mkString))
 
   override def toString: String =
-    value.mkString
+    value.mkString("\n")
 }
 
 object SubLines {
@@ -25,6 +28,9 @@ object SubLines {
 final case class SubColumns(value: Vector[String]) extends SubElementOps[SubColumns] {
   protected def pure(value: Vector[String]): SubColumns =
     SubColumns(value)
+
+  lazy val height: Int =
+    value.map(_.length).headOption.getOrElse(0)
 
   lazy val toSublines: SubLines =
     SubLines(value.transpose.map(_.mkString))
@@ -54,6 +60,12 @@ trait SubElementOps[A <: SubElementOps[A]] {
 
   def foreach[U](f: String => U): Unit =
     value.foreach(f)
+
+  def zip(that: A): Iterable[(String, String)] =
+    this.value zip that.value
+
+  def zipAll(missingThis: String, missingThat: String)(that: A): Iterable[(String, String)] =
+    this.value.zipAll(that.value, missingThis, missingThat)
 
   def replace(oldValue: String, newValue: String): A =
     pure(value.map(_.replace(oldValue, newValue)))

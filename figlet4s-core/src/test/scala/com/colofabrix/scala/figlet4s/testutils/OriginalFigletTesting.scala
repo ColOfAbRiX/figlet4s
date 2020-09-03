@@ -1,6 +1,7 @@
-package com.colofabrix.scala.figlet4s
+package com.colofabrix.scala.figlet4s.testutils
 
 import cats.implicits._
+import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options._
 import java.io.File
 import java.nio.file.Paths
@@ -13,10 +14,17 @@ import sys.process._
  */
 trait OriginalFigletTesting {
 
-  def runFiglet(options: RenderOptions, text: String): LazyList[String] = {
-    figletCommand(options, text).lazyLines
+  /**
+   * Renders a text with the given options using the figlet executable found on command line
+   */
+  def renderWithFiglet(options: RenderOptions, text: String): FIGure = {
+    val output = figletCommand(options, text).lazyLines.toVector
+    FIGure(options.font, text, Vector(SubLines(output).toSubcolumns))
   }
 
+  /**
+   * Checks if an executable is present in the path and cancels the execution of the test if not present
+   */
   def assumeExecutableInPath(executable: String): Unit =
     if (!executableExists(executable))
       Assertions.cancel(s"Executable $executable doesn't exist. Install $executable to run this test.")
@@ -37,8 +45,9 @@ trait OriginalFigletTesting {
     val hLayout        = figletHorizontalLayout(options)
     val printDirection = figletPrintDirection(options)
     val justification  = figletJustfication(options)
+    val escapedText    = text.replace("'", "'\"'\"'")
 
-    s"figlet $fontFile $maxWidth $hLayout $printDirection $justification '$text'"
+    s"figlet $fontFile $maxWidth $hLayout $printDirection $justification '$escapedText'"
   }
 
   private def figletWidth(options: RenderOptions, text: String): String =

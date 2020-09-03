@@ -3,6 +3,7 @@ package com.colofabrix.scala.figlet4s
 import cats.implicits._
 import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont._
+import com.colofabrix.scala.figlet4s.testutils._
 import com.colofabrix.scala.figlet4s.unsafe._
 import org.scalacheck._
 import org.scalatest.flatspec._
@@ -41,15 +42,6 @@ class Figlet4sUnsafeSpecs
   }
 
   it should "load all internal fonts successfully" in {
-    def interpretResult(font: String): PartialFunction[Try[_], Option[String]] = {
-      case Failure(fe @ FigletError(message)) =>
-        Some(s"${fe.getClass().getSimpleName()} on $font: $message")
-      case Failure(exception: Throwable) =>
-        Some(s"Exception on $font: ${exception.getMessage}")
-      case Success(_) =>
-        None
-    }
-
     val result = for {
       font  <- Figlet4s.internalFonts
       error <- interpretResult(font)(Try(Figlet4s.loadFontInternal(font)))
@@ -58,27 +50,43 @@ class Figlet4sUnsafeSpecs
     result shouldBe empty
   }
 
-  private val figfontCharsGen: Gen[String] =
-    Gen
-      .someOf(FIGfont.requiredChars.filter(_ =!= '\''))
-      .suchThat(x => x.length < 100 && (x.length <= 5 || x.contains(' ')))
-      .map(Random.shuffle(_))
-      .map(_.mkString)
-
   it should "render the texts as the original command line FIGlet does" in {
+    figlet4sRenderingTest { text =>
+      val computed = defaultBuilder.text(text).render()
+      val expected = renderWithFiglet(defaultBuilder.options, text)
+      computed should lookLike(expected)
+    }
+  }
+
+  //  Support  //
+
+  private def interpretResult(font: String): PartialFunction[Try[_], Option[String]] = {
+    case Failure(fe @ FigletError(message)) =>
+      Some(s"${fe.getClass().getSimpleName()} on $font: $message")
+    case Failure(exception: Throwable) =>
+      Some(s"Exception on $font: ${exception.getMessage}")
+    case Success(_) =>
+      None
+  }
+
+  private def figlet4sRenderingTest[A](f: String => A): Unit = {
     assumeExecutableInPath("figlet")
-
-    val builder = Figlet4s.builder().withInternalFont("standard")
-
-    forAll((figfontCharsGen, "character "), minSuccessful(50)) { text =>
+    forAll((figfontCharsGen, "renderText"), minSuccessful(50)) { text =>
       whenever(text.forall(FIGfont.requiredChars.contains(_))) {
-        val computed = builder.text(text).render().asVector()
-        val expected = runFiglet(builder.options, text)
-        for ((computedLine, expectedLine) <- (computed zip expected)) {
-          computedLine should equal(expectedLine)
-        }
+        f(text)
       }
     }
   }
+
+  private val figfontCharsGen: Gen[String] =
+    Gen
+      // .someOf(FIGfont.requiredChars)
+      .someOf(Seq('='))
+      .suchThat(x => x.length < 100)
+      .map(Random.shuffle(_))
+      .map(_.mkString)
+
+  private val defaultBuilder =
+    Figlet4s.builder().withInternalFont("standard")
 
 }
