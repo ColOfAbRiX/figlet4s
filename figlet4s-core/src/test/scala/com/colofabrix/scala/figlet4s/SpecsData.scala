@@ -1,10 +1,13 @@
 package com.colofabrix.scala.figlet4s
 
 import com.colofabrix.scala.figlet4s.figfont._
+import com.colofabrix.scala.figlet4s.options._
+import com.colofabrix.scala.figlet4s.unsafe._
 
 object SpecsData {
 
-  val standardInput: String = "~ * Fao & C 123"
+  val standardBuilder: OptionsBuilder = Figlet4s.builder().withInternalFont("standard")
+  val standardInput: String           = "~ * Fao & C 123"
   val standardLines: SubLines = SubLines(
     Vector(
       """  /\/|         _____              ___      ____   _ ____  _____ """,

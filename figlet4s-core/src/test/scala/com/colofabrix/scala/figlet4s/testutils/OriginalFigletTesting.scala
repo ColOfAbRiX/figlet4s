@@ -7,8 +7,9 @@ import java.io.File
 import java.nio.file.Paths
 import java.util.regex.Pattern
 import org.scalacheck._
+import org.scalactic.anyvals._
 import org.scalatest._
-import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks._
+import org.scalatestplus.scalacheck._
 import scala.util._
 import sys.process._
 
@@ -16,12 +17,15 @@ import sys.process._
  * Support for testing using the figlet executable
  */
 trait OriginalFigletTesting {
+  import Shrink.shrinkAny
+  import ScalaCheckDrivenPropertyChecks._
 
   /**
    * Renders a text with the given options using the figlet executable found on command line
    */
   def renderWithFiglet(options: RenderOptions, text: String): FIGure = {
     val output = figletCommand(options, text).lazyLines.toVector
+    println(figletCommand(options, text).mkString(" "))
     FIGure(options.font, text, Vector(SubLines(output).toSubcolumns))
   }
 
@@ -35,35 +39,53 @@ trait OriginalFigletTesting {
   /**
    * Runs property testing on a given function to test Figlet4s
    */
-  def figlet4sRenderingTest[A](f: String => A): Unit = {
+  def figlet4sRenderingTest[A](f: FigletTestData => A): Unit = {
     assumeExecutableInPath("figlet")
-    forAll((figfontCharsGen, "renderText"), minSuccessful(50)) { text =>
-      whenever(text.forall(FIGfont.requiredChars.contains(_))) {
-        f(text)
-      }
+    val min = PosInt.fromOrElse(FIGfont.requiredChars.size, 50)
+    forAll((testDataGen, "testData"), minSuccessful(min)) { testData =>
+      f(testData)
     }
   }
 
   //  Support  //
 
-  private val figfontCharsGen: Gen[String] =
+  case class FigletTestData(
+      fontName: String,
+      renderText: String,
+      horizontalLayout: HorizontalLayout,
+      printDirection: PrintDirection,
+      justification: Justification,
+  )
+
+  private def testDataGen =
+    for {
+      fontName         <- fontNameGen
+      renderText       <- renderTextGen
+      horizontalLayout <- horizontalLayoutGen
+      printDirection   <- printDirectionGen
+      justification    <- justificationGen
+    } yield {
+      FigletTestData(fontName, renderText, horizontalLayout, printDirection, justification)
+    }
+
+  private def renderTextGen: Gen[String] =
     Gen
       .someOf(FIGfont.requiredChars)
-      .suchThat(x => x.length < 100)
+      .suchThat(x => x.length <= 30)
       .map(Random.shuffle(_))
       .map(_.mkString)
 
-  // private val figfontGen: Gen[HorizontalLayout] =
-  //   Gen.oneOf(List("standard"))
+  private def fontNameGen: Gen[String] =
+    Gen.const("standard")
 
-  // private val horizontalLayoutGen: Gen[HorizontalLayout] =
-  //   Gen.oneOf(HorizontalLayout.values)
+  private def horizontalLayoutGen: Gen[HorizontalLayout] =
+    Gen.const(HorizontalLayout.FullWidth)
 
-  // private val printDirectionGen: Gen[PrintDirection] =
-  //   Gen.oneOf(PrintDirection.values)
+  private def printDirectionGen: Gen[PrintDirection] =
+    Gen.oneOf(PrintDirection.values)
 
-  // private val justificationGen: Gen[Justification] =
-  //   Gen.oneOf(Justification.values)
+  private def justificationGen: Gen[Justification] =
+    Gen.oneOf(Justification.values)
 
   private def executableExists(exec: String): Boolean = {
     System

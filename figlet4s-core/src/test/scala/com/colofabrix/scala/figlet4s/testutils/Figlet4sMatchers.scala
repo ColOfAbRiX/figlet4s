@@ -7,14 +7,16 @@ import com.colofabrix.scala.figlet4s.options._
 import com.colofabrix.scala.figlet4s.unsafe._
 import org.scalatest.matchers._
 
+/**
+ * ScalaTest matchers for Figlet4s
+ */
 trait Figlet4sMatchers {
   implicit private val eqFoo: Eq[SubColumns] = Eq.fromUniversalEquals
 
-  @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
   class FIGureMatchers(expected: FIGure) extends Matcher[FIGure] {
     def apply(computed: FIGure) = {
-      val cc   = computed.cleanColumns.head
-      val ec   = expected.cleanColumns.head
+      val cc   = computed.cleanColumns.headOption.getOrElse(SubColumns(Vector.empty))
+      val ec   = expected.cleanColumns.headOption.getOrElse(SubColumns(Vector.empty))
       val maxC = cc.value.map(_.length).maxOption.getOrElse(0)
       val maxE = ec.value.map(_.length).maxOption.getOrElse(0)
 
@@ -23,7 +25,7 @@ trait Figlet4sMatchers {
         result      <- compareColumns(i, c, e, maxC, maxE)
       } yield result
 
-      def pritableDiffs =
+      def printableDiffs =
         SubColumns(differences.toVector).toSublines.toString
 
       def diffMessage =
@@ -31,7 +33,7 @@ trait Figlet4sMatchers {
         s"Text: '${computed.value}'\n\n" +
         s"Expected:\n${expected.asString()}\n\n" +
         s"Computed:\n${computed.asString()}\n\n" +
-        s"Differences:\n$pritableDiffs"
+        s"Differences:\n$printableDiffs"
 
       MatchResult(
         expected.cleanColumns === computed.cleanColumns,
@@ -59,11 +61,11 @@ trait Figlet4sMatchers {
 
   }
 
+  /**
+   * Compares a FIGure with another FIGure to see if they look the same
+   */
   def lookLike(expected: FIGure): FIGureMatchers =
     new FIGureMatchers(expected)
-
-  def lookLike(options: RenderOptions, value: String, figure: Vector[SubColumns]): FIGureMatchers =
-    lookLike(FIGure(options.font, value, figure))
 }
 
 object Figlet4sMatchers extends Figlet4sMatchers

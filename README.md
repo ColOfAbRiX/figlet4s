@@ -9,16 +9,23 @@
          |___/
 ```
 
-This is an implementation of [FIGlet](http://www.figlet.org/) in pure Scala with integrated fonts,
-minimal dependencies, extensive error reporting and support for effects including Cats `IO`.
+This is a library implementation of [FIGlet](http://www.figlet.org/) in pure Scala, with integrated
+fonts, minimal dependencies, extensive error reporting and support for effects including Cats `IO`.
 
-This implementation follows the standard defined in
-[The FIGfont Version 2 FIGfont and FIGdriver Standard](figfont_reference.txt).
+From Wikipedia:
+
+> FIGlet is a computer program that generates text banners, in a variety of typefaces, composed of
+> letters made up of conglomerations of smaller ASCII characters (see ASCII art). The name derives
+> from "Frank, Ian and Glenn's letters".
+
+This implementation aim to follow as closely as possible the standard defined in [The FIGfont
+Version 2 FIGfont and FIGdriver Standard](figfont_reference.txt) and to render texts as close as
+possible to [the standard figlet implementation](http://www.figlet.org/) on the shell.
 
 ## DISCLAIMER
 
-This is a pre-release version, several bugs exists, the API is not yet stable, it supports only one
-version of Scala and no binaries have been released yet.
+This is a pre-release version, several bugs exists, it supports only one version of Scala and no
+binaries have been released yet.
 
 Please join me in building Figlet4s! You help in testing features, finding bugs and suggest
 improvements is very welcome!

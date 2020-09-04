@@ -2,6 +2,7 @@ package com.colofabrix.scala.figlet4s
 
 import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont._
+import com.colofabrix.scala.figlet4s.options._
 import com.colofabrix.scala.figlet4s.testutils._
 import com.colofabrix.scala.figlet4s.unsafe._
 import org.scalatest.flatspec._
@@ -17,9 +18,9 @@ class Figlet4sUnsafeSpecs
     with OriginalFigletTesting {
 
   "Figlet4s" should "render a default test case" in {
-    val computed = defaultBuilder.render(SpecsData.standardInput)
+    val computed = SpecsData.standardBuilder.render(SpecsData.standardInput)
     val expected = FIGure(
-      defaultBuilder.options.font,
+      SpecsData.standardBuilder.options.font,
       SpecsData.standardInput,
       Vector(SpecsData.standardLines.toSubcolumns),
     )
@@ -50,9 +51,18 @@ class Figlet4sUnsafeSpecs
   }
 
   it should "render the texts as the original command line FIGlet does" in {
-    figlet4sRenderingTest { text =>
-      val computed = defaultBuilder.text(text).render()
-      val expected = renderWithFiglet(defaultBuilder.options, text)
+    defaultBuilder.options.font.characters.foreach {
+      case (name, char) =>
+        println("--------------")
+        println(s"Name: $name")
+        println(char.toString())
+        println("--------------\n")
+    }
+
+    figlet4sRenderingTest { testData =>
+      val computed = defaultBuilder.text(testData.renderText).render()
+      val expected = renderWithFiglet(defaultBuilder.options, testData.renderText)
+      println(renderWithFiglet(defaultBuilder.options, testData.renderText))
       computed should lookLike(expected)
     }
   }
@@ -69,6 +79,9 @@ class Figlet4sUnsafeSpecs
   }
 
   private val defaultBuilder =
-    Figlet4s.builder().withInternalFont("standard")
+    Figlet4s
+      .builder()
+      .withInternalFont("standard")
+      .withHorizontalLayout(HorizontalLayout.FullWidth)
 
 }
