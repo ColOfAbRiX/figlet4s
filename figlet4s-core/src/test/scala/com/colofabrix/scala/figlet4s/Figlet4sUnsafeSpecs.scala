@@ -51,18 +51,14 @@ class Figlet4sUnsafeSpecs
   }
 
   it should "render the texts as the original command line FIGlet does" in {
-    defaultBuilder.options.font.characters.foreach {
-      case (name, char) =>
-        println("--------------")
-        println(s"Name: $name")
-        println(char.toString())
-        println("--------------\n")
-    }
-
     figlet4sRenderingTest { testData =>
-      val computed = defaultBuilder.text(testData.renderText).render()
+      val computed =
+        defaultBuilder
+          .withInternalFont(testData.fontName)
+          .text(testData.renderText)
+          .render()
       val expected = renderWithFiglet(defaultBuilder.options, testData.renderText)
-      println(renderWithFiglet(defaultBuilder.options, testData.renderText))
+
       computed should lookLike(expected)
     }
   }

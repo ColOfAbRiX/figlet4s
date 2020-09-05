@@ -18,7 +18,8 @@ final case class FIGfont private[figlet4s] (
     characters: Map[Char, FIGcharacter],
 ) {
   /**
-   * Returns a FIGcharacter representation of the given Char
+   * Returns a FIGcharacter representation of the given Char. If the requested character is not present the character
+   * '0' will be returned instead.
    */
   def apply(char: Char): FIGcharacter =
     characters.getOrElse(char, characters('0'))
@@ -110,7 +111,7 @@ object FIGfont {
       .andThen(buildFont)
 
   /** List of required characters that all FIGfont must define */
-  val requiredChars: Seq[Char] = ((32 to 126) ++ Seq(196, 214, 220, 228, 246, 252, 223)).map(_.toChar)
+  val requiredChars: Seq[Char] = ((32 to 126) ++ Seq(196, 214, 220, 223, 228, 246, 252)).map(_.toChar)
 
   /**
    * Processes a line calling the appropriate action based on the current state

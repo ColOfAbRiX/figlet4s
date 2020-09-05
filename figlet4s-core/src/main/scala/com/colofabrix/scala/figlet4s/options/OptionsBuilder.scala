@@ -7,6 +7,7 @@ import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options.BuilderAction._
 import com.colofabrix.scala.figlet4s.options.OptionsBuilder._
+import scala.io.Codec
 
 /**
  * Builder of rendering options
@@ -28,8 +29,8 @@ final class OptionsBuilder(private val actions: List[BuilderAction] = List.empty
     addAction(LoadInternalFontAction(fontName))
 
   /** Use the FIGfont with the specified fontPath */
-  def withFont(fontPath: String, encoding: String = "ISO8859_1"): OptionsBuilder =
-    addAction(LoadFontAction(fontPath, encoding))
+  def withFont(fontPath: String, codec: Codec = Codec.ISO8859): OptionsBuilder =
+    addAction(LoadFontAction(fontPath, codec))
 
   /** Use the specified FIGfont */
   def withFont(font: FIGfont): OptionsBuilder =

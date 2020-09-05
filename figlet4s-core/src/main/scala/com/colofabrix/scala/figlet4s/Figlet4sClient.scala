@@ -53,16 +53,16 @@ private[figlet4s] object Figlet4sClient {
   def loadFontInternal[F[_]: Sync](name: String = "standard"): F[FigletResult[FIGfont]] =
     for {
       path    <- Sync[F].pure(s"fonts/$name.flf")
-      decoder <- fileDecoder[F]("ISO8859_1")
+      decoder <- fileDecoder[F](Codec.ISO8859)
       font    <- withResource(Source.fromResource(path)(decoder))(interpretFile[F](path))
     } yield font
 
   /**
    * Loads a FIGfont from file
    */
-  def loadFont[F[_]: Sync](path: String, encoding: String): F[FigletResult[FIGfont]] =
+  def loadFont[F[_]: Sync](path: String, codec: Codec): F[FigletResult[FIGfont]] =
     for {
-      decoder <- fileDecoder[F](encoding)
+      decoder <- fileDecoder[F](codec)
       font    <- withResource(Source.fromFile(path)(decoder))(interpretFile[F](path))
     } yield font
 
@@ -93,9 +93,9 @@ private[figlet4s] object Figlet4sClient {
       }
     }
 
-  private def fileDecoder[F[_]: Applicative](encoding: String): F[Codec] =
+  private def fileDecoder[F[_]: Applicative](codec: Codec): F[Codec] =
     Applicative[F].pure {
-      Codec(encoding)
+      codec
         .decoder
         .onMalformedInput(java.nio.charset.CodingErrorAction.REPORT)
     }

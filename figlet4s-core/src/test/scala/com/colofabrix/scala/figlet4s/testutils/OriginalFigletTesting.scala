@@ -3,6 +3,7 @@ package com.colofabrix.scala.figlet4s.testutils
 import cats.implicits._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options._
+import com.colofabrix.scala.figlet4s.unsafe._
 import java.io.File
 import java.nio.file.Paths
 import java.util.regex.Pattern
@@ -20,12 +21,19 @@ trait OriginalFigletTesting {
   import Shrink.shrinkAny
   import ScalaCheckDrivenPropertyChecks._
 
+  case class TestRenderOptions(
+      renderText: String,
+      fontName: String,
+      horizontalLayout: HorizontalLayout,
+      printDirection: PrintDirection,
+      justification: Justification,
+  )
+
   /**
    * Renders a text with the given options using the figlet executable found on command line
    */
   def renderWithFiglet(options: RenderOptions, text: String): FIGure = {
     val output = figletCommand(options, text).lazyLines.toVector
-    println(figletCommand(options, text).mkString(" "))
     FIGure(options.font, text, Vector(SubLines(output).toSubcolumns))
   }
 
@@ -39,47 +47,48 @@ trait OriginalFigletTesting {
   /**
    * Runs property testing on a given function to test Figlet4s
    */
-  def figlet4sRenderingTest[A](f: FigletTestData => A): Unit = {
+  def figlet4sRenderingTest[A](f: TestRenderOptions => A): Unit = {
     assumeExecutableInPath("figlet")
-    val min = PosInt.fromOrElse(FIGfont.requiredChars.size, 50)
-    forAll((testDataGen, "testData"), minSuccessful(min)) { testData =>
+
+    //val min         = PosInt.fromOrElse(safeCharset.length * 5, 500)
+    val min         = PosInt.fromOrElse(safeCharset.length / 5, 20)
+    val testDataSet = (testDataGen, "testData")
+
+    forAll(testDataSet, minSuccessful(min)) { testData =>
       f(testData)
     }
   }
 
   //  Support  //
 
-  case class FigletTestData(
-      fontName: String,
-      renderText: String,
-      horizontalLayout: HorizontalLayout,
-      printDirection: PrintDirection,
-      justification: Justification,
-  )
-
   private def testDataGen =
     for {
-      fontName         <- fontNameGen
       renderText       <- renderTextGen
+      fontName         <- fontNameGen
       horizontalLayout <- horizontalLayoutGen
       printDirection   <- printDirectionGen
       justification    <- justificationGen
     } yield {
-      FigletTestData(fontName, renderText, horizontalLayout, printDirection, justification)
+      TestRenderOptions(renderText, fontName, horizontalLayout, printDirection, justification)
     }
+
+  // NOTE: I found issues when rendering higher-number characters with figlet so I decided to work on only a subset
+  //       of a font's charset. The best options would be to test all possible characters: font.characters.keySet
+  private def safeCharset: Seq[Char] =
+    (32 to 126).filter(x => x =!= '\\' && x =!= ']').map(_.toChar)
 
   private def renderTextGen: Gen[String] =
     Gen
-      .someOf(FIGfont.requiredChars)
+      .someOf(safeCharset)
       .suchThat(x => x.length <= 30)
       .map(Random.shuffle(_))
       .map(_.mkString)
 
   private def fontNameGen: Gen[String] =
-    Gen.const("standard")
+    Gen.oneOf(Figlet4s.internalFonts)
 
   private def horizontalLayoutGen: Gen[HorizontalLayout] =
-    Gen.const(HorizontalLayout.FullWidth)
+    Gen.oneOf(HorizontalLayout.values)
 
   private def printDirectionGen: Gen[PrintDirection] =
     Gen.oneOf(PrintDirection.values)
@@ -101,7 +110,7 @@ trait OriginalFigletTesting {
     val hLayout        = figletHorizontalLayout(options)
     val printDirection = figletPrintDirection(options)
     val justification  = figletJustfication(options)
-    List("figlet") ++: fontFile ++: maxWidth ++: hLayout ++: printDirection ++: justification ++: List(text)
+    List("figlet") ++: fontFile ++: maxWidth ++: hLayout ++: printDirection ++: justification ++: List("--", text)
   }
 
   private def figletWidth(options: RenderOptions, text: String): List[String] =

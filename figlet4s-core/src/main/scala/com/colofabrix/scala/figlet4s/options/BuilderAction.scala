@@ -2,6 +2,7 @@ package com.colofabrix.scala.figlet4s.options
 
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.utils._
+import scala.io._
 
 /**
  * The BuilderAction data structure is used to defer the call of the API at rendering time, to avoid dealing with
@@ -22,14 +23,14 @@ private[figlet4s] object BuilderAction {
 
   //  Builder Actions  //
 
-  final case class LoadFontAction(fontPath: String, encoding: String) extends BuilderAction with FontTag
-  final case class LoadInternalFontAction(fontName: String)           extends BuilderAction with FontTag
-  final case class SetFontAction(font: FIGfont)                       extends BuilderAction with FontTag
-  final case class SetHorizontalLayout(layout: HorizontalLayout)      extends BuilderAction with HorizontalLayoutTag
-  final case class SetJustification(justification: Justification)     extends BuilderAction with JustificationTag
-  final case class SetMaxWidthAction(maxWidth: Int)                   extends BuilderAction with MaxWidthActionTag
-  final case class SetPrintDirection(direction: PrintDirection)       extends BuilderAction with PrintDirectionTag
-  final case class SetTextAction(text: String)                        extends BuilderAction with TextTag
+  final case class LoadFontAction(fontPath: String, codec: Codec) extends BuilderAction with FontTag
+  final case class LoadInternalFontAction(fontName: String)       extends BuilderAction with FontTag
+  final case class SetFontAction(font: FIGfont)                   extends BuilderAction with FontTag
+  final case class SetHorizontalLayout(layout: HorizontalLayout)  extends BuilderAction with HorizontalLayoutTag
+  final case class SetJustification(justification: Justification) extends BuilderAction with JustificationTag
+  final case class SetMaxWidthAction(maxWidth: Int)               extends BuilderAction with MaxWidthActionTag
+  final case class SetPrintDirection(direction: PrintDirection)   extends BuilderAction with PrintDirectionTag
+  final case class SetTextAction(text: String)                    extends BuilderAction with TextTag
 
   //  Action Tags  //
 
