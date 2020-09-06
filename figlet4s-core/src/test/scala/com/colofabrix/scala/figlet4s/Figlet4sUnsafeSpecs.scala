@@ -56,6 +56,9 @@ class Figlet4sUnsafeSpecs
         defaultBuilder
           .text(testData.renderText)
           .withInternalFont(testData.fontName)
+          .withHorizontalLayout(testData.horizontalLayout)
+          .withPrintDirection(testData.printDirection)
+          .withJustification(testData.justification)
 
       val computed = testBuilder.render()
       val expected = renderWithFiglet(testBuilder.options, testData.renderText)

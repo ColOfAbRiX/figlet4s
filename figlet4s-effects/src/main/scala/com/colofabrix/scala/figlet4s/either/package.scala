@@ -54,7 +54,7 @@ package object either extends FIGureOps with OptionsBuilderOps {
   /**
    * Transforms the FigletResult into a Either capturing the first error in the Left side
    */
-  implicit private[either] class FigletResultOps[E, A](val self: FigletResult[A]) extends AnyVal {
+  implicit private[either] class FigletResultOps[E, A](private val self: FigletResult[A]) extends AnyVal {
     def asEither: FigletEither[A] = self.fold(e => Left(e.head), Right(_))
   }
 
@@ -62,7 +62,7 @@ package object either extends FIGureOps with OptionsBuilderOps {
    * Unsafely returns the value inside the FigletEither or throws an exception with the first error
    */
   @SuppressWarnings(Array("org.wartremover.warts.Throw"))
-  implicit private[either] class FigletEitherOps[A](val self: FigletEither[A]) extends AnyVal {
+  implicit private[either] class FigletEitherOps[A](private val self: FigletEither[A]) extends AnyVal {
     @throws(classOf[FigletError])
     def unsafeGet: A = self.fold(e => throw e, identity)
   }

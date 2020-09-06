@@ -1,9 +1,10 @@
 package com.colofabrix.scala.figlet4s.options
 
+import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters.{
+  HorizontalLayout => FontHorizontalLayout, PrintDirection => FontDirection,
+}
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.utils._
-import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters.{ HorizontalLayout => FontHorizontalLayout }
-import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters.{ PrintDirection => FontDirection }
 import enumeratum._
 
 /**

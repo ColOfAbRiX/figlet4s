@@ -1,7 +1,7 @@
 package com.colofabrix.scala.figlet4s
 
-import cats.data._
 import cats.MonadError
+import cats.data._
 
 object errors {
 

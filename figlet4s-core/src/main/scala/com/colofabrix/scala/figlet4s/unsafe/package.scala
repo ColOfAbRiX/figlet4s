@@ -39,7 +39,7 @@ package object unsafe extends OptionsBuilderOps with FIGureOps {
    * Unsafely returns the value inside the FigletResult or throws an exception with the first error
    */
   @SuppressWarnings(Array("org.wartremover.warts.Throw"))
-  implicit private[unsafe] class FigletResultOps[E, A](val self: FigletResult[A]) extends AnyVal {
+  implicit private[unsafe] class FigletResultOps[E, A](private val self: FigletResult[A]) extends AnyVal {
     @throws(classOf[FigletError])
     def unsafeGet: A = self.fold(e => throw e.head, identity)
   }

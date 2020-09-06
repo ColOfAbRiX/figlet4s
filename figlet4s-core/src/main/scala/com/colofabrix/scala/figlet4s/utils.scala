@@ -49,7 +49,7 @@ private[figlet4s] object utils {
   /**
    * Enrichment methods for Int for binary conversion
    */
-  implicit class BinaryInt(val self: Int) extends AnyVal {
+  implicit class BinaryInt(private val self: Int) extends AnyVal {
     /**
      * Converts the Int to a BitSet
      */
@@ -75,7 +75,7 @@ private[figlet4s] object utils {
   /**
    * Enrichment methods for String to calculate the MD5 hash
    */
-  implicit class MD5String(val self: String) extends AnyVal {
+  implicit class MD5String(private val self: String) extends AnyVal {
     /**
      * MD5 hash of the string
      */

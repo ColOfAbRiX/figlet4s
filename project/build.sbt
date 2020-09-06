@@ -12,12 +12,14 @@ lazy val ErrorsSummaryVersion  = "0.6.3"
 lazy val ExplicitDepsVersion   = "0.2.13"
 lazy val NativePackagerVersion = "1.3.25"
 lazy val SbtStatsVersion       = "1.0.7"
+lazy val ScalaFixVersion       = "0.9.20"
 lazy val ScalafmtVersion       = "2.4.0"
 lazy val UpdatesVersion        = "0.5.0"
 lazy val WartremoverVersion    = "2.4.9"
 
 //  PLUGIN LIBRARIES  //
 
+addSbtPlugin("ch.epfl.scala"    % "sbt-scalafix"              % ScalaFixVersion)
 addSbtPlugin("com.eed3si9n"     % "sbt-assembly"              % AssemblyVersion)
 addSbtPlugin("com.eed3si9n"     % "sbt-buildinfo"             % BuildinfoVersion)
 addSbtPlugin("com.github.cb372" % "sbt-explicit-dependencies" % ExplicitDepsVersion)

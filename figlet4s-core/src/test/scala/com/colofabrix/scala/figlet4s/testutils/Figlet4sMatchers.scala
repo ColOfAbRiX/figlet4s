@@ -2,7 +2,6 @@ package com.colofabrix.scala.figlet4s.testutils
 
 import cats.implicits._
 import com.colofabrix.scala.figlet4s.figfont._
-import com.colofabrix.scala.figlet4s.options._
 import com.colofabrix.scala.figlet4s.unsafe._
 import org.scalatest.matchers._
 
@@ -12,10 +11,10 @@ import org.scalatest.matchers._
 trait Figlet4sMatchers {
 
   class FIGureMatchers(expected: FIGure) extends Matcher[FIGure] {
-    def apply(computed: FIGure) =
+    def apply(computed: FIGure): MatchResult =
       compareFigures(computed, expected) match {
-        case Right(value) => MatchResult(true, "", s"The computed FIGure looks like the expected FIGure.")
-        case Left(error)  => MatchResult(false, error, s"The computed FIGure looks like the expected FIGure.")
+        case Right(_)    => MatchResult(true, "", s"The computed FIGure looks like the expected FIGure.")
+        case Left(error) => MatchResult(false, error, s"The computed FIGure looks like the expected FIGure.")
       }
 
     //  Support  //
@@ -48,25 +47,23 @@ trait Figlet4sMatchers {
       val ec = expected.cleanColumns.headOption.getOrElse(SubColumns(Vector.empty))
 
       // Discover max length for column padding
-      val maxC = cc.value.map(_.length).maxOption.getOrElse(0)
-      val maxE = ec.value.map(_.length).maxOption.getOrElse(0)
-      val max  = Math.max(maxC, maxE)
+      val maxC    = cc.value.map(_.length).maxOption.getOrElse(0)
+      val maxE    = ec.value.map(_.length).maxOption.getOrElse(0)
+      val max     = Math.max(maxC, maxE)
+      val margins = " +" + "-" * max + "+ "
 
-      def differences = for {
-        ((c, e), i) <- cc.value.zip(ec.value).zipWithIndex
-        result      <- columnsDiff(i, c, e, max)
-      } yield result
-
-      // expected.print()
-      // computed.print()
-
-      // differences.foreach { x =>
-      //   println(x.length(), x)
-      // }
-      // println("")
+      def differences =
+        for {
+          ((c, e), i) <- cc.value.zip(ec.value).zipWithIndex
+          result      <- columnsDiff(i, c, e, max)
+        } yield {
+          result
+        }
 
       def printableDiffs =
-        SubColumns(differences.toVector).toSublines.toString
+        SubColumns(
+          Vector(margins) ++: differences.toVector ++: Vector(margins),
+        ).toSublines.toString
 
       def diffMessage =
         s"The expected FIGure doesn't look like the computed FIGure. Here is a breakdown of the differences:\n\n" +
@@ -75,11 +72,7 @@ trait Figlet4sMatchers {
         s"Computed:\n${computed.asString()}\n\n" +
         s"Differences:\n$printableDiffs"
 
-      Either.cond(
-        (computed.cleanColumns === expected.cleanColumns),
-        (),
-        diffMessage,
-      )
+      Either.cond(computed.cleanColumns === expected.cleanColumns, (), diffMessage)
     }
 
     private def columnsDiff(i: Int, e: String, c: String, maxLength: Int): Vector[String] = {

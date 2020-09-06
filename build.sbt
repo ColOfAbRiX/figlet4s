@@ -12,8 +12,11 @@ ThisBuild / developers := List(
 )
 
 // Compiler options
-ThisBuild / Compile / scalacOptions := Compiler.TpolecatOptions_2_13 ++ Compiler.StrictOptions ++ Seq("-P:splain:all")
+ThisBuild / scalacOptions := Compiler.TpolecatOptions_2_13 ++ Compiler.StrictOptions ++ Seq("-P:splain:all")
 ThisBuild / Test / scalacOptions := Compiler.TpolecatOptions_2_13 ++ Seq("-P:splain:all")
+
+// Global dependencies and compiler plugins
+ThisBuild / libraryDependencies ++= Seq(SplainPlugin, WartremoverPlugin)
 
 // Wartremover
 ThisBuild / wartremoverExcluded ++= (baseDirectory.value * "**" / "src" / "test").get
@@ -29,8 +32,12 @@ ThisBuild / wartremoverErrors ++= Warts.allBut(
 // Scalafmt
 ThisBuild / scalafmtOnCompile := true
 
-// Global dependencies and compiler plugins
-ThisBuild / libraryDependencies ++= Seq(SplainPlugin, WartremoverPlugin)
+// Scalafix
+ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.4.0"
+ThisBuild / scalafixOnCompile := true
+ThisBuild / scalafixScalaBinaryVersion := ScalaLangVersion.replaceAll("\\.\\d+$", "")
+ThisBuild / semanticdbEnabled := true
+ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
 
 // Figlet4s
 lazy val figlet4s: Project = project

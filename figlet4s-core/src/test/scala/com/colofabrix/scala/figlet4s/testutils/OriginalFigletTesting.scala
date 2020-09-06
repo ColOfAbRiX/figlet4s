@@ -3,7 +3,6 @@ package com.colofabrix.scala.figlet4s.testutils
 import cats.implicits._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options._
-import com.colofabrix.scala.figlet4s.unsafe._
 import java.io.File
 import java.nio.file.Paths
 import java.util.regex.Pattern
@@ -18,7 +17,6 @@ import sys.process._
  * Support for testing using the command line figlet executable
  */
 trait OriginalFigletTesting {
-  import Shrink.shrinkAny
   import ScalaCheckDrivenPropertyChecks._
 
   case class TestRenderOptions(
@@ -47,30 +45,31 @@ trait OriginalFigletTesting {
   /**
    * Runs property testing on a given function to test Figlet4s
    */
-  def figlet4sRenderingTest[A](f: TestRenderOptions => A): Unit = {
-    assumeExecutableInPath("figlet")
-
-    //val min         = PosInt.fromOrElse(safeCharset.length * 5, 500)
-    val min         = PosInt.fromOrElse(safeCharset.length / 5, 20)
-    val testDataSet = (testDataGen, "testData")
-
-    forAll(testDataSet, minSuccessful(min)) { testData =>
-      f(testData)
+  def figlet4sRenderingTest[A](f: TestRenderOptions => A): Unit =
+    for {
+      _ <- Vector(assumeExecutableInPath("figlet"))
+      //fontName       <- Random.shuffle(Figlet4s.internalFonts).take(20)
+      fontName       <- Vector("standard")
+      hLayout        <- HorizontalLayout.values
+      printDirection <- Vector(PrintDirection.LeftToRight)
+      justification  <- Vector(Justification.FlushLeft)
+    } {
+      runTests(TestRenderOptions("", fontName, hLayout, printDirection, justification))(f)
     }
-  }
 
   //  Support  //
 
-  private def testDataGen: Gen[TestRenderOptions] =
-    for {
-      renderText       <- renderTextGen
-      fontName         <- fontNameGen
-      horizontalLayout <- horizontalLayoutGen
-      printDirection   <- printDirectionGen
-      justification    <- justificationGen
-    } yield {
-      TestRenderOptions(renderText, fontName, horizontalLayout, printDirection, justification)
+  private def runTests[A](testData: TestRenderOptions)(f: TestRenderOptions => A): Unit = {
+    val min         = PosInt.fromOrElse(safeCharset.length, 94)
+    val cycleGen    = renderTextGen.map(text => testData.copy(renderText = text))
+    val testDataSet = (cycleGen, "testData")
+
+    forAll(testDataSet, minSuccessful(min)) { testData =>
+      whenever(testData.renderText.length >= 0 && testData.renderText.forall(safeCharset.contains)) {
+        f(testData)
+      }
     }
+  }
 
   // NOTE: I found issues when rendering higher-number characters with figlet so I decided to work on only a subset
   //       of a font's charset. The best options would be to test all possible characters: font.characters.keySet
@@ -83,18 +82,6 @@ trait OriginalFigletTesting {
       .suchThat(x => x.length <= 30)
       .map(Random.shuffle(_))
       .map(_.mkString)
-
-  private def fontNameGen: Gen[String] =
-    Gen.oneOf(Figlet4s.internalFonts)
-
-  private def horizontalLayoutGen: Gen[HorizontalLayout] =
-    Gen.oneOf(HorizontalLayout.values)
-
-  private def printDirectionGen: Gen[PrintDirection] =
-    Gen.oneOf(PrintDirection.values)
-
-  private def justificationGen: Gen[Justification] =
-    Gen.oneOf(Justification.values)
 
   private def executableExists(exec: String): Boolean = {
     System
