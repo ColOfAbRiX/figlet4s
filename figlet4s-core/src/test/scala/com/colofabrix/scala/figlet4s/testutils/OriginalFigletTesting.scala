@@ -15,7 +15,7 @@ import scala.util._
 import sys.process._
 
 /**
- * Support for testing using the figlet executable
+ * Support for testing using the command line figlet executable
  */
 trait OriginalFigletTesting {
   import Shrink.shrinkAny
@@ -61,7 +61,7 @@ trait OriginalFigletTesting {
 
   //  Support  //
 
-  private def testDataGen =
+  private def testDataGen: Gen[TestRenderOptions] =
     for {
       renderText       <- renderTextGen
       fontName         <- fontNameGen

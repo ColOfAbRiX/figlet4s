@@ -37,27 +37,28 @@ class Figlet4sUnsafeSpecs
     }
   }
 
-  it should "return the list of internal fonts containing the \"standard\" font" in {
+  it should "return the list of internal fonts containing at least the \"standard\" font" in {
     Figlet4s.internalFonts should contain("standard")
   }
 
   it should "load all internal fonts successfully" in {
-    val result = for {
+    val loadingErrors = for {
       font  <- Figlet4s.internalFonts
       error <- interpretResult(font)(Try(Figlet4s.loadFontInternal(font)))
     } yield error
 
-    result shouldBe empty
+    loadingErrors shouldBe empty
   }
 
   it should "render the texts as the original command line FIGlet does" in {
     figlet4sRenderingTest { testData =>
-      val computed =
+      val testBuilder =
         defaultBuilder
-          .withInternalFont(testData.fontName)
           .text(testData.renderText)
-          .render()
-      val expected = renderWithFiglet(defaultBuilder.options, testData.renderText)
+          .withInternalFont(testData.fontName)
+
+      val computed = testBuilder.render()
+      val expected = renderWithFiglet(testBuilder.options, testData.renderText)
 
       computed should lookLike(expected)
     }

@@ -1,7 +1,6 @@
 package com.colofabrix.scala.figlet4s.testutils
 
 import cats.implicits._
-import cats.kernel._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options._
 import com.colofabrix.scala.figlet4s.unsafe._
@@ -11,19 +10,60 @@ import org.scalatest.matchers._
  * ScalaTest matchers for Figlet4s
  */
 trait Figlet4sMatchers {
-  implicit private val eqFoo: Eq[SubColumns] = Eq.fromUniversalEquals
 
   class FIGureMatchers(expected: FIGure) extends Matcher[FIGure] {
-    def apply(computed: FIGure) = {
-      val cc   = computed.cleanColumns.headOption.getOrElse(SubColumns(Vector.empty))
-      val ec   = expected.cleanColumns.headOption.getOrElse(SubColumns(Vector.empty))
+    def apply(computed: FIGure) =
+      compareFigures(computed, expected) match {
+        case Right(value) => MatchResult(true, "", s"The computed FIGure looks like the expected FIGure.")
+        case Left(error)  => MatchResult(false, error, s"The computed FIGure looks like the expected FIGure.")
+      }
+
+    //  Support  //
+
+    private def compareFigures(computed: FIGure, expected: FIGure): Either[String, Unit] =
+      for {
+        _ <- compareTexts(computed, expected)
+        _ <- compareFonts(computed, expected)
+        _ <- compareColumns(computed, expected)
+      } yield ()
+
+    private def compareTexts(computed: FIGure, expected: FIGure): Either[String, Unit] =
+      Either.cond(
+        computed.value === expected.value,
+        (),
+        s"The text '${computed.value}' of the computed FIGure doesn't match the text '${expected.value}' of the " +
+        s"expected FIGure",
+      )
+
+    private def compareFonts(computed: FIGure, expected: FIGure): Either[String, Unit] =
+      Either.cond(
+        computed.font === expected.font,
+        (),
+        s"The font '${computed.font.name}' of the computed FIGure doesn't match the font '${expected.font.name}' of " +
+        s"the expected FIGure",
+      )
+
+    private def compareColumns(computed: FIGure, expected: FIGure): Either[String, Unit] = {
+      val cc = computed.cleanColumns.headOption.getOrElse(SubColumns(Vector.empty))
+      val ec = expected.cleanColumns.headOption.getOrElse(SubColumns(Vector.empty))
+
+      // Discover max length for column padding
       val maxC = cc.value.map(_.length).maxOption.getOrElse(0)
       val maxE = ec.value.map(_.length).maxOption.getOrElse(0)
+      val max  = Math.max(maxC, maxE)
 
       def differences = for {
         ((c, e), i) <- cc.value.zip(ec.value).zipWithIndex
-        result      <- compareColumns(i, c, e, maxC, maxE)
+        result      <- columnsDiff(i, c, e, max)
       } yield result
+
+      // expected.print()
+      // computed.print()
+
+      // differences.foreach { x =>
+      //   println(x.length(), x)
+      // }
+      // println("")
 
       def printableDiffs =
         SubColumns(differences.toVector).toSublines.toString
@@ -35,16 +75,16 @@ trait Figlet4sMatchers {
         s"Computed:\n${computed.asString()}\n\n" +
         s"Differences:\n$printableDiffs"
 
-      MatchResult(
-        expected.cleanColumns === computed.cleanColumns,
+      Either.cond(
+        (computed.cleanColumns === expected.cleanColumns),
+        (),
         diffMessage,
-        s"The computed FIGure looks like the expected FIGure.",
       )
     }
 
-    private def compareColumns(i: Int, e: String, c: String, maxE: Int, maxC: Int): Vector[String] = {
-      val paddedC = c + " " * (maxC - c.length())
-      val paddedE = e + " " * (maxE - e.length())
+    private def columnsDiff(i: Int, e: String, c: String, maxLength: Int): Vector[String] = {
+      val paddedC = c.padTo(maxLength, " ")
+      val paddedE = e.padTo(maxLength, " ")
 
       if (e =!= c) {
         val List(n1, n2, n3) = "%3d".format(i).toList.map(_.toString)
