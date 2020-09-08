@@ -50,7 +50,7 @@ trait Figlet4sMatchers {
       val maxC    = cc.value.map(_.length).maxOption.getOrElse(0)
       val maxE    = ec.value.map(_.length).maxOption.getOrElse(0)
       val max     = Math.max(maxC, maxE)
-      val margins = " +" + "-" * max + "+ "
+      val margins = " +" + "|" * max + "+ "
 
       def differences =
         for {

@@ -3,8 +3,8 @@ package com.colofabrix.scala.figlet4s.figfont
 /**
  * Represents the SubLines in Figlet which are the String that compose each line of the FIGure or of a FIGcharacter
  */
-final case class SubLines(value: Vector[String]) extends SubElementOps[SubLines] {
-  protected def pure(value: Vector[String]): SubLines =
+final case class SubLines(value: Seq[String]) extends SubElementOps[SubLines] {
+  protected def pure(value: Seq[String]): SubLines =
     SubLines(value)
 
   lazy val width: Int =
@@ -25,8 +25,8 @@ object SubLines {
 /**
  * Represents the SubColumns in Figlet which are the String that compose each column of the FIGure or of a FIGcharacter
  */
-final case class SubColumns(value: Vector[String]) extends SubElementOps[SubColumns] {
-  protected def pure(value: Vector[String]): SubColumns =
+final case class SubColumns(value: Seq[String]) extends SubElementOps[SubColumns] {
+  protected def pure(value: Seq[String]): SubColumns =
     SubColumns(value)
 
   lazy val height: Int =
@@ -48,9 +48,9 @@ object SubColumns {
  * Operations for SubElements
  */
 trait SubElementOps[A <: SubElementOps[A]] {
-  protected def pure(value: Vector[String]): A
+  protected def pure(value: Seq[String]): A
 
-  def value: Vector[String]
+  def value: Seq[String]
 
   def length: Int =
     value.length

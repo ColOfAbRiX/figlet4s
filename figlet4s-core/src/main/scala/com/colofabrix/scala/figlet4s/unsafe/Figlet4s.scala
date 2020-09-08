@@ -14,7 +14,7 @@ object Figlet4s extends Figlet4sAPI[Id] {
 
   /** The list of available internal fonts */
   @throws(classOf[FigletError])
-  def internalFonts: List[String] =
+  def internalFonts: Seq[String] =
     Figlet4sClient.internalFonts[Id]
 
   /** Loads one of the internal FIGfont */

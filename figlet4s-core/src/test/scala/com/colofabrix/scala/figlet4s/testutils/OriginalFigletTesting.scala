@@ -14,7 +14,7 @@ import scala.util._
 import sys.process._
 
 /**
- * Support for testing using the command line figlet executable
+ * Support for testing using the command line, original figlet executable
  */
 trait OriginalFigletTesting {
   import ScalaCheckDrivenPropertyChecks._
@@ -45,10 +45,9 @@ trait OriginalFigletTesting {
   /**
    * Runs property testing on a given function to test Figlet4s
    */
-  def figlet4sRenderingTest[A](f: TestRenderOptions => A): Unit =
+  def figletRenderingTest[A](f: TestRenderOptions => A): Unit =
     for {
-      _ <- Vector(assumeExecutableInPath("figlet"))
-      //fontName       <- Random.shuffle(Figlet4s.internalFonts).take(20)
+      _              <- Vector(assumeExecutableInPath("figlet"))
       fontName       <- Vector("standard")
       hLayout        <- HorizontalLayout.values
       printDirection <- Vector(PrintDirection.LeftToRight)
@@ -79,7 +78,7 @@ trait OriginalFigletTesting {
   private def renderTextGen: Gen[String] =
     Gen
       .someOf(safeCharset)
-      .suchThat(x => x.length <= 30)
+      .suchThat(x => x.length <= 50)
       .map(Random.shuffle(_))
       .map(_.mkString)
 

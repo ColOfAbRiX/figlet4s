@@ -19,7 +19,7 @@ private[figlet4s] object Figlet4sClient {
   /**
    * The list of available internal fonts
    */
-  def internalFonts[F[_]: Sync]: F[List[String]] = {
+  def internalFonts[F[_]: Sync]: F[Seq[String]] = {
     val resources =
       getClass
         .getProtectionDomain
@@ -30,9 +30,9 @@ private[figlet4s] object Figlet4sClient {
     val file = new File(resources)
 
     if (file.isDirectory)
-      internalFontsFromDirectory(resources)
+      internalFontsFromDirectory(resources).map(_.toSeq)
     else if (file.getName.toLowerCase.endsWith(".jar"))
-      internalFontsFromJar(resources)
+      internalFontsFromJar(resources).map(_.toSeq)
     else
       Sync[F].raiseError {
         FigletException(new RuntimeException("Could not determine the type of artifacts"))

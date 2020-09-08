@@ -17,7 +17,7 @@ private[catsio] trait FIGureOps {
       self.foreachLine(println)
 
     /** The figure as a collection of String, one String per displayed line */
-    def asVector(): Vector[String] =
+    def asSeq(): Vector[String] =
       asVectorF().unsafeRunSync()
 
     /** The figure as single String and newline characters */

@@ -33,7 +33,7 @@ final case class FIGfont private[figlet4s] (
   /**
    * Processes a character to a representable format
    */
-  def process(char: Char): Vector[String] =
+  def process(char: Char): Seq[String] =
     this(char)
       .lines
       .replace(header.hardblank.toString, " ")

@@ -1,6 +1,7 @@
 package dependencies
 
 import sbt._
+import settings.Scopes._
 
 /**
  * Libraries

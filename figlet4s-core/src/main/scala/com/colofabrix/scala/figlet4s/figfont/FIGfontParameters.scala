@@ -63,7 +63,7 @@ private[figlet4s] object FIGfontParameters {
      * Interprets the "oldLayout" part of the header settings and returns the selected Horizontal Layout
      */
     def fromOldLayout(header: FIGheader): FigletResult[HorizontalLayout] = {
-      val settings = header.oldLayout
+      val settings = header.oldLayout.toVector
 
       if (settings === Vector(OldFullWidthLayout))
         FullWidthHorizontalLayout.validNec
@@ -102,7 +102,7 @@ private[figlet4s] object FIGfontParameters {
       header
         .fullLayout
         .map { settings =>
-          (settings intersect FullLayout.horizontalSmushingRules).collect {
+          (settings.toVector intersect FullLayout.horizontalSmushingRules).collect {
             case FullLayout.EqualCharacterHorizontalSmushing => EqualCharacterHorizontalSmushing
             case FullLayout.UnderscoreHorizontalSmushing     => UnderscoreHorizontalSmushing
             case FullLayout.HierarchyHorizontalSmushing      => HierarchyHorizontalSmushing
@@ -118,7 +118,7 @@ private[figlet4s] object FIGfontParameters {
      * Interprets the "oldLayout" header settings and returns the selected Horizontal Smushing Rules
      */
     def fromOldLayout(header: FIGheader): FigletResult[Vector[HorizontalSmushingRule]] =
-      Some(header.oldLayout)
+      Some(header.oldLayout.toVector)
         .map {
           _.collect {
             case OldLayout.OldEqualCharacterHorizontalSmushing => EqualCharacterHorizontalSmushing
@@ -194,7 +194,7 @@ private[figlet4s] object FIGfontParameters {
       header
         .fullLayout
         .map { settings =>
-          (settings intersect FullLayout.verticalSmushingRules).collect {
+          (settings.toVector intersect FullLayout.verticalSmushingRules).collect {
             case FullLayout.EqualCharacterVerticalSmushing    => EqualCharacterVerticalSmushing
             case FullLayout.UnderscoreVerticalSmushing        => UnderscoreVerticalSmushing
             case FullLayout.HierarchyVerticalSmushing         => HierarchyVerticalSmushing

@@ -14,7 +14,7 @@ trait Figlet4sAPI[F[_]] {
    *
    * @return The collection of names of FIGfonts shipped with this library
    */
-  def internalFonts: F[List[String]]
+  def internalFonts: F[Seq[String]]
 
   /**
    * Loads one of the internal FIGfont
@@ -69,7 +69,7 @@ trait Figlet4sEffectfulAPI[F[_]] {
    *
    * @return The collection of names of FIGfonts shipped with this library
    */
-  def internalFonts: F[List[String]]
+  def internalFonts: F[Seq[String]]
 
   /**
    * Loads one of the internal FIGfont

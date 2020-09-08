@@ -51,7 +51,7 @@ class Figlet4sUnsafeSpecs
   }
 
   it should "render the texts as the original command line FIGlet does" in {
-    figlet4sRenderingTest { testData =>
+    figletRenderingTest { testData =>
       val testBuilder =
         defaultBuilder
           .text(testData.renderText)

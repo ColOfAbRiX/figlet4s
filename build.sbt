@@ -1,4 +1,5 @@
 import dependencies.Dependencies._
+import settings.Scopes._
 
 val figlet4sVersion = "0.1.0"
 
@@ -27,6 +28,8 @@ ThisBuild / wartremoverErrors ++= Warts.allBut(
   Wart.Overloading,
   Wart.StringPlusAny,
   Wart.ToString,
+  // Covered by ScalaFix
+  Wart.PublicInference
 )
 
 // Scalafmt
@@ -43,12 +46,15 @@ ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
 lazy val figlet4s: Project = project
   .in(file("."))
   .aggregate(figlet4sCore, figlet4sEffects, figlet4sBenchmarks)
+  .settings(
+    name := "figlet4s"
+  )
 
 // Figlet4s Core project
 lazy val figlet4sCore: Project = project
   .in(file("figlet4s-core"))
   .settings(
-    name := "figlet4s",
+    name := "figlet4s-core",
     description := "Scala FIGlet implementation",
     version := figlet4sVersion,
     libraryDependencies ++= Seq(
@@ -79,8 +85,6 @@ lazy val figlet4sEffects: Project = project
     ),
   )
 
-lazy val Benchmark = config("bench") extend Test
-
 // Figlet4s Benchmarks project
 lazy val figlet4sBenchmarks: Project = project
   .in(file("figlet4s-benchmarks"))
@@ -94,6 +98,7 @@ lazy val figlet4sBenchmarks: Project = project
     testFrameworks += new TestFramework("org.scalameter.ScalaMeterFramework"),
     logBuffered := false,
     parallelExecution in Test := false,
+    // inConfig(Benchmark)(Defaults.testSettings),
     libraryDependencies ++= Seq(
       CatsCoreDep,
       ScalameterDep,

@@ -25,4 +25,8 @@ package object figfont {
     def eqv(x: SubLines, y: SubLines): Boolean = x.value === y.value
   }
 
+  implicit def seqEq[A: Eq]: Eq[Seq[A]] = new Eq[Seq[A]] {
+    def eqv(x: Seq[A], y: Seq[A]): Boolean = (x zip y).forall { case (a, b) => a === b }
+  }
+
 }

@@ -15,10 +15,10 @@ final case class FIGheader private[figlet4s] (
     height: Int,
     baseline: Int,
     maxLength: Int,
-    oldLayout: Vector[OldLayout],
+    oldLayout: Seq[OldLayout],
     commentLines: Int,
     printDirection: Option[PrintDirection],
-    fullLayout: Option[Vector[FullLayout]],
+    fullLayout: Option[Seq[FullLayout]],
     codetagCount: Option[Int],
 ) {
   override def toString(): String =

@@ -100,7 +100,7 @@ private[figlet4s] object Rendering {
    * Merges two columns applying a custom merge function to each pair of character of the two columns
    */
   def mergeColumnWith(f: (Char, Char) => MergeAction[Char]): MergeStrategy = { (a, b) =>
-    SubColumns(merge(a.value, b.value, 0, Vector.empty)(f))
+    SubColumns(merge(a.value.toVector, b.value.toVector, 0, Vector.empty)(f))
   }
 
   @tailrec

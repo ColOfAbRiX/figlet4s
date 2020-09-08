@@ -17,16 +17,16 @@ private[either] trait FIGureOps {
       self.foreachLine(println)
 
     /** The figure as a Vector of String */
-    def asVector(): Vector[String] =
+    def asSeq(): Vector[String] =
       self.cleanLines.flatMap(_.value)
 
     /** The figure as single String */
     def asString(): String =
-      asVector().mkString("\n")
+      asSeq().mkString("\n")
 
     /** The figure as a collection of String, one String per displayed line */
     def asVectorF(): FigletEither[Vector[String]] =
-      Right(asVector())
+      Right(asSeq())
 
     /** The figure as single String and newline characters */
     def asStringF(): FigletEither[String] =

@@ -16,12 +16,12 @@ private[unsafe] trait FIGureOps {
       self.foreachLine(println)
 
     /** The figure as a Vector of String */
-    def asVector(): Vector[String] =
+    def asSeq(): Seq[String] =
       self.cleanLines.flatMap(_.value)
 
     /** The figure as single String */
     def asString(): String =
-      asVector().mkString("\n")
+      asSeq().mkString("\n")
   }
 
 }
