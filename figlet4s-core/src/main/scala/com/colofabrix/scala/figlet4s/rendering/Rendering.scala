@@ -100,25 +100,52 @@ private[figlet4s] object Rendering {
    * Merges two columns applying a custom merge function to each pair of character of the two columns
    */
   def mergeColumnWith(f: (Char, Char) => MergeAction[Char]): MergeStrategy = { (a, b) =>
-    SubColumns(merge(a.value.toVector, b.value.toVector, 0, Vector.empty)(f))
+    val height = Math.max(
+      a.value.headOption.map(_.length()).getOrElse(0),
+      b.value.headOption.map(_.length()).getOrElse(0),
+    )
+    val aColumn = Vector("$" * height) ++ a.value.toVector
+    val bColumn = b.value.toVector ++ Vector("$" * height)
+    val result  = merge(aColumn, bColumn, 0, Vector.empty)(f)
+
+    println(s"RESULT: $result")
+
+    SubColumns(result)
   }
 
   @tailrec
   private def merge(a: Vector[String], b: Vector[String], overlap: Int, previous: Vector[String])(
       f: (Char, Char) => MergeAction[Char],
   ): Vector[String] = {
-    if (a.length === 0)
-      b
-    else if (b.length === 0)
-      a
-    else if (overlap === 0)
+    println(s"Overlap: $overlap")
+
+    if (overlap === 0) {
+      println("Zero overlap\n")
       merge(a, b, 1, a ++ b)(f)
-    else if (overlap >= a.length || overlap >= b.length)
+
+    } else if (overlap > a.length && overlap > b.length) {
+      println("Overlap bigger than both parts\n")
       previous
-    else {
+
+      // } else if (overlap > a.length) {
+      //   val hardblankColumn = Vector("$" * b.head.length)
+      //   merge(hardblankColumn ++ a, b, overlap, previous)(f)
+
+      // } else if (overlap > b.length) {
+      //   ???
+
+    } else {
       // Split the columns into left, right, A-overlapping and B-overlapping
-      val (left, aOverlap)  = a.splitAt(a.length - overlap)
+      val (left, aOverlap)  = a.splitAt(Math.max(0, a.length - overlap))
       val (bOverlap, right) = b.splitAt(overlap)
+
+      println(s"First split at: ${Math.max(0, a.length - overlap)}")
+      println(s"Second split at: ${overlap}")
+      println(s"left: $left")
+      println(s"aOverlap: $aOverlap")
+      println(s"bOverlap: $bOverlap")
+      println(s"right: $right")
+      println("")
 
       // For each overlapping column apply the merge function to the matching pairs of characters
       val mergedOverlapping =

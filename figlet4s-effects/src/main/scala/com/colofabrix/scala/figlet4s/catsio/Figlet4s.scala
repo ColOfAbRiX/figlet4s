@@ -12,7 +12,7 @@ import com.colofabrix.scala.figlet4s.options._
 object Figlet4s extends Figlet4sAPI[IO] with Figlet4sEffectfulAPI[IO] {
 
   /** The list of available internal fonts */
-  def internalFonts: IO[List[String]] =
+  def internalFonts: IO[Seq[String]] =
     Figlet4sClient.internalFonts[IO]
 
   /** Loads one of the internal FIGfont */

@@ -17,21 +17,21 @@ private[catsio] trait FIGureOps {
       self.foreachLine(println)
 
     /** The figure as a collection of String, one String per displayed line */
-    def asSeq(): Vector[String] =
-      asVectorF().unsafeRunSync()
+    def asSeq(): Seq[String] =
+      asSeqF().unsafeRunSync()
 
     /** The figure as single String and newline characters */
     def asString(): String =
       asStringF().unsafeRunSync()
 
     /** The figure as a Vector of String */
-    def asVectorF(): IO[Vector[String]] = IO.pure {
+    def asSeqF(): IO[Seq[String]] = IO.pure {
       self.cleanLines.map(_.value.mkString("\n"))
     }
 
     /** The figure as single String */
     def asStringF(): IO[String] =
-      asVectorF().map(_.mkString("\n"))
+      asSeqF().map(_.mkString("\n"))
   }
 
 }

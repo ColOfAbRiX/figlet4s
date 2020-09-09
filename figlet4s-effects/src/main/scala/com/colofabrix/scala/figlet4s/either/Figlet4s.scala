@@ -11,7 +11,7 @@ import com.colofabrix.scala.figlet4s.options._
 object Figlet4s extends Figlet4sAPI[FigletEither] with Figlet4sEffectfulAPI[FigletEither] {
 
   /** The list of available internal fonts */
-  def internalFonts: FigletEither[List[String]] =
+  def internalFonts: FigletEither[Seq[String]] =
     Figlet4sClient.internalFonts[FigletEither]
 
   /** Loads one of the internal FIGfont */

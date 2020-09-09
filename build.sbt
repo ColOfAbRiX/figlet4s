@@ -12,16 +12,16 @@ ThisBuild / developers := List(
   Developer("ColOfAbRiX", "Fabrizio Colonna", "@ColOfAbRiX", url("http://github.com/ColOfAbRiX")),
 )
 
-// Compiler options
-ThisBuild / scalacOptions := Compiler.TpolecatOptions_2_13 ++ Compiler.StrictOptions ++ Seq("-P:splain:all")
-ThisBuild / Test / scalacOptions := Compiler.TpolecatOptions_2_13 ++ Seq("-P:splain:all")
-
 // Global dependencies and compiler plugins
 ThisBuild / libraryDependencies ++= Seq(SplainPlugin, WartremoverPlugin)
 
+// Compiler options
+ThisBuild / Compile / scalacOptions := Compiler.TpolecatOptions_2_13 ++ Compiler.StrictOptions ++ Seq("-P:splain:all")
+ThisBuild / Test / scalacOptions := Compiler.TpolecatOptions_2_13 ++ Seq("-P:splain:all")
+
 // Wartremover
-ThisBuild / wartremoverExcluded ++= (baseDirectory.value * "**" / "src" / "test").get
-ThisBuild / wartremoverErrors ++= Warts.allBut(
+ThisBuild / Test / wartremoverErrors := Seq.empty
+ThisBuild / Compile / wartremoverErrors := Warts.allBut(
   Wart.Any,
   Wart.DefaultArguments,
   Wart.Nothing,
@@ -98,7 +98,7 @@ lazy val figlet4sBenchmarks: Project = project
     testFrameworks += new TestFramework("org.scalameter.ScalaMeterFramework"),
     logBuffered := false,
     parallelExecution in Test := false,
-    // inConfig(Benchmark)(Defaults.testSettings),
+    inConfig(Benchmark)(Defaults.testSettings),
     libraryDependencies ++= Seq(
       CatsCoreDep,
       ScalameterDep,

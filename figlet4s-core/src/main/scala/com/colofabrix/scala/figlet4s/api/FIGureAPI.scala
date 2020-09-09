@@ -56,7 +56,7 @@ trait FIGureEffectfulAPI[F[_]] {
    *
    * @return A collection of strings, each containing a displayable line
    */
-  def asVectorF(): F[Seq[String]]
+  def asSeqF(): F[Seq[String]]
 
   /**
    * The figure as single String and newline characters

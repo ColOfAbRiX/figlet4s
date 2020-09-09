@@ -17,7 +17,7 @@ private[either] trait FIGureOps {
       self.foreachLine(println)
 
     /** The figure as a Vector of String */
-    def asSeq(): Vector[String] =
+    def asSeq(): Seq[String] =
       self.cleanLines.flatMap(_.value)
 
     /** The figure as single String */
@@ -25,7 +25,7 @@ private[either] trait FIGureOps {
       asSeq().mkString("\n")
 
     /** The figure as a collection of String, one String per displayed line */
-    def asVectorF(): FigletEither[Vector[String]] =
+    def asSeqF(): FigletEither[Seq[String]] =
       Right(asSeq())
 
     /** The figure as single String and newline characters */

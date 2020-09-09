@@ -22,7 +22,7 @@ final case class FIGfont private[figlet4s] (
    * '0' will be returned instead.
    */
   def apply(char: Char): FIGcharacter =
-    characters.getOrElse(char, characters('0'))
+    characters.getOrElse(char, zero)
 
   /**
    * The empty character

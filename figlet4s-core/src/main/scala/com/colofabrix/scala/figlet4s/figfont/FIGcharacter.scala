@@ -76,6 +76,7 @@ object FIGcharacter {
    */
   private def validateEndmark(name: Char, position: Int, lines: SubLines): FigletResult[Char] = {
     val allEndmarks = lines.value.map(_.last).toSet
+    // TODO: Check that the last endmark is 1 or 2 characters
     allEndmarks
       .headOption
       .filter(_ => allEndmarks.size === 1)
@@ -91,6 +92,7 @@ object FIGcharacter {
    * Removes the endmarks from the lines of the character
    */
   private def cleanLines(lines: SubLines)(endmark: Char): FigletResult[SubLines] = {
+    // TODO: Consider when the endmark is the same as the character and they're both removed
     val find = Regex.quote(endmark.toString) + "{1,2}$"
     lines.map(_.replaceAll(find, "")).validNec
   }
