@@ -13,7 +13,7 @@ import scala.util._
 class Custom extends AnyFlatSpec with Matchers {
   "Test" should "do something" in {
     Figlet4s
-      .builder("[_")
+      .builder("[_!A")
       .withInternalFont("standard")
       .withHorizontalLayout(HorizontalLayout.HorizontalFitting)
       .render()
@@ -82,7 +82,7 @@ class Figlet4sUnsafeSpecs
 
   private def interpretResult(font: String): PartialFunction[Try[_], Option[String]] = {
     case Failure(fe @ FigletError(message)) =>
-      Some(s"${fe.getClass().getSimpleName()} on $font: $message")
+      Some(s"${fe.getClass.getSimpleName} on $font: $message")
     case Failure(exception: Throwable) =>
       Some(s"Exception on $font: ${exception.getMessage}")
     case Success(_) =>

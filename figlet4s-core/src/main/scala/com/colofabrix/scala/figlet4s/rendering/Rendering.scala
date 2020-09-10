@@ -96,76 +96,62 @@ private[figlet4s] object Rendering {
   /** Function that smushes two characters */
   type SmushingStrategy = (Char, Char) => Option[Char]
 
+  type Compare = (Char, Char) => MergeAction[Char]
+
   /**
    * Merges two columns applying a custom merge function to each pair of character of the two columns
    */
-  def mergeColumnWith(f: (Char, Char) => MergeAction[Char]): MergeStrategy = { (a, b) =>
-    val height = Math.max(
-      a.value.headOption.map(_.length()).getOrElse(0),
-      b.value.headOption.map(_.length()).getOrElse(0),
-    )
-    val aColumn = Vector("$" * height) ++ a.value.toVector
-    val bColumn = b.value.toVector ++ Vector("$" * height)
-    val result  = merge(aColumn, bColumn, 0, Vector.empty)(f)
-
-    println(s"RESULT: $result")
-
-    SubColumns(result)
+  def mergeColumnWith(f: Compare): MergeStrategy = { (a, b) =>
+    SubColumns(merge(a.value.toVector, b.value.toVector, 0, Vector.empty)(f))
   }
 
   @tailrec
   private def merge(a: Vector[String], b: Vector[String], overlap: Int, previous: Vector[String])(
-      f: (Char, Char) => MergeAction[Char],
+      f: Compare,
   ): Vector[String] = {
-    println(s"Overlap: $overlap")
-
     if (overlap === 0) {
-      println("Zero overlap\n")
       merge(a, b, 1, a ++ b)(f)
 
     } else if (overlap > a.length && overlap > b.length) {
-      println("Overlap bigger than both parts\n")
       previous
-
-      // } else if (overlap > a.length) {
-      //   val hardblankColumn = Vector("$" * b.head.length)
-      //   merge(hardblankColumn ++ a, b, overlap, previous)(f)
-
-      // } else if (overlap > b.length) {
-      //   ???
 
     } else {
       // Split the columns into left, right, A-overlapping and B-overlapping
-      val (left, aOverlap)  = a.splitAt(Math.max(0, a.length - overlap))
-      val (bOverlap, right) = b.splitAt(overlap)
+      val (left, aOverlap)     = a.splitAt(Math.max(0, a.length - overlap))
+      val (bExcess, bStandard) = b.splitAt(Math.max(0, overlap - a.length))
+      val (bOverlap, right)    = bStandard.splitAt(Math.min(overlap, a.length))
 
-      println(s"First split at: ${Math.max(0, a.length - overlap)}")
-      println(s"Second split at: ${overlap}")
-      println(s"left: $left")
-      println(s"aOverlap: $aOverlap")
-      println(s"bOverlap: $bOverlap")
-      println(s"right: $right")
-      println("")
+      val mergedExcess =
+        mergeSection(bExcess.map("$" * _.length()), bExcess, f)
+          .map(_.filter(!_.forall(_ === '$')))
 
-      // For each overlapping column apply the merge function to the matching pairs of characters
-      val mergedOverlapping =
-        (aOverlap zip bOverlap)
-          .traverse {
-            case (aActiveColumn, bActiveColumn) =>
-              (aActiveColumn zip bActiveColumn)
-                .toVector
-                .traverse(f.tupled)
-                .map(_.mkString)
-          }
-          .map(left ++ _ ++ right)
+      val mergedOverlapping = mergeSection(aOverlap, bOverlap, f)
+
+      val mergedFinal =
+        (mergedExcess, mergedOverlapping)
+          .mapN(_ ++ left ++ _ ++ right)
 
       // Given the result of the merge, decide how to proceed
-      mergedOverlapping match {
+      mergedFinal match {
         case Stop                 => previous
         case CurrentLast(current) => current
         case Continue(value)      => merge(a, b, overlap + 1, value)(f)
       }
     }
   }
+
+  private def mergeSection(
+      aSection: Vector[String],
+      bSection: Vector[String],
+      f: Compare,
+  ): MergeAction[Vector[String]] =
+    (aSection zip bSection)
+      .traverse {
+        case (aActiveColumn, bActiveColumn) =>
+          (aActiveColumn zip bActiveColumn)
+            .toVector
+            .traverse(f.tupled)
+            .map(_.mkString)
+      }
 
 }
