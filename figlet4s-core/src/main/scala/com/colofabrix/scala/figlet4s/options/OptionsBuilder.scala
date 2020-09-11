@@ -82,7 +82,7 @@ final class OptionsBuilder(private val actions: List[BuilderAction] = List.empty
     OptionsBuilder.compile[F](this)
 
   private def addAction(action: BuilderAction): OptionsBuilder =
-    new OptionsBuilder(action :: this.actions.filter(!BuilderAction.sameActionAs(action)(_)))
+    new OptionsBuilder(action :: this.actions.filter(!BuilderAction.sameGroupAs(action)(_)))
 
 }
 

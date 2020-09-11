@@ -21,7 +21,7 @@ final case class FIGheader private[figlet4s] (
     fullLayout: Option[Seq[FullLayout]],
     codetagCount: Option[Int],
 ) {
-  override def toString(): String =
+  override def toString: String =
     s"FIGheader(signature=$signature, " +
     s"hardblank=$hardblank, " +
     s"height=$height, " +

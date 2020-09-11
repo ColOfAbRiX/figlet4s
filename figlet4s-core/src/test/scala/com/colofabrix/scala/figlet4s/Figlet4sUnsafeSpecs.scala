@@ -10,16 +10,16 @@ import org.scalatest.matchers.should._
 import org.scalatestplus.scalacheck._
 import scala.util._
 
-class Custom extends AnyFlatSpec with Matchers {
-  "Test" should "do something" in {
-    Figlet4s
-      .builder("[_!A")
-      .withInternalFont("standard")
-      .withHorizontalLayout(HorizontalLayout.HorizontalFitting)
-      .render()
-      .print()
-  }
-}
+//class Custom extends AnyFlatSpec with Matchers {
+//  "Test" should "do something" in {
+//    Figlet4s
+//      .builder("[_!A")
+//      .withInternalFont("standard")
+//      .withHorizontalLayout(HorizontalLayout.HorizontalFitting)
+//      .render()
+//      .print()
+//  }
+//}
 
 class Figlet4sUnsafeSpecs
     extends AnyFlatSpec

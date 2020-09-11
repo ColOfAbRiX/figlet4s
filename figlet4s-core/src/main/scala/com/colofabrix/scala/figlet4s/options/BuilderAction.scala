@@ -42,7 +42,7 @@ private[figlet4s] object BuilderAction {
   sealed trait TextTag
 
   /** Determines if two actions belong to the same group by using Action Tags */
-  def sameActionAs(a: BuilderAction)(b: BuilderAction): Boolean =
+  def sameGroupAs(a: BuilderAction)(b: BuilderAction): Boolean =
     (a, b) match {
       case (_: FontTag, _: FontTag)                         => true
       case (_: HorizontalLayoutTag, _: HorizontalLayoutTag) => true

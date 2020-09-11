@@ -78,7 +78,7 @@ trait OriginalFigletTesting {
   private def renderTextGen: Gen[String] =
     Gen
       .someOf(safeCharset)
-      .suchThat(x => x.length <= 50)
+      .suchThat(x => x.length <= 25)
       .map(Random.shuffle(_))
       .map(_.mkString)
 
@@ -86,8 +86,8 @@ trait OriginalFigletTesting {
     System
       .getenv("PATH")
       .split(Pattern.quote(File.pathSeparator))
-      .map(path => new File(Paths.get(path, exec).toAbsolutePath().toString()))
-      .exists(file => file.exists() && file.canExecute())
+      .map(path => new File(Paths.get(path, exec).toAbsolutePath.toString))
+      .exists(file => file.exists() && file.canExecute)
   }
 
   private def figletCommand(options: RenderOptions, text: String): List[String] = {
@@ -109,7 +109,7 @@ trait OriginalFigletTesting {
         "fonts",
         options.font.name + ".flf",
       )
-    List("-f", fontFile.toAbsolutePath().toString())
+    List("-f", fontFile.toAbsolutePath.toString)
   }
 
   private def figletHorizontalLayout(options: RenderOptions): List[String] =

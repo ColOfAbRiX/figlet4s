@@ -19,7 +19,7 @@ final case class FIGcharacter private[figlet4s] (
 ) {
   lazy val columns: SubColumns = lines.toSubcolumns
 
-  override def toString(): String =
+  override def toString: String =
     lines.value.mkString("\n")
 }
 

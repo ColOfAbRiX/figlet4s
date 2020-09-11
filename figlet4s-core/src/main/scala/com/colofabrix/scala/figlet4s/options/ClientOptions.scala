@@ -14,7 +14,7 @@ sealed trait HorizontalLayout extends ADT with EnumEntry
 
 object HorizontalLayout extends Enum[HorizontalLayout] {
 
-  val values = findValues
+  val values: IndexedSeq[HorizontalLayout] = findValues
 
   /**
    * Full width. Display all FIGcharacters at their full width, which may be fixed or variable, depending on the font
@@ -73,7 +73,7 @@ sealed trait PrintDirection extends ADT with EnumEntry
 
 object PrintDirection extends Enum[PrintDirection] {
 
-  val values = findValues
+  val values: IndexedSeq[PrintDirection] = findValues
 
   /** Render left-to-right */
   final case object LeftToRight extends PrintDirection
@@ -100,7 +100,7 @@ sealed trait Justification extends ADT with EnumEntry
 
 object Justification extends Enum[Justification] {
 
-  val values = findValues
+  val values: IndexedSeq[Justification] = findValues
 
   /** Centers the output horizontally */
   final case object Center extends Justification

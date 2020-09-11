@@ -96,19 +96,21 @@ private[figlet4s] object Rendering {
   /** Function that smushes two characters */
   type SmushingStrategy = (Char, Char) => Option[Char]
 
-  type Compare = (Char, Char) => MergeAction[Char]
+  /** Function that merges two characters */
+  type MergeChars = (Char, Char) => MergeAction[Char]
+
+  /** Shortcut for a set of columns */
+  type Columns = Vector[String]
 
   /**
    * Merges two columns applying a custom merge function to each pair of character of the two columns
    */
-  def mergeColumnWith(f: Compare): MergeStrategy = { (a, b) =>
+  def mergeColumnWith(f: MergeChars): MergeStrategy = { (a, b) =>
     SubColumns(merge(a.value.toVector, b.value.toVector, 0, Vector.empty)(f))
   }
 
   @tailrec
-  private def merge(a: Vector[String], b: Vector[String], overlap: Int, previous: Vector[String])(
-      f: Compare,
-  ): Vector[String] = {
+  private def merge(a: Columns, b: Columns, overlap: Int, previous: Columns)(f: MergeChars): Columns =
     if (overlap === 0) {
       merge(a, b, 1, a ++ b)(f)
 
@@ -116,14 +118,16 @@ private[figlet4s] object Rendering {
       previous
 
     } else {
-      // Split the columns into left, right, A-overlapping and B-overlapping
-      val (left, aOverlap)     = a.splitAt(Math.max(0, a.length - overlap))
-      val (bExcess, bStandard) = b.splitAt(Math.max(0, overlap - a.length))
-      val (bOverlap, right)    = bStandard.splitAt(Math.min(overlap, a.length))
+      val (left, aOverlap)  = a.splitAt(Math.max(0, a.length - overlap))
+      val (bExcess, bTemp)  = b.splitAt(Math.max(0, overlap - a.length))
+      val (bOverlap, right) = bTemp.splitAt(Math.min(overlap, a.length))
+
+      val hardcolumn = bExcess.map("$" * _.length)
 
       val mergedExcess =
-        mergeSection(bExcess.map("$" * _.length()), bExcess, f)
-          .map(_.filter(!_.forall(_ === '$')))
+        mergeSection(hardcolumn, bExcess, f)
+          .map(x => (x zip hardcolumn).filter(y => y._1 =!= y._2))
+          .map(_.map(_._1))
 
       val mergedOverlapping = mergeSection(aOverlap, bOverlap, f)
 
@@ -131,20 +135,14 @@ private[figlet4s] object Rendering {
         (mergedExcess, mergedOverlapping)
           .mapN(_ ++ left ++ _ ++ right)
 
-      // Given the result of the merge, decide how to proceed
       mergedFinal match {
         case Stop                 => previous
         case CurrentLast(current) => current
         case Continue(value)      => merge(a, b, overlap + 1, value)(f)
       }
     }
-  }
 
-  private def mergeSection(
-      aSection: Vector[String],
-      bSection: Vector[String],
-      f: Compare,
-  ): MergeAction[Vector[String]] =
+  private def mergeSection(aSection: Columns, bSection: Columns, f: MergeChars): MergeAction[Columns] =
     (aSection zip bSection)
       .traverse {
         case (aActiveColumn, bActiveColumn) =>
