@@ -12,22 +12,22 @@
 This is a library implementation of [FIGlet](http://www.figlet.org/) in pure Scala, with integrated
 fonts, minimal dependencies, extensive error reporting and support for effects including Cats `IO`.
 
+This implementation aim to follow as closely as possible the standard defined in [The FIGfont
+Version 2 FIGfont and FIGdriver Standard](figfont_reference.txt) and to render texts as close as
+possible to [the command line figlet implementation](http://www.figlet.org/figlet-man.html).
+
 From Wikipedia:
 
 > FIGlet is a computer program that generates text banners, in a variety of typefaces, composed of
 > letters made up of conglomerations of smaller ASCII characters (see ASCII art). The name derives
 > from "Frank, Ian and Glenn's letters".
 
-This implementation aim to follow as closely as possible the standard defined in [The FIGfont
-Version 2 FIGfont and FIGdriver Standard](figfont_reference.txt) and to render texts as close as
-possible to [the standard figlet implementation](http://www.figlet.org/) on the shell.
-
 ## DISCLAIMER
 
 This is a pre-release version, several bugs exists, it supports only one version of Scala and no
 binaries have been released yet.
 
-Please join me in building Figlet4s! You help in testing features, finding bugs and suggest
+Please join us in building Figlet4s! Your help in testing features, finding bugs and suggest
 improvements is very welcome!
 
 ## Setup
@@ -47,6 +47,8 @@ The general way to use Figlet4s involves 3 steps:
 * first obtain a builder to set the options;
 * then configure the options of the builder, if needed;
 * last render a text into a FIGure
+
+Once you have a FIGure you can do further processing like printing it or converting it to a string.
 
 ```scala
 import com.colofabrix.scala.figlet4s.unsafe._
@@ -89,13 +91,13 @@ object ShowcaseOptionsMain extends App {
     .print()                       // Print the FIGure
 
 }
-
 ```
 
 ### Using the Figlet4s client
 
 If you need to have more fine-grained control on the operations, or you prefer to not use the option
-builder, you can call the API primitives yourself to fill the ``RenderOptions`.
+builder, you can call the API primitives yourself to fill the `RenderOptions` case class that is
+used to pass, as the name suggests, the options to render a text.
 
 ```scala
 import com.colofabrix.scala.figlet4s.unsafe._
@@ -129,8 +131,8 @@ return pure values (like a `FIGfont`) as well as throwing exception when errors 
 The `figlet4s-effects` dependency adds support for various effects. In particular, at the moment,
 the library supports:
 
-* Scala `Either`
-* Cats `Sync`
+* Scala `Either` where errors are reported on the `Left` side
+* Cats's `IO` where errors are reported inside the `MonadError`
 
 that can be used by importing the corresponding package. The effectful API have exactly the same
 signature as their unsafe version, but the result is wrapped inside the effect monad.
@@ -141,6 +143,8 @@ signature as their unsafe version, but the result is wrapped inside the effect m
 import cats.effect._
 import com.colofabrix.scala.figlet4s.catsio._
 
+
+// Note that I'm using Cats' IOApp here instead of Scala's App
 object IOMain extends IOApp {
 
   def run(args: List[String]): IO[ExitCode] =
@@ -163,7 +167,7 @@ object EitherMain extends App {
   val result = for {
     builder <- Figlet4s.builderF()
     figure  <- builder.render("Hello, World!")
-    lines   <- figure.asVector()
+    lines   <- figure.asSeq()
   } yield lines
 
   result match {

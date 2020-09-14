@@ -144,7 +144,10 @@ private[figlet4s] object HorizontalTextRenderer {
     val classes = Vector("|", "/\\", "[]", "{}", "()", "<>")
     val aClass  = classes.indexWhere(_.contains(a))
     val bClass  = classes.indexWhere(_.contains(b))
-    if (aClass >= 0 && bClass >= 0 && aClass =!= bClass) Some(b) else None
+
+    if (aClass >= 0 && bClass >= 0 && aClass =!= bClass)
+      if (aClass > bClass) Some(a) else Some(b)
+    else None
   }
 
   /**
