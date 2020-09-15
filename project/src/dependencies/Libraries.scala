@@ -8,8 +8,8 @@ import settings.Scopes._
  */
 trait Libraries {
 
-  lazy val CatsEffectVersion = "2.1.4"
-  lazy val CatsVersion       = "2.1.1"
+  lazy val CatsEffectVersion = "2.2.0"
+  lazy val CatsVersion       = "2.2.0"
   lazy val EnumeratumVersion = "1.6.1"
 
   lazy val CatsCoreDep   = "org.typelevel" %% "cats-core"   % CatsVersion
