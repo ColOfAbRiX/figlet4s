@@ -4,7 +4,9 @@ import sbt._
 
 object Scopes {
 
-  lazy val Bench     = "bench"
-  lazy val Benchmark = config(Bench) extend Test
+  lazy val Benchmark =
+    config("bench")
+      .extend(Test)
+      .describedAs("Configuration for Benchmarking")
 
 }

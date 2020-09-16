@@ -93,12 +93,13 @@ lazy val figlet4sBenchmarks: Project = project
   .settings(
     name := "figlet4s-benchmarks",
     description := "Benchmarks for Figlet4s",
-    version := figlet4sVersion,
-    resolvers += SonatypeRepo,
-    testFrameworks += new TestFramework("org.scalameter.ScalaMeterFramework"),
+    inConfig(Benchmark)(Defaults.testSettings),
     logBuffered := false,
     parallelExecution in Test := false,
-    inConfig(Benchmark)(Defaults.testSettings),
+    publishArtifact := false,
+    resolvers ++= SonatypeRepos,
+    testFrameworks += new TestFramework("org.scalameter.ScalaMeterFramework"),
+    version := figlet4sVersion,
     libraryDependencies ++= Seq(
       CatsCoreDep,
       ScalameterDep,
