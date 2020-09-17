@@ -2,10 +2,10 @@ package settings
 
 import sbt._
 
-object Scopes {
+object Configurations {
 
   lazy val Benchmark =
-    config("bench")
+    config("benchmark")
       .extend(Test)
       .describedAs("Configuration for Benchmarking")
 

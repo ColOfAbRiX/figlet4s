@@ -1,7 +1,7 @@
 package dependencies
 
 import sbt._
-import settings.Scopes._
+import settings.Configurations._
 
 /**
  * Libraries
@@ -23,7 +23,7 @@ trait Libraries {
   lazy val ScalameterVersion = "0.19"
   lazy val ScalaTestVersion  = "3.2.2"
 
-  lazy val ScalameterDep              = "com.storm-enroute" %% "scalameter"               % ScalameterVersion % Benchmark
+  lazy val ScalameterDep              = "com.storm-enroute" %% "scalameter"               % ScalameterVersion % Test
   lazy val ScalaTestDep               = "org.scalatest"     %% "scalatest"                % ScalaTestVersion  % Test
   lazy val ScalaTestFlatSpecDep       = "org.scalatest"     %% "scalatest-flatspec"       % ScalaTestVersion  % Test
   lazy val ScalaTestShouldMatchersDep = "org.scalatest"     %% "scalatest-shouldmatchers" % ScalaTestVersion  % Test

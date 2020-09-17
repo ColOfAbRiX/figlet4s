@@ -1,5 +1,5 @@
 import dependencies.Dependencies._
-import settings.Scopes._
+import settings.Configurations._
 
 val figlet4sVersion = "0.1.0"
 
@@ -45,7 +45,7 @@ ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
 // Figlet4s
 lazy val figlet4s: Project = project
   .in(file("."))
-  .aggregate(figlet4sCore, figlet4sEffects, figlet4sBenchmarks)
+  .aggregate(figlet4sCore, figlet4sEffects)
   .settings(
     name := "figlet4s"
   )
@@ -95,7 +95,7 @@ lazy val figlet4sBenchmarks: Project = project
     description := "Benchmarks for Figlet4s",
     inConfig(Benchmark)(Defaults.testSettings),
     logBuffered := false,
-    parallelExecution in Test := false,
+    Benchmark / parallelExecution := false,
     publishArtifact := false,
     resolvers ++= SonatypeRepos,
     testFrameworks += new TestFramework("org.scalameter.ScalaMeterFramework"),
