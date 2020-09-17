@@ -59,7 +59,7 @@ trait OriginalFigletTesting {
   //  Support  //
 
   private def runTests[A](testData: TestRenderOptions)(f: TestRenderOptions => A): Unit = {
-    val min         = PosInt.fromOrElse(safeCharset.length, 94)
+    val min         = PosInt.fromOrElse(safeCharset.length, 50)
     val cycleGen    = renderTextGen.map(text => testData.copy(renderText = text))
     val testDataSet = (cycleGen, "testData")
 
@@ -73,7 +73,7 @@ trait OriginalFigletTesting {
   // NOTE: I found issues when rendering higher-number characters with figlet so I decided to work on only a subset
   //       of a font's charset. The best options would be to test all possible characters: font.characters.keySet
   private def safeCharset: Seq[Char] =
-    (32 to 126).filter(x => x =!= '\\' && x =!= ']').map(_.toChar)
+    (32 to 126).map(_.toChar)
 
   private def renderTextGen: Gen[String] =
     Gen

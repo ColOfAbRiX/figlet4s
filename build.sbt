@@ -33,11 +33,11 @@ ThisBuild / Compile / wartremoverErrors := Warts.allBut(
 )
 
 // Scalafmt
-ThisBuild / scalafmtOnCompile := true
+ThisBuild / Compile / scalafmtOnCompile := true
 
 // Scalafix
+ThisBuild / Compile / scalafixOnCompile := true
 ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.4.0"
-ThisBuild / scalafixOnCompile := true
 ThisBuild / scalafixScalaBinaryVersion := ScalaLangVersion.replaceAll("\\.\\d+$", "")
 ThisBuild / semanticdbEnabled := true
 ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
