@@ -10,69 +10,141 @@ import com.colofabrix.scala.figlet4s.options.OptionsBuilder._
 import scala.io.Codec
 
 /**
- * Builder of rendering options
+ * Builder of rendering options.
+ *
+ * To create a builder use the [[com.colofabrix.scala.figlet4s.api.Figlet4sAPI.builder]] or
+ * [[com.colofabrix.scala.figlet4s.api.Figlet4sEffectfulAPI.builderF]].
  */
 final class OptionsBuilder(private val actions: List[BuilderAction] = List.empty) {
 
-  /** Use the specified Text Width */
+  /**
+   * Set the text to render
+   *
+   * @param text The text to render
+   * @return The option builder with a set text to render
+   */
   def text(text: String): OptionsBuilder =
     addAction(SetTextAction(text))
 
   //  Font  //
 
-  /** Use the default FIGfont */
+  /**
+   * Use the default rendering font
+   *
+   * @return The option builder with the rendering font set to the default font
+   */
   def defaultFont(): OptionsBuilder =
     addAction(DefaultFontAction)
 
-  /** Use the internal FIGfont with the specified fontName */
+  /**
+   * Use one of the internal fonts.
+   *
+   * The loading of the font is performed when the [[RenderOptions]] is built.
+   *
+   * @param fontName Name of the internal font to load
+   * @return The option builder with the rendering font set to the loaded font
+   */
   def withInternalFont(fontName: String): OptionsBuilder =
     addAction(LoadInternalFontAction(fontName))
 
-  /** Use the FIGfont with the specified fontPath */
+  /**
+   * Use a font loaded from file
+   *
+   * The loading of the font is performed when the [[RenderOptions]] is built.
+   *
+   * @param fontPath Path of the font, including the extension
+   * @param codec Encoding of the font. The default is ISO-8859
+   * @return The option builder with the rendering font set to the loaded font
+   */
   def withFont(fontPath: String, codec: Codec = Codec.ISO8859): OptionsBuilder =
     addAction(LoadFontAction(fontPath, codec))
 
-  /** Use the specified FIGfont */
+  /**
+   * Use a specific font that's already been loaded
+   *
+   * @param font The FIGfont to use for rendering
+   * @return The option builder with the rendering font set to the specified font
+   */
   def withFont(font: FIGfont): OptionsBuilder =
     addAction(SetFontAction(font))
 
   //  Horizontal Layout  //
 
-  /** Use the default Horizontal Layout */
+  /**
+   * Use the default horizontal layout
+   *
+   * @return The option builder with the horizontal layout font set to the default one
+   */
   def defaultHorizontalLayout(): OptionsBuilder =
     addAction(DefaultHorizontalLayout)
 
-  /** Use the specified Horizontal Layout */
+  /**
+   * Use the specified horizontal layout to render the text
+   *
+   * @param layout The horizontal layout to use
+   * @return The option builder with the rendering font set to the specified font
+   */
   def withHorizontalLayout(layout: HorizontalLayout): OptionsBuilder =
     addAction(SetHorizontalLayout(layout))
 
   //  Max Width  //
 
-  /** Use the default Max Width */
+  /**
+   * Use the default maximum width
+   *
+   * @return The option builder with the maximum width set to the default one
+   */
   def defaultMaxWidth(): OptionsBuilder =
     addAction(DefaultMaxWidthAction)
 
-  /** Use the specified Max Width */
+  /**
+   * Use the specified maximum width to render the text
+   *
+   * @param maxWidth The maximum width for the rendered text
+   * @return The option builder with the maximum width set to the specified one
+   */
   def withMaxWidth(maxWidth: Int): OptionsBuilder =
     addAction(SetMaxWidthAction(maxWidth))
 
   //  Print Direction  //
 
-  /** Use the default Print Direction */
+  /**
+   * Use the default print direction
+   *
+   * @todo This feature is not yet implemented
+   * @return The option builder with the print direction set to the default one
+   */
   def defaultPrintDirection(): OptionsBuilder =
     addAction(DefaultPrintDirection)
 
-  /** Use the specified Print Direction */
+  /**
+   * Use the specified print direction to render the text
+   *
+   * @todo This feature is not yet implemented
+   * @param direction The print direction to use
+   * @return The option builder with the print direction set to the specified one
+   */
   def withPrintDirection(direction: PrintDirection): OptionsBuilder =
     addAction(SetPrintDirection(direction))
 
   //  Justification  //
 
-  /** Use the default Justification */
+  /**
+   * Use the default justification
+   *
+   * @todo This feature is not yet implemented
+   * @return The option builder with the justification set to the default one
+   */
   def defaultJustification(): OptionsBuilder =
     addAction(DefaultJustification)
 
-  /** Use the specified Justification */
+  /**
+   * Use the specified justification to render the text
+   *
+   * @todo This feature is not yet implemented
+   * @param justification The justification to use
+   * @return The option builder with the justification set to the specified one
+   */
   def withJustification(justification: Justification): OptionsBuilder =
     addAction(SetJustification(justification))
 

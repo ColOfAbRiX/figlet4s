@@ -68,6 +68,8 @@ object HorizontalLayout extends Enum[HorizontalLayout] {
 
 /**
  * Option to choose the rendering direction
+ *
+ * @todo This feature is not yet implemented
  */
 sealed trait PrintDirection extends ADT with EnumEntry
 
@@ -75,9 +77,9 @@ object PrintDirection extends Enum[PrintDirection] {
 
   val values: IndexedSeq[PrintDirection] = findValues
 
-  /** Render left-to-right */
+  /** Render the text left-to-right */
   final case object LeftToRight extends PrintDirection
-  /** Render right-to-left */
+  /** Render the text right-to-left */
   final case object RightToLeft extends PrintDirection
   /** Use the default value specified in the FIGfont */
   final case object FontDefault extends PrintDirection
@@ -94,7 +96,9 @@ object PrintDirection extends Enum[PrintDirection] {
 }
 
 /**
- * Option to choose the justification of the text (TODO)
+ * Option to choose the justification of the text
+ *
+ * @todo This feature is not yet implemented
  */
 sealed trait Justification extends ADT with EnumEntry
 

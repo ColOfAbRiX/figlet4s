@@ -7,6 +7,8 @@ import com.colofabrix.scala.figlet4s.options._
 
 /**
  * "FIGlet" stands for "Frank, Ian and Glenn's LETters and this is a pure Scala implementation
+ *
+ * This Figlet client returns results wrapped in Scala's Either
  */
 object Figlet4s extends Figlet4sAPI[FigletEither] with Figlet4sEffectfulAPI[FigletEither] {
 

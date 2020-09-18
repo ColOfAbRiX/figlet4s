@@ -8,6 +8,8 @@ import com.colofabrix.scala.figlet4s.options._
 
 /**
  * "FIGlet" stands for "Frank, Ian and Glenn's LETters and this is a pure Scala implementation
+ *
+ * This Figlet client returns results wrapped in cats' IO
  */
 object Figlet4s extends Figlet4sAPI[IO] with Figlet4sEffectfulAPI[IO] {
 

@@ -8,7 +8,9 @@ import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options._
 
 /**
- * "FIGlet" stands for "Frank, Ian and Glenn's LETters and this is a pure Scala implementation
+ * "FIGlet" stands for "Frank, Ian and Glenn's LETters and this is a pure Scala implementation.
+ *
+ * This Figlet client returns only pure values and might throw exceptions
  */
 object Figlet4s extends Figlet4sAPI[Id] {
 
