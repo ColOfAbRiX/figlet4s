@@ -11,7 +11,7 @@ class DebuggingSpecs extends AnyFlatSpec with Matchers with OriginalFigletTestin
   "Debugging" should "help me fixing issues" taggedAs (SingleRunTest) in {
     // val text = "$*"
     // val text = "6J"
-    val text = "F.B"
+    val text = "F."
 
     val builder =
       Figlet4s

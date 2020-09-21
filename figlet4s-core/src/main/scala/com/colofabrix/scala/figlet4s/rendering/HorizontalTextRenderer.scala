@@ -95,9 +95,7 @@ private[figlet4s] object HorizontalTextRenderer {
         rules
           .map(rule2smushingStrategy(hardblank))
           .map(f => f(aChar, bChar))
-          .collectFirst {
-            case Some(value) => CurrentLast(value)
-          }
+          .collectFirst { case Some(value) => CurrentLast(value) }
           .getOrElse(Stop)
     }
 

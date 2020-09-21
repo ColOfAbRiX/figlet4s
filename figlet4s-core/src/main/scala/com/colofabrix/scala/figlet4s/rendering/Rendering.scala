@@ -114,7 +114,7 @@ private[figlet4s] object Rendering {
     if (overlap === 0) {
       merge(a, b, 1, a ++ b)(f)
 
-    } else if (overlap > a.length && overlap > b.length) {
+    } else if (overlap > b.length) {
       previous
 
     } else {
