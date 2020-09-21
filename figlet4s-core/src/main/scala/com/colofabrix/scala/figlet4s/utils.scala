@@ -57,7 +57,7 @@ private[figlet4s] object utils {
       val binaryString = self.toBinaryString
 
       val bitSet = binaryString
-        .substring(0, Math.min(binaryString.length, Math.max(size, 32)) - 1)
+        .substring(0, Math.min(binaryString.length, Math.max(size, 32)))
         .reverse
         .zipWithIndex
         .flatMap {

@@ -98,10 +98,7 @@ private[figlet4s] object HorizontalTextRenderer {
           .collectFirst {
             case Some(value) => CurrentLast(value)
           }
-          .getOrElse {
-            if (aChar === hardblank || bChar === hardblank) Stop
-            else CurrentLast(bChar)
-          }
+          .getOrElse(Stop)
     }
 
   /**
