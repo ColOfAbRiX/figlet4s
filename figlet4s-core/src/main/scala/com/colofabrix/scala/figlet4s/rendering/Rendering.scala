@@ -112,12 +112,18 @@ private[figlet4s] object Rendering {
   @tailrec
   private def merge(a: Columns, b: Columns, overlap: Int, previous: Columns)(f: MergeChars): Columns =
     if (overlap === 0) {
+      println("Zero overlap")
       merge(a, b, 1, a ++ b)(f)
 
     } else if (overlap > b.length) {
+      println("overlap > b.length")
       previous
 
     } else {
+      println("Merging...")
+      println(s"A:\n${SubColumns(a)}")
+      println(s"B:\n${SubColumns(b)}")
+      println("")
       val (left, aOverlap)  = a.splitAt(Math.max(0, a.length - overlap))
       val (bExcess, bTemp)  = b.splitAt(Math.max(0, overlap - a.length))
       val (bOverlap, right) = bTemp.splitAt(Math.min(overlap, a.length))

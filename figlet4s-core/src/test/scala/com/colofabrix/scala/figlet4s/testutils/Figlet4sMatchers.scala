@@ -61,9 +61,14 @@ trait Figlet4sMatchers {
         }
 
       def printableDiffs =
-        SubColumns(
-          Vector(margins) ++: differences.toVector ++: Vector(margins),
-        ).toSublines.toString
+        SubColumns(Vector(margins) ++: differences.toVector ++: Vector(margins))
+          .toSublines
+          .map { x =>
+            if (x.length > consoleWidth - 13)
+              x.substring(0, consoleWidth - 13) + "..."
+            else x
+          }
+          .toString
 
       def diffMessage =
         s"The expected FIGure doesn't look like the computed FIGure. Here is a breakdown of the differences:\n\n" +
@@ -92,6 +97,7 @@ trait Figlet4sMatchers {
       } else Vector(s" -$paddedE- ")
     }
 
+    private val consoleWidth = Option(System.getenv("COLUMNS")).map(_.toInt).getOrElse(120)
   }
 
   /**
