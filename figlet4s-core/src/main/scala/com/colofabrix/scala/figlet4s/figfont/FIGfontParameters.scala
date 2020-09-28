@@ -27,7 +27,10 @@ private[figlet4s] object FIGfontParameters {
     /** Use universal horizontal smushing */
     final case object UniversalHorizontalSmushingLayout extends HorizontalLayout
     /** Use controlled horizontal smushing */
-    final case class ControlledHorizontalSmushingLayout(rules: Vector[HorizontalSmushingRule]) extends HorizontalLayout
+    final case class ControlledHorizontalSmushingLayout(rules: Vector[HorizontalSmushingRule])
+        extends HorizontalLayout {
+      override def toString: String = s"ControlledHorizontalSmushingLayout(${rules.mkString(", ")})"
+    }
 
     /**
      * Interprets the header settings and returns the selected Horizontal Layout
@@ -147,7 +150,9 @@ private[figlet4s] object FIGfontParameters {
     /** Use universal vertical smushing */
     final case object UniversalVerticalSmushingLayout extends VerticalLayout
     /** Use controlled vertical smushing */
-    final case class ControlledVerticalSmushingLayout(rules: Vector[VerticalSmushingRules]) extends VerticalLayout
+    final case class ControlledVerticalSmushingLayout(rules: Vector[VerticalSmushingRules]) extends VerticalLayout {
+      override def toString: String = s"ControlledVerticalSmushingLayout(${rules.mkString(", ")})"
+    }
 
     /**
      * Interprets the header settings and returns the selected Vertical Layout

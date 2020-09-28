@@ -123,8 +123,12 @@ object FIGheader {
   private def validateOldLayout(oldLayout: String): FigletResult[Vector[OldLayout]] =
     oldLayout
       .toIntOption
-      .map(OldLayout(_))
       .toValidNec(FIGheaderError(s"Couldn't parse header field 'oldLayout': $oldLayout"))
+      .andThen { value =>
+        val valid = value >= -1 && value <= 63
+        Validated.condNec(valid, value, FIGheaderError(s"Field 'oldLayout' must be greater or equal to -1: $value"))
+      }
+      .map(OldLayout(_))
 
   private def validateCommentLines(commentLines: String): FigletResult[Int] =
     commentLines
@@ -146,8 +150,12 @@ object FIGheader {
     fullLayout.traverse { value =>
       value
         .toIntOption
-        .map(FullLayout(_))
         .toValidNec(FIGheaderError(s"Couldn't parse header field 'fullLayout': $fullLayout"))
+        .andThen { value =>
+          val valid = value >= 0 && value <= 32767
+          Validated.condNec(valid, value, FIGheaderError(s"Field 'fullLayout' must be positive: $value"))
+        }
+        .map(FullLayout(_))
     }
 
   private def validateCodetagCount(codetagCount: Option[String]): FigletResult[Option[Int]] =

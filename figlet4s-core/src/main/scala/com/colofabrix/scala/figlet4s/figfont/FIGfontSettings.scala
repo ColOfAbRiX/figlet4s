@@ -9,4 +9,9 @@ final case class FIGfontSettings(
     hLayout: HorizontalLayout,
     vLayout: VerticalLayout,
     printDirection: PrintDirection,
-)
+) {
+  override def toString: String =
+    s"HLayout=$hLayout " +
+    s"VLayout=$vLayout " +
+    s"printDirection=$printDirection"
+}

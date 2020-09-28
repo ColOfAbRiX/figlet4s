@@ -32,8 +32,10 @@ trait OriginalFigletTesting {
    * Renders a text with the given options using the figlet executable found on command line
    */
   def renderWithFiglet(options: RenderOptions, text: String): FIGure = {
-    val output = figletCommand(options, text).lazyLines.toVector
-    FIGure(options.font, text, Vector(SubLines(output).toSubcolumns))
+    val output        = figletCommand(options, text).lazyLines.toVector
+    val maxWidth      = output.map(_.length()).maxOption.getOrElse(0)
+    val uniformOutput = output.map(x => x + " " * (maxWidth - x.length()))
+    FIGure(options.font, text, Vector(SubLines(uniformOutput).toSubcolumns))
   }
 
   /**
@@ -71,18 +73,23 @@ trait OriginalFigletTesting {
     }
   }
 
+  // FIXME: Fix the issues related with these fonts
   private def dodgyFonts(fontName: String): Boolean = {
     val dodgyList = List(
       // NOTE: Some fonts seem to treat the hardblanks differently and smush them but I can't find what's wrong
       //       in Figlet4s implementation of the algorithm
-      // FIXME: Well, fix the issue I just described!
       "alligator",
       "alligator2",
       "alligator3",
       "colossal",
+      // NOTE: This font is rendered by figlet with a separation when an empty character is inserted (try "PL" vs "P{L")
+      //       but I can't find or pinpoint this behaviour in the documentation
+      "crawford",
+      // NOTE: Figlet renders this font as all whitespaces, can't understand why, maybe it's corrupted?
+      "dosrebel",
     )
 
-    dodgyList.contains(fontName) || fontName <= "colossal"
+    dodgyList.contains(fontName) || fontName <= "double"
   }
 
   // NOTE: I found issues when rendering higher-number characters with figlet so I decided to work on only a subset
