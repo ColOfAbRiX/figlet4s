@@ -10,5 +10,5 @@ Currently maintained versions:
 
 ## Reporting a Vulnerability
 
-To report a vulnerability, please open a new Issue on GitHub and select the template for
-"Vulnerability Report".
+To report a vulnerability, please open a new Issue on GitHub and select "Report a security
+vulnerability".

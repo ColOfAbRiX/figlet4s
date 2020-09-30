@@ -62,7 +62,7 @@ trait OriginalFigletTesting {
   //  Support  //
 
   private def runTests[A](testData: TestRenderOptions)(f: TestRenderOptions => A): Unit = {
-    val min         = PosInt(25) // PosInt.fromOrElse(safeCharset.length, 25)
+    val min         = PosInt(25)
     val cycleGen    = renderTextGen.map(text => testData.copy(renderText = text))
     val testDataSet = (cycleGen, "testData")
 
@@ -89,7 +89,7 @@ trait OriginalFigletTesting {
       "dosrebel",
     )
 
-    dodgyList.contains(fontName) || fontName <= "double"
+    dodgyList.contains(fontName) || fontName < "eftifont"
   }
 
   // NOTE: I found issues when rendering higher-number characters with figlet so I decided to work on only a subset

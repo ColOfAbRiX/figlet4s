@@ -9,7 +9,7 @@ import org.scalatest.matchers.should._
 class DebuggingSpecs extends AnyFlatSpec with Matchers with OriginalFigletTesting with Figlet4sMatchers {
 
   "Debugging" should "help me fixing issues" taggedAs (SingleRunTest) in {
-    val text = "wjXy7bP}`]t"
+    val text = "`]"
 
     val builder =
       Figlet4s

@@ -74,7 +74,7 @@ private[figlet4s] object Figlet4sClient {
         Iterator
           .continually(reader.readLine)
           .takeWhile(Option(_).isDefined)
-          .filter(path => path.endsWith(".flf"))
+          .withFilter(path => path.endsWith(".flf"))
           .map(_.replace(".flf", ""))
           .toList
       }
@@ -87,7 +87,7 @@ private[figlet4s] object Figlet4sClient {
           .continually(zip.getNextEntry)
           .takeWhile(Option(_).isDefined)
           .map(zipEntry => new File(zipEntry.getName))
-          .filter(path => path.getPath.startsWith("fonts") && path.getName.endsWith(".flf"))
+          .withFilter(path => path.getPath.startsWith("fonts") && path.getName.endsWith(".flf"))
           .map(_.getName.replace(".flf", ""))
           .toList
       }

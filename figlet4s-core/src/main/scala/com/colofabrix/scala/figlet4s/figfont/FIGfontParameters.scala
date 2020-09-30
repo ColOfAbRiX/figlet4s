@@ -132,7 +132,7 @@ private[figlet4s] object FIGfontParameters {
             case OldLayout.OldHardblankHorizontalSmushing      => HardblankHorizontalSmushing
           }
         }
-        .filter(_.nonEmpty)
+        .withFilter(_.nonEmpty)
         .map(_.validNec)
         .getOrElse(FIGFontError(s"The oldLayout setting doesn't include any horizontal smushing rule").invalidNec)
   }

@@ -73,6 +73,7 @@ trait Figlet4sMatchers {
       def diffMessage =
         s"The expected FIGure doesn't look like the computed FIGure. Here is a breakdown of the differences:\n\n" +
         s"Text: '${computed.value}'\n\n" +
+        s"Font: ${computed.font.name}\n\n" +
         s"Fonts settings: ${computed.font.settings}\n\n" +
         s"Expected:\n${expected.asString()}\n\n" +
         s"Computed:\n${computed.asString()}\n\n" +

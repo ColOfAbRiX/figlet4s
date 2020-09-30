@@ -12,15 +12,13 @@
 This is a library implementation of [FIGlet](http://www.figlet.org/) in pure Scala, with integrated
 fonts, minimal dependencies, extensive error reporting and support for effects including Cats `IO`.
 
-This implementation aim to follow as closely as possible the standard defined in [The FIGfont
-Version 2 FIGfont and FIGdriver Standard](figfont_reference.txt) and to render texts as close as
-possible to [the command line figlet implementation](http://www.figlet.org/figlet-man.html).
-
-From Wikipedia:
-
 > FIGlet is a computer program that generates text banners, in a variety of typefaces, composed of
 > letters made up of conglomerations of smaller ASCII characters (see ASCII art). The name derives
 > from "Frank, Ian and Glenn's letters".
+
+This implementation aim to follow as closely as possible the standard defined in [The FIGfont
+Version 2 FIGfont and FIGdriver Standard](figfont_reference.txt) and to render texts as close as
+possible to [the command line figlet implementation](http://www.figlet.org/figlet-man.html).
 
 ## DISCLAIMER
 
@@ -128,8 +126,8 @@ object LowLevelMain extends App {
 The API of the core Figlet4s library are impure (like loading a font from a file), and the functions
 return pure values (like a `FIGfont`) as well as throwing exception when errors occur.
 
-The `figlet4s-effects` dependency adds support for various effects. In particular, at the moment,
-the library supports:
+The `figlet4s-effects` package adds support for various effects. In the current version, Figlet4s
+effects supports:
 
 * Scala `Either` where errors are reported on the `Left` side
 * Cats's `IO` where errors are reported inside the `MonadError`
@@ -142,7 +140,6 @@ signature as their unsafe version, but the result is wrapped inside the effect m
 ```scala
 import cats.effect._
 import com.colofabrix.scala.figlet4s.catsio._
-
 
 // Note that I'm using Cats' IOApp here instead of Scala's App
 object IOMain extends IOApp {

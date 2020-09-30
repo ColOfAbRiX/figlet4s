@@ -120,7 +120,7 @@ private[figfont] object FIGheaderParameters {
         Vector(OldHorizontalFittingLayout)
       else
         values
-          .filter(_ =!= OldHorizontalFittingLayout)
+          .withFilter(_ =!= OldHorizontalFittingLayout)
           .flatMap { setting =>
             if ((requestedSettings.toBitSet & setting.value.toBitSet) === setting.value.toBitSet) Vector(setting)
             else Vector()

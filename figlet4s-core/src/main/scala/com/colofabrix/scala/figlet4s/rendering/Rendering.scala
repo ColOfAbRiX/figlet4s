@@ -126,7 +126,7 @@ private[figlet4s] object Rendering {
 
       val mergedExcess =
         mergeSection(hardcolumn, bExcess, f)
-          .map(x => (x zip hardcolumn).filter(y => y._1 =!= y._2))
+          .map(x => (x zip hardcolumn).withFilter(y => y._1 =!= y._2))
           .map(_.map(_._1))
 
       val mergedOverlapping = mergeSection(aOverlap, bOverlap, f)
