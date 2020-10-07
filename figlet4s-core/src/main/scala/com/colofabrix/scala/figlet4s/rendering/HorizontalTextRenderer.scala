@@ -92,16 +92,13 @@ private[figlet4s] object HorizontalTextRenderer {
       case (aChar, ' ') => Continue(aChar)
       case (' ', bChar) => Continue(bChar)
       case (aChar, bChar) =>
-        val result = rules
+        rules
           .map(rule2smushingStrategy(hardblank))
           .map { f =>
-            println(s"$aChar + $bChar -> ${f(aChar, bChar)}")
             f(aChar, bChar)
           }
           .collectFirst { case Some(value) => CurrentLast(value) }
           .getOrElse(Stop)
-        println("")
-        result
     }
 
   /**

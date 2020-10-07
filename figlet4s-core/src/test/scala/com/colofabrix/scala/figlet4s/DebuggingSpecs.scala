@@ -9,17 +9,18 @@ import org.scalatest.matchers.should._
 class DebuggingSpecs extends AnyFlatSpec with Matchers with OriginalFigletTesting with Figlet4sMatchers {
 
   "Debugging" should "help me fixing issues" taggedAs (SingleRunTest) in {
-    val text = "`]"
+    val text = " f"
 
     val builder =
       Figlet4s
         .builder(text)
-        .withInternalFont("eftifont")
+        .withInternalFont("henry3d")
         .withHorizontalLayout(HorizontalLayout.HorizontalSmushing)
 
     val computed = builder.render()
     val expected = renderWithFiglet(builder.options, text)
 
+    computed.lines.head.value.foreach(println)
     computed should lookLike(expected)
   }
 

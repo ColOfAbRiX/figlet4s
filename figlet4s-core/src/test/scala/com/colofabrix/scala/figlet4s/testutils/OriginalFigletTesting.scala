@@ -62,11 +62,13 @@ trait OriginalFigletTesting {
   //  Support  //
 
   private def runTests[A](testData: TestRenderOptions)(f: TestRenderOptions => A): Unit = {
-    val min         = PosInt(25)
+    val minSuccessfulConf = minSuccessful(PosInt(25))
+    val workersConf       = workers(PosInt.from(Runtime.getRuntime.availableProcessors).getOrElse(1))
+
     val cycleGen    = renderTextGen.map(text => testData.copy(renderText = text))
     val testDataSet = (cycleGen, "testData")
 
-    forAll(testDataSet, minSuccessful(min)) { testData =>
+    forAll(testDataSet, minSuccessfulConf, workersConf) { testData =>
       whenever(testData.renderText.length >= 0 && testData.renderText.forall(safeCharset.contains)) {
         f(testData)
       }
@@ -85,11 +87,11 @@ trait OriginalFigletTesting {
       // NOTE: This font is rendered by figlet with a separation when an empty character is inserted (try "PL" vs "P{L")
       //       but I can't find or pinpoint this behaviour in the documentation
       "crawford",
-      // NOTE: Figlet renders this font as all whitespaces, can't understand why, maybe it's corrupted?
+      // NOTE: Figlet renders this font as all whitespaces, can't understand why, maybe the font is corrupted?
       "dosrebel",
     )
 
-    dodgyList.contains(fontName) || fontName < "eftifont"
+    dodgyList.contains(fontName) || fontName < "henry3d"
   }
 
   // NOTE: I found issues when rendering higher-number characters with figlet so I decided to work on only a subset
