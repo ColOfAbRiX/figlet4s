@@ -19,6 +19,9 @@ ThisBuild / libraryDependencies ++= Seq(SplainPlugin, WartremoverPlugin)
 ThisBuild / Compile / scalacOptions := Compiler.TpolecatOptions_2_13 ++ Compiler.StrictOptions ++ Seq("-P:splain:all")
 ThisBuild / Test / scalacOptions := Compiler.TpolecatOptions_2_13 ++ Seq("-P:splain:all")
 
+// Scaladoc
+ThisBuild / Compile / doc / scalacOptions := Seq("-groups", "-implicits")
+
 // Wartremover
 ThisBuild / Test / wartremoverErrors := Seq.empty
 ThisBuild / Compile / wartremoverErrors := Warts.allBut(

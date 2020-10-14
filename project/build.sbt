@@ -8,6 +8,7 @@ scalaVersion := "2.12.11"
 
 lazy val AssemblyVersion       = "0.14.6"
 lazy val BuildinfoVersion      = "0.9.0"
+lazy val DependencyGraph       = "0.10.0-RC1"
 lazy val ErrorsSummaryVersion  = "0.6.3"
 lazy val ExplicitDepsVersion   = "0.2.13"
 lazy val NativePackagerVersion = "1.3.25"
@@ -26,6 +27,7 @@ addSbtPlugin("com.github.cb372" % "sbt-explicit-dependencies" % ExplicitDepsVers
 addSbtPlugin("com.orrsella"     % "sbt-stats"                 % SbtStatsVersion)
 addSbtPlugin("com.timushev.sbt" % "sbt-updates"               % UpdatesVersion)
 addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager"       % NativePackagerVersion)
+addSbtPlugin("net.virtual-void" % "sbt-dependency-graph"      % DependencyGraph)
 addSbtPlugin("org.duhemm"       % "sbt-errors-summary"        % ErrorsSummaryVersion)
 addSbtPlugin("org.scalameta"    % "sbt-scalafmt"              % ScalafmtVersion)
 addSbtPlugin("org.wartremover"  % "sbt-wartremover"           % WartremoverVersion)

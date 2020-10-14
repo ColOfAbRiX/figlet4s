@@ -10,12 +10,7 @@ import org.scalatest.matchers.should._
 import org.scalatestplus.scalacheck._
 import scala.util._
 
-class Figlet4sUnsafeSpecs
-    extends AnyFlatSpec
-    with ScalaCheckDrivenPropertyChecks
-    with Matchers
-    with Figlet4sMatchers
-    with OriginalFigletTesting {
+class Figlet4sUnsafeSpecs extends AnyFlatSpec with Matchers with Figlet4sMatchers with OriginalFigletTesting {
 
   "Figlet4s" should "render a default test case" in {
     val computed = SpecsData.standardBuilder.render(SpecsData.standardInput)

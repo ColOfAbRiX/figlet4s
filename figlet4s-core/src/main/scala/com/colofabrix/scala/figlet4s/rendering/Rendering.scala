@@ -3,6 +3,7 @@ package com.colofabrix.scala.figlet4s.rendering
 import cats.implicits._
 import com.colofabrix.scala.figlet4s.figfont.SubColumns
 import com.colofabrix.scala.figlet4s.rendering.MergeAction._
+import com.colofabrix.scala.figlet4s.utils._
 import scala.annotation.tailrec
 
 /**
@@ -103,6 +104,15 @@ private[figlet4s] object Rendering {
   type Columns = Vector[String]
 
   /**
+   * Represents the three sections of a set of columns
+   */
+  private case class Sections(left: Columns, overlap: Columns, right: Columns)
+
+  private object Sections {
+    def apply(): Sections = Sections(Vector.empty[String], Vector.empty[String], Vector.empty[String])
+  }
+
+  /**
    * Merges two columns applying a custom merge function to each pair of character of the two columns
    */
   def mergeColumnWith(f: MergeChars): MergeStrategy = { (a, b) =>
@@ -114,35 +124,58 @@ private[figlet4s] object Rendering {
     if (overlap === 0) {
       merge(a, b, 1, a ++ b)(f)
 
-    } else if (overlap > b.length) {
+    } else if (overlap > a.length + b.length) {
       previous
 
     } else {
-      val (left, aOverlap)  = a.splitAt(Math.max(0, a.length - overlap))
-      val (bExcess, bTemp)  = b.splitAt(Math.max(0, overlap - a.length))
-      val (bOverlap, right) = bTemp.splitAt(Math.min(overlap, a.length))
+      val aLeftCut  = Math.max(0, a.length - overlap)
+      val aRightCut = Math.min(a.length, (a.length - overlap) + b.length)
+      val aSections = splitSections(aLeftCut, aRightCut, a)
 
-      val hardcolumn = bExcess.map("$" * _.length)
+      val bLeftCut  = Math.max(0, overlap - a.length)
+      val bRightCut = Math.min(overlap, b.length)
+      val bSections = splitSections(bLeftCut, bRightCut, b)
 
-      val mergedExcess =
-        mergeSection(hardcolumn, bExcess, f)
-          .map(x => (x zip hardcolumn).withFilter(y => y._1 =!= y._2))
-          .map(_.map(_._1))
+      val leftSide  = mergeOnLeftBorder(bSections.left, f)
+      val merged    = mergeOverlappingSections(aSections.overlap, bSections.overlap, f)
+      val rightSide = Continue(aSections.right ++ bSections.right)
 
-      val mergedOverlapping = mergeSection(aOverlap, bOverlap, f)
+      val result =
+        (leftSide, merged, rightSide)
+          .mapN { (_, merged, right) =>
+            aSections.left ++ merged ++ right
+          }
 
-      val mergedFinal =
-        (mergedExcess, mergedOverlapping)
-          .mapN(_ ++ left ++ _ ++ right)
+      println("-" * 20)
+      println(s"Overlap: $overlap")
+      println("  A")
+      println(SubColumns(a))
+      println(s"    a.length: ${a.length}")
+      println(s"    aSections.left: ${aSections.left}")
+      println(s"    aSections.overlap: ${aSections.overlap}")
+      println(s"    aSections.right: ${aSections.right}")
+      println("  B")
+      println(SubColumns(b))
+      println(s"    b.length: ${b.length}")
+      println(s"    bSections.left: ${bSections.left}")
+      println(s"    bSections.overlap: ${bSections.overlap}")
+      println(s"    bSections.right: ${bSections.right}")
+      println(" INTERMEDIATE")
+      println(s"    leftSide: $leftSide")
+      println(s"    merged: $merged")
+      println(s"    rightSide: $rightSide")
+      println("  RESULT")
+      println(s"    ${result.map(SubColumns(_))}")
+      println("")
 
-      mergedFinal match {
+      result match {
         case Stop                 => previous
         case CurrentLast(current) => current
         case Continue(value)      => merge(a, b, overlap + 1, value)(f)
       }
     }
 
-  private def mergeSection(aSection: Columns, bSection: Columns, f: MergeChars): MergeAction[Columns] =
+  private def mergeOverlappingSections(aSection: Columns, bSection: Columns, f: MergeChars): MergeAction[Columns] =
     (aSection zip bSection)
       .traverse {
         case (aActiveColumn, bActiveColumn) =>
@@ -152,4 +185,25 @@ private[figlet4s] object Rendering {
             .map(_.mkString)
       }
 
+  private def mergeOnLeftBorder(section: Columns, f: MergeChars): MergeAction[Unit] =
+    section
+      .traverse {
+        _.toVector.traverse {
+          case ' ' => f('$', ' ')
+          case _   => Stop
+        }
+      }.map(_ => ())
+
+  private def splitSections(aPoint: Int, bPoint: Int, figure: Columns): Sections =
+    figure
+      .zipWithIndex
+      .foldLeft(Sections()) {
+        case (store, (column, i)) =>
+          if (i < aPoint)
+            store.copy(left = store.left :+ column)
+          else if (i >= bPoint)
+            store.copy(right = store.right :+ column)
+          else
+            store.copy(overlap = store.overlap :+ column)
+      }
 }

@@ -61,14 +61,17 @@ trait OriginalFigletTesting {
 
   //  Support  //
 
-  private def runTests[A](testData: TestRenderOptions)(f: TestRenderOptions => A): Unit = {
-    val minSuccessfulConf = minSuccessful(PosInt(25))
-    val workersConf       = workers(PosInt.from(Runtime.getRuntime.availableProcessors).getOrElse(1))
+  implicit val generatorDrivenConfig: PropertyCheckConfiguration =
+    PropertyCheckConfiguration(
+      minSuccessful = PosInt(25),
+      workers = PosInt.from(Runtime.getRuntime.availableProcessors - 1).getOrElse(1),
+    )
 
+  private def runTests[A](testData: TestRenderOptions)(f: TestRenderOptions => A): Unit = {
     val cycleGen    = renderTextGen.map(text => testData.copy(renderText = text))
     val testDataSet = (cycleGen, "testData")
 
-    forAll(testDataSet, minSuccessfulConf, workersConf) { testData =>
+    forAll(testDataSet) { testData =>
       whenever(testData.renderText.length >= 0 && testData.renderText.forall(safeCharset.contains)) {
         f(testData)
       }
@@ -91,11 +94,11 @@ trait OriginalFigletTesting {
       "dosrebel",
     )
 
-    dodgyList.contains(fontName) || fontName < "henry3d"
+    dodgyList.contains(fontName) //|| fontName < "henry3d"
   }
 
   // NOTE: I found issues when rendering higher-number characters with figlet so I decided to work on only a subset
-  //       of a font's charset. The best options would be to test all possible characters: font.characters.keySet
+  //       of a font's charset. The ideal scenario would be to test all possible characters: font.characters.keySet
   private def safeCharset: Seq[Char] =
     (32 to 126).map(_.toChar)
 
@@ -106,13 +109,12 @@ trait OriginalFigletTesting {
       .map(Random.shuffle(_))
       .map(_.mkString)
 
-  private def executableExists(exec: String): Boolean = {
+  private def executableExists(exec: String): Boolean =
     System
       .getenv("PATH")
       .split(Pattern.quote(File.pathSeparator))
       .map(path => new File(Paths.get(path, exec).toAbsolutePath.toString))
       .exists(file => file.exists() && file.canExecute)
-  }
 
   private def figletCommand(options: RenderOptions, text: String): List[String] = {
     val maxWidth       = figletWidth(options, text)

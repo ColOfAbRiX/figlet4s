@@ -16,17 +16,10 @@ fonts, minimal dependencies, extensive error reporting and support for effects i
 > letters made up of conglomerations of smaller ASCII characters (see ASCII art). The name derives
 > from "Frank, Ian and Glenn's letters".
 
-This implementation aim to follow as closely as possible the standard defined in [The FIGfont
-Version 2 FIGfont and FIGdriver Standard](figfont_reference.txt) and to render texts as close as
-possible to [the command line figlet implementation](http://www.figlet.org/figlet-man.html).
-
 ## DISCLAIMER
 
 This is a pre-release version, several bugs exists, it supports only one version of Scala and no
 binaries have been released yet.
-
-Please join us in building Figlet4s! Your help in testing features, finding bugs and suggest
-improvements is very welcome!
 
 ## Setup
 
@@ -224,11 +217,6 @@ the FIGure or of a FIGcharacter.
 * Create proper Scaladoc documentation for API
 * Explain better the various options available in the README
   * Or create a docsite
-
-### Bugs
-
-* Controlled smushing leaves a blank space between letters in the place of a hardblank with the
-  "alligator" font but it behaves correctly on the "standard" font.
 
 ## License
 

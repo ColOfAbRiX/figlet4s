@@ -1,6 +1,10 @@
 package com.colofabrix.scala.figlet4s.rendering
 
 import cats._
+import com.colofabrix.scala.figlet4s.rendering.MergeAction.Continue
+import com.colofabrix.scala.figlet4s.rendering.MergeAction.CurrentLast
+import com.colofabrix.scala.figlet4s.rendering.MergeAction.Stop
+import cats.arrow.FunctionK
 
 /**
  * Result of the merge of data like SubColumns

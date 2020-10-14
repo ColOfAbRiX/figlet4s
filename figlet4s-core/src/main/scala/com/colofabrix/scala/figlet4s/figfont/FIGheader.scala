@@ -125,8 +125,9 @@ object FIGheader {
       .toIntOption
       .toValidNec(FIGheaderError(s"Couldn't parse header field 'oldLayout': $oldLayout"))
       .andThen { value =>
-        val valid = value >= -1 && value <= 63
-        Validated.condNec(valid, value, FIGheaderError(s"Field 'oldLayout' must be greater or equal to -1: $value"))
+        val valid      = value >= -1 && value <= 63
+        lazy val error = FIGheaderError(s"Field 'oldLayout' must be between -1 and 63, both included: $value")
+        Validated.condNec(valid, value, error)
       }
       .map(OldLayout(_))
 
@@ -152,8 +153,9 @@ object FIGheader {
         .toIntOption
         .toValidNec(FIGheaderError(s"Couldn't parse header field 'fullLayout': $fullLayout"))
         .andThen { value =>
-          val valid = value >= 0 && value <= 32767
-          Validated.condNec(valid, value, FIGheaderError(s"Field 'fullLayout' must be positive: $value"))
+          val valid      = value >= 0 && value <= 32767
+          lazy val error = FIGheaderError(s"Field 'fullLayout' must be between 0 and 32767, both included: $value")
+          Validated.condNec(valid, value, error)
         }
         .map(FullLayout(_))
     }

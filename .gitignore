@@ -1,19 +1,23 @@
+# Directories
 .bloop
+.bsp
 .history
 .idea
 .metals
 .vscode
+out
+target
+
+# Files
+metals.sbt
+
+# File types
 *.class
 *.hprof
 *.iml
 *.ipr
 *.iws
 *.log
-metals.sbt
-out
-target
-TODO*
 
 # Temporary files
-*.csv
-/samples
+TODO*
