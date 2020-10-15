@@ -16,8 +16,10 @@ ThisBuild / developers := List(
 ThisBuild / libraryDependencies ++= Seq(SplainPlugin, WartremoverPlugin)
 
 // Compiler options
-ThisBuild / Compile / scalacOptions := Compiler.TpolecatOptions_2_13 ++ Compiler.StrictOptions ++ Seq("-P:splain:all")
-ThisBuild / Test / scalacOptions := Compiler.TpolecatOptions_2_13 ++ Seq("-P:splain:all")
+ThisBuild / scalacOptions := Compiler.TpolecatOptions_2_13 ++ Seq("-P:splain:all")
+ThisBuild / console / scalacOptions ~= (_ filterNot Compiler.ConsoleOptions.contains)
+ThisBuild / Test / scalacOptions ~= (_ filterNot Compiler.StrictOptions.contains)
+ThisBuild / Test / logBuffered := false
 
 // Scaladoc
 ThisBuild / Compile / doc / scalacOptions := Seq("-groups", "-implicits")
@@ -97,7 +99,6 @@ lazy val figlet4sBenchmarks: Project = project
     name := "figlet4s-benchmarks",
     description := "Benchmarks for Figlet4s",
     inConfig(Benchmark)(Defaults.testSettings),
-    logBuffered := false,
     Benchmark / parallelExecution := false,
     publishArtifact := false,
     resolvers ++= SonatypeRepos,

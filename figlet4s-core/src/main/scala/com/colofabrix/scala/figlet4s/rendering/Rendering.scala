@@ -3,7 +3,6 @@ package com.colofabrix.scala.figlet4s.rendering
 import cats.implicits._
 import com.colofabrix.scala.figlet4s.figfont.SubColumns
 import com.colofabrix.scala.figlet4s.rendering.MergeAction._
-import com.colofabrix.scala.figlet4s.utils._
 import scala.annotation.tailrec
 
 /**
@@ -124,7 +123,7 @@ private[figlet4s] object Rendering {
     if (overlap === 0) {
       merge(a, b, 1, a ++ b)(f)
 
-    } else if (overlap > a.length + b.length) {
+    } else if (overlap > b.length) {
       previous
 
     } else {
@@ -140,33 +139,31 @@ private[figlet4s] object Rendering {
       val merged    = mergeOverlappingSections(aSections.overlap, bSections.overlap, f)
       val rightSide = Continue(aSections.right ++ bSections.right)
 
-      val result =
-        (leftSide, merged, rightSide)
-          .mapN { (_, merged, right) =>
-            aSections.left ++ merged ++ right
-          }
+      val result = (leftSide, merged, rightSide).mapN { (_, merged, right) =>
+        aSections.left ++ merged ++ right
+      }
 
-      println("-" * 20)
-      println(s"Overlap: $overlap")
-      println("  A")
-      println(SubColumns(a))
-      println(s"    a.length: ${a.length}")
-      println(s"    aSections.left: ${aSections.left}")
-      println(s"    aSections.overlap: ${aSections.overlap}")
-      println(s"    aSections.right: ${aSections.right}")
-      println("  B")
-      println(SubColumns(b))
-      println(s"    b.length: ${b.length}")
-      println(s"    bSections.left: ${bSections.left}")
-      println(s"    bSections.overlap: ${bSections.overlap}")
-      println(s"    bSections.right: ${bSections.right}")
-      println(" INTERMEDIATE")
-      println(s"    leftSide: $leftSide")
-      println(s"    merged: $merged")
-      println(s"    rightSide: $rightSide")
-      println("  RESULT")
-      println(s"    ${result.map(SubColumns(_))}")
-      println("")
+      // println("-" * 20)
+      // println(s"Overlap: $overlap")
+      // println("  A")
+      // println(SubColumns(a))
+      // println(s"    a.length: ${a.length}")
+      // println(s"    aSections.left: ${aSections.left}")
+      // println(s"    aSections.overlap: ${aSections.overlap}")
+      // println(s"    aSections.right: ${aSections.right}")
+      // println("  B")
+      // println(SubColumns(b))
+      // println(s"    b.length: ${b.length}")
+      // println(s"    bSections.left: ${bSections.left}")
+      // println(s"    bSections.overlap: ${bSections.overlap}")
+      // println(s"    bSections.right: ${bSections.right}")
+      // println(" INTERMEDIATE")
+      // println(s"    leftSide: $leftSide")
+      // println(s"    merged: $merged")
+      // println(s"    rightSide: $rightSide")
+      // println("  RESULT")
+      // println(s"    ${result.map(SubColumns(_))}")
+      // println("")
 
       result match {
         case Stop                 => previous

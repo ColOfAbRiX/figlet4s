@@ -30,6 +30,7 @@ object Compiler {
     "-Xlint:private-shadow",                     // A private field (or class parameter) shadows a superclass field.
     "-Xlint:stars-align",                        // Pattern sequence wildcard must align with sequence component.
     "-Xlint:type-parameter-shadow",              // A local type parameter shadows a type already in scope.
+    "-Xfatal-warnings",                          // Fail the compilation if there are any warning.
     "-Ywarn-dead-code",                          // Warn when dead code is identified.
     "-Ywarn-extra-implicit",                     // Warn when more than one implicit parameter section is defined.
     "-Ywarn-numeric-widen",                      // Warn when numerics are widened.
@@ -46,11 +47,18 @@ object Compiler {
     "-Ycache-macro-class-loader:last-modified",  // and macro definitions. This can lead to performance improvements.
   )
 
+  // format: on
+
   // Stricter compile option to filter out in specific situation
   lazy val StrictOptions: Set[String] = Set[String](
-    "-Xfatal-warnings",                          // Fail the compilation if there are any warning.
+    "-Xfatal-warnings"
   )
 
-  // format: on
+  // Options we don't want to have when working on the console
+  lazy val ConsoleOptions: Set[String] = Set[String](
+    "-Xfatal-warnings",
+    "-Ywarn-unused",
+    "-Ywarn-unused-import"
+  )
 
 }

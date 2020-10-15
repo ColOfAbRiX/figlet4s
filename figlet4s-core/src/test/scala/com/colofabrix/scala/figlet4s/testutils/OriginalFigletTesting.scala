@@ -1,5 +1,6 @@
 package com.colofabrix.scala.figlet4s.testutils
 
+import cats.effect._
 import cats.implicits._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options._
@@ -11,14 +12,15 @@ import org.scalacheck._
 import org.scalactic.anyvals._
 import org.scalatest._
 import org.scalatestplus.scalacheck._
-import scala.util._
+import scala.concurrent.ExecutionContext
 import sys.process._
 
 /**
  * Support for testing using the command line, original figlet executable
  */
-trait OriginalFigletTesting {
+trait OriginalFigletTesting extends Notifying {
   import ScalaCheckDrivenPropertyChecks._
+  import cats.syntax.parallel._
 
   case class TestRenderOptions(
       renderText: String,
@@ -27,6 +29,16 @@ trait OriginalFigletTesting {
       printDirection: PrintDirection,
       justification: Justification,
   )
+
+  //  Implicits  //
+
+  implicit private val cs: ContextShift[IO] =
+    IO.contextShift(ExecutionContext.global)
+
+  implicit val generatorDrivenConfig: PropertyCheckConfiguration =
+    PropertyCheckConfiguration(minSuccessful = PosInt(25))
+
+  //  API  //
 
   /**
    * Renders a text with the given options using the figlet executable found on command line
@@ -48,35 +60,32 @@ trait OriginalFigletTesting {
   /**
    * Runs property testing on a given function to test Figlet4s
    */
-  def figletRenderingTest[A](f: TestRenderOptions => A): Unit =
-    for {
+  def figletRenderingTest[A](f: TestRenderOptions => A): Unit = {
+    val parallelTests = for {
       _              <- Vector(assumeExecutableInPath("figlet"))
       fontName       <- Figlet4s.internalFonts.filterNot(dodgyFonts)
       hLayout        <- HorizontalLayout.values.filterNot(_ == HorizontalLayout.ForceHorizontalSmushing)
       printDirection <- Vector(PrintDirection.LeftToRight)
       justification  <- Vector(Justification.FlushLeft)
-    } {
-      runTests(TestRenderOptions("", fontName, hLayout, printDirection, justification))(f)
+    } yield {
+      TestRenderOptions("", fontName, hLayout, printDirection, justification)
     }
+
+    parallelTests
+      .parTraverse(runTests(f))
+      .map(_ => ())
+      .unsafeRunSync()
+  }
 
   //  Support  //
 
-  implicit val generatorDrivenConfig: PropertyCheckConfiguration =
-    PropertyCheckConfiguration(
-      minSuccessful = PosInt(25),
-      workers = PosInt.from(Runtime.getRuntime.availableProcessors - 1).getOrElse(1),
-    )
-
-  private def runTests[A](testData: TestRenderOptions)(f: TestRenderOptions => A): Unit = {
-    val cycleGen    = renderTextGen.map(text => testData.copy(renderText = text))
-    val testDataSet = (cycleGen, "testData")
-
-    forAll(testDataSet) { testData =>
-      whenever(testData.renderText.length >= 0 && testData.renderText.forall(safeCharset.contains)) {
-        f(testData)
-      }
+  private def runTests[A](f: TestRenderOptions => A)(testData: TestRenderOptions): IO[Unit] =
+    IO.pure(note(s"Currently testing: ${testData.copy(renderText = "XXX")}")) *>
+    IO {
+      val cycleGen    = renderTextGen.map(text => testData.copy(renderText = text))
+      val testDataSet = (cycleGen, "testData")
+      forAll(testDataSet)(f)
     }
-  }
 
   // FIXME: Fix the issues related with these fonts
   private def dodgyFonts(fontName: String): Boolean = {
@@ -94,7 +103,7 @@ trait OriginalFigletTesting {
       "dosrebel",
     )
 
-    dodgyList.contains(fontName) //|| fontName < "henry3d"
+    dodgyList.contains(fontName)
   }
 
   // NOTE: I found issues when rendering higher-number characters with figlet so I decided to work on only a subset
@@ -104,9 +113,7 @@ trait OriginalFigletTesting {
 
   private def renderTextGen: Gen[String] =
     Gen
-      .someOf(safeCharset)
-      .suchThat(x => x.length <= 25)
-      .map(Random.shuffle(_))
+      .listOfN[Char](25, Gen.oneOf(safeCharset))
       .map(_.mkString)
 
   private def executableExists(exec: String): Boolean =

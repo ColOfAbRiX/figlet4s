@@ -7,7 +7,6 @@ import com.colofabrix.scala.figlet4s.testutils._
 import com.colofabrix.scala.figlet4s.unsafe._
 import org.scalatest.flatspec._
 import org.scalatest.matchers.should._
-import org.scalatestplus.scalacheck._
 import scala.util._
 
 class Figlet4sUnsafeSpecs extends AnyFlatSpec with Matchers with Figlet4sMatchers with OriginalFigletTesting {
