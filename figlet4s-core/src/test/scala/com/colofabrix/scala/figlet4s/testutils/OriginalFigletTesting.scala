@@ -36,7 +36,7 @@ trait OriginalFigletTesting extends Notifying {
     IO.contextShift(ExecutionContext.global)
 
   implicit val generatorDrivenConfig: PropertyCheckConfiguration =
-    PropertyCheckConfiguration(minSuccessful = PosInt(25))
+    PropertyCheckConfiguration(minSuccessful = PosInt(50))
 
   //  API  //
 
@@ -80,7 +80,6 @@ trait OriginalFigletTesting extends Notifying {
   //  Support  //
 
   private def runTests[A](f: TestRenderOptions => A)(testData: TestRenderOptions): IO[Unit] =
-    IO.pure(note(s"Currently testing: ${testData.copy(renderText = "XXX")}")) *>
     IO {
       val cycleGen    = renderTextGen.map(text => testData.copy(renderText = text))
       val testDataSet = (cycleGen, "testData")
@@ -90,15 +89,19 @@ trait OriginalFigletTesting extends Notifying {
   // FIXME: Fix the issues related with these fonts
   private def dodgyFonts(fontName: String): Boolean = {
     val dodgyList = List(
-      // NOTE: Some fonts seem to treat the hardblanks differently and smush them but I can't find what's wrong
-      //       in Figlet4s implementation of the algorithm
+      // NOTE: Some fonts seem to treat the hardblanks differently in that they smush together a hardblank and a char
+      //       but I can't find what's wrong in Figlet4s implementation of the algorithm (and where to find this
+      //       behaviour in the reference doc)
       "alligator",
       "alligator2",
       "alligator3",
       "colossal",
-      // NOTE: This font is rendered by figlet with a separation when an empty character is inserted (try "PL" vs "P{L")
-      //       but I can't find or pinpoint this behaviour in the documentation
-      "crawford",
+      "univers",
+      // NOTE: This font is rendered by figlet with a separation when an empty character is inserted but I can't find or
+      //       pinpoint this behaviour in the documentation. It seems figlet only smushes up to the width of the last
+      //       character and not "as much left as it can"
+      "crawford", // Try with "P{L"
+      "serifcap", // Try with "s@,"
       // NOTE: Figlet renders this font as all whitespaces, can't understand why, maybe the font is corrupted?
       "dosrebel",
     )
@@ -112,9 +115,7 @@ trait OriginalFigletTesting extends Notifying {
     (32 to 126).map(_.toChar)
 
   private def renderTextGen: Gen[String] =
-    Gen
-      .listOfN[Char](25, Gen.oneOf(safeCharset))
-      .map(_.mkString)
+    Gen.listOf[Char](Gen.oneOf(safeCharset)).map(_.mkString)
 
   private def executableExists(exec: String): Boolean =
     System

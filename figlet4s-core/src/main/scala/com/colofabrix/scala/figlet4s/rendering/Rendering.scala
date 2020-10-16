@@ -143,28 +143,6 @@ private[figlet4s] object Rendering {
         aSections.left ++ merged ++ right
       }
 
-      // println("-" * 20)
-      // println(s"Overlap: $overlap")
-      // println("  A")
-      // println(SubColumns(a))
-      // println(s"    a.length: ${a.length}")
-      // println(s"    aSections.left: ${aSections.left}")
-      // println(s"    aSections.overlap: ${aSections.overlap}")
-      // println(s"    aSections.right: ${aSections.right}")
-      // println("  B")
-      // println(SubColumns(b))
-      // println(s"    b.length: ${b.length}")
-      // println(s"    bSections.left: ${bSections.left}")
-      // println(s"    bSections.overlap: ${bSections.overlap}")
-      // println(s"    bSections.right: ${bSections.right}")
-      // println(" INTERMEDIATE")
-      // println(s"    leftSide: $leftSide")
-      // println(s"    merged: $merged")
-      // println(s"    rightSide: $rightSide")
-      // println("  RESULT")
-      // println(s"    ${result.map(SubColumns(_))}")
-      // println("")
-
       result match {
         case Stop                 => previous
         case CurrentLast(current) => current

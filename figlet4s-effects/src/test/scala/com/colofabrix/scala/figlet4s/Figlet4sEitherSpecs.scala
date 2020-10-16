@@ -1,8 +1,6 @@
 package com.colofabrix.scala.figlet4s
 
 import com.colofabrix.scala.figlet4s.either._
-import com.colofabrix.scala.figlet4s.errors._
-import com.colofabrix.scala.figlet4s.figfont._
 import org.scalatest._
 import org.scalatest.flatspec._
 import org.scalatest.matchers.should.Matchers
