@@ -52,15 +52,13 @@ object HorizontalLayout extends Enum[HorizontalLayout] {
    */
   def toInternalLayout(font: FIGfont): PartialFunction[HorizontalLayout, FontHorizontalLayout] = {
     case FontDefault        => font.settings.hLayout
-    case FullWidth          => FontHorizontalLayout.FullWidthHorizontalLayout
-    case HorizontalFitting  => FontHorizontalLayout.HorizontalFittingLayout
+    case FullWidth          => FontHorizontalLayout.FullWidth
+    case HorizontalFitting  => FontHorizontalLayout.HorizontalFitting
     case HorizontalSmushing => font.settings.hLayout
     case ForceHorizontalSmushing =>
       font.settings.hLayout match {
-        case FontHorizontalLayout.ControlledHorizontalSmushingLayout(_) =>
-          font.settings.hLayout
-        case _ =>
-          FontHorizontalLayout.UniversalHorizontalSmushingLayout
+        case FontHorizontalLayout.ControlledSmushing(_) => font.settings.hLayout
+        case _                                          => FontHorizontalLayout.UniversalSmushing
       }
   }
 

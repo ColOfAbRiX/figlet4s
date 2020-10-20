@@ -25,11 +25,10 @@ private[figlet4s] object HorizontalTextRenderer {
    * Returns the merge strategy function given a layout
    */
   private def layout2mergeStrategy(options: Rendering.MergeOptions): HorizontalLayout => MergeStrategy = {
-    case HorizontalLayout.FullWidthHorizontalLayout         => fullWidthStrategy(options)
-    case HorizontalLayout.HorizontalFittingLayout           => horizontalFittingStrategy(options)
-    case HorizontalLayout.UniversalHorizontalSmushingLayout => universalHorizontalSmushingStrategy(options)
-    case HorizontalLayout.ControlledHorizontalSmushingLayout(rules) =>
-      controlledHorizontalSmushingStrategy(options, rules)
+    case HorizontalLayout.FullWidth                 => fullWidthStrategy(options)
+    case HorizontalLayout.HorizontalFitting         => horizontalFittingStrategy(options)
+    case HorizontalLayout.UniversalSmushing         => universalHorizontalSmushingStrategy(options)
+    case HorizontalLayout.ControlledSmushing(rules) => controlledHorizontalSmushingStrategy(options, rules)
   }
 
   /**
@@ -86,12 +85,12 @@ private[figlet4s] object HorizontalTextRenderer {
    * Returns a smushing strategy function given the smushing rule
    */
   private def rule2smushingStrategy(options: Rendering.MergeOptions): HorizontalSmushingRule => SmushingStrategy = {
-    case HorizontalSmushingRule.EqualCharacterHorizontalSmushing => equalCharacterSmushingRule(options.hardblank)
-    case HorizontalSmushingRule.UnderscoreHorizontalSmushing     => underscoreSmushingRule
-    case HorizontalSmushingRule.HierarchyHorizontalSmushing      => hierarchySmushingRule
-    case HorizontalSmushingRule.OppositePairHorizontalSmushing   => oppositePairSmushingRule
-    case HorizontalSmushingRule.BigXHorizontalSmushing           => bigXSmushingRule
-    case HorizontalSmushingRule.HardblankHorizontalSmushing      => hardblankSmushingRule(options.hardblank)
+    case HorizontalSmushingRule.EqualCharacter => equalCharacterSmushingRule(options.hardblank)
+    case HorizontalSmushingRule.Underscore     => underscoreSmushingRule
+    case HorizontalSmushingRule.Hierarchy      => hierarchySmushingRule
+    case HorizontalSmushingRule.OppositePair   => oppositePairSmushingRule
+    case HorizontalSmushingRule.BigX           => bigXSmushingRule
+    case HorizontalSmushingRule.Hardblank      => hardblankSmushingRule(options.hardblank)
   }
 
   /**
