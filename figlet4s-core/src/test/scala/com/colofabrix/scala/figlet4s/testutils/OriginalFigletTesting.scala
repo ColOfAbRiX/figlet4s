@@ -97,9 +97,9 @@ trait OriginalFigletTesting extends Notifying {
       "alligator3",
       "colossal",
       "univers",
-      // NOTE: This font is rendered by figlet with a separation when an empty character is inserted but I can't find or
-      //       pinpoint this behaviour in the documentation. It seems figlet only smushes up to the width of the last
-      //       character and not "as much left as it can"
+      // NOTE: This font is rendered by figlet with a separation when an empty character is inserted between two others
+      //       but I can't find or this behaviour in the documentation. It seems figlet only smushes up to the width of
+      //       the last character and not "as much left as it can"
       "crawford", // Try with "P{L"
       "serifcap", // Try with "s@,"
       // NOTE: Figlet renders this font as all whitespaces, can't understand why, maybe the font is corrupted?

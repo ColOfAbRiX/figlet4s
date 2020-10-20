@@ -9,12 +9,12 @@
 // class DebuggingSpecs extends AnyFlatSpec with Matchers with OriginalFigletTesting with Figlet4sMatchers {
 
 //   "Debugging" should "help me fixing issues" taggedAs (ManualRunTest) in {
-//     val text = "P L"
+//     val text = "j  k"
 
 //     val builder =
 //       Figlet4s
 //         .builder(text)
-//         .withInternalFont("mini")
+//         .withInternalFont("cricket")
 //         .withHorizontalLayout(HorizontalLayout.HorizontalSmushing)
 
 //     val computed = builder.render()

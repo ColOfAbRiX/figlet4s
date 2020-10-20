@@ -44,7 +44,7 @@ class Figlet4sUnsafeSpecs extends AnyFlatSpec with Matchers with Figlet4sMatcher
     loadingErrors shouldBe empty
   }
 
-  it should "render the texts as the original command line FIGlet does" in {
+  it should "render the texts as the original command line FIGlet does" taggedAs (SlowTest) in {
     figletRenderingTest { testData =>
       val testBuilder =
         defaultBuilder

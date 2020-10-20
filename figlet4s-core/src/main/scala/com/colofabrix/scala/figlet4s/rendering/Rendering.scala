@@ -1,7 +1,8 @@
 package com.colofabrix.scala.figlet4s.rendering
 
 import cats.implicits._
-import com.colofabrix.scala.figlet4s.figfont.SubColumns
+import com.colofabrix.scala.figlet4s.figfont._
+import com.colofabrix.scala.figlet4s.options._
 import com.colofabrix.scala.figlet4s.rendering.MergeAction._
 import scala.annotation.tailrec
 
@@ -96,32 +97,73 @@ private[figlet4s] object Rendering {
   /** Function that smushes two characters */
   type SmushingStrategy = (Char, Char) => Option[Char]
 
+  /** Options carried around on each merge operation */
+  case class MergeOptions(hardblank: Char)
+
   /** Function that merges two characters */
-  type MergeChars = (Char, Char) => MergeAction[Char]
+  private type MergeChars = (Char, Char) => MergeAction[Char]
 
   /** Shortcut for a set of columns */
-  type Columns = Vector[String]
+  private type Columns = Vector[String]
+
+  /** Type of the foldLeft function */
+  private type Folder = (FoldAccumulator, SubColumns) => FoldAccumulator
+
+  /**
+   * The data structure used to carry along information on each fold iteration
+   */
+  private case class FoldAccumulator(accumulator: Vector[SubColumns], lastCharWidth: Int)
+  private object FoldAccumulator {
+    def apply(font: FIGfont): FoldAccumulator = FoldAccumulator(Vector(font.zero.lines.toSubcolumns), 0)
+  }
 
   /**
    * Represents the three sections of a set of columns
    */
   private case class Sections(left: Columns, overlap: Columns, right: Columns)
-
   private object Sections {
     def apply(): Sections = Sections(Vector.empty[String], Vector.empty[String], Vector.empty[String])
+  }
+
+  //  Interface  //
+
+  /**
+   * Renders a text horizontally by merging one character after the other
+   */
+  def horizontalRender(text: String, options: RenderOptions, mergeStrategy: MergeStrategy): FIGure = {
+    val result = text
+      .map(options.font(_).columns)
+      .foldLeft(FoldAccumulator(options.font))(appendCharacter(options, mergeStrategy))
+    FIGure(options.font, text, result.accumulator)
   }
 
   /**
    * Merges two columns applying a custom merge function to each pair of character of the two columns
    */
-  def mergeColumnWith(f: MergeChars): MergeStrategy = { (a, b) =>
-    SubColumns(merge(a.value.toVector, b.value.toVector, 0, Vector.empty)(f))
+  def mergeColumnWith(options: MergeOptions)(f: MergeChars): MergeStrategy = { (a, b) =>
+    SubColumns(merge(options, a.value.toVector, b.value.toVector, 0, Vector.empty)(f))
+  }
+
+  //  Support  //
+
+  /**
+   * Appends a new character to the accumulator or creates a new line for it
+   */
+  private def appendCharacter(options: RenderOptions, mergeStrategy: MergeStrategy): Folder = {
+    case (FoldAccumulator(accumulator, lastCharWidth), column) =>
+      cats.effect.IO(lastCharWidth).map(_ => ()).unsafeRunSync()
+      val result = accumulator
+        .lastOption
+        .map(lastLine => accumulator.drop(1) :+ mergeStrategy(lastLine, column))
+        .filter(_.length <= options.maxWidth)
+        .getOrElse(accumulator :+ column)
+      FoldAccumulator(result, column.length)
   }
 
   @tailrec
-  private def merge(a: Columns, b: Columns, overlap: Int, previous: Columns)(f: MergeChars): Columns =
+  private def merge(opts: MergeOptions, a: Columns, b: Columns, overlap: Int, previous: Columns)(f: MergeChars): Columns =
     if (overlap === 0) {
-      merge(a, b, 1, a ++ b)(f)
+      merge(opts, a, b, 1, a ++ b)(f)
 
     } else if (overlap > b.length) {
       previous
@@ -135,7 +177,7 @@ private[figlet4s] object Rendering {
       val bRightCut = Math.min(overlap, b.length)
       val bSections = splitSections(bLeftCut, bRightCut, b)
 
-      val leftSide  = mergeOnLeftBorder(bSections.left, f)
+      val leftSide  = mergeOnLeftBorder(opts, bSections.left, f)
       val merged    = mergeOverlappingSections(aSections.overlap, bSections.overlap, f)
       val rightSide = Continue(aSections.right ++ bSections.right)
 
@@ -146,7 +188,7 @@ private[figlet4s] object Rendering {
       result match {
         case Stop                 => previous
         case CurrentLast(current) => current
-        case Continue(value)      => merge(a, b, overlap + 1, value)(f)
+        case Continue(value)      => merge(opts, a, b, overlap + 1, value)(f)
       }
     }
 
@@ -160,11 +202,11 @@ private[figlet4s] object Rendering {
             .map(_.mkString)
       }
 
-  private def mergeOnLeftBorder(section: Columns, f: MergeChars): MergeAction[Unit] =
+  private def mergeOnLeftBorder(opts: MergeOptions, section: Columns, f: MergeChars): MergeAction[Unit] =
     section
       .traverse {
         _.toVector.traverse {
-          case ' ' => f('$', ' ')
+          case ' ' => f(opts.hardblank, ' ')
           case _   => Stop
         }
       }.map(_ => ())

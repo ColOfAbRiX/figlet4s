@@ -22,9 +22,6 @@ ThisBuild / console / scalacOptions ~= (_ filterNot Compiler.ConsoleOptions.cont
 // Test options
 ThisBuild / Test / logBuffered := false
 ThisBuild / Test / scalacOptions ~= (_ filterNot Compiler.StrictOptions.contains)
-ThisBuild / Test / testOptions += Tests.Argument(
-  TestFrameworks.ScalaTest, "-l", "com.colofabrix.scala.figlet4s.testutils.ManualRunTest"
-)
 
 // Scaladoc
 ThisBuild / Compile / doc / scalacOptions := Seq("-groups", "-implicits")
