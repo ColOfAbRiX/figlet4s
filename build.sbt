@@ -15,16 +15,24 @@ ThisBuild / developers := List(
 // Global dependencies and compiler plugins
 ThisBuild / libraryDependencies ++= Seq(SplainPlugin, WartremoverPlugin)
 
-// Compiler options
-ThisBuild / scalacOptions := Compiler.TpolecatOptions_2_13 ++ Seq("-P:splain:all")
-ThisBuild / console / scalacOptions ~= (_ filterNot Compiler.ConsoleOptions.contains)
+// Compile options
+figlet4s / Compile / scalacOptions := Compiler.TpolecatOptions_2_13 ++ Seq("-P:splain:all")
+figlet4sCore / Compile / scalacOptions := (figlet4s / Compile / scalacOptions).value
+figlet4sEffects / Compile / scalacOptions := (figlet4s / Compile / scalacOptions).value
 
 // Test options
 ThisBuild / Test / logBuffered := false
-ThisBuild / Test / scalacOptions ~= (_ filterNot Compiler.StrictOptions.contains)
+figlet4s / Test / scalacOptions ~= (_ filterNot Compiler.FilterStrictOptions.contains)
+figlet4sCore / Test / scalacOptions := (figlet4s / Test / scalacOptions).value
+figlet4sEffects / Test / scalacOptions := (figlet4s / Test / scalacOptions).value
 
 // Scaladoc
-ThisBuild / Compile / doc / scalacOptions := Seq("-groups", "-implicits")
+Compile / doc / scalacOptions := Seq(
+  "-doc-title", "Figlet4s API Documentation",
+  "-doc-version", figlet4sVersion,
+  "-groups", "-author", "-implicits",
+  "-encoding", "UTF-8"
+)
 
 // Wartremover
 ThisBuild / Test / wartremoverErrors := Seq.empty

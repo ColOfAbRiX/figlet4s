@@ -50,15 +50,8 @@ object Compiler {
   // format: on
 
   // Stricter compile option to filter out in specific situation
-  lazy val StrictOptions: Set[String] = Set[String](
+  lazy val FilterStrictOptions: Set[String] = Set[String](
     "-Xfatal-warnings"
-  )
-
-  // Options we don't want to have when working on the console
-  lazy val ConsoleOptions: Set[String] = Set[String](
-    "-Xfatal-warnings",
-    "-Ywarn-unused",
-    "-Ywarn-unused-import"
   )
 
 }

@@ -15,7 +15,7 @@ lazy val NativePackagerVersion = "1.3.25"
 lazy val SbtStatsVersion       = "1.0.7"
 lazy val ScalaFixVersion       = "0.9.20"
 lazy val ScalafmtVersion       = "2.4.0"
-lazy val UpdatesVersion        = "0.5.0"
+lazy val UpdatesVersion        = "0.5.1"
 lazy val WartremoverVersion    = "2.4.9"
 
 //  PLUGIN LIBRARIES  //

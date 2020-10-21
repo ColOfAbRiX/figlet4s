@@ -12,8 +12,8 @@ import scala.io.Codec
 /**
  * Builder of rendering options.
  *
- * To create a builder use the [[com.colofabrix.scala.figlet4s.api.Figlet4sAPI.builder]] or
- * [[com.colofabrix.scala.figlet4s.api.Figlet4sEffectfulAPI.builderF]].
+ * To create a builder use the [[com.colofabrix.scala.figlet4s.api.Figlet4sAPI.builder()*]] or
+ * [[com.colofabrix.scala.figlet4s.api.Figlet4sEffectfulAPI.builderF()*]].
  */
 final class OptionsBuilder(private val actions: List[BuilderAction] = List.empty) {
 
