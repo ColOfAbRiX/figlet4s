@@ -4,7 +4,7 @@ import cats._
 import cats.effect._
 import com.colofabrix.scala.figlet4s.errors._
 
-package object unsafe extends OptionsBuilderOps with FIGureOps {
+package object unsafe extends OptionsBuilderMixin with FIGureMixin {
 
   /**
    * Sync instance for Id for impure calculations

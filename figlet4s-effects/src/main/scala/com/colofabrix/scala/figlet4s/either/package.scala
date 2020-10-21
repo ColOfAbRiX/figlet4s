@@ -5,7 +5,7 @@ import cats.effect._
 import com.colofabrix.scala.figlet4s.errors._
 import scala.util._
 
-package object either extends FIGureOps with OptionsBuilderOps {
+package object either extends FIGureMixin with OptionsBuilderMixin {
 
   type FigletEither[+A] = Either[FigletError, A]
 

@@ -1,35 +1,35 @@
-package com.colofabrix.scala.figlet4s.either
+package com.colofabrix.scala.figlet4s.catsio
 
-import scala.util._
-import com.colofabrix.scala.figlet4s._
+import cats.effect.IO
+import com.colofabrix.scala.figlet4s.Figlet4sClient
 import com.colofabrix.scala.figlet4s.api._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options._
 
-private[either] trait OptionsBuilderOps {
+private[catsio] trait OptionsBuilderMixin {
 
-  implicit class OptionsBuilderOps(val self: OptionsBuilder) extends OptionsBuilderAPI[FigletEither] {
-    private lazy val buildOptions = self.compile[FigletEither]
+  implicit class OptionsBuilderOps(val self: OptionsBuilder) extends OptionsBuilderAPI[IO] {
+    private lazy val buildOptions = self.compile[IO]
 
     /** The text to render */
-    def text: FigletEither[String] = buildOptions.map(_.text)
+    def text: IO[String] = buildOptions.map(_.text)
 
     /** Renders the text into a FIGure */
-    def render(): FigletEither[FIGure] =
+    def render(): IO[FIGure] =
       for {
         options  <- options
         text     <- text
-        rendered <- Figlet4sClient.renderString[FigletEither](text, options)
+        rendered <- Figlet4sClient.renderString[IO](text, options)
       } yield rendered
 
     /** Renders a given text into a FIGure */
-    def render(text: String): FigletEither[FIGure] =
+    def render(text: String): IO[FIGure] =
       self
         .text(text)
         .render()
 
     /** Returns the render options */
-    def options: FigletEither[RenderOptions] =
+    def options: IO[RenderOptions] =
       for {
         font             <- builtFont
         maxWidth         <- builtMaxWidth
@@ -42,19 +42,19 @@ private[either] trait OptionsBuilderOps {
 
     //  Support  //
 
-    private def builtFont: FigletEither[FIGfont] =
+    private def builtFont: IO[FIGfont] =
       for {
-        optionFont <- buildOptions.map(_.font.map(_.asEither))
+        optionFont <- buildOptions.map(_.font.map(_.asIO))
         font       <- optionFont.getOrElse(builtDefaultFont)
       } yield font
 
-    private def builtDefaultFont: FigletEither[FIGfont] =
-      Figlet4sClient.loadFontInternal[FigletEither]().flatMap(_.asEither)
+    private def builtDefaultFont: IO[FIGfont] =
+      Figlet4sClient.loadFontInternal[IO]().flatMap(_.asIO)
 
-    private def builtMaxWidth: FigletEither[Int] =
+    private def builtMaxWidth: IO[Int] =
       for {
         optionMaxWidth <- buildOptions.map(_.maxWidth)
-        maxWidth       <- Right(optionMaxWidth.getOrElse(Int.MaxValue))
+        maxWidth       <- IO.pure(optionMaxWidth.getOrElse(Int.MaxValue))
       } yield maxWidth
   }
 

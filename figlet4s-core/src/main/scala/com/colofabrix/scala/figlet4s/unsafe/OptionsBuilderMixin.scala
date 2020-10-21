@@ -7,7 +7,7 @@ import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options._
 
-private[unsafe] trait OptionsBuilderOps {
+private[unsafe] trait OptionsBuilderMixin {
 
   implicit class OptionsBuilderOps(val self: OptionsBuilder) extends OptionsBuilderAPI[Id] {
 

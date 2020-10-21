@@ -4,7 +4,7 @@ import cats._
 import com.colofabrix.scala.figlet4s.api._
 import com.colofabrix.scala.figlet4s.figfont._
 
-private[unsafe] trait FIGureOps {
+private[unsafe] trait FIGureMixin {
 
   implicit class FIGureOps(val self: FIGure) extends FIGureAPI[Id] {
     /** Apply a function to each line of the FIGure */

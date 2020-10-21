@@ -54,7 +54,7 @@ lazy val figlet4s: Project = project
   .in(file("."))
   .aggregate(figlet4sCore, figlet4sEffects)
   .settings(
-    name := "figlet4s"
+    name := "figlet4s",
   )
 
 // Figlet4s Core project
