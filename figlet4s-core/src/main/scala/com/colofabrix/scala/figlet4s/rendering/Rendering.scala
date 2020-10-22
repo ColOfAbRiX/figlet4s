@@ -98,7 +98,7 @@ private[figlet4s] object Rendering {
   type SmushingStrategy = (Char, Char) => Option[Char]
 
   /** Options carried around on each merge operation */
-  case class MergeOptions(hardblank: Char)
+  final case class MergeOptions(hardblank: Char)
 
   /** Function that merges two characters */
   private type MergeChars = (Char, Char) => MergeAction[Char]
@@ -112,7 +112,7 @@ private[figlet4s] object Rendering {
   /**
    * The data structure used to carry along information on each fold iteration
    */
-  private case class FoldAccumulator(accumulator: Vector[SubColumns], lastCharWidth: Int)
+  final private case class FoldAccumulator(accumulator: Vector[SubColumns], lastCharWidth: Int)
   private object FoldAccumulator {
     def apply(font: FIGfont): FoldAccumulator = FoldAccumulator(Vector(font.zero.lines.toSubcolumns), 0)
   }
@@ -120,7 +120,7 @@ private[figlet4s] object Rendering {
   /**
    * Represents the three sections of a set of columns
    */
-  private case class Sections(left: Columns, overlap: Columns, right: Columns)
+  final private case class Sections(left: Columns, overlap: Columns, right: Columns)
   private object Sections {
     def apply(): Sections = Sections(Vector.empty[String], Vector.empty[String], Vector.empty[String])
   }
@@ -151,6 +151,7 @@ private[figlet4s] object Rendering {
    */
   private def appendCharacter(options: RenderOptions, mergeStrategy: MergeStrategy): Folder = {
     case (FoldAccumulator(accumulator, lastCharWidth), column) =>
+      // FIXME: This is temporary until the last-char-width feature is implemented
       cats.effect.IO(lastCharWidth).map(_ => ()).unsafeRunSync()
       val result = accumulator
         .lastOption

@@ -78,7 +78,7 @@ private[figlet4s] object HorizontalTextRenderer {
             f(aChar, bChar)
           }
           .collectFirst { case Some(value) => CurrentLast(value) }
-          .getOrElse(Stop)
+          .getOrElse(Stop: MergeAction[Char])
     }
 
   /**

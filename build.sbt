@@ -35,8 +35,7 @@ Compile / doc / scalacOptions := Seq(
 )
 
 // Wartremover
-ThisBuild / Test / wartremoverErrors := Seq.empty
-ThisBuild / Compile / wartremoverErrors := Warts.allBut(
+figlet4s / Compile / wartremoverErrors := Warts.allBut(
   Wart.Any,
   Wart.DefaultArguments,
   Wart.Nothing,
@@ -46,6 +45,14 @@ ThisBuild / Compile / wartremoverErrors := Warts.allBut(
   // Covered by ScalaFix
   Wart.PublicInference
 )
+figlet4sCore / Compile / wartremoverErrors := (figlet4s / Compile / wartremoverErrors).value
+figlet4sEffects / Compile / wartremoverErrors := (figlet4s / Compile / wartremoverErrors).value
+figlet4s / Test / wartremoverErrors := Seq.empty
+figlet4sCore / Test / wartremoverErrors := (figlet4s / Test / wartremoverErrors).value
+figlet4sEffects / Test / wartremoverErrors := (figlet4s / Test / wartremoverErrors).value
+figlet4s / Test / wartremoverWarnings := (figlet4s / Compile / wartremoverErrors).value
+figlet4sCore / Test / wartremoverWarnings := (figlet4s / Test / wartremoverWarnings).value
+figlet4sEffects / Test / wartremoverWarnings := (figlet4s / Test / wartremoverWarnings).value
 
 // Scalafmt
 ThisBuild / Compile / scalafmtOnCompile := true
@@ -56,6 +63,10 @@ ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports"
 ThisBuild / scalafixScalaBinaryVersion := ScalaLangVersion.replaceAll("\\.\\d+$", "")
 ThisBuild / semanticdbEnabled := true
 ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
+
+// GIT version information
+ThisBuild / dynverVTagPrefix := false
+ThisBuild / dynverSeparator := "-"
 
 // Figlet4s
 lazy val figlet4s: Project = project
