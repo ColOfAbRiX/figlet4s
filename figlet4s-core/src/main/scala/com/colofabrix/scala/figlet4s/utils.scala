@@ -44,19 +44,19 @@ private[figlet4s] object utils {
         zt.traverse(forward(fa))(f)(appG).map(zb => inverse(zb))
     }
 
-  //  Misc  //
+  //  Enrichment methods  //
 
   /**
    * Enrichment methods for Higher Kinded types
    */
-  implicit class RichHigherKind[F[_], A](private val self: F[A]) extends AnyVal {
+  implicit final class RichHigherKind[F[_], A](private val self: F[A]) extends AnyVal {
     def mapK[G[_]](implicit nt: F ~> G): G[A] = nt(self)
   }
 
   /**
    * Enrichment methods for Int for binary conversion
    */
-  implicit class BinaryInt(private val self: Int) extends AnyVal {
+  implicit final class BinaryInt(private val self: Int) extends AnyVal {
     /**
      * Converts the Int to a BitSet
      */
@@ -82,7 +82,7 @@ private[figlet4s] object utils {
   /**
    * Enrichment methods for String to calculate the MD5 hash
    */
-  implicit class MD5String(private val self: String) extends AnyVal {
+  implicit final class MD5String(private val self: String) extends AnyVal {
     /**
      * MD5 hash of the string
      */
@@ -93,5 +93,4 @@ private[figlet4s] object utils {
       bigInt.toString(16)
     }
   }
-
 }

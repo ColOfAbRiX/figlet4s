@@ -1,6 +1,7 @@
 package com.colofabrix.scala.figlet4s.testutils
 
 import cats.effect._
+import cats.effect.implicits._
 import cats.implicits._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options._
@@ -20,7 +21,6 @@ import sys.process._
  */
 trait OriginalFigletTesting extends Notifying {
   import ScalaCheckDrivenPropertyChecks._
-  import cats.syntax.parallel._
 
   case class TestRenderOptions(
       renderText: String,
@@ -61,6 +61,8 @@ trait OriginalFigletTesting extends Notifying {
    * Runs property testing on a given function to test Figlet4s
    */
   def figletRenderingTest[A](f: TestRenderOptions => A): Unit = {
+    val parallelism = Runtime.getRuntime.availableProcessors.toLong
+
     val parallelTests = for {
       _              <- Vector(assumeExecutableInPath("figlet"))
       fontName       <- Figlet4s.internalFonts.filterNot(dodgyFonts)
@@ -72,7 +74,7 @@ trait OriginalFigletTesting extends Notifying {
     }
 
     parallelTests
-      .parTraverse(runTests(f))
+      .parTraverseN(parallelism)(runTests(f))
       .map(_ => ())
       .unsafeRunSync()
   }
