@@ -5,28 +5,28 @@ import cats.kernel.Eq
 
 package object figfont {
 
-  implicit val figFontEq: Eq[FIGfont] =
+  implicit private[figlet4s] val figFontEq: Eq[FIGfont] =
     Eq.fromUniversalEquals
 
-  implicit val figCharacterEq: Eq[FIGcharacter] =
+  implicit private[figlet4s] val figCharacterEq: Eq[FIGcharacter] =
     Eq.fromUniversalEquals
 
-  implicit val figHeaderEq: Eq[FIGheader] =
+  implicit private[figlet4s] val figHeaderEq: Eq[FIGheader] =
     Eq.fromUniversalEquals
 
-  implicit val figFontSettingsEq: Eq[FIGfontSettings] =
+  implicit private[figlet4s] val figFontSettingsEq: Eq[FIGfontSettings] =
     Eq.fromUniversalEquals
 
-  implicit val figureEq: Eq[FIGure] =
+  implicit private[figlet4s] val figureEq: Eq[FIGure] =
     (x: FIGure, y: FIGure) => x.cleanColumns === y.cleanColumns
 
-  implicit val subColumnsEq: Eq[SubColumns] =
+  implicit private[figlet4s] val subColumnsEq: Eq[SubColumns] =
     (x: SubColumns, y: SubColumns) => x.value === y.value
 
-  implicit val subLinesEq: Eq[SubLines] =
+  implicit private[figlet4s] val subLinesEq: Eq[SubLines] =
     (x: SubLines, y: SubLines) => x.value === y.value
 
-  implicit def seqEq[A: Eq]: Eq[Seq[A]] =
+  implicit private[figlet4s] def seqEq[A: Eq]: Eq[Seq[A]] =
     (x: Seq[A], y: Seq[A]) => (x zip y).forall { case (a, b) => a === b }
 
 }

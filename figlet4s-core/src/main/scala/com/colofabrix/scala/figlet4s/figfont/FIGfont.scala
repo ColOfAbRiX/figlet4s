@@ -8,6 +8,16 @@ import com.colofabrix.scala.figlet4s.utils._
 
 /**
  * A FIGlet Font is a map of characters to their FIGrepresentation and the typographic settings used to display them
+ *
+ * A FIGfont cannot be instantiated directly as a case class but one must go through the factory methods defined in the
+ * companion object [[FIGfont$ FIGfont]] that perform validation of the defining lines of the character
+ *
+ * @param id         A code that uniquely identifies the FIGfont and the FIGcharacters inside it.
+ * @param name       The name of the FIGfont
+ * @param header     The FIGheader containing the raw definitions and settings of the FIGfont
+ * @param comment    A description of the font
+ * @param settings   The settings of the FIGfont inferred from the header and more scala-friendly
+ * @param characters The Map of the FIGcharacters composing this FIGfont
  */
 final case class FIGfont private[figlet4s] (
     id: String,
@@ -18,8 +28,11 @@ final case class FIGfont private[figlet4s] (
     characters: Map[Char, FIGcharacter],
 ) {
   /**
-   * Returns a FIGcharacter representation of the given Char. If the requested character is not present the character
-   * '0' will be returned instead.
+   * Returns a FIGcharacter representation of the given Char. If the requested character is not present the FIGcharacter
+   * '0' (as in Unicode '\u0000') will be returned instead.
+   *
+   * @param char The character to process into a FIGcharacter
+   * @return The FIGcharacter that represent the given input character
    */
   def apply(char: Char): FIGcharacter =
     characters.getOrElse(char, zero)
@@ -31,7 +44,10 @@ final case class FIGfont private[figlet4s] (
     FIGcharacter(id, 0.toChar, SubLines.zero(header.height), '@', 0, None, -1)
 
   /**
-   * Processes a character to a representable format
+   * Retrieves the FIGfont representation of a Char as a String
+   *
+   * @param char The character to process into a FIGcharacter and to render as String
+   * @return The String representation of the FIGcharacter that represent the given input character
    */
   def process(char: Char): Seq[String] =
     this(char)
@@ -70,9 +86,15 @@ object FIGfont {
   )
 
   /**
-   * Creates a validated FIGfont with the given parameters
+   * Creates a validated FIGfont with the given parameters using the given FIGcharacters
+   *
+   * @param name    The name of the FIGfont
+   * @param header  The FIGheader containing the raw definitions and settings of the FIGfont
+   * @param comment A description of the font
+   * @param chars   The list
+   * @return A [[com.colofabrix.scala.figlet4s.FigletResult]] containing the new FIGfont or a list of errors occurred during the creation
    */
-  def apply(name: String, header: FIGheader, comment: String, chars: Vector[FIGcharacter]): FigletResult[FIGfont] = {
+  def apply(name: String, header: FIGheader, comment: String, chars: IndexedSeq[FIGcharacter]): FigletResult[FIGfont] = {
     val hash = (name + header.toString + comment + chars.mkString).md5
 
     val hLayoutV = HorizontalLayout.fromHeader(header)
@@ -99,7 +121,11 @@ object FIGfont {
   }
 
   /**
-   * Creates a new FIGfont by parsing an input vector of lines representing an FLF file
+   * Creates a new FIGfont by parsing an input collection of lines representing an FLF file
+   *
+   * @param name  The name of the FIGfont
+   * @param lines An Iterable that contains all the lines representing an FLF file that defines the FIGfont
+   * @return A [[com.colofabrix.scala.figlet4s.FigletResult]] containing the new FIGfont or a list of errors occurred during the creation
    */
   def apply(name: String, lines: Iterator[String]): FigletResult[FIGfont] =
     lines
@@ -110,7 +136,9 @@ object FIGfont {
       }
       .andThen(buildFont)
 
-  /** List of required characters that all FIGfont must define */
+  /**
+   * List of required characters that all FIGfont must define
+   */
   val requiredChars: Seq[Char] = ((32 to 126) ++ Seq(196, 214, 220, 223, 228, 246, 252)).map(_.toChar)
 
   /**
@@ -170,7 +198,7 @@ object FIGfont {
   /**
    * Check all required characters are present
    */
-  private def validatedRequiredChars(chars: Vector[FIGcharacter]): FigletResult[Vector[FIGcharacter]] = {
+  private def validatedRequiredChars(chars: IndexedSeq[FIGcharacter]): FigletResult[IndexedSeq[FIGcharacter]] = {
     val loadedCharset = chars.map(_.name).toSet
     val missing       = requiredChars.toSet diff loadedCharset mkString ", "
 
@@ -183,7 +211,7 @@ object FIGfont {
   /**
    * Check that the list of FIGcharacter are all uniform
    */
-  private def validatedCharsUniformity(chars: Vector[FIGcharacter]): FigletResult[Vector[FIGcharacter]] =
+  private def validatedCharsUniformity(chars: IndexedSeq[FIGcharacter]): FigletResult[IndexedSeq[FIGcharacter]] =
     if (chars.map(_.lines.length).length =!= 1)
       FIGcharacterError(s"All FIGcharacters must have the same number of lines").invalidNec
     else if (chars.map(_.fontId).length =!= 1)

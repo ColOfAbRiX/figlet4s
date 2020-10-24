@@ -9,6 +9,8 @@ import scala.collection.immutable.BitSet
 
 private[figlet4s] object utils {
 
+//  val a: Any = null
+
   /**
    * Common trait for ADTs
    */

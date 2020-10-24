@@ -27,7 +27,7 @@ trait Figlet4sAPI[F[_]] {
   /**
    * Loads a FIGfont from file
    *
-   * @param path The path of the font file to load. It can be a .flf file or a zipped file.
+   * @param path     The path of the font file to load. It can be a .flf file or a zipped file.
    * @param encoding The encoding of the file if textual
    * @return The FIGfont loaded from the specified path
    */
@@ -36,7 +36,7 @@ trait Figlet4sAPI[F[_]] {
   /**
    * Renders a given text as a FIGure
    *
-   * @param text The text to render
+   * @param text    The text to render
    * @param options The rendering options used to render the text
    * @return A FIGure representing the rendered text
    */
@@ -82,7 +82,7 @@ trait Figlet4sEffectfulAPI[F[_]] {
   /**
    * Loads a FIGfont from file
    *
-   * @param path The path of the font file to load. It can be a .flf file or a zipped file.
+   * @param path     The path of the font file to load. It can be a .flf file or a zipped file.
    * @param encoding The encoding of the file if textual
    * @return The FIGfont loaded from the specified path
    */
@@ -91,7 +91,7 @@ trait Figlet4sEffectfulAPI[F[_]] {
   /**
    * Renders a given text as a FIGure
    *
-   * @param text The text to render
+   * @param text    The text to render
    * @param options The rendering options used to render the text
    * @return A FIGure representing the rendered text
    */

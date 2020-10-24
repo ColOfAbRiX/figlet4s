@@ -28,8 +28,8 @@ private[figlet4s] object FIGfontParameters {
     final case class ControlledSmushing(rules: Vector[HorizontalSmushingRule]) extends HorizontalLayout
 
     /**
-     * Interprets the header settings and returns the selected Horizontal Layout
-     * Contrary to the FIGfont standard, if the header defines "fullLayout" then "oldLayout" is ignored
+     * Interprets the header settings and returns the selected Horizontal Layout. Contrary to the FIGfont standard, if
+     * the header defines "fullLayout" then "oldLayout" is effectively ignored.
      */
     def fromHeader(header: FIGheader): FigletResult[HorizontalLayout] =
       (fromOldLayout(header), fromFullLayout(header))

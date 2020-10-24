@@ -1,3 +1,4 @@
+import sbt.Def
 import sbtproject._
 import sbtproject.dependencies.AllDependencies._
 import sbtproject.settings.Configurations._
@@ -13,61 +14,49 @@ ThisBuild / developers := List(
   Developer("ColOfAbRiX", "Fabrizio Colonna", "@ColOfAbRiX", url("http://github.com/ColOfAbRiX")),
 )
 
-// Global dependencies and compiler plugins
-ThisBuild / libraryDependencies ++= Seq(SplainPlugin)
+val commonSettings: Seq[Def.Setting[_]] = Seq(
+  Test / logBuffered := false,
 
-// Compile options
-figlet4s / Compile / scalacOptions := Compiler.TpolecatOptions_2_13 ++ Compiler.StrictOptions ++ Compiler.SplainOptions
-figlet4sCore / Compile / scalacOptions := (figlet4s / Compile / scalacOptions).value
-figlet4sEffects / Compile / scalacOptions := (figlet4s / Compile / scalacOptions).value
+  // Compiler options
+//  libraryDependencies ++= Seq(SplainPlugin),
+//  scalacOptions := Compiler.TpolecatOptions_2_13 ++ Compiler.StrictOptions ++ Compiler.SplainOptions,
+//  Test / scalacOptions := Compiler.TpolecatOptions_2_13,
 
-// Test options
-ThisBuild / Test / logBuffered := false
-figlet4s / Test / scalacOptions := Compiler.TpolecatOptions_2_13
-figlet4sCore / Test / scalacOptions := (figlet4s / Test / scalacOptions).value
-figlet4sEffects / Test / scalacOptions := (figlet4s / Test / scalacOptions).value
+  // Wartremover
+  Compile / wartremoverErrors := Warts.allBut(
+    Wart.Any,
+    Wart.DefaultArguments,
+    Wart.Nothing,
+    Wart.Overloading,
+    Wart.StringPlusAny,
+    Wart.ToString,
+    // Covered by ScalaFix
+    Wart.PublicInference
+  ),
+  Compile / wartremoverWarnings := Seq.empty,
+)
 
 // Scaladoc
-Compile / doc / scalacOptions := Seq(
+ThisBuild / doc / scalacOptions := Seq(
   "-doc-title", "Figlet4s API Documentation",
-  "-doc-version", figlet4sVersion,
-  "-groups", "-author", "-implicits",
+  "-doc-version", version.value,
+  "-groups", "-implicits",
   "-encoding", "UTF-8"
 )
 
-// Wartremover
-figlet4s / Compile / wartremoverErrors := Warts.allBut(
-  Wart.Any,
-  Wart.DefaultArguments,
-  Wart.Nothing,
-  Wart.Overloading,
-  Wart.StringPlusAny,
-  Wart.ToString,
-  // Covered by ScalaFix
-  Wart.PublicInference
-)
-figlet4sCore / Compile / wartremoverErrors := (figlet4s / Compile / wartremoverErrors).value
-figlet4sEffects / Compile / wartremoverErrors := (figlet4s / Compile / wartremoverErrors).value
-figlet4s / Test / wartremoverErrors := Seq.empty
-figlet4sCore / Test / wartremoverErrors := (figlet4s / Test / wartremoverErrors).value
-figlet4sEffects / Test / wartremoverErrors := (figlet4s / Test / wartremoverErrors).value
-figlet4s / Test / wartremoverWarnings := (figlet4s / Compile / wartremoverErrors).value
-figlet4sCore / Test / wartremoverWarnings := (figlet4s / Test / wartremoverWarnings).value
-figlet4sEffects / Test / wartremoverWarnings := (figlet4s / Test / wartremoverWarnings).value
-
 // Scalafmt
-ThisBuild / Compile / scalafmtOnCompile := true
+//ThisBuild / Compile / scalafmtOnCompile := true
 
 // Scalafix
-ThisBuild / Compile / scalafixOnCompile := true
-ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.4.0"
-ThisBuild / scalafixScalaBinaryVersion := ScalaLangVersion.replaceAll("\\.\\d+$", "")
-ThisBuild / semanticdbEnabled := true
-ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
+//ThisBuild / Compile / scalafixOnCompile := true
+//ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.4.0"
+//ThisBuild / scalafixScalaBinaryVersion := ScalaLangVersion.replaceAll("\\.\\d+$", "")
+//ThisBuild / semanticdbEnabled := true
+//ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
 
 // GIT version information
-ThisBuild / dynverVTagPrefix := false
-ThisBuild / dynverSeparator := "-"
+//ThisBuild / dynverVTagPrefix := false
+//ThisBuild / dynverSeparator := "-"
 
 // Figlet4s
 lazy val figlet4s: Project = project
@@ -80,6 +69,7 @@ lazy val figlet4s: Project = project
 // Figlet4s Core project
 lazy val figlet4sCore: Project = project
   .in(file("figlet4s-core"))
+  .settings(commonSettings)
   .settings(
     name := "figlet4s-core",
     description := "Scala FIGlet implementation",
@@ -99,6 +89,7 @@ lazy val figlet4sCore: Project = project
 lazy val figlet4sEffects: Project = project
   .in(file("figlet4s-effects"))
   .dependsOn(figlet4sCore)
+  .settings(commonSettings)
   .settings(
     name := "figlet4s-effects",
     description := "Effects extension for Figlet4s",
@@ -117,6 +108,7 @@ lazy val figlet4sBenchmarks: Project = project
   .in(file("figlet4s-benchmarks"))
   .configs(Benchmark)
   .dependsOn(figlet4sCore)
+  .settings(commonSettings)
   .settings(
     name := "figlet4s-benchmarks",
     description := "Benchmarks for Figlet4s",
