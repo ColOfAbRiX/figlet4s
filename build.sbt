@@ -1,5 +1,6 @@
-import dependencies.Dependencies._
-import settings.Configurations._
+import sbtproject._
+import sbtproject.dependencies.AllDependencies._
+import sbtproject.settings.Configurations._
 
 val figlet4sVersion = "0.1.0"
 
@@ -13,16 +14,16 @@ ThisBuild / developers := List(
 )
 
 // Global dependencies and compiler plugins
-ThisBuild / libraryDependencies ++= Seq(SplainPlugin, WartremoverPlugin)
+ThisBuild / libraryDependencies ++= Seq(SplainPlugin)
 
 // Compile options
-figlet4s / Compile / scalacOptions := Compiler.TpolecatOptions_2_13 ++ Seq("-P:splain:all")
+figlet4s / Compile / scalacOptions := Compiler.TpolecatOptions_2_13 ++ Compiler.StrictOptions ++ Compiler.SplainOptions
 figlet4sCore / Compile / scalacOptions := (figlet4s / Compile / scalacOptions).value
 figlet4sEffects / Compile / scalacOptions := (figlet4s / Compile / scalacOptions).value
 
 // Test options
 ThisBuild / Test / logBuffered := false
-figlet4s / Test / scalacOptions ~= (_ filterNot Compiler.FilterStrictOptions.contains)
+figlet4s / Test / scalacOptions := Compiler.TpolecatOptions_2_13
 figlet4sCore / Test / scalacOptions := (figlet4s / Test / scalacOptions).value
 figlet4sEffects / Test / scalacOptions := (figlet4s / Test / scalacOptions).value
 

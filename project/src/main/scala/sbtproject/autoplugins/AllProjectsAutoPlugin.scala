@@ -1,4 +1,4 @@
-package autoplugins
+package sbtproject.autoplugins
 
 import sbt._
 import sbt.Keys._

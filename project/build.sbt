@@ -1,5 +1,5 @@
 // SBT Sources
-Compile / scalaSource := baseDirectory.value / "src"
+Compile / scalaSource := baseDirectory.value / "src/main/scala"
 
 // SBT Scala version
 scalaVersion := "2.12.11"
@@ -16,7 +16,7 @@ lazy val SbtStatsVersion       = "1.0.7"
 lazy val ScalaFixVersion       = "0.9.21"
 lazy val ScalafmtVersion       = "2.4.0"
 lazy val UpdatesVersion        = "0.5.1"
-lazy val WartremoverVersion    = "2.4.9"
+lazy val WartremoverVersion    = "2.4.10"
 
 //  PLUGIN LIBRARIES  //
 

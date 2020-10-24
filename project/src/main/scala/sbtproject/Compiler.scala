@@ -1,3 +1,5 @@
+package sbtproject
+
 object Compiler {
 
   private lazy val cores = java.lang.Runtime.getRuntime.availableProcessors
@@ -30,7 +32,6 @@ object Compiler {
     "-Xlint:private-shadow",                     // A private field (or class parameter) shadows a superclass field.
     "-Xlint:stars-align",                        // Pattern sequence wildcard must align with sequence component.
     "-Xlint:type-parameter-shadow",              // A local type parameter shadows a type already in scope.
-    "-Xfatal-warnings",                          // Fail the compilation if there are any warning.
     "-Ywarn-dead-code",                          // Warn when dead code is identified.
     "-Ywarn-extra-implicit",                     // Warn when more than one implicit parameter section is defined.
     "-Ywarn-numeric-widen",                      // Warn when numerics are widened.
@@ -50,8 +51,11 @@ object Compiler {
   // format: on
 
   // Stricter compile option to filter out in specific situation
-  lazy val FilterStrictOptions: Set[String] = Set[String](
-    "-Xfatal-warnings"
+  lazy val StrictOptions: Set[String] = Set(
+    "-Xfatal-warnings",                          // Fail the compilation if there are any warning.
   )
+
+  // Options for the Splain plugin
+  lazy val SplainOptions: Set[String] = Set("-P:splain:all")
 
 }

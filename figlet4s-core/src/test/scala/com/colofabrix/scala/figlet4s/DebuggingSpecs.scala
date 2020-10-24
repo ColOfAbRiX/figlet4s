@@ -23,4 +23,7 @@
 //     computed should lookLike(expected)
 //   }
 
+// NOTE: More to test
+//  - TestRenderOptions(6G8_?)x|4Puey#uUUl],bigchief,FontDefault,LeftToRight,FlushLeft)
+
 // }

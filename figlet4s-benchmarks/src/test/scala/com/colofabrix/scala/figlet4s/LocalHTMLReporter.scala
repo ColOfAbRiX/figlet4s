@@ -26,7 +26,7 @@ abstract class LocalHTMLReporter extends Bench[Double] {
   override def reporter: Reporter[Double] =
     Reporter.Composite(
       new RegressionReporter(tester, historian),
-      HtmlReporter(true),
+      HtmlReporter(embedDsv = true),
     )
 
   private def tester: RegressionReporter.Tester =

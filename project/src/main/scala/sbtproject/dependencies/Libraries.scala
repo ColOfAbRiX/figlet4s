@@ -1,7 +1,7 @@
-package dependencies
+package sbtproject.dependencies
 
 import sbt._
-import settings.Configurations._
+import sbtproject.settings.Configurations._
 
 /**
  * Libraries
