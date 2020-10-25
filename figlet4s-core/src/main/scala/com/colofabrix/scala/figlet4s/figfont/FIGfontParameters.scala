@@ -25,11 +25,14 @@ private[figlet4s] object FIGfontParameters {
     /** Use universal horizontal smushing */
     final case object UniversalSmushing extends HorizontalLayout
     /** Use controlled horizontal smushing */
-    final case class ControlledSmushing(rules: Vector[HorizontalSmushingRule]) extends HorizontalLayout
+    final case class ControlledSmushing(rules: Seq[HorizontalSmushingRule]) extends HorizontalLayout
 
     /**
      * Interprets the header settings and returns the selected Horizontal Layout. Contrary to the FIGfont standard, if
      * the header defines "fullLayout" then "oldLayout" is effectively ignored.
+     *
+     * @param header The [[FIGheader]] where the Horizontal Layout is defined
+     * @return A [[com.colofabrix.scala.figlet4s.errors.FigletResult FigletResult]] containing the new HorizontalLayout or a list of errors occurred during the creation
      */
     def fromHeader(header: FIGheader): FigletResult[HorizontalLayout] =
       (fromOldLayout(header), fromFullLayout(header))
@@ -40,6 +43,9 @@ private[figlet4s] object FIGfontParameters {
 
     /**
      * Interprets the "fullLayout" part of the header settings and returns the selected Horizontal Layout
+     *
+     * @param header The [[FIGheader]] where the fullLayout is defined
+     * @return A [[com.colofabrix.scala.figlet4s.errors.FigletResult FigletResult]] containing the new HorizontalLayout or a list of errors occurred during the creation
      */
     def fromFullLayout(header: FIGheader): FigletResult[Option[HorizontalLayout]] =
       header
@@ -59,6 +65,9 @@ private[figlet4s] object FIGfontParameters {
 
     /**
      * Interprets the "oldLayout" part of the header settings and returns the selected Horizontal Layout
+     *
+     * @param header The [[FIGheader]] where the oldLayout is defined
+     * @return A [[com.colofabrix.scala.figlet4s.errors.FigletResult FigletResult]] containing the new HorizontalLayout or a list of errors occurred during the creation
      */
     def fromOldLayout(header: FIGheader): FigletResult[HorizontalLayout] = {
       val settings = header.oldLayout.toVector
@@ -95,8 +104,11 @@ private[figlet4s] object FIGfontParameters {
 
     /**
      * Interprets the "fullLayout" header settings and returns the selected Horizontal Smushing Rules
+     *
+     * @param header The [[FIGheader]] where the fullLayout is defined
+     * @return A [[com.colofabrix.scala.figlet4s.errors.FigletResult FigletResult]] containing a list of HorizontalSmushingRule or a list of errors occurred during the creation
      */
-    def fromFullLayout(header: FIGheader): FigletResult[Vector[HorizontalSmushingRule]] =
+    def fromFullLayout(header: FIGheader): FigletResult[Seq[HorizontalSmushingRule]] =
       header
         .fullLayout
         .map { settings =>
@@ -114,8 +126,11 @@ private[figlet4s] object FIGfontParameters {
 
     /**
      * Interprets the "oldLayout" header settings and returns the selected Horizontal Smushing Rules
+     *
+     * @param header The [[FIGheader]] where the oldLayout is defined
+     * @return A [[com.colofabrix.scala.figlet4s.errors.FigletResult FigletResult]] containing a list of HorizontalSmushingRule or a list of errors occurred during the creation
      */
-    def fromOldLayout(header: FIGheader): FigletResult[Vector[HorizontalSmushingRule]] =
+    def fromOldLayout(header: FIGheader): FigletResult[Seq[HorizontalSmushingRule]] =
       Some(header.oldLayout.toVector)
         .map {
           _.collect {
@@ -145,10 +160,13 @@ private[figlet4s] object FIGfontParameters {
     /** Use universal vertical smushing */
     final case object UniversalSmushing extends VerticalLayout
     /** Use controlled vertical smushing */
-    final case class ControlledSmushing(rules: Vector[VerticalSmushingRules]) extends VerticalLayout
+    final case class ControlledSmushing(rules: Seq[VerticalSmushingRules]) extends VerticalLayout
 
     /**
      * Interprets the header settings and returns the selected Vertical Layout
+     *
+     * @param header The [[FIGheader]] where the Vertical Layout is defined
+     * @return A [[com.colofabrix.scala.figlet4s.errors.FigletResult FigletResult]] containing the new VerticalLayout or a list of errors occurred during the creation
      */
     def fromHeader(header: FIGheader): FigletResult[VerticalLayout] =
       header
@@ -187,8 +205,11 @@ private[figlet4s] object FIGfontParameters {
 
     /**
      * Interprets the header settings and returns the selected Vertical Smushing Rules
+     *
+     * @param header The [[FIGheader]] where the Vertical Layout is defined
+     * @return A [[com.colofabrix.scala.figlet4s.errors.FigletResult FigletResult]] containing a list of VerticalSmushingRules or a list of errors occurred during the creation
      */
-    def fromHeader(header: FIGheader): FigletResult[Vector[VerticalSmushingRules]] =
+    def fromHeader(header: FIGheader): FigletResult[Seq[VerticalSmushingRules]] =
       header
         .fullLayout
         .map { settings =>

@@ -4,6 +4,9 @@ import cats._
 import cats.effect._
 import com.colofabrix.scala.figlet4s.errors._
 
+/**
+ * Figlet4s interfaces that do not use effects
+ */
 package object unsafe extends OptionsBuilderMixin with FIGureMixin {
 
   /**
@@ -29,10 +32,10 @@ package object unsafe extends OptionsBuilderMixin with FIGureMixin {
       throw e
 
     def bracketCase[A, B](resource: Id[A])(use: A => Id[B])(release: (A, ExitCase[Throwable]) => Id[Unit]): Id[B] =
-      throw new NotImplementedError("Sync[Id] doesn not support Bracket.bracketCase")
+      throw new NotImplementedError("Sync[Id] does not support Bracket.bracketCase")
 
     def handleErrorWith[A](fa: Id[A])(f: Throwable => Id[A]): Id[A] =
-      throw new NotImplementedError("Sync[Id] doesn not support ApplicativeError.handleErrorWith")
+      throw new NotImplementedError("Sync[Id] does not support ApplicativeError.handleErrorWith")
   }
 
   /**

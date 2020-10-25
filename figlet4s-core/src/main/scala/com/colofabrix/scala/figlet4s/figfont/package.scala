@@ -3,6 +3,9 @@ package com.colofabrix.scala.figlet4s
 import cats.implicits._
 import cats.kernel.Eq
 
+/**
+ * Package that contains the definition of FIGlet Fonts and the supporting data structures to convert from FLF files
+ */
 package object figfont {
 
   implicit private[figlet4s] val figFontEq: Eq[FIGfont] =

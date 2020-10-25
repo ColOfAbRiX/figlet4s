@@ -34,14 +34,21 @@ private[figlet4s] object BuilderAction {
 
   //  Action Tags  //
 
-  sealed trait FontTag
-  sealed trait HorizontalLayoutTag
-  sealed trait JustificationTag
-  sealed trait MaxWidthActionTag
-  sealed trait PrintDirectionTag
-  sealed trait TextTag
+  sealed trait ActionTag
+  sealed trait FontTag             extends ActionTag
+  sealed trait HorizontalLayoutTag extends ActionTag
+  sealed trait JustificationTag    extends ActionTag
+  sealed trait MaxWidthActionTag   extends ActionTag
+  sealed trait PrintDirectionTag   extends ActionTag
+  sealed trait TextTag             extends ActionTag
 
-  /** Determines if two actions belong to the same group by using Action Tags */
+  /**
+   * Determines if two actions belong to the same group by using ActionTag
+   *
+   * @param a The first BuilderAction to check
+   * @param b The true BuilderAction to check
+   * @return A Boolean value where `true` means the two BuilderAction belong to the same ActionTag
+   */
   def sameGroupAs(a: BuilderAction)(b: BuilderAction): Boolean =
     (a, b) match {
       case (_: FontTag, _: FontTag)                         => true

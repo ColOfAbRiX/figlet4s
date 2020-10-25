@@ -18,6 +18,9 @@ private[figlet4s] object Figlet4sClient {
 
   /**
    * The list of available internal fonts
+   *
+   * @tparam F A higher-kinded type for which there is a [[cats.effect.Sync]] instance
+   * @return The collection of names of FIGfonts shipped with this library
    */
   def internalFonts[F[_]: Sync]: F[Seq[String]] = {
     val resources =
@@ -41,6 +44,11 @@ private[figlet4s] object Figlet4sClient {
 
   /**
    * Renders a given text as a FIGure
+   *
+   * @tparam F A higher-kinded type for which there is a [[cats.effect.Sync]] instance
+   * @param text    The text to render
+   * @param options The rendering options used to render the text
+   * @return A FIGure representing the rendered text
    */
   def renderString[F[_]: Sync](text: String, options: RenderOptions): F[FIGure] =
     Sync[F].pure {
@@ -49,6 +57,10 @@ private[figlet4s] object Figlet4sClient {
 
   /**
    * Loads one of the internal FIGfont
+   *
+   * @tparam F A higher-kinded type for which there is a [[cats.effect.Sync]] instance
+   * @param name The name of the internal font to load, defaults to "standard"
+   * @return The FIGfont of the requested internal font
    */
   def loadFontInternal[F[_]: Sync](name: String = "standard"): F[FigletResult[FIGfont]] =
     for {
@@ -59,6 +71,11 @@ private[figlet4s] object Figlet4sClient {
 
   /**
    * Loads a FIGfont from file
+   *
+   * @tparam F A higher-kinded type for which there is a [[cats.effect.Sync]] instance
+   * @param path  The path of the font file to load. It can be a .flf file or a zipped file.
+   * @param codec The encoding of the file if textual
+   * @return The FIGfont loaded from the specified path
    */
   def loadFont[F[_]: Sync](path: String, codec: Codec): F[FigletResult[FIGfont]] =
     for {

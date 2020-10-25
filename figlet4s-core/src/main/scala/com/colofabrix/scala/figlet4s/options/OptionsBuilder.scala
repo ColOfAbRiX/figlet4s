@@ -12,8 +12,16 @@ import scala.io.Codec
 /**
  * Builder of rendering options.
  *
- * To create a builder use the [[com.colofabrix.scala.figlet4s.api.Figlet4sAPI.builder()*]] or
- * [[com.colofabrix.scala.figlet4s.api.Figlet4sEffectfulAPI.builderF()*]].
+ * This builder works by recording what settings a user wants to use instead of applying the setting immediately when
+ * calling a method. This allows for a fail-safe behaviour when, for instance, a user wants to load a file but the file
+ * is missing. Instead of receiving an exception when calling OptionsBuilder.withFont the builder will simply record
+ * the desire of loading a file. The actual loading, and failure, will happen and handled when calling
+ * OptionsBuilder.compile().
+ *
+ * To create a builder use the [[com.colofabrix.scala.figlet4s.api.Figlet4sAPI.builder()* Figlet4sAPI.builder()]] or
+ * [[com.colofabrix.scala.figlet4s.api.Figlet4sEffectfulAPI.builderF()* Figlet4sEffectfulAPI.builderF()]].
+ *
+ * @param actions The list of building actions that will be executed to obtain the final configuration.
  */
 final class OptionsBuilder(private val actions: List[BuilderAction] = List.empty) {
 

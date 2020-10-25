@@ -13,45 +13,45 @@ import com.colofabrix.scala.figlet4s.options._
  */
 object Figlet4s extends Figlet4sAPI[IO] with Figlet4sEffectfulAPI[IO] {
 
-  /** The list of available internal fonts */
+  /** @inheritdoc */
   def internalFonts: IO[Seq[String]] =
     Figlet4sClient.internalFonts[IO]
 
-  /** Loads one of the internal FIGfont */
+  /** @inheritdoc */
   def loadFontInternal(name: String = "standard"): IO[FIGfont] =
     Figlet4sClient
       .loadFontInternal[IO](name)
       .flatMap(_.asIO)
 
-  /** Loads a FIGfont from file */
+  /** @inheritdoc */
   def loadFont(path: String, encoding: String = "ISO8859_1"): IO[FIGfont] =
     Figlet4sClient
       .loadFont[IO](path, encoding)
       .flatMap(_.asIO)
 
-  /** Renders a given text as a FIGure */
+  /** @inheritdoc */
   def renderString(text: String, options: RenderOptions): FIGure =
     Figlet4sClient
       .renderString[IO](text, options)
       .unsafeRunSync()
 
-  /** Returns a new options builder with default settings */
+  /** @inheritdoc */
   def builder(): OptionsBuilder =
     new OptionsBuilder()
 
-  /** Returns a new options builder with default settings and a set text */
+  /** @inheritdoc */
   def builder(text: String): OptionsBuilder =
     new OptionsBuilder(BuilderAction.SetTextAction(text) :: Nil)
 
-  /** Returns a new options builder with default settings */
+  /** @inheritdoc */
   def builderF(): IO[OptionsBuilder] =
     IO.pure(builder())
 
-  /** Returns a new options builder with default settings and a set text */
+  /** @inheritdoc */
   def builderF(text: String): IO[OptionsBuilder] =
     IO.pure(builder(text))
 
-  /** Renders a given text as a FIGure */
+  /** @inheritdoc */
   def renderStringF(text: String, options: RenderOptions): IO[FIGure] =
     Figlet4sClient.renderString[IO](text, options)
 

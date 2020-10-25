@@ -3,7 +3,6 @@ import sbtproject._
 import sbtproject.dependencies.AllDependencies._
 import sbtproject.settings.Configurations._
 
-val figlet4sVersion = "0.1.0"
 
 // General
 Global / onChangedBuildSource := ReloadOnSourceChanges
@@ -15,12 +14,13 @@ ThisBuild / developers := List(
 )
 
 val commonSettings: Seq[Def.Setting[_]] = Seq(
+  autoAPIMappings := true,
   Test / logBuffered := false,
 
   // Compiler options
 //  libraryDependencies ++= Seq(SplainPlugin),
 //  scalacOptions := Compiler.TpolecatOptions_2_13 ++ Compiler.StrictOptions ++ Compiler.SplainOptions,
-//  Test / scalacOptions := Compiler.TpolecatOptions_2_13,
+  Test / scalacOptions := Compiler.TpolecatOptions_2_13,
 
   // Wartremover
   Compile / wartremoverErrors := Warts.allBut(
@@ -37,6 +37,7 @@ val commonSettings: Seq[Def.Setting[_]] = Seq(
 )
 
 // Scaladoc
+ThisBuild / autoAPIMappings := true
 ThisBuild / doc / scalacOptions := Seq(
   "-doc-title", "Figlet4s API Documentation",
   "-doc-version", version.value,
@@ -45,18 +46,18 @@ ThisBuild / doc / scalacOptions := Seq(
 )
 
 // Scalafmt
-//ThisBuild / Compile / scalafmtOnCompile := true
+ThisBuild / Compile / scalafmtOnCompile := true
 
 // Scalafix
-//ThisBuild / Compile / scalafixOnCompile := true
-//ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.4.0"
-//ThisBuild / scalafixScalaBinaryVersion := ScalaLangVersion.replaceAll("\\.\\d+$", "")
-//ThisBuild / semanticdbEnabled := true
-//ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
+ThisBuild / Compile / scalafixOnCompile := true
+ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.4.0"
+ThisBuild / scalafixScalaBinaryVersion := ScalaLangVersion.replaceAll("\\.\\d+$", "")
+ThisBuild / semanticdbEnabled := true
+ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
 
 // GIT version information
-//ThisBuild / dynverVTagPrefix := false
-//ThisBuild / dynverSeparator := "-"
+ThisBuild / dynverVTagPrefix := false
+ThisBuild / dynverSeparator := "-"
 
 // Figlet4s
 lazy val figlet4s: Project = project
@@ -73,7 +74,6 @@ lazy val figlet4sCore: Project = project
   .settings(
     name := "figlet4s-core",
     description := "Scala FIGlet implementation",
-    version := figlet4sVersion,
     libraryDependencies ++= Seq(
       CatsCoreDep,
       CatsEffectDep,
@@ -93,7 +93,6 @@ lazy val figlet4sEffects: Project = project
   .settings(
     name := "figlet4s-effects",
     description := "Effects extension for Figlet4s",
-    version := figlet4sVersion,
     libraryDependencies ++= Seq(
       CatsCoreDep,
       CatsEffectDep,
@@ -117,7 +116,6 @@ lazy val figlet4sBenchmarks: Project = project
     publishArtifact := false,
     resolvers ++= SonatypeRepos,
     testFrameworks += new TestFramework("org.scalameter.ScalaMeterFramework"),
-    version := figlet4sVersion,
     libraryDependencies ++= Seq(
       CatsCoreDep,
       ScalameterDep,

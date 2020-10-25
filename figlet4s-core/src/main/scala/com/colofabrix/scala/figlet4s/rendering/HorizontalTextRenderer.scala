@@ -13,6 +13,10 @@ import com.colofabrix.scala.figlet4s.rendering.Rendering._
 private[figlet4s] object HorizontalTextRenderer {
   /**
    * Renders a String into a FIGure for a given FIGfont and options
+   *
+   * @param text    The String to render as a FIGure
+   * @param options The RenderOptions used to render the text
+   * @return A FIGure containing the rendered text following the rendering options
    */
   def render(text: String, options: RenderOptions): FIGure = {
     val chosenLayout  = ClientHorizontalLayout.toInternalLayout(options.font)(options.horizontalLayout)
@@ -66,7 +70,7 @@ private[figlet4s] object HorizontalTextRenderer {
    */
   private def controlledHorizontalSmushingStrategy(
       options: Rendering.MergeOptions,
-      rules: Vector[HorizontalSmushingRule],
+      rules: Seq[HorizontalSmushingRule],
   ): MergeStrategy =
     mergeColumnWith(options) {
       case (aChar, ' ') => Continue(aChar)

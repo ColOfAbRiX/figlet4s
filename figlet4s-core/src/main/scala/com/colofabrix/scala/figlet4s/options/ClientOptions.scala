@@ -50,7 +50,7 @@ object HorizontalLayout extends Enum[HorizontalLayout] {
   /**
    * Converts the option HorizontalLayout into the FIGfont parameter HorizontalLayout
    */
-  def toInternalLayout(font: FIGfont): PartialFunction[HorizontalLayout, FontHorizontalLayout] = {
+  private[figlet4s] def toInternalLayout(font: FIGfont): PartialFunction[HorizontalLayout, FontHorizontalLayout] = {
     case FontDefault        => font.settings.hLayout
     case FullWidth          => FontHorizontalLayout.FullWidth
     case HorizontalFitting  => FontHorizontalLayout.HorizontalFitting
@@ -85,7 +85,7 @@ object PrintDirection extends Enum[PrintDirection] {
   /**
    * Converts the option PrintDirection into the FIGfont parameter PrintDirection
    */
-  def toInternalLayout(font: FIGfont): PartialFunction[PrintDirection, FontDirection] = {
+  private[figlet4s] def toInternalLayout(font: FIGfont): PartialFunction[PrintDirection, FontDirection] = {
     case LeftToRight => FontDirection.LeftToRight
     case RightToLeft => FontDirection.RightToLeft
     case FontDefault => font.settings.printDirection

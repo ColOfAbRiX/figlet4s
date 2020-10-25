@@ -14,6 +14,8 @@ import enumeratum.values._
 private[figfont] object FIGheaderParameters {
   /**
    * Print direction parameter
+   *
+   * @param value The numeric value of the Print Direction, contained in the FLF header
    */
   sealed abstract class PrintDirection(val value: Int) extends IntEnumEntry
 
@@ -25,6 +27,9 @@ private[figfont] object FIGheaderParameters {
 
     /**
      * Obtains the printing direction starting from the Integer provided
+     *
+     * @param value The number representing the PrintDirection
+     * @return The PrintDirection that corresponds to the given numeric value
      */
     def apply(value: Int): PrintDirection = withValue(value)
 
@@ -33,6 +38,8 @@ private[figfont] object FIGheaderParameters {
 
   /**
    * Full layout parameter
+   *
+   * @param value The numeric value of the Full Layout, contained in the FLF header
    */
   sealed abstract class FullLayout(val value: Int) extends IntEnumEntry with ADT
 
@@ -58,6 +65,9 @@ private[figfont] object FIGheaderParameters {
 
     /**
      * Obtains the list of requested setting starting from the Integer provided
+     *
+     * @param requestedSettings The number representing the FullLayout
+     * @return The FullLayout that corresponds to the given numeric value
      */
     def apply(requestedSettings: Int): Vector[FullLayout] =
       values
@@ -94,6 +104,8 @@ private[figfont] object FIGheaderParameters {
 
   /**
    * Old layout parameter
+   *
+   * @param value The numeric value of the Old Layout, contained in the FLF header
    */
   sealed abstract class OldLayout(val value: Int) extends IntEnumEntry
 
@@ -112,6 +124,9 @@ private[figfont] object FIGheaderParameters {
 
     /**
      * Obtains the list of requested setting starting from the Integer provided
+     *
+     * @param requestedSettings The number representing the OldLayout
+     * @return The OldLayout that corresponds to the given numeric value
      */
     def apply(requestedSettings: Int): Vector[OldLayout] =
       if (requestedSettings < 0)

@@ -19,7 +19,7 @@ trait Figlet4sAPI[F[_]] {
   /**
    * Loads one of the internal FIGfont
    *
-   * @param name The name of the internal font to load
+   * @param name The name of the internal font to load, defaults to "standard"
    * @return The FIGfont of the requested internal font
    */
   def loadFontInternal(name: String = "standard"): F[FIGfont]

@@ -65,7 +65,7 @@ trait OriginalFigletTesting extends Notifying {
 
     val parallelTests = for {
       _              <- Vector(assumeExecutableInPath("figlet"))
-      fontName       <- Figlet4s.internalFonts.filterNot(dodgyFonts)
+      fontName       <- Figlet4s.internalFonts.filterNot(dodgyFonts).take(3)
       hLayout        <- HorizontalLayout.values.filterNot(_ == HorizontalLayout.ForceHorizontalSmushing)
       printDirection <- Vector(PrintDirection.LeftToRight)
       justification  <- Vector(Justification.FlushLeft)

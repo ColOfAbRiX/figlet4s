@@ -12,45 +12,45 @@ import com.colofabrix.scala.figlet4s.options._
  */
 object Figlet4s extends Figlet4sAPI[FigletEither] with Figlet4sEffectfulAPI[FigletEither] {
 
-  /** The list of available internal fonts */
+  /** @inheritdoc */
   def internalFonts: FigletEither[Seq[String]] =
     Figlet4sClient.internalFonts[FigletEither]
 
-  /** Loads one of the internal FIGfont */
+  /** @inheritdoc */
   def loadFontInternal(name: String = "standard"): FigletEither[FIGfont] =
     Figlet4sClient
       .loadFontInternal[FigletEither](name)
       .flatMap(_.asEither)
 
-  /** Loads a FIGfont from file */
+  /** @inheritdoc */
   def loadFont(path: String, encoding: String = "ISO8859_1"): FigletEither[FIGfont] =
     Figlet4sClient
       .loadFont[FigletEither](path, encoding)
       .flatMap(_.asEither)
 
-  /** Renders a given text as a FIGure */
+  /** @inheritdoc */
   def renderString(text: String, options: RenderOptions): FIGure =
     Figlet4sClient
       .renderString[FigletEither](text, options)
       .unsafeGet
 
-  /** Returns a new options builder with default settings */
+  /** @inheritdoc */
   def builder(): OptionsBuilder =
     new OptionsBuilder()
 
-  /** Returns a new options builder with default settings and a set text */
+  /** @inheritdoc */
   def builder(text: String): OptionsBuilder =
     new OptionsBuilder(BuilderAction.SetTextAction(text) :: Nil)
 
-  /** Renders a given text as a FIGure */
+  /** @inheritdoc */
   def renderStringF(text: String, options: RenderOptions): FigletEither[FIGure] =
     Figlet4sClient.renderString[FigletEither](text, options)
 
-  /** Returns a new options builder with default settings */
+  /** @inheritdoc */
   def builderF(): FigletEither[OptionsBuilder] =
     Right(builder())
 
-  /** Returns a new options builder with default settings and a set text */
+  /** @inheritdoc */
   def builderF(text: String): FigletEither[OptionsBuilder] =
     Right(builder(text))
 

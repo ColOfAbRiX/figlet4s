@@ -11,10 +11,10 @@ private[either] trait OptionsBuilderMixin {
   implicit class OptionsBuilderOps(val self: OptionsBuilder) extends OptionsBuilderAPI[FigletEither] {
     private lazy val buildOptions = self.compile[FigletEither]
 
-    /** The text to render */
+    /** @inheritdoc */
     def text: FigletEither[String] = buildOptions.map(_.text)
 
-    /** Renders the text into a FIGure */
+    /** @inheritdoc */
     def render(): FigletEither[FIGure] =
       for {
         options  <- options
@@ -22,13 +22,13 @@ private[either] trait OptionsBuilderMixin {
         rendered <- Figlet4sClient.renderString[FigletEither](text, options)
       } yield rendered
 
-    /** Renders a given text into a FIGure */
+    /** @inheritdoc */
     def render(text: String): FigletEither[FIGure] =
       self
         .text(text)
         .render()
 
-    /** Returns the render options */
+    /** @inheritdoc */
     def options: FigletEither[RenderOptions] =
       for {
         font             <- builtFont

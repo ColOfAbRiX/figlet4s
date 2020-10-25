@@ -45,7 +45,8 @@ object FIGcharacter {
    * @param lines    The strings composing the lines of the FIGcharacter
    * @param comment  The comment of the FIGcharacter present only if it is not part of the required characters
    * @param position The line in the file where the FIGcharacter is defines
-   * @return A [[com.colofabrix.scala.figlet4s.FigletResult]] containing the new FIGcharacter or a list of errors occurred during the creation
+   * @return A [[com.colofabrix.scala.figlet4s.errors.FigletResult FigletResult]] containing the new FIGcharacter or a
+   *         list of errors occurred during the creation
    */
   def apply(
       fontId: String,
@@ -87,7 +88,8 @@ object FIGcharacter {
    * @param lines    The strings composing the lines of the FIGcharacter
    * @param comment  The comment of the FIGcharacter present only if it is not part of the required characters
    * @param position The line in the file where the FIGcharacter is defines
-   * @return A [[com.colofabrix.scala.figlet4s.FigletResult]] containing the new FIGcharacter or a list of errors occurred during the creation
+   * @return A [[com.colofabrix.scala.figlet4s.errors.FigletResult FigletResult]] containing the new FIGcharacter or a
+   *         list of errors occurred during the creation
    */
   def apply(
       fontId: String,

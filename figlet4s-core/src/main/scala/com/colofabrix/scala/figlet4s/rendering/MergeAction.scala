@@ -5,7 +5,7 @@ import cats._
 /**
  * Result of the merge of data like SubColumns
  */
-sealed trait MergeAction[@specialized(Char) +A]
+sealed private[figlet4s] trait MergeAction[@specialized(Char) +A]
 
 private[figlet4s] object MergeAction {
 

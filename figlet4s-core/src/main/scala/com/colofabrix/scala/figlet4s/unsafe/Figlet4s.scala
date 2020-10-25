@@ -14,36 +14,36 @@ import com.colofabrix.scala.figlet4s.options._
  */
 object Figlet4s extends Figlet4sAPI[Id] {
 
-  /** The list of available internal fonts */
+  /** @inheritdoc */
   @throws(classOf[FigletError])
   def internalFonts: Seq[String] =
     Figlet4sClient.internalFonts[Id]
 
-  /** Loads one of the internal FIGfont */
+  /** @inheritdoc */
   @throws(classOf[FigletError])
   def loadFontInternal(name: String = "standard"): FIGfont =
     Figlet4sClient
       .loadFontInternal[Id](name)
       .unsafeGet
 
-  /** Loads a FIGfont from file */
+  /** @inheritdoc */
   @throws(classOf[FigletError])
   def loadFont(path: String, encoding: String): FIGfont =
     Figlet4sClient
       .loadFont[Id](path, encoding)
       .unsafeGet
 
-  /** Renders a given text as a FIGure */
+  /** @inheritdoc */
   def renderString(text: String, options: RenderOptions): FIGure =
     Figlet4sClient.renderString[Id](text, options)
 
   //  Builder  //
 
-  /** Returns a new options builder with default settings */
+  /** @inheritdoc */
   def builder(): OptionsBuilder =
     new OptionsBuilder()
 
-  /** Returns a new options builder with default settings and a set text */
+  /** @inheritdoc */
   def builder(text: String): OptionsBuilder =
     new OptionsBuilder(BuilderAction.SetTextAction(text) :: Nil)
 

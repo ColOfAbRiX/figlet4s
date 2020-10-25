@@ -8,6 +8,21 @@ import com.colofabrix.scala.figlet4s.figfont.FIGheaderParameters._
 
 /**
  * FIGLettering Font file header that contains raw configuration settings for the FIGfont
+ *
+ * A FIGheader cannot be instantiated directly as a case class but one must go through the factory methods defined
+ * in the companion object [[FIGheader$ FIGheader]] that perform validation of the defining lines of the character
+ *
+ * @param signature      The first five characters of the header, always "flf2a"
+ * @param hardblank      Which sub-character is used to represent hardblanks in the FIGcharacter data, usually '$'
+ * @param height         The height of every FIGcharacter
+ * @param baseline       The number of lines from the baseline of a FIGcharacter to the top of the tallest FIGcharacter
+ * @param maxLength      The maximum length of any line describing a FIGcharacter
+ * @param oldLayout      Describes information about horizontal layout but does not include all of the information
+ *                       desired by the most recent FIGdrivers
+ * @param commentLines   How many lines of comments there are before the character definitions begin
+ * @param printDirection Which direction the font is to be printed by default
+ * @param fullLayout     Describes ALL information about horizontal and vertical layout
+ * @param codetagCount   The number of code-tagged (non-required) FIGcharacter
  */
 final case class FIGheader private[figlet4s] (
     signature: String,
@@ -33,6 +48,11 @@ final case class FIGheader private[figlet4s] (
     s"fullLayout=$fullLayout, " +
     s"codetagCount=$codetagCount)"
 
+  /**
+   * Returns the the single-line representation of the FIGheader as defined in the FLF standard
+   *
+   * @return A String containing the FLF representation of the FIGheader
+   */
   def singleLine(): String = {
     val oldLayoutNum      = oldLayout.map(_.value).sum.toString
     val printDirectionNum = printDirection.map(x => s" ${x.value}").getOrElse("")
@@ -56,6 +76,10 @@ object FIGheader {
 
   /**
    * Creates a new FLF Header from a the string representing the header
+   *
+   * @param line The String containing the full header of the FLF file
+   * @return A [[com.colofabrix.scala.figlet4s.errors.FigletResult FigletResult]] containing the new FIGheader or a list
+   *         of errors occurred during the creation
    */
   def apply(line: String): FigletResult[FIGheader] = {
     val splitLine = line.split(" ").toVector

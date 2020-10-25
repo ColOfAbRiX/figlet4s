@@ -44,22 +44,22 @@ class Figlet4sUnsafeSpecs extends AnyFlatSpec with Matchers with Figlet4sMatcher
     loadingErrors shouldBe empty
   }
 
-//  it should "render the texts as the original command line FIGlet does" taggedAs (SlowTest) in {
-//    figletRenderingTest { testData =>
-//      val testBuilder =
-//        defaultBuilder
-//          .text(testData.renderText)
-//          .withInternalFont(testData.fontName)
-//          .withHorizontalLayout(testData.horizontalLayout)
-//          .withPrintDirection(testData.printDirection)
-//          .withJustification(testData.justification)
-//
-//      val computed = testBuilder.render()
-//      val expected = renderWithFiglet(testBuilder.options, testData.renderText)
-//
-//      computed should lookLike(expected)
-//    }
-//  }
+  it should "render the texts as the original command line FIGlet does" taggedAs (SlowTest) in {
+    figletRenderingTest { testData =>
+      val testBuilder =
+        defaultBuilder
+          .text(testData.renderText)
+          .withInternalFont(testData.fontName)
+          .withHorizontalLayout(testData.horizontalLayout)
+          .withPrintDirection(testData.printDirection)
+          .withJustification(testData.justification)
+
+      val computed = testBuilder.render()
+      val expected = renderWithFiglet(testBuilder.options, testData.renderText)
+
+      computed should lookLike(expected)
+    }
+  }
 
   //  Support  //
 
