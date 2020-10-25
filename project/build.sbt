@@ -15,6 +15,7 @@ lazy val NativePackagerVersion = "1.7.5"
 lazy val SbtStatsVersion       = "1.0.7"
 lazy val ScalaFixVersion       = "0.9.21"
 lazy val ScalafmtVersion       = "2.4.0"
+lazy val UnidocVersion         = "0.4.3"
 lazy val UpdatesVersion        = "0.5.1"
 lazy val WartremoverVersion    = "2.4.10"
 
@@ -24,6 +25,7 @@ addSbtPlugin("ch.epfl.scala"    % "sbt-scalafix"              % ScalaFixVersion)
 addSbtPlugin("com.dwijnand"     % "sbt-dynver"                % DynverVersion)
 addSbtPlugin("com.eed3si9n"     % "sbt-assembly"              % AssemblyVersion)
 addSbtPlugin("com.eed3si9n"     % "sbt-buildinfo"             % BuildinfoVersion)
+addSbtPlugin("com.eed3si9n"     % "sbt-unidoc"                % UnidocVersion)
 addSbtPlugin("com.github.cb372" % "sbt-explicit-dependencies" % ExplicitDepsVersion)
 addSbtPlugin("com.orrsella"     % "sbt-stats"                 % SbtStatsVersion)
 addSbtPlugin("com.timushev.sbt" % "sbt-updates"               % UpdatesVersion)

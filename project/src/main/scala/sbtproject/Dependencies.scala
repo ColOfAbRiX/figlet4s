@@ -1,12 +1,16 @@
-package sbtproject.dependencies
+package sbtproject
 
 import sbt._
-import sbtproject.settings.Configurations._
 
 /**
- * Libraries
+ * Project dependencies
  */
-trait Libraries {
+object Dependencies {
+
+  // Scala language version
+  lazy val ScalaLangVersion = "2.13.3"
+
+  //  Libraries  //
 
   lazy val CatsEffectVersion = "2.2.0"
   lazy val CatsVersion       = "2.2.0"

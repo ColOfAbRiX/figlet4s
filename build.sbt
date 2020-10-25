@@ -1,8 +1,7 @@
-import sbt.Def
+import sbt._
 import sbtproject._
-import sbtproject.dependencies.AllDependencies._
-import sbtproject.settings.Configurations._
-
+import sbtproject.Dependencies._
+import sbtproject.Configurations._
 
 // General
 Global / onChangedBuildSource := ReloadOnSourceChanges
@@ -14,12 +13,10 @@ ThisBuild / developers := List(
 )
 
 val commonSettings: Seq[Def.Setting[_]] = Seq(
-  autoAPIMappings := true,
   Test / logBuffered := false,
 
   // Compiler options
-//  libraryDependencies ++= Seq(SplainPlugin),
-//  scalacOptions := Compiler.TpolecatOptions_2_13 ++ Compiler.StrictOptions ++ Compiler.SplainOptions,
+  scalacOptions := Compiler.TpolecatOptions_2_13 ++ Compiler.StrictOptions,
   Test / scalacOptions := Compiler.TpolecatOptions_2_13,
 
   // Wartremover
@@ -34,15 +31,13 @@ val commonSettings: Seq[Def.Setting[_]] = Seq(
     Wart.PublicInference
   ),
   Compile / wartremoverWarnings := Seq.empty,
-)
 
-// Scaladoc
-ThisBuild / autoAPIMappings := true
-ThisBuild / doc / scalacOptions := Seq(
-  "-doc-title", "Figlet4s API Documentation",
-  "-doc-version", version.value,
-  "-groups", "-implicits",
-  "-encoding", "UTF-8"
+  // Scaladoc
+  Compile / doc / scalacOptions := Seq(
+    "-doc-title", "Figlet4s API Documentation",
+    "-doc-version", version.value,
+    "-encoding", "UTF-8"
+  )
 )
 
 // Scalafmt
@@ -63,6 +58,7 @@ ThisBuild / dynverSeparator := "-"
 lazy val figlet4s: Project = project
   .in(file("."))
   .aggregate(figlet4sCore, figlet4sEffects)
+  .enablePlugins(ScalaUnidocPlugin)
   .settings(
     name := "figlet4s",
   )

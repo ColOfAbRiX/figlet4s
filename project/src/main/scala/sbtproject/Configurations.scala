@@ -1,4 +1,4 @@
-package sbtproject.settings
+package sbtproject
 
 import sbt._
 
