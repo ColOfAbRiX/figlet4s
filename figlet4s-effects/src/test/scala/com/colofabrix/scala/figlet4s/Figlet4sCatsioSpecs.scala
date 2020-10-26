@@ -10,7 +10,7 @@ class Figlet4sCatsioSpecs extends AnyFlatSpec with Matchers {
 
   private def run[A](a: IO[A]): A = a.unsafeRunSync()
 
-  "figlet4s-catsio" should "return an error inside IO" in {
+  "figlet4s-catsio" should "return errors inside IO" in {
     val result = for {
       builder <- Figlet4s.builderF("~ * Fao & C 123")
       figure  <- builder.withFont("non_existent").render()

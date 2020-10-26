@@ -122,8 +122,8 @@ return pure values (like a `FIGfont`) as well as throwing exception when errors 
 The `figlet4s-effects` package adds support for various effects. In the current version, Figlet4s
 effects supports:
 
-* Scala `Either` where errors are reported on the `Left` side
-* Cats's `IO` where errors are reported inside the `MonadError`
+* Scala `Either` where the `Left` side stores the errors and exceptions
+* Cats' `IO` where `MonadError` stores the errors and exceptions
 
 that can be used by importing the corresponding package. The effectful API have exactly the same
 signature as their unsafe version, but the result is wrapped inside the effect monad.
@@ -154,17 +154,17 @@ import com.colofabrix.scala.figlet4s.either._
 
 object EitherMain extends App {
 
-  val result = for {
-    builder <- Figlet4s.builderF()
-    figure  <- builder.render("Hello, World!")
-    lines   <- figure.asSeq()
-  } yield lines
+  val result =
+    for {
+      builder <- Figlet4s.builderF()             // Obtain an options builder
+      figure  <- builder.render("Hello, World!") // Render a text into a FIGure
+      lines   <- figure.asSeq()                  // Store the FIGure as lines in a variable
+    } yield lines
 
+  // Interpreting the result
   result match {
-    case Left(error) =>
-      println(s"Error occurred while working with FIGlet: $error")
-    case Right(value) =>
-      value.foreach(println)
+    case Left(error)  => println(s"Error while working with FIGlet: $error")
+    case Right(value) => value.foreach(println)
   }
 
 }
@@ -184,11 +184,11 @@ to display them.
 **FIGcharacter**
 
 It's a single FIGlet character, part of a FIGfont, that maps a single `Char` to its FIGlet
-representation and it's composed of SubLines/SubColumns.
+representation, and it's composed of SubLines/SubColumns.
 
 **FIGheader**
 
-FIGLettering Font file header that contains thye raw configuration settings for the FIGfont.
+FIGLettering Font file header that contains the raw configuration settings for the FIGfont.
 
 **FIGure**
 

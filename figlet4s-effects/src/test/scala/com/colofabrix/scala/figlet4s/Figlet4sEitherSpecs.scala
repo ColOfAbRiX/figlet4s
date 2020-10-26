@@ -7,7 +7,7 @@ import org.scalatest.matchers.should.Matchers
 
 class Figlet4sEitherSpecs extends AnyFlatSpec with Matchers with EitherValues {
 
-  "figlet4s-either" should "return an error inside Left()" in {
+  "figlet4s-either" should "return errors inside Left()" in {
     val result =
       Figlet4s
         .builder("~ * Fao & C 123")

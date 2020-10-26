@@ -5,7 +5,50 @@ import cats.effect._
 import com.colofabrix.scala.figlet4s.errors._
 
 /**
- * Figlet4s interfaces that do not use effects
+ * Figlet4s user interfaces that do not use effects
+ *
+ * This package allow a user to directly access the results of calls of Figlet4s without having to use the patterns of
+ * functional programming like [[scala.Either]] or Cats' IO. On the other hand, the calls that work with files, like
+ * loading a FIGfont, can throw exception as a result of errors.
+ *
+ * A simple example of using the `unsafe` package to interact with Figlet4s is:
+ *
+ * {{{
+ * import com.colofabrix.scala.figlet4s.unsafe._
+ *
+ * // Obtain an options builder
+ * val builder = Figlet4s.builder()
+ *
+ * // Render a text into a FIGure
+ * val figure = builder.render("Hello, World!")
+ *
+ * // Print the FIGure
+ * figure.print()
+ * }}}
+ *
+ * or the Figlet4s client can be used directly, without the mediation of the OptionsBuilder:
+ *
+ * {{{
+ * import com.colofabrix.scala.figlet4s.unsafe._
+ * import com.colofabrix.scala.figlet4s.options._
+ *
+ * // Load a font, choose the layout and max width
+ * val font           = Figlet4s.loadFontInternal("alligator")
+ * val maxWidth       = 120
+ * val layout         = HorizontalLayout.HorizontalFitting
+ * val printDirection = PrintDirection.LeftToRight
+ *
+ * // Build the render options
+ * val options = RenderOptions(font, maxWidth, layout, printDirection)
+ *
+ * // Render a string into a FIGure
+ * val figure = Figlet4s.renderString("Hello, World!", options)
+ *
+ * // Print the FIGure
+ * figure.print()
+ * }}}
+ *
+ * If you want to manage effects in a purely functional fashion see the additional dependency figlet4s-effects
  */
 package object unsafe extends OptionsBuilderMixin with FIGureMixin {
 
@@ -25,6 +68,7 @@ package object unsafe extends OptionsBuilderMixin with FIGureMixin {
     def tailRecM[A, B](a: A)(f: A => Id[Either[A, B]]): Id[B] =
       M.tailRecM(a)(f)
 
+    // NOTE: This is not a suspension as Id cannot suspend evaluation
     def suspend[A](thunk: => Id[A]): Id[A] =
       thunk
 

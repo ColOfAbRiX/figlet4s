@@ -33,6 +33,7 @@ val commonSettings: Seq[Def.Setting[_]] = Seq(
   Compile / wartremoverWarnings := Seq.empty,
 
   // Scaladoc
+  Compile / autoAPIMappings := true,
   Compile / doc / scalacOptions := Seq(
     "-doc-title", "Figlet4s API Documentation",
     "-doc-version", version.value,
