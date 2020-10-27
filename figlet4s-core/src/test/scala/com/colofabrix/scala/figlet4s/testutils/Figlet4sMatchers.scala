@@ -73,12 +73,25 @@ trait Figlet4sMatchers {
       def diffMessage =
         s"The expected FIGure doesn't look like the computed FIGure. Here is a breakdown of the differences:\n\n" +
         s"Text: '${computed.value}'\n\n" +
-        s"Font: ${computed.font.name}\n\n" +
+        s"Font: \n${niceFont(computed.font)}\n\n" +
         s"Expected:\n${expected.asString()}\n\n" +
         s"Computed:\n${computed.asString()}\n\n" +
         s"Differences:\n$printableDiffs"
 
       Either.cond(computed.cleanColumns === expected.cleanColumns, (), diffMessage)
+    }
+
+    private def niceFont(font: FIGfont): String = {
+      s"  Name: ${font.name}\n" +
+      s"  Hardblank: ${font.header.hardblank}\n" +
+      s"  Height: ${font.header.height}\n" +
+      s"  Baseline: ${font.header.baseline}\n" +
+      s"  Max Length: ${font.header.maxLength}\n" +
+      s"  Old Layout: ${font.header.oldLayout}\n" +
+      s"  Comment Lines: ${font.header.commentLines}\n" +
+      s"  Print Direction: ${font.header.printDirection}\n" +
+      s"  Full Layout: ${font.header.fullLayout}\n" +
+      s"  Codetag Count: ${font.header.codetagCount})"
     }
 
     private def columnsDiff(i: Int, e: String, c: String, maxLength: Int): Vector[String] = {

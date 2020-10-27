@@ -65,7 +65,7 @@ trait OriginalFigletTesting extends Notifying {
 
     val parallelTests = for {
       _              <- Vector(assumeExecutableInPath("figlet"))
-      fontName       <- Figlet4s.internalFonts.filterNot(dodgyFonts).take(3)
+      fontName       <- Figlet4s.internalFonts.filterNot(dodgyFonts)
       hLayout        <- HorizontalLayout.values.filterNot(_ == HorizontalLayout.ForceHorizontalSmushing)
       printDirection <- Vector(PrintDirection.LeftToRight)
       justification  <- Vector(Justification.FlushLeft)
@@ -88,7 +88,11 @@ trait OriginalFigletTesting extends Notifying {
       forAll(testDataSet)(f)
     }
 
-  // FIXME: Fix the issues related with these fonts
+  // NOTE: Many fonts seems to not follow the rules outlined on the FIGfont reference and do not render as the original
+  //       figlet renders them. There is a variety of issues with the fonts (described below) where fonts seems to have
+  //       special rules. Could it be that the fonts are exploiting hidden behaviours of figlet? Or have I misunderstood
+  //       the FIGfont reference? Or implemented it wrong?
+  // NOTE: Some fonts are known to have issues: https://github.com/pwaller/pyfiglet/blob/master/pyfiglet/test.py#L37
   private def dodgyFonts(fontName: String): Boolean = {
     val dodgyList = List(
       // NOTE: Some fonts seem to treat the hardblanks differently in that they smush together a hardblank and a char
@@ -101,10 +105,12 @@ trait OriginalFigletTesting extends Notifying {
       "univers",
       // NOTE: This font is rendered by figlet with a separation when an empty character is inserted between two others
       //       but I can't find or this behaviour in the documentation. It seems figlet only smushes up to the width of
-      //       the last character and not "as much left as it can"
+      //       the last character and not "as much left as it can". Applying this behaviour results in other fonts not
+      //       being rendered correctly.
       "crawford", // Try with "P{L"
       "serifcap", // Try with "s@,"
-      // NOTE: Figlet renders this font as all whitespaces, can't understand why, maybe the font is corrupted?
+
+      // NOTE: The original figlet renders this font as all whitespaces, maybe the font is corrupted?
       "dosrebel",
     )
 

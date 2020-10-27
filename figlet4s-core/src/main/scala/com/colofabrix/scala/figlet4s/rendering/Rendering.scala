@@ -9,10 +9,12 @@ import scala.annotation.tailrec
 /**
  * Rendering functions
  *
- * Explanation of the general algorithm with final `overlap = 3` and print direction left-to-right
+ * Explanation of the general algorithm with final `overlap = 3`, horizontal fitting layout and print direction
+ * left-to-right.
  *
  * Example merged FIGures (using Horizontal Fitting as example renderer):
  *
+ * {{{
  *    FIGure A   FIGure B        Resulting FIGure
  *   /        \ /       \       /               \
  *   +-----+---+---+-----+      +-----+---+-----+
@@ -24,10 +26,13 @@ import scala.annotation.tailrec
  *   |     |   |   |     |      |     |   |     |
  *   +-----+---+---+-----+      +-----+---+-----+
  *          \     /                     |
- *       Overlap area                 Merged
+ *       Overlap area            Merged 3 columns
+ *       3 cols each
+ * }}}
  *
  * In this example each FIGure is broken down in SubColumns with final `overlap = 3`:
  *
+ * {{{
  * FIGure A                                          | A-overlapping |
  * +--------+           +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+
  * |  _____ |           | |   | |   |_|   |_|   |_|   |_|   |_|   | |
@@ -37,9 +42,9 @@ import scala.annotation.tailrec
  * | |_|    |           | |   |||   |_|   |||   | |   | |   | |   | |
  * |        |           | |   | |   | |   | |   | |  /| |   | |   | |
  * +--------+           +-+   +-+   +-+   +-+   +-+ / +-+   +-+   +-+
- *                                                 /  |             |
- *                                 A active column    |             |-- Final overlap = 3 columns
- * Resulting FIGure                                   |             |
+ *                                                 / |               |
+ *                                 A active column   |               |-- Final overlap = 3 columns
+ * Resulting FIGure                                  |               |
  * +-------------+      +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+
  * |  _____      |      | |   | |   |_|   |_|   |_|   |_|   |_|   | |   | |   | |   | |   | |   | |
  * | |  ___|__ _ |      | |   |||   | |   | |   |_|   |_|   |_|   |||   |_|   |_|   | |   |_|   | |
@@ -48,9 +53,9 @@ import scala.annotation.tailrec
  * | |_|   \__,_||      | |   |||   |_|   |||   | |   | |   | |   |\|   |_|   |_|   |,|   |_|   |||
  * |             |      | |   | |   | |   | |   | |   | |   | |   | |   | |   | |   | |   | |   | |
  * +-------------+      +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+
- *                                                    |             |
- *                                 B active column    |             |
- * FIGure B                                        \  |             |
+ *                                                   |              |
+ *                                 B active column   |              |
+ * FIGure B                                        \ |              |
  * +--------+                                       \ +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+
  * |        |                                        \| |   | |   | |   | |   | |   | |   | |   | |
  * |   __ _ |                                         | |   | |   | |   |_|   |_|   | |   |_|   | |
@@ -60,9 +65,11 @@ import scala.annotation.tailrec
  * |        |                                         | |   | |   | |   | |   | |   | |   | |   | |
  * +--------+                                         +-+   +-+   +-+   +-+   +-+   +-+   +-+   +-+
  *                                                   | B-overlapping |
+ * }}}
  *
  * Merge of a single overlapping column with the custom merge function `f`:
  *
+ * {{{
  * +-+     +-+                                                 +-+
  * |_|  +  | |  ->  f('_', ' ') = Continue('_')                |_|
  * |_|  +  | |  ->  f('_', ' ') = Continue('_')                |_|
@@ -71,11 +78,13 @@ import scala.annotation.tailrec
  * | |  +  | |  ->  f(' ', ' ') = Continue(' ')                | |
  * | |  +  | |  ->  f(' ', ' ') = Continue('_')                |_|
  * +-+     +-+                                                 +-+
+ * }}}
  *
  * NOTES:
- * - Each recursive iteration works with a certain number of overlapping columns and once the overlapping area has been
- *   processed it decides between 3 options:
- *   - the overlap of the current iteration results in a valid merge the overlap can be increased further and thus runs
+ * - Each recursive iteration works with a certain amount of overlapping columns. The entire overlapping area is merged
+ *   but it's only the "active columns" that decide the outcome of the iteration as the subsequent ones will merge for
+ *   sure. Once the overlapping area has been process it decides between 3 options:
+ *   - the overlap of the current iteration results in a valid merge, the overlap can be increased further and thus runs
  *     a new iteration with `overlap + 1`;
  *   - the overlap of the current iteration results in a valid merge but the overlap cannot be increased and returns the
  *     result of the current iteration as the final result;
@@ -92,13 +101,13 @@ import scala.annotation.tailrec
  */
 private[figlet4s] object Rendering {
   /** Function that merges two SubElements */
-  type MergeStrategy = (SubColumns, SubColumns) => SubColumns
+  type MergeStrategy = Int => (SubColumns, SubColumns) => SubColumns
 
   /** Function that smushes two characters */
   type SmushingStrategy = (Char, Char) => Option[Char]
 
   /** Options carried around on each merge operation */
-  final case class MergeOptions(hardblank: Char)
+  final case class MergeOptions(hardblank: Char = '\u0000', lastCharWidth: Int = 0)
 
   /** Function that merges two characters */
   private type MergeChars = (Char, Char) => MergeAction[Char]
@@ -140,8 +149,12 @@ private[figlet4s] object Rendering {
   /**
    * Merges two columns applying a custom merge function to each pair of character of the two columns
    */
-  def mergeColumnWith(options: MergeOptions)(f: MergeChars): MergeStrategy = { (a, b) =>
-    SubColumns(merge(options, a.value.toVector, b.value.toVector, 0, Vector.empty)(f))
+  def mergeColumnWith(options: MergeOptions)(f: MergeChars): MergeStrategy = {
+    lastCharWidth =>
+      { (a, b) =>
+        val newOptions = options.copy(lastCharWidth = lastCharWidth)
+        SubColumns(merge(newOptions, a.value.toVector, b.value.toVector, 0, Vector.empty)(f))
+      }
   }
 
   //  Support  //
@@ -151,22 +164,43 @@ private[figlet4s] object Rendering {
    */
   private def appendCharacter(options: RenderOptions, mergeStrategy: MergeStrategy): Folder = {
     case (FoldAccumulator(accumulator, lastCharWidth), column) =>
-      // FIXME: This is temporary until the last-char-width feature is implemented
-      cats.effect.IO(lastCharWidth).map(_ => ()).unsafeRunSync()
-      val result = accumulator
-        .lastOption
-        .map(lastLine => accumulator.drop(1) :+ mergeStrategy(lastLine, column))
-        .filter(_.length <= options.maxWidth)
-        .getOrElse(accumulator :+ column)
+      val result =
+        accumulator
+          .lastOption
+          .map(lastLine => accumulator.drop(1) :+ mergeStrategy(lastCharWidth)(lastLine, column))
+          .filter(_.length <= options.maxWidth)
+          .getOrElse(accumulator :+ column)
       FoldAccumulator(result, column.length)
   }
 
   @tailrec
   private def merge(opts: MergeOptions, a: Columns, b: Columns, overlap: Int, previous: Columns)(f: MergeChars): Columns =
     if (overlap === 0) {
+      println("-" * 20)
+      println(s"Overlap: $overlap")
+      println(s"Width of last char: ${opts.lastCharWidth}")
+      println("  A")
+      println(SubColumns(a))
+      println(s"    a.length: ${a.length}")
+      println("  B")
+      println(SubColumns(b))
+      println(s"    b.length: ${b.length}")
+      println("  RESULT")
+      println("    NOTHING DO TO, GO FOR OVERLAPPING=1")
       merge(opts, a, b, 1, a ++ b)(f)
 
-    } else if (overlap > b.length) {
+    } else if (overlap > opts.lastCharWidth) {
+      println("-" * 20)
+      println(s"Overlap: $overlap")
+      println(s"Width of last char: ${opts.lastCharWidth}")
+      println("  A")
+      println(SubColumns(a))
+      println(s"    a.length: ${a.length}")
+      println("  B")
+      println(SubColumns(b))
+      println(s"    b.length: ${b.length}")
+      println("  RESULT")
+      println("    RETURNING THE PREVIOUS RESULT")
       previous
 
     } else {
@@ -185,6 +219,29 @@ private[figlet4s] object Rendering {
       val result = (leftSide, merged, rightSide).mapN { (_, merged, right) =>
         aSections.left ++ merged ++ right
       }
+
+      println("-" * 20)
+      println(s"Overlap: $overlap")
+      println(s"Width of last char: ${opts.lastCharWidth}")
+      println("  A")
+      println(SubColumns(a))
+      println(s"    a.length: ${a.length}")
+      println(s"    aSections.left: ${aSections.left}")
+      println(s"    aSections.overlap: ${aSections.overlap}")
+      println(s"    aSections.right: ${aSections.right}")
+      println("  B")
+      println(SubColumns(b))
+      println(s"    b.length: ${b.length}")
+      println(s"    bSections.left: ${bSections.left}")
+      println(s"    bSections.overlap: ${bSections.overlap}")
+      println(s"    bSections.right: ${bSections.right}")
+      println(" INTERMEDIATE")
+      println(s"    leftSide: $leftSide")
+      println(s"    merged: $merged")
+      println(s"    rightSide: $rightSide")
+      println("  RESULT")
+      println(s"    ${result.map(SubColumns(_))}")
+      println("")
 
       result match {
         case Stop                 => previous

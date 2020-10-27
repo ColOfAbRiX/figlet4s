@@ -1,30 +1,34 @@
-// package com.colofabrix.scala.figlet4s
+package com.colofabrix.scala.figlet4s
 
-// import com.colofabrix.scala.figlet4s.options._
-// import com.colofabrix.scala.figlet4s.testutils._
-// import com.colofabrix.scala.figlet4s.unsafe._
-// import org.scalatest.flatspec._
-// import org.scalatest.matchers.should._
+import com.colofabrix.scala.figlet4s.options._
+import com.colofabrix.scala.figlet4s.testutils._
+import com.colofabrix.scala.figlet4s.unsafe._
+import org.scalatest.flatspec._
+import org.scalatest.matchers.should._
 
-// class DebuggingSpecs extends AnyFlatSpec with Matchers with OriginalFigletTesting with Figlet4sMatchers {
+class DebuggingSpecs extends AnyFlatSpec with Matchers with OriginalFigletTesting with Figlet4sMatchers {
 
-//   "Debugging" should "help me fixing issues" taggedAs (ManualRunTest) in {
-//     val text = "j  k"
+  "Debugging" should "help me fixing issues" taggedAs (ManualRunTest) in {
+    val text = "P%J"
 
-//     val builder =
-//       Figlet4s
-//         .builder(text)
-//         .withInternalFont("cricket")
-//         .withHorizontalLayout(HorizontalLayout.HorizontalSmushing)
+    val builder =
+      Figlet4s
+        .builder(text)
+        .withInternalFont("whimsy")
+        .withHorizontalLayout(HorizontalLayout.HorizontalFitting)
 
-//     val computed = builder.render()
-//     val expected = renderWithFiglet(builder.options, text)
+    val computed = builder.render()
+    val expected = renderWithFiglet(builder.options, text)
 
-//     computed should lookLike(expected)
-//   }
+    computed should lookLike(expected)
+  }
 
 // NOTE: More to test
-//  - TestRenderOptions(6G8_?)x|4Puey#uUUl],bigchief,FontDefault,LeftToRight,FlushLeft)
-//  - TestRenderOptions(fkBFdmq/(|*Q[Vg[/F#V.Q2cIqs#DF?8,)wBd,"7qC$Ft%INJAZ;Vb>LMr6,]uPd#,Mx,eftiwall,FontDefault,LeftToRight,FlushLeft)
+//  - TestRenderOptions(P%J,whimsy,HorizontalFitting,LeftToRight,FlushLeft)
+//  - TestRenderOptions(j  k,cricket,FontDefault,LeftToRight,FlushLeft)
+//  - TestRenderOptions(x|,bigchief,FontDefault,LeftToRight,FlushLeft)
+//  - TestRenderOptions((|*,eftiwall,FontDefault,LeftToRight,FlushLeft)
+//  - TestRenderOptions(P{L,crawford,FontDefault,LeftToRight,FlushLeft)
+//  - TestRenderOptions(s@,,serifcap,FontDefault,LeftToRight,FlushLeft)
 
-// }
+}
