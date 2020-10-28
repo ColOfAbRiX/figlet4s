@@ -13,23 +13,40 @@ private[unsafe] trait OptionsBuilderMixin {
 
     private lazy val buildOptions = self.compile[Id]
 
-    /** @inheritdoc */
+    /**
+     * The text to render
+     *
+     * @return The text to render as String
+     */
     @throws(classOf[FigletError])
     def text: String = buildOptions.text
 
-    /** @inheritdoc */
+    /**
+     * Builds the options and then renders the text into a FIGure
+     *
+     * @return A FIGure representing the rendered text
+     */
     @throws(classOf[FigletError])
     def render(): FIGure =
       Figlet4s.renderString(buildOptions.text, options)
 
-    /** @inheritdoc */
+    /**
+     * Builds the options and then renders the text into a FIGure
+     *
+     * @param text The text to render
+     * @return A FIGure representing the rendered text
+     */
     @throws(classOf[FigletError])
     def render(text: String): FIGure =
       self
         .text(text)
         .render()
 
-    /** @inheritdoc */
+    /**
+     * Builds and returns the render options
+     *
+     * @return The RenderOptions resulting from building the internal state
+     */
     @throws(classOf[FigletError])
     def options: RenderOptions = {
       val font =

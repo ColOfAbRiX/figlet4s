@@ -20,34 +20,34 @@ private[figlet4s] object HorizontalTextRenderer {
    */
   def render(text: String, options: RenderOptions): FIGure = {
     val chosenLayout  = ClientHorizontalLayout.toInternalLayout(options.font)(options.horizontalLayout)
-    val mergeOptions  = Rendering.MergeOptions(options.font.header.hardblank)
-    val mergeStrategy = layout2mergeStrategy(mergeOptions)(chosenLayout)
+    val hardblank     = options.font.header.hardblank
+    val mergeStrategy = layout2mergeStrategy(hardblank)(chosenLayout)
     horizontalRender(text, options, mergeStrategy)
   }
 
   /**
    * Returns the merge strategy function given a layout
    */
-  private def layout2mergeStrategy(options: Rendering.MergeOptions): HorizontalLayout => MergeStrategy = {
-    case HorizontalLayout.FullWidth                 => fullWidthStrategy(options)
-    case HorizontalLayout.HorizontalFitting         => horizontalFittingStrategy(options)
-    case HorizontalLayout.UniversalSmushing         => universalHorizontalSmushingStrategy(options)
-    case HorizontalLayout.ControlledSmushing(rules) => controlledHorizontalSmushingStrategy(options, rules)
+  private def layout2mergeStrategy(hardblank: Char): HorizontalLayout => MergeStrategy = {
+    case HorizontalLayout.FullWidth                 => fullWidthStrategy
+    case HorizontalLayout.HorizontalFitting         => horizontalFittingStrategy
+    case HorizontalLayout.UniversalSmushing         => universalHorizontalSmushingStrategy(hardblank)
+    case HorizontalLayout.ControlledSmushing(rules) => controlledHorizontalSmushingStrategy(hardblank, rules)
   }
 
   /**
    * Encodes the Full Width horizontal layout
    */
-  private def fullWidthStrategy(options: Rendering.MergeOptions): MergeStrategy =
-    mergeColumnWith(options) {
+  private def fullWidthStrategy: MergeStrategy =
+    mergeColumnWith {
       case (_, _) => Stop
     }
 
   /**
    * Encodes the Horizontal Fitting horizontal layout
    */
-  private def horizontalFittingStrategy(options: Rendering.MergeOptions): MergeStrategy =
-    mergeColumnWith(options) {
+  private def horizontalFittingStrategy: MergeStrategy =
+    mergeColumnWith {
       case (aChar, ' ') => Continue(aChar)
       case (' ', bChar) => Continue(bChar)
       case (_, _)       => Stop
@@ -56,28 +56,25 @@ private[figlet4s] object HorizontalTextRenderer {
   /**
    * Encodes the Universal Horizontal Smushing horizontal layout
    */
-  private def universalHorizontalSmushingStrategy(options: Rendering.MergeOptions): MergeStrategy =
-    mergeColumnWith(options) {
+  private def universalHorizontalSmushingStrategy(hardblank: Char): MergeStrategy =
+    mergeColumnWith {
       case (aChar, ' ') => Continue(aChar)
       case (' ', bChar) => Continue(bChar)
-      case (aChar, bChar) if bChar === options.hardblank =>
-        if (aChar === options.hardblank) Stop else CurrentLast(aChar)
+      case (aChar, bChar) if bChar === hardblank =>
+        if (aChar === hardblank) Stop else CurrentLast(aChar)
       case (_, bChar) => CurrentLast(bChar)
     }
 
   /**
    * Encodes the Controlled Horizontal Smushing horizontal layout
    */
-  private def controlledHorizontalSmushingStrategy(
-      options: Rendering.MergeOptions,
-      rules: Seq[HorizontalSmushingRule],
-  ): MergeStrategy =
-    mergeColumnWith(options) {
+  private def controlledHorizontalSmushingStrategy(hardblank: Char, rules: Seq[HorizontalSmushingRule]): MergeStrategy =
+    mergeColumnWith {
       case (aChar, ' ') => Continue(aChar)
       case (' ', bChar) => Continue(bChar)
       case (aChar, bChar) =>
         rules
-          .map(rule2smushingStrategy(options))
+          .map(rule2smushingStrategy(hardblank))
           .map { f =>
             f(aChar, bChar)
           }
@@ -88,13 +85,13 @@ private[figlet4s] object HorizontalTextRenderer {
   /**
    * Returns a smushing strategy function given the smushing rule
    */
-  private def rule2smushingStrategy(options: Rendering.MergeOptions): HorizontalSmushingRule => SmushingStrategy = {
-    case HorizontalSmushingRule.EqualCharacter => equalCharacterSmushingRule(options.hardblank)
+  private def rule2smushingStrategy(hardblank: Char): HorizontalSmushingRule => SmushingStrategy = {
+    case HorizontalSmushingRule.EqualCharacter => equalCharacterSmushingRule(hardblank)
     case HorizontalSmushingRule.Underscore     => underscoreSmushingRule
     case HorizontalSmushingRule.Hierarchy      => hierarchySmushingRule
     case HorizontalSmushingRule.OppositePair   => oppositePairSmushingRule
     case HorizontalSmushingRule.BigX           => bigXSmushingRule
-    case HorizontalSmushingRule.Hardblank      => hardblankSmushingRule(options.hardblank)
+    case HorizontalSmushingRule.Hardblank      => hardblankSmushingRule(hardblank)
   }
 
   /**

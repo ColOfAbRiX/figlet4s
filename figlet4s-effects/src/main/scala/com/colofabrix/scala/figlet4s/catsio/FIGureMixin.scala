@@ -7,29 +7,51 @@ import com.colofabrix.scala.figlet4s.figfont._
 private[catsio] trait FIGureMixin {
 
   implicit class FIGureOps(val self: FIGure) extends FIGureAPI[IO] with FIGureEffectfulAPI[IO] {
-    /** @inheritdoc */
+    /**
+     * Apply a function to each line of the FIGure
+     *
+     * @param f The function to applied to each displayable line
+     */
     def foreachLine[A](f: String => A): IO[Unit] = IO {
       self.cleanLines.foreach(_.foreach(f))
     }
 
-    /** @inheritdoc */
+    /**
+     * Print the FIGure
+     */
     def print(): IO[Unit] =
       self.foreachLine(println)
 
-    /** @inheritdoc */
+    /**
+     * The figure as a collection of String, one String per displayable line
+     *
+     * @return A collection of strings, each containing a displayable line
+     */
     def asSeq(): Seq[String] =
       asSeqF().unsafeRunSync()
 
-    /** @inheritdoc */
+    /**
+     * The figure as single String and newline characters
+     *
+     * @return A single string containing the FIGure including newlines where needed
+     */
     def asString(): String =
       asStringF().unsafeRunSync()
 
-    /** @inheritdoc */
+    /**
+     * The figure as a collection of String, one String per displayable line
+     *
+     * @return A collection of strings, each containing a displayable line
+     */
     def asSeqF(): IO[Seq[String]] = IO.pure {
       self.cleanLines.map(_.value.mkString("\n"))
     }
 
-    /** @inheritdoc */
+    /**
+     * The figure as single String and newline characters
+     *
+     * @return A single string containing the FIGure including newlines where needed
+     */
     def asStringF(): IO[String] =
       asSeqF().map(_.mkString("\n"))
   }

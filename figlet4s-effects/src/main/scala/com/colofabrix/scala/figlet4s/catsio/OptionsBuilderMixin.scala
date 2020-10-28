@@ -11,10 +11,18 @@ private[catsio] trait OptionsBuilderMixin {
   implicit class OptionsBuilderOps(val self: OptionsBuilder) extends OptionsBuilderAPI[IO] {
     private lazy val buildOptions = self.compile[IO]
 
-    /** @inheritdoc */
+    /**
+     * The text to render
+     *
+     * @return The text to render as String
+     */
     def text: IO[String] = buildOptions.map(_.text)
 
-    /** @inheritdoc */
+    /**
+     * Builds and returns the render options
+     *
+     * @return The RenderOptions resulting from building the internal state
+     */
     def render(): IO[FIGure] =
       for {
         options  <- options
@@ -22,13 +30,22 @@ private[catsio] trait OptionsBuilderMixin {
         rendered <- Figlet4sClient.renderString[IO](text, options)
       } yield rendered
 
-    /** @inheritdoc */
+    /**
+     * Builds the options and then renders the text into a FIGure
+     *
+     * @return A FIGure representing the rendered text
+     */
     def render(text: String): IO[FIGure] =
       self
         .text(text)
         .render()
 
-    /** @inheritdoc */
+    /**
+     * Builds the options and then renders the text into a FIGure
+     *
+     * @param text The text to render
+     * @return A FIGure representing the rendered text
+     */
     def options: IO[RenderOptions] =
       for {
         font             <- builtFont

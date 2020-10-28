@@ -5,6 +5,7 @@ import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options._
 import com.colofabrix.scala.figlet4s.rendering.MergeAction._
 import scala.annotation.tailrec
+import cats.data.Reader
 
 /**
  * Rendering functions
@@ -100,31 +101,59 @@ import scala.annotation.tailrec
  * - The result value of the custom merge function is an Applicative Functor.
  */
 private[figlet4s] object Rendering {
+
   /** Function that merges two SubElements */
-  type MergeStrategy = Int => (SubColumns, SubColumns) => SubColumns
+  type MergeStrategy = Reader[RenderOptions, (SubColumns, SubColumns) => SubColumns]
 
   /** Function that smushes two characters */
   type SmushingStrategy = (Char, Char) => Option[Char]
 
-  /** Options carried around on each merge operation */
-  final case class MergeOptions(hardblank: Char = '\u0000', lastCharWidth: Int = 0)
+  //  Interface  //
+
+  /**
+   * Renders a text horizontally by merging one character after the other
+   */
+  def horizontalRender(text: String, options: RenderOptions, mergeStrategy: MergeStrategy): FIGure = {
+    val zero = Vector(options.font.zero.lines.toSubcolumns)
+    val result =
+      text
+        .map(options.font(_).columns)
+        .foldLeft(zero)(appendCharacter(options, mergeStrategy))
+    FIGure(options.font, text, result)
+  }
+
+  /**
+   * Merges two columns applying a custom merge function to each pair of character of the two columns
+   */
+  def mergeColumnWith(f: MergeChars): MergeStrategy =
+    Reader { stepStatus => (a, b) =>
+      SubColumns(merge(stepStatus, a.value.toVector, b.value.toVector, 0, Vector.empty)(f))
+    }
+
+  //  Support  //
+
+  /** Type of the foldLeft function */
+  private type Folder = (Vector[SubColumns], SubColumns) => Vector[SubColumns]
 
   /** Function that merges two characters */
   private type MergeChars = (Char, Char) => MergeAction[Char]
 
+  /**
+   * Appends a new character to the accumulator or creates a new line for it
+   */
+  private def appendCharacter(options: RenderOptions, mergeStrategy: MergeStrategy): Folder = {
+    case (accumulator, column) =>
+      accumulator
+        .lastOption
+        .map(lastLine => accumulator.drop(1) :+ mergeStrategy.run(options)(lastLine, column))
+        .filter(_.length <= options.maxWidth)
+        .getOrElse(accumulator :+ column)
+  }
+
+  //  ----  //
+
   /** Shortcut for a set of columns */
   private type Columns = Vector[String]
-
-  /** Type of the foldLeft function */
-  private type Folder = (FoldAccumulator, SubColumns) => FoldAccumulator
-
-  /**
-   * The data structure used to carry along information on each fold iteration
-   */
-  final private case class FoldAccumulator(accumulator: Vector[SubColumns], lastCharWidth: Int)
-  private object FoldAccumulator {
-    def apply(font: FIGfont): FoldAccumulator = FoldAccumulator(Vector(font.zero.lines.toSubcolumns), 0)
-  }
 
   /**
    * Represents the three sections of a set of columns
@@ -134,121 +163,81 @@ private[figlet4s] object Rendering {
     def apply(): Sections = Sections(Vector.empty[String], Vector.empty[String], Vector.empty[String])
   }
 
-  //  Interface  //
-
-  /**
-   * Renders a text horizontally by merging one character after the other
-   */
-  def horizontalRender(text: String, options: RenderOptions, mergeStrategy: MergeStrategy): FIGure = {
-    val result = text
-      .map(options.font(_).columns)
-      .foldLeft(FoldAccumulator(options.font))(appendCharacter(options, mergeStrategy))
-    FIGure(options.font, text, result.accumulator)
-  }
-
-  /**
-   * Merges two columns applying a custom merge function to each pair of character of the two columns
-   */
-  def mergeColumnWith(options: MergeOptions)(f: MergeChars): MergeStrategy = {
-    lastCharWidth =>
-      { (a, b) =>
-        val newOptions = options.copy(lastCharWidth = lastCharWidth)
-        SubColumns(merge(newOptions, a.value.toVector, b.value.toVector, 0, Vector.empty)(f))
-      }
-  }
-
-  //  Support  //
-
-  /**
-   * Appends a new character to the accumulator or creates a new line for it
-   */
-  private def appendCharacter(options: RenderOptions, mergeStrategy: MergeStrategy): Folder = {
-    case (FoldAccumulator(accumulator, lastCharWidth), column) =>
-      val result =
-        accumulator
-          .lastOption
-          .map(lastLine => accumulator.drop(1) :+ mergeStrategy(lastCharWidth)(lastLine, column))
-          .filter(_.length <= options.maxWidth)
-          .getOrElse(accumulator :+ column)
-      FoldAccumulator(result, column.length)
-  }
-
+  // format: off
   @tailrec
-  private def merge(opts: MergeOptions, a: Columns, b: Columns, overlap: Int, previous: Columns)(f: MergeChars): Columns =
-    if (overlap === 0) {
-      println("-" * 20)
-      println(s"Overlap: $overlap")
-      println(s"Width of last char: ${opts.lastCharWidth}")
-      println("  A")
-      println(SubColumns(a))
-      println(s"    a.length: ${a.length}")
-      println("  B")
-      println(SubColumns(b))
-      println(s"    b.length: ${b.length}")
-      println("  RESULT")
-      println("    NOTHING DO TO, GO FOR OVERLAPPING=1")
-      merge(opts, a, b, 1, a ++ b)(f)
+  private def merge(options: RenderOptions, a: Columns, b: Columns, overlap: Int, previous: Columns)(f: MergeChars): Columns =
+    // format: on
+  if (overlap === 0) {
+    // println("-" * 20)
+    // println(s"Overlap: $overlap")
+    // println("  A")
+    // println(SubColumns(a))
+    // println(s"    a.length: ${a.length}")
+    // println("  B")
+    // println(SubColumns(b))
+    // println(s"    b.length: ${b.length}")
+    // println("  RESULT")
+    // println("    NOTHING DO TO, GO FOR OVERLAPPING=1")
+    merge(options, a, b, 1, a ++ b)(f)
 
-    } else if (overlap > opts.lastCharWidth) {
-      println("-" * 20)
-      println(s"Overlap: $overlap")
-      println(s"Width of last char: ${opts.lastCharWidth}")
-      println("  A")
-      println(SubColumns(a))
-      println(s"    a.length: ${a.length}")
-      println("  B")
-      println(SubColumns(b))
-      println(s"    b.length: ${b.length}")
-      println("  RESULT")
-      println("    RETURNING THE PREVIOUS RESULT")
-      previous
+  } else if (overlap > b.length) {
+    // println("-" * 20)
+    // println(s"Overlap: $overlap")
+    // println("  A")
+    // println(SubColumns(a))
+    // println(s"    a.length: ${a.length}")
+    // println("  B")
+    // println(SubColumns(b))
+    // println(s"    b.length: ${b.length}")
+    // println("  RESULT")
+    // println("    RETURNING THE PREVIOUS RESULT")
+    previous
 
-    } else {
-      val aLeftCut  = Math.max(0, a.length - overlap)
-      val aRightCut = Math.min(a.length, (a.length - overlap) + b.length)
-      val aSections = splitSections(aLeftCut, aRightCut, a)
+  } else {
+    val aLeftCut  = Math.max(0, a.length - overlap)
+    val aRightCut = Math.min(a.length, (a.length - overlap) + b.length)
+    val aSections = splitSections(aLeftCut, aRightCut, a)
 
-      val bLeftCut  = Math.max(0, overlap - a.length)
-      val bRightCut = Math.min(overlap, b.length)
-      val bSections = splitSections(bLeftCut, bRightCut, b)
+    val bLeftCut  = Math.max(0, overlap - a.length)
+    val bRightCut = Math.min(overlap, b.length)
+    val bSections = splitSections(bLeftCut, bRightCut, b)
 
-      val leftSide  = mergeOnLeftBorder(opts, bSections.left, f)
-      val merged    = mergeOverlappingSections(aSections.overlap, bSections.overlap, f)
-      val rightSide = Continue(aSections.right ++ bSections.right)
+    val leftSide  = mergeOnLeftBorder(options.font.header.hardblank, bSections.left, f)
+    val merged    = mergeOverlappingSections(aSections.overlap, bSections.overlap, f)
+    val rightSide = Continue(aSections.right ++ bSections.right)
 
-      val result = (leftSide, merged, rightSide).mapN { (_, merged, right) =>
-        aSections.left ++ merged ++ right
-      }
-
-      println("-" * 20)
-      println(s"Overlap: $overlap")
-      println(s"Width of last char: ${opts.lastCharWidth}")
-      println("  A")
-      println(SubColumns(a))
-      println(s"    a.length: ${a.length}")
-      println(s"    aSections.left: ${aSections.left}")
-      println(s"    aSections.overlap: ${aSections.overlap}")
-      println(s"    aSections.right: ${aSections.right}")
-      println("  B")
-      println(SubColumns(b))
-      println(s"    b.length: ${b.length}")
-      println(s"    bSections.left: ${bSections.left}")
-      println(s"    bSections.overlap: ${bSections.overlap}")
-      println(s"    bSections.right: ${bSections.right}")
-      println(" INTERMEDIATE")
-      println(s"    leftSide: $leftSide")
-      println(s"    merged: $merged")
-      println(s"    rightSide: $rightSide")
-      println("  RESULT")
-      println(s"    ${result.map(SubColumns(_))}")
-      println("")
-
-      result match {
-        case Stop                 => previous
-        case CurrentLast(current) => current
-        case Continue(value)      => merge(opts, a, b, overlap + 1, value)(f)
-      }
+    val result = (leftSide, merged, rightSide).mapN { (_, merged, right) =>
+      aSections.left ++ merged ++ right
     }
+
+    // println("-" * 20)
+    // println(s"Overlap: $overlap")
+    // println("  A")
+    // println(SubColumns(a))
+    // println(s"    a.length: ${a.length}")
+    // println(s"    aSections.left: ${aSections.left}")
+    // println(s"    aSections.overlap: ${aSections.overlap}")
+    // println(s"    aSections.right: ${aSections.right}")
+    // println("  B")
+    // println(SubColumns(b))
+    // println(s"    b.length: ${b.length}")
+    // println(s"    bSections.left: ${bSections.left}")
+    // println(s"    bSections.overlap: ${bSections.overlap}")
+    // println(s"    bSections.right: ${bSections.right}")
+    // println(" INTERMEDIATE")
+    // println(s"    leftSide: $leftSide")
+    // println(s"    merged: $merged")
+    // println(s"    rightSide: $rightSide")
+    // println("  RESULT")
+    // println(s"    ${result.map(SubColumns(_))}")
+    // println("")
+
+    result match {
+      case Stop                 => previous
+      case CurrentLast(current) => current
+      case Continue(value)      => merge(options, a, b, overlap + 1, value)(f)
+    }
+  }
 
   private def mergeOverlappingSections(aSection: Columns, bSection: Columns, f: MergeChars): MergeAction[Columns] =
     (aSection zip bSection)
@@ -260,11 +249,11 @@ private[figlet4s] object Rendering {
             .map(_.mkString)
       }
 
-  private def mergeOnLeftBorder(opts: MergeOptions, section: Columns, f: MergeChars): MergeAction[Unit] =
+  private def mergeOnLeftBorder(hardblank: Char, section: Columns, f: MergeChars): MergeAction[Unit] =
     section
       .traverse {
         _.toVector.traverse {
-          case ' ' => f(opts.hardblank, ' ')
+          case ' ' => f(hardblank, ' ')
           case _   => Stop
         }
       }.map(_ => ())
