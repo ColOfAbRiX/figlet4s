@@ -61,7 +61,7 @@ trait OriginalFigletTesting extends Notifying {
    * Runs property testing on a given function to test Figlet4s
    */
   def figletRenderingTest[A](f: TestRenderOptions => A): Unit = {
-    val parallelism = Runtime.getRuntime.availableProcessors.toLong
+    val parallelism = 1 //Runtime.getRuntime.availableProcessors.toLong
 
     val parallelTests = for {
       _              <- Vector(assumeExecutableInPath("figlet"))
@@ -103,13 +103,6 @@ trait OriginalFigletTesting extends Notifying {
       "alligator3",
       "colossal",
       "univers",
-      // NOTE: This font is rendered by figlet with a separation when an empty character is inserted between two others
-      //       but I can't find or this behaviour in the documentation. It seems figlet only smushes up to the width of
-      //       the last character and not "as much left as it can". Applying this behaviour results in other fonts not
-      //       being rendered correctly.
-      "crawford", // Try with "P{L"
-      "serifcap", // Try with "s@,"
-
       // NOTE: The original figlet renders this font as all whitespaces, maybe the font is corrupted?
       "dosrebel",
     )

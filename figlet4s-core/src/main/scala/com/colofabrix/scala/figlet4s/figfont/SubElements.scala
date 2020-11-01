@@ -18,7 +18,7 @@ final case class SubLines(value: Seq[String]) extends SubElementOps[SubLines] {
     SubColumns(value.transpose.map(_.mkString))
 
   override def toString: String =
-    value.mkString("\n")
+    value.map("|" + _ + "|").mkString("\n")
 }
 
 object SubLines {

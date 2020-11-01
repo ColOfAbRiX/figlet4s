@@ -92,7 +92,8 @@ object FIGfont {
    * @param header  The FIGheader containing the raw definitions and settings of the FIGfont
    * @param comment A description of the font
    * @param chars   The list of FIGcharacter that compose the FIGfont
-   * @return A [[com.colofabrix.scala.figlet4s.errors.FigletResult FigletResult]] containing the new FIGfont or a list of errors occurred during the creation
+   * @return A [[com.colofabrix.scala.figlet4s.errors.FigletResult FigletResult]] containing the new FIGfont or a listF
+   *         of errors occurred during the creation
    */
   def apply(
       name: String,
@@ -131,7 +132,8 @@ object FIGfont {
    *
    * @param name  The name of the FIGfont
    * @param lines An Iterable that contains all the lines representing an FLF file that defines the FIGfont
-   * @return A [[com.colofabrix.scala.figlet4s.errors.FigletResult FigletResult]] containing the new FIGfont or a list of errors occurred during the creation
+   * @return A [[com.colofabrix.scala.figlet4s.errors.FigletResult FigletResult]] containing the new FIGfont or a list
+   *         of errors occurred during the creation
    */
   def apply(name: String, lines: Iterator[String]): FigletResult[FIGfont] =
     lines

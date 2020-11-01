@@ -1,3 +1,7 @@
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Actions Status](https://github.com/ColOfAbRiX/figlet4s/workflows/tests/badge.svg)](https://github.com/ColOfAbRiX/figlet4s/actions)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.colofabrix.scala/figlet4s/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.colofabrix.scala/figlet4s)
+
 # Figlet4s
 
 ```

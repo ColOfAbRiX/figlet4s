@@ -91,7 +91,7 @@ trait Figlet4sMatchers {
       s"  Comment Lines: ${font.header.commentLines}\n" +
       s"  Print Direction: ${font.header.printDirection}\n" +
       s"  Full Layout: ${font.header.fullLayout}\n" +
-      s"  Codetag Count: ${font.header.codetagCount})"
+      s"  Codetag Count: ${font.header.codetagCount}"
     }
 
     private def columnsDiff(i: Int, e: String, c: String, maxLength: Int): Vector[String] = {

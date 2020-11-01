@@ -5,7 +5,6 @@ import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options._
 import com.colofabrix.scala.figlet4s.rendering.MergeAction._
 import scala.annotation.tailrec
-import cats.data.Reader
 
 /**
  * Rendering functions
@@ -102,144 +101,124 @@ import cats.data.Reader
  */
 private[figlet4s] object Rendering {
 
-  /** Function that merges two SubElements */
-  type MergeStrategy = Reader[RenderOptions, (SubColumns, SubColumns) => SubColumns]
+  /** Function that merges two characters */
+  type MergeStrategy = (Char, Char) => MergeAction[Char]
 
   /** Function that smushes two characters */
   type SmushingStrategy = (Char, Char) => Option[Char]
 
-  //  Interface  //
-
   /**
    * Renders a text horizontally by merging one character after the other
+   *
+   * @param text          The text to render
+   * @param options       The options of the rendering
+   * @param mergeStrategy The merge strategy used to merge together two characters
+   * @return A new FIGure that corresponds to the rendered text
    */
   def horizontalRender(text: String, options: RenderOptions, mergeStrategy: MergeStrategy): FIGure = {
-    val zero = Vector(options.font.zero.lines.toSubcolumns)
+    val font = options.font
+    val zero = Vector(font.zero.lines.toSubcolumns)
+
     val result =
       text
         .map(options.font(_).columns)
-        .foldLeft(zero)(appendCharacter(options, mergeStrategy))
-    FIGure(options.font, text, result)
-  }
+        .foldLeft((zero, 0)) {
+          case ((accumulator, lastCharWidth), currentChar) =>
+            val nextAccumulator = accumulator
+              .lastOption
+              .map { lastLine =>
+                val state =
+                  MergeState(lastLine.value.toVector, currentChar.value.toVector, 0, Vector.empty, lastCharWidth)
+                accumulator.drop(1) :+ SubColumns(merge(options, state, mergeStrategy))
+              }
+              .filter(_.length <= options.maxWidth)
+              .getOrElse(accumulator :+ currentChar)
+            (nextAccumulator, currentChar.length)
+        }
 
-  /**
-   * Merges two columns applying a custom merge function to each pair of character of the two columns
-   */
-  def mergeColumnWith(f: MergeChars): MergeStrategy =
-    Reader { stepStatus => (a, b) =>
-      SubColumns(merge(stepStatus, a.value.toVector, b.value.toVector, 0, Vector.empty)(f))
-    }
+    FIGure(font, text, result._1)
+  }
 
   //  Support  //
-
-  /** Type of the foldLeft function */
-  private type Folder = (Vector[SubColumns], SubColumns) => Vector[SubColumns]
-
-  /** Function that merges two characters */
-  private type MergeChars = (Char, Char) => MergeAction[Char]
-
-  /**
-   * Appends a new character to the accumulator or creates a new line for it
-   */
-  private def appendCharacter(options: RenderOptions, mergeStrategy: MergeStrategy): Folder = {
-    case (accumulator, column) =>
-      accumulator
-        .lastOption
-        .map(lastLine => accumulator.drop(1) :+ mergeStrategy.run(options)(lastLine, column))
-        .filter(_.length <= options.maxWidth)
-        .getOrElse(accumulator :+ column)
-  }
-
-  //  ----  //
 
   /** Shortcut for a set of columns */
   private type Columns = Vector[String]
 
-  /**
-   * Represents the three sections of a set of columns
-   */
+  /** Status of the merge loop */
+  final private case class MergeState(a: Columns, b: Columns, overlap: Int, partialResult: Columns, lastCharWidth: Int)
+
+  /** Represents the three sections of a set of columns */
   final private case class Sections(left: Columns, overlap: Columns, right: Columns)
-  private object Sections {
-    def apply(): Sections = Sections(Vector.empty[String], Vector.empty[String], Vector.empty[String])
+
+  def printState(state: MergeState, result: Object): Unit = {
+    def indent(text: Object, amount: Int): String = text.toString.replaceAll("(?m)^", " " * amount)
+    println("-" * 50)
+    println(s"Overlap: ${state.overlap}")
+    println(s"Last char width: ${state.lastCharWidth}")
+    println("  A")
+    println(s"    a.length: ${state.a.length}")
+    println(indent(SubColumns(state.a), 4))
+    println("  B")
+    println(s"    b.length: ${state.b.length}")
+    println(indent(SubColumns(state.b), 4))
+    println("  RESULT")
+    println(s"    $result")
   }
 
-  // format: off
   @tailrec
-  private def merge(options: RenderOptions, a: Columns, b: Columns, overlap: Int, previous: Columns)(f: MergeChars): Columns =
-    // format: on
-  if (overlap === 0) {
-    // println("-" * 20)
-    // println(s"Overlap: $overlap")
-    // println("  A")
-    // println(SubColumns(a))
-    // println(s"    a.length: ${a.length}")
-    // println("  B")
-    // println(SubColumns(b))
-    // println(s"    b.length: ${b.length}")
-    // println("  RESULT")
-    // println("    NOTHING DO TO, GO FOR OVERLAPPING=1")
-    merge(options, a, b, 1, a ++ b)(f)
+  private def merge(options: RenderOptions, state: MergeState, f: MergeStrategy): Columns =
+    if (state.overlap === 0) {
+      // printState(state, "NOTHING DO TO, GO FOR OVERLAPPING = 1")
+      merge(options, state.copy(overlap = 1, partialResult = state.a ++ state.b), f)
 
-  } else if (overlap > b.length) {
-    // println("-" * 20)
-    // println(s"Overlap: $overlap")
-    // println("  A")
-    // println(SubColumns(a))
-    // println(s"    a.length: ${a.length}")
-    // println("  B")
-    // println(SubColumns(b))
-    // println(s"    b.length: ${b.length}")
-    // println("  RESULT")
-    // println("    RETURNING THE PREVIOUS RESULT")
-    previous
+    } else if (state.overlap > state.b.length || smushingException(options, state)) {
+      // printState(state, "RETURNING THE PREVIOUS RESULT")
+      state.partialResult
 
-  } else {
-    val aLeftCut  = Math.max(0, a.length - overlap)
-    val aRightCut = Math.min(a.length, (a.length - overlap) + b.length)
-    val aSections = splitSections(aLeftCut, aRightCut, a)
+    } else {
+      val aLeftCut  = Math.max(0, state.a.length - state.overlap)
+      val aRightCut = Math.min(state.a.length, (state.a.length - state.overlap) + state.b.length)
+      val aSections = splitSections(aLeftCut, aRightCut, state.a)
 
-    val bLeftCut  = Math.max(0, overlap - a.length)
-    val bRightCut = Math.min(overlap, b.length)
-    val bSections = splitSections(bLeftCut, bRightCut, b)
+      val bLeftCut  = Math.max(0, state.overlap - state.a.length)
+      val bRightCut = Math.min(state.overlap, state.b.length)
+      val bSections = splitSections(bLeftCut, bRightCut, state.b)
 
-    val leftSide  = mergeOnLeftBorder(options.font.header.hardblank, bSections.left, f)
-    val merged    = mergeOverlappingSections(aSections.overlap, bSections.overlap, f)
-    val rightSide = Continue(aSections.right ++ bSections.right)
+      val leftSide  = mergeOnLeftBorder(options.font.header.hardblank, bSections.left, f)
+      val merged    = mergeOverlappingSections(aSections.overlap, bSections.overlap, f)
+      val rightSide = Continue(aSections.right ++ bSections.right)
 
-    val result = (leftSide, merged, rightSide).mapN { (_, merged, right) =>
-      aSections.left ++ merged ++ right
+      val result = (leftSide, merged, rightSide).mapN { (_, merged, right) =>
+        aSections.left ++ merged ++ right
+      }
+
+      // printState(state, result.map(SubColumns(_)))
+
+      result match {
+        case Stop =>
+          // println("=" * 50 + "\n")
+          state.partialResult
+        case CurrentLast(current) =>
+          // println("=" * 50 + "\n")
+          current
+        case Continue(value) =>
+          merge(options, state.copy(overlap = state.overlap + 1, partialResult = value), f)
+      }
     }
 
-    // println("-" * 20)
-    // println(s"Overlap: $overlap")
-    // println("  A")
-    // println(SubColumns(a))
-    // println(s"    a.length: ${a.length}")
-    // println(s"    aSections.left: ${aSections.left}")
-    // println(s"    aSections.overlap: ${aSections.overlap}")
-    // println(s"    aSections.right: ${aSections.right}")
-    // println("  B")
-    // println(SubColumns(b))
-    // println(s"    b.length: ${b.length}")
-    // println(s"    bSections.left: ${bSections.left}")
-    // println(s"    bSections.overlap: ${bSections.overlap}")
-    // println(s"    bSections.right: ${bSections.right}")
-    // println(" INTERMEDIATE")
-    // println(s"    leftSide: $leftSide")
-    // println(s"    merged: $merged")
-    // println(s"    rightSide: $rightSide")
-    // println("  RESULT")
-    // println(s"    ${result.map(SubColumns(_))}")
-    // println("")
-
-    result match {
-      case Stop                 => previous
-      case CurrentLast(current) => current
-      case Continue(value)      => merge(options, a, b, overlap + 1, value)(f)
+  /**
+   * A note in the original figlet source code states: "Disallows overlapping if the previous character or the current
+   * character has a width of 1 or zero". This is an undocumented behaviour.
+   */
+  private def smushingException(options: RenderOptions, state: MergeState): Boolean =
+    options.horizontalLayout match {
+      case HorizontalLayout.HorizontalSmushing | HorizontalLayout.ForceHorizontalSmushing =>
+        state.lastCharWidth <= 1 || state.b.length <= 1
+      case _ =>
+        false
     }
-  }
 
-  private def mergeOverlappingSections(aSection: Columns, bSection: Columns, f: MergeChars): MergeAction[Columns] =
+  private def mergeOverlappingSections(aSection: Columns, bSection: Columns, f: MergeStrategy): MergeAction[Columns] =
     (aSection zip bSection)
       .traverse {
         case (aActiveColumn, bActiveColumn) =>
@@ -249,7 +228,7 @@ private[figlet4s] object Rendering {
             .map(_.mkString)
       }
 
-  private def mergeOnLeftBorder(hardblank: Char, section: Columns, f: MergeChars): MergeAction[Unit] =
+  private def mergeOnLeftBorder(hardblank: Char, section: Columns, f: MergeStrategy): MergeAction[Unit] =
     section
       .traverse {
         _.toVector.traverse {
@@ -261,7 +240,7 @@ private[figlet4s] object Rendering {
   private def splitSections(aPoint: Int, bPoint: Int, figure: Columns): Sections =
     figure
       .zipWithIndex
-      .foldLeft(Sections()) {
+      .foldLeft(Sections(Vector.empty[String], Vector.empty[String], Vector.empty[String])) {
         case (store, (column, i)) =>
           if (i < aPoint)
             store.copy(left = store.left :+ column)
