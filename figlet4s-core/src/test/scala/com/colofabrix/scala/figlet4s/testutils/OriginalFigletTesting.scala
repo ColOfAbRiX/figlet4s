@@ -61,7 +61,7 @@ trait OriginalFigletTesting extends Notifying {
    * Runs property testing on a given function to test Figlet4s
    */
   def figletRenderingTest[A](f: TestRenderOptions => A): Unit = {
-    val parallelism = 1 //Runtime.getRuntime.availableProcessors.toLong
+    val parallelism = Runtime.getRuntime.availableProcessors.toLong
 
     val parallelTests = for {
       _              <- Vector(assumeExecutableInPath("figlet"))
