@@ -99,10 +99,14 @@ import scala.annotation.tailrec
  * - The custom merge function returns the character resulting from merge of the two corresponding character together
  *   with the decision of how to proceed with the algorithm.
  * - The result value of the custom merge function is an Applicative Functor.
+ *
+ * @param text          The text to render
+ * @param options       The options of the rendering
+ * @param mergeStrategy The merge strategy used to merge together two characters
  */
 final private[rendering] class Rendering(text: String, options: RenderOptions, mergeStrategy: MergeStrategy) {
 
-  private def horizontalRender(): FIGure = {
+  def horizontalRender(): FIGure = {
     val zero    = Vector(options.font.zero.lines.toSubcolumns)
     val figures = text.toList.map(options.font(_).columns).toList
     val result  = appendLoop(figures, zero, AppendLoopState())
@@ -111,43 +115,40 @@ final private[rendering] class Rendering(text: String, options: RenderOptions, m
 
   //  ----  //
 
-  private val hardblank: Char = options.font.header.hardblank
-
   @tailrec
   private def appendLoop(text: List[SubColumns], partial: Vector[SubColumns], state: AppendLoopState): Vector[SubColumns] =
     (text, partial) match {
       case (Nil, _) => partial
       case (figChar :: remainingChars, upperLines :+ lastLine) =>
         val merged    = appendFigures(lastLine, figChar, state)
-        val result    = if (merged.length <= options.maxWidth) upperLines :+ merged else partial :+ onBorder(figChar)
+        val result    = if (merged.length <= options.maxWidth) upperLines :+ merged else partial :+ appendOnBorder(figChar)
         val nextState = state.copy(lastCharWidth = figChar.length)
         appendLoop(remainingChars, result, nextState)
     }
 
   private def appendFigures(a: SubColumns, b: SubColumns, loopState: AppendLoopState): SubColumns = {
-    val initialMergeState = MergeState(a.value.toVector, b.value.toVector, 0, Vector.empty, loopState)
+    val initialMergeState = MergeLoopState(a.value.toVector, b.value.toVector, 0, Vector.empty, loopState)
     SubColumns(merge(initialMergeState))
   }
 
-  private def onBorder(figChar: SubColumns): SubColumns = {
-    val initialMergeState = MergeState(Vector.empty, figChar.value.toVector, 0, Vector.empty, AppendLoopState())
+  private def appendOnBorder(figChar: SubColumns): SubColumns = {
+    val initialMergeState = MergeLoopState(Vector.empty, figChar.value.toVector, 0, Vector.empty, AppendLoopState())
     SubColumns(merge(initialMergeState))
   }
 
   //  ----  //
 
   @tailrec
-  private def merge(state: MergeState): Columns =
+  private def merge(state: MergeLoopState): Columns =
     if (state.overlap === 0) {
-      // printState(state, "NOTHING DO TO, GO FOR OVERLAPPING = 1")
       merge(state.copy(overlap = 1, partialResult = state.a ++ state.b))
 
     } else if (state.overlap > state.b.length) {
-      // printState(state, "RETURNING THE PREVIOUS RESULT")
-      // println("=" * 50 + "\n")
       state.partialResult
 
     } else {
+      val mState = MergeState(state.overlap, state.b.length, state.appendLoopState.lastCharWidth)
+
       val aLeftCut  = Math.max(0, state.a.length - state.overlap)
       val aRightCut = Math.min(state.a.length, (state.a.length - state.overlap) + state.b.length)
       val aSections = splitSections(aLeftCut, aRightCut, state.a)
@@ -156,48 +157,20 @@ final private[rendering] class Rendering(text: String, options: RenderOptions, m
       val bRightCut = Math.min(state.overlap, state.b.length)
       val bSections = splitSections(bLeftCut, bRightCut, state.b)
 
-      val leftSide  = mergeOnLeftBorder(bSections.left)
-      val merged    = mergeOverlappingSections(aSections.overlap, bSections.overlap)
+      val leftSide  = mergeOnLeftBorder(mState, bSections.left)
+      val merged    = mergeOverlappingSections(mState, aSections.overlap, bSections.overlap)
       val rightSide = Continue(aSections.right ++ bSections.right)
 
       val result = (leftSide, merged, rightSide).mapN { (_, merged, right) =>
         aSections.left ++ merged ++ right
       }
 
-      // printState(state, result.map(SubColumns(_)))
-
       result match {
-        case Stop =>
-          // println("=" * 50 + "\n")
-          state.partialResult
-        case CurrentLast(current) =>
-          // println("=" * 50 + "\n")
-          current
-        case Continue(value) =>
-          merge(state.copy(overlap = state.overlap + 1, partialResult = value))
+        case Stop                 => state.partialResult
+        case CurrentLast(current) => current
+        case Continue(value)      => merge(state.copy(overlap = state.overlap + 1, partialResult = value))
       }
     }
-
-  /** Merges the two overlapping sections of two characters */
-  private def mergeOverlappingSections(aSection: Columns, bSection: Columns): MergeAction[Columns] =
-    (aSection zip bSection)
-      .traverse {
-        case (aActiveColumn, bActiveColumn) =>
-          (aActiveColumn zip bActiveColumn)
-            .toVector
-            .traverse(mergeStrategy.tupled)
-            .map(_.mkString)
-      }
-
-  /** Merges a character on the left border */
-  private def mergeOnLeftBorder(section: Columns): MergeAction[Unit] =
-    section
-      .traverse {
-        _.toVector.traverse {
-          case ' ' => mergeStrategy(hardblank, ' ')
-          case _   => Stop
-        }
-      }.map(_ => ())
 
   /** Divides a set of columns into 3 sections with cuts in 2 points */
   private def splitSections(aPoint: Int, bPoint: Int, figure: Columns): Sections =
@@ -213,49 +186,39 @@ final private[rendering] class Rendering(text: String, options: RenderOptions, m
             store.copy(overlap = store.overlap :+ column)
       }
 
-  //  ----  //
+  /** Merges the two overlapping sections of two characters */
+  private def mergeOverlappingSections(state: MergeState, aSection: Columns, bSection: Columns): MergeAction[Columns] =
+    (aSection zip bSection)
+      .traverse {
+        case (aActiveColumn, bActiveColumn) =>
+          (aActiveColumn zip bActiveColumn)
+            .toVector
+            .traverse(mergeStrategy(state).tupled)
+            .map(_.mkString)
+      }
 
-  def printState(state: MergeState, result: Object): Unit = {
-    def indent(text: Object, amount: Int): String = text.toString.replaceAll("(?m)^", " " * amount)
-    println("-" * 50)
-    println(s"Overlap: ${state.overlap}")
-    println(s"Last char width: ${state.appendLoopState.lastCharWidth}")
-    println("  A")
-    println(s"    a.length: ${state.a.length}")
-    println(indent(SubColumns(state.a), 4))
-    println("  B")
-    println(s"    b.length: ${state.b.length}")
-    println(indent(SubColumns(state.b), 4))
-    println("  RESULT")
-    println(s"    $result")
-  }
+  /** Merges a character on the left border */
+  private def mergeOnLeftBorder(state: MergeState, section: Columns): MergeAction[Unit] =
+    section
+      .traverse {
+        _.toVector.traverse {
+          case ' ' => mergeStrategy(state)(options.font.header.hardblank, ' ')
+          case _   => Stop
+        }
+      }.map(_ => ())
 
 }
 
 private[figlet4s] object Rendering {
 
-  final case class AppendLoopState(lastCharWidth: Int = 0)
+  /** Function that, given a MergeState, merges two characters and determines the resulting MergeAction */
+  type MergeStrategy = MergeState => (Char, Char) => MergeAction[Char]
 
-  /** Status of the merge loop */
-  final case class MergeState(
-      a: Columns,
-      b: Columns,
-      overlap: Int,
-      partialResult: Columns,
-      appendLoopState: AppendLoopState,
-  )
-
-  /** Represents the three sections of a set of columns */
-  final protected case class Sections(left: Columns, overlap: Columns, right: Columns)
-
-  /** Function that merges two characters */
-  type MergeStrategy = (Char, Char) => MergeAction[Char]
+  /** Current state of the merge used to provide context to the MergeStrategy */
+  final case class MergeState(overlap: Int, currentCharWidth: Int, lastCharWidth: Int)
 
   /** Function that smushes two characters */
   type SmushingStrategy = (Char, Char) => Option[Char]
-
-  /** Shortcut for a set of columns */
-  protected type Columns = Vector[String]
 
   /**
    * Renders a text horizontally by merging one character after the other
@@ -267,5 +230,25 @@ private[figlet4s] object Rendering {
    */
   def horizontalRender(text: String, options: RenderOptions, mergeStrategy: MergeStrategy): FIGure =
     new Rendering(text, options, mergeStrategy).horizontalRender()
+
+  //  ----  //
+
+  /** Status of the append loop */
+  final protected case class AppendLoopState(lastCharWidth: Int = 0)
+
+  /** Status of the merge loop */
+  final protected case class MergeLoopState(
+      a: Columns,
+      b: Columns,
+      overlap: Int,
+      partialResult: Columns,
+      appendLoopState: AppendLoopState,
+  )
+
+  /** Represents the three sections of a set of columns */
+  final protected case class Sections(left: Columns, overlap: Columns, right: Columns)
+
+  /** Shortcut for a set of columns */
+  protected type Columns = Vector[String]
 
 }

@@ -88,10 +88,6 @@ trait OriginalFigletTesting extends Notifying {
       forAll(testDataSet)(f)
     }
 
-  // NOTE: Many fonts seems to not follow the rules outlined on the FIGfont reference and do not render as the original
-  //       figlet renders them. There is a variety of issues with the fonts (described below) where fonts seems to have
-  //       special rules. Could it be that the fonts are exploiting hidden behaviours of figlet? Or have I misunderstood
-  //       the FIGfont reference? Or implemented it wrong?
   // NOTE: Some fonts are known to have issues: https://github.com/pwaller/pyfiglet/blob/master/pyfiglet/test.py#L37
   private def dodgyFonts(fontName: String): Boolean = {
     val dodgyList = List(
@@ -105,6 +101,8 @@ trait OriginalFigletTesting extends Notifying {
       "univers",
       // NOTE: The original figlet renders this font as all whitespaces, maybe the font is corrupted?
       "dosrebel",
+      // NOTE: Doesn't respect spacing (Try "j  k")
+      "cricket",
     )
 
     dodgyList.contains(fontName)

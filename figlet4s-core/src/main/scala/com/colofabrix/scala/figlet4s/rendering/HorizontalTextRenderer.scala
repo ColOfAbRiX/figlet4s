@@ -38,45 +38,58 @@ private[figlet4s] object HorizontalTextRenderer {
   /**
    * Encodes the Full Width horizontal layout
    */
-  private def fullWidthStrategy: MergeStrategy = {
-    case (_, _) => Stop
-  }
+  private def fullWidthStrategy: MergeStrategy =
+    _ => {
+      case (_, _) => Stop
+    }
 
   /**
    * Encodes the Horizontal Fitting horizontal layout
    */
-  private def horizontalFittingStrategy: MergeStrategy = {
-    case (aChar, ' ') => Continue(aChar)
-    case (' ', bChar) => Continue(bChar)
-    case (_, _)       => Stop
-  }
+  private def horizontalFittingStrategy: MergeStrategy =
+    _ => {
+      case (aChar, ' ') => Continue(aChar)
+      case (' ', bChar) => Continue(bChar)
+      case (_, _)       => Stop
+    }
 
   /**
    * Encodes the Universal Horizontal Smushing horizontal layout
    */
-  private def universalHorizontalSmushingStrategy(hardblank: Char): MergeStrategy = {
-    case (aChar, ' ') => Continue(aChar)
-    case (' ', bChar) => Continue(bChar)
-    case (aChar, bChar) if bChar === hardblank =>
-      if (aChar === hardblank) Stop else CurrentLast(aChar)
-    case (_, bChar) => CurrentLast(bChar)
-  }
+  private def universalHorizontalSmushingStrategy(hardblank: Char): MergeStrategy =
+    state => {
+      case (aChar, ' ')             => Continue(aChar)
+      case (' ', bChar)             => Continue(bChar)
+      case _ if skipSmushing(state) => Stop
+      case (aChar, bChar) if bChar === hardblank =>
+        if (aChar === hardblank) Stop else CurrentLast(aChar)
+      case (_, bChar) => CurrentLast(bChar)
+    }
 
   /**
    * Encodes the Controlled Horizontal Smushing horizontal layout
    */
-  private def controlledHorizontalSmushingStrategy(hardblank: Char, rules: Seq[HorizontalSmushingRule]): MergeStrategy = {
-    case (aChar, ' ') => Continue(aChar)
-    case (' ', bChar) => Continue(bChar)
-    case (aChar, bChar) =>
-      rules
-        .map(rule2smushingStrategy(hardblank))
-        .map { f =>
-          f(aChar, bChar)
-        }
-        .collectFirst { case Some(value) => CurrentLast(value) }
-        .getOrElse(Stop: MergeAction[Char])
-  }
+  private def controlledHorizontalSmushingStrategy(hardblank: Char, rules: Seq[HorizontalSmushingRule]): MergeStrategy =
+    state => {
+      case (aChar, ' ')             => Continue(aChar)
+      case (' ', bChar)             => Continue(bChar)
+      case _ if skipSmushing(state) => Stop
+      case (aChar, bChar) =>
+        rules
+          .map(rule2smushingStrategy(hardblank))
+          .map { f =>
+            f(aChar, bChar)
+          }
+          .collectFirst { case Some(value) => CurrentLast(value) }
+          .getOrElse(Stop: MergeAction[Char])
+    }
+
+  /**
+   * A note in the original figlet source code states: "Disallows overlapping if the previous character or the current
+   * character has a width of 1 or zero". This is an undocumented behaviour.
+   */
+  private def skipSmushing(state: MergeState): Boolean =
+    state.lastCharWidth <= 1 || state.currentCharWidth <= 1
 
   /**
    * Returns a smushing strategy function given the smushing rule

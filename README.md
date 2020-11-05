@@ -1,6 +1,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Actions Status](https://github.com/ColOfAbRiX/figlet4s/workflows/tests/badge.svg)](https://github.com/ColOfAbRiX/figlet4s/actions)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.colofabrix.scala/figlet4s/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.colofabrix.scala/figlet4s)
+[![Gitter chat](https://badges.gitter.im/ColOfAbRiX/figlet4s.png)](https://gitter.im/figlet4s/community)
 
 # Figlet4s
 
@@ -221,6 +222,7 @@ the FIGure or of a FIGcharacter.
 * Create proper Scaladoc documentation for API
 * Explain better the various options available in the README
   * Or create a docsite
+* Create a command line interface
 
 ## License
 
