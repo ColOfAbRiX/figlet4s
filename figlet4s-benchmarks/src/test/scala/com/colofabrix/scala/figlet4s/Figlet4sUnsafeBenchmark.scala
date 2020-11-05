@@ -4,6 +4,7 @@ import com.colofabrix.scala.figlet4s.unsafe._
 import org.scalameter.api._
 import com.colofabrix.scala.figlet4s.figfont._
 
+// Run on SBT with figlet4sBenchmarks/test
 final class Figlet4sUnsafeBenchmark extends LocalHTMLReporter {
 
   private val sizes: Gen[Int] = Gen.range("size")(1, 2000, 100)

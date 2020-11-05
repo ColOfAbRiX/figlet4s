@@ -15,6 +15,7 @@ lazy val NativePackagerVersion = "1.7.5"
 lazy val SbtStatsVersion       = "1.0.7"
 lazy val ScalaFixVersion       = "0.9.21"
 lazy val ScalafmtVersion       = "2.4.0"
+lazy val SCoverageVersion      = "1.6.1"
 lazy val UnidocVersion         = "0.4.3"
 lazy val UpdatesVersion        = "0.5.1"
 lazy val WartremoverVersion    = "2.4.10"
@@ -32,4 +33,5 @@ addSbtPlugin("com.timushev.sbt" % "sbt-updates"               % UpdatesVersion)
 addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager"       % NativePackagerVersion)
 addSbtPlugin("org.duhemm"       % "sbt-errors-summary"        % ErrorsSummaryVersion)
 addSbtPlugin("org.scalameta"    % "sbt-scalafmt"              % ScalafmtVersion)
+addSbtPlugin("org.scoverage"    % "sbt-scoverage"             % SCoverageVersion)
 addSbtPlugin("org.wartremover"  % "sbt-wartremover"           % WartremoverVersion)

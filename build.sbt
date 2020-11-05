@@ -1,7 +1,6 @@
 import sbt._
 import sbtproject._
 import sbtproject.Dependencies._
-import sbtproject.Configurations._
 
 // General
 Global / onChangedBuildSource := ReloadOnSourceChanges
@@ -102,15 +101,14 @@ lazy val figlet4sEffects: Project = project
 // Figlet4s Benchmarks project
 lazy val figlet4sBenchmarks: Project = project
   .in(file("figlet4s-benchmarks"))
-  .configs(Benchmark)
   .dependsOn(figlet4sCore)
   .settings(commonSettings)
   .settings(
     name := "figlet4s-benchmarks",
     description := "Benchmarks for Figlet4s",
-    inConfig(Benchmark)(Defaults.testSettings),
-    Benchmark / parallelExecution := false,
     publishArtifact := false,
+    logBuffered := false,
+    Test / parallelExecution := false,
     resolvers ++= SonatypeRepos,
     testFrameworks += new TestFramework("org.scalameter.ScalaMeterFramework"),
     libraryDependencies ++= Seq(

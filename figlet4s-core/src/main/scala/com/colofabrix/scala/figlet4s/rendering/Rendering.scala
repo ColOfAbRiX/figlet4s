@@ -107,34 +107,25 @@ import scala.annotation.tailrec
 final private[rendering] class Rendering(text: String, options: RenderOptions, mergeStrategy: MergeStrategy) {
 
   def horizontalRender(): FIGure = {
-    val zero    = Vector(options.font.zero.lines.toSubcolumns)
-    val figures = text.toList.map(options.font(_).columns).toList
-    val result  = appendLoop(figures, zero, AppendLoopState())
+    val zero    = Vector(options.font.zero.lines.toSubcolumns.value.toVector)
+    val figures = text.toList.map(options.font(_).columns.value.toVector).toList
+    val result  = appendLoop(figures, zero, AppendLoopState()).map(SubColumns(_))
     FIGure(options.font, text, result)
   }
 
   //  ----  //
 
   @tailrec
-  private def appendLoop(text: List[SubColumns], partial: Vector[SubColumns], state: AppendLoopState): Vector[SubColumns] =
+  private def appendLoop(text: List[Columns], partial: Vector[Columns], state: AppendLoopState): Vector[Columns] =
     (text, partial) match {
       case (Nil, _) => partial
       case (figChar :: remainingChars, upperLines :+ lastLine) =>
-        val merged    = appendFigures(lastLine, figChar, state)
-        val result    = if (merged.length <= options.maxWidth) upperLines :+ merged else partial :+ appendOnBorder(figChar)
+        val merged    = merge(MergeLoopState(lastLine, figChar, appendLoopState = state))
+        def onBorder  = merge(MergeLoopState(b = figChar))
+        val result    = if (merged.length <= options.maxWidth) upperLines :+ merged else partial :+ onBorder
         val nextState = state.copy(lastCharWidth = figChar.length)
         appendLoop(remainingChars, result, nextState)
     }
-
-  private def appendFigures(a: SubColumns, b: SubColumns, loopState: AppendLoopState): SubColumns = {
-    val initialMergeState = MergeLoopState(a.value.toVector, b.value.toVector, 0, Vector.empty, loopState)
-    SubColumns(merge(initialMergeState))
-  }
-
-  private def appendOnBorder(figChar: SubColumns): SubColumns = {
-    val initialMergeState = MergeLoopState(Vector.empty, figChar.value.toVector, 0, Vector.empty, AppendLoopState())
-    SubColumns(merge(initialMergeState))
-  }
 
   //  ----  //
 
@@ -211,11 +202,11 @@ final private[rendering] class Rendering(text: String, options: RenderOptions, m
 
 private[figlet4s] object Rendering {
 
-  /** Function that, given a MergeState, merges two characters and determines the resulting MergeAction */
-  type MergeStrategy = MergeState => (Char, Char) => MergeAction[Char]
-
   /** Current state of the merge used to provide context to the MergeStrategy */
   final case class MergeState(overlap: Int, currentCharWidth: Int, lastCharWidth: Int)
+
+  /** Function that, given a MergeState, merges two characters and determines the resulting MergeAction */
+  type MergeStrategy = MergeState => (Char, Char) => MergeAction[Char]
 
   /** Function that smushes two characters */
   type SmushingStrategy = (Char, Char) => Option[Char]
@@ -238,11 +229,11 @@ private[figlet4s] object Rendering {
 
   /** Status of the merge loop */
   final protected case class MergeLoopState(
-      a: Columns,
-      b: Columns,
-      overlap: Int,
-      partialResult: Columns,
-      appendLoopState: AppendLoopState,
+      a: Columns = Vector.empty,
+      b: Columns = Vector.empty,
+      overlap: Int = 0,
+      partialResult: Columns = Vector.empty,
+      appendLoopState: AppendLoopState = AppendLoopState(),
   )
 
   /** Represents the three sections of a set of columns */
