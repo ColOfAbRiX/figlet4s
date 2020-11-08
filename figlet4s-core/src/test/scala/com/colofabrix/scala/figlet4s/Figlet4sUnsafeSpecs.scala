@@ -11,7 +11,7 @@ import scala.util._
 
 class Figlet4sUnsafeSpecs extends AnyFlatSpec with Matchers with Figlet4sMatchers with OriginalFigletTesting {
 
-  "Figlet4s" should "render a default test case" in {
+  "Figlet4s" should "render a default text using the \"standard\" font" in {
     val computed = SpecsData.standardBuilder.render(SpecsData.standardInput)
     val expected = FIGure(
       SpecsData.standardBuilder.options.font,

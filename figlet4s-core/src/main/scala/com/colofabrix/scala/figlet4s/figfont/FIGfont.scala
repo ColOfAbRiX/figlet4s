@@ -2,6 +2,7 @@ package com.colofabrix.scala.figlet4s.figfont
 
 import cats.data.Validated._
 import cats.implicits._
+import com.colofabrix.scala.figlet4s.compat._
 import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
 import com.colofabrix.scala.figlet4s.utils._
@@ -350,4 +351,5 @@ object FIGfont {
     else
       FIGcharacterError(s"Couldn't convert character code '$code' defined at line ${index + 1}").invalidNec
 
+  ->()
 }

@@ -6,6 +6,7 @@ import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters.{
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.utils._
 import enumeratum._
+import scala.collection.immutable.IndexedSeq
 
 /**
  * Option to chose the desired horizontal rendering layout
@@ -65,6 +66,7 @@ object HorizontalLayout extends Enum[HorizontalLayout] {
 }
 
 /**
+ * import scala.collection.immutable.IndexedSeq
  * Option to choose the rendering direction
  *
  * @todo This feature is not yet implemented
@@ -94,6 +96,7 @@ object PrintDirection extends Enum[PrintDirection] {
 }
 
 /**
+ * import scala.collection.immutable.IndexedSeq
  * Option to choose the justification of the text
  *
  * @todo This feature is not yet implemented

@@ -3,6 +3,7 @@ package com.colofabrix.scala.figlet4s.figfont
 import cats.data.Validated
 import cats.data.Validated._
 import cats.implicits._
+import com.colofabrix.scala.figlet4s.compat._
 import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont.FIGheaderParameters._
 
@@ -190,4 +191,6 @@ object FIGheader {
         .toIntOption
         .toValidNec(FIGheaderError(s"Couldn't parse header field 'codetagCount': $codetagCount"))
     }
+
+  ->()
 }

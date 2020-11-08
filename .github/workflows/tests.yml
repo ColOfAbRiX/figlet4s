@@ -24,4 +24,4 @@ jobs:
       - name: Install Figlet
         run: sudo apt-get install -y figlet
       - name: Run tests
-        run: sbt test
+        run: sbt +test

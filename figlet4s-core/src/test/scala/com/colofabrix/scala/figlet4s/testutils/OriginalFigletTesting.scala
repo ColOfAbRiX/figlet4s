@@ -3,6 +3,7 @@ package com.colofabrix.scala.figlet4s.testutils
 import cats.effect._
 import cats.effect.implicits._
 import cats.implicits._
+import com.colofabrix.scala.figlet4s.compat._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options._
 import com.colofabrix.scala.figlet4s.unsafe._
@@ -14,7 +15,6 @@ import org.scalactic.anyvals._
 import org.scalatest._
 import org.scalatestplus.scalacheck._
 import scala.concurrent.ExecutionContext
-import sys.process._
 
 /**
  * Support for testing using the command line, original figlet executable
@@ -44,7 +44,7 @@ trait OriginalFigletTesting extends Notifying {
    * Renders a text with the given options using the figlet executable found on command line
    */
   def renderWithFiglet(options: RenderOptions, text: String): FIGure = {
-    val output        = figletCommand(options, text).lazyLines.toVector
+    val output        = figletCommand(options, text).runStream.toVector
     val maxWidth      = output.map(_.length()).maxOption.getOrElse(0)
     val uniformOutput = output.map(x => x + " " * (maxWidth - x.length()))
     FIGure(options.font, text, Vector(SubLines(uniformOutput).toSubcolumns))
@@ -168,4 +168,5 @@ trait OriginalFigletTesting extends Notifying {
       case Justification.FlushRight  => List("-r")
       case Justification.FontDefault => List("-x")
     }
+
 }

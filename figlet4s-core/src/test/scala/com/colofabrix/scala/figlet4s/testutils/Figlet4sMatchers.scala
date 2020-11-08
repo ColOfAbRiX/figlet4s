@@ -1,6 +1,7 @@
 package com.colofabrix.scala.figlet4s.testutils
 
 import cats.implicits._
+import com.colofabrix.scala.figlet4s.compat._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.unsafe._
 import org.scalatest.matchers._
@@ -94,9 +95,12 @@ trait Figlet4sMatchers {
       s"  Codetag Count: ${font.header.codetagCount}"
     }
 
+    private def padToLen(self: String)(len: Int, elem: String): String =
+      elem * Math.max(len - self.length, 0)
+
     private def columnsDiff(i: Int, e: String, c: String, maxLength: Int): Vector[String] = {
-      val paddedC = c.padTo(maxLength, " ")
-      val paddedE = e.padTo(maxLength, " ")
+      val paddedC = padToLen(c)(maxLength, " ")
+      val paddedE = padToLen(e)(maxLength, " ")
 
       if (e =!= c) {
         val List(n1, n2, n3) = "%3d".format(i).toList.map(_.toString)
@@ -119,6 +123,8 @@ trait Figlet4sMatchers {
    */
   def lookLike(expected: FIGure): FIGureMatchers =
     new FIGureMatchers(expected)
+
+  ->()
 }
 
 object Figlet4sMatchers extends Figlet4sMatchers

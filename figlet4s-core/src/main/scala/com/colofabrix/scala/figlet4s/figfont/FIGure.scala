@@ -1,5 +1,7 @@
 package com.colofabrix.scala.figlet4s.figfont
 
+import com.colofabrix.scala.figlet4s.compat._
+
 /**
  * A FIGure that is a rendered String with a specific FIGfont and built built from multiple FIGcharacters
  *
@@ -72,4 +74,6 @@ object FIGure {
    */
   def apply(char: Char, font: FIGfont): FIGure =
     FIGure(font, char.toString, Seq(font(char).columns))
+
+  ->()
 }

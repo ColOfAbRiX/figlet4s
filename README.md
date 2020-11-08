@@ -1,10 +1,3 @@
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Actions Status](https://github.com/ColOfAbRiX/figlet4s/workflows/tests/badge.svg)](https://github.com/ColOfAbRiX/figlet4s/actions)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.colofabrix.scala/figlet4s/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.colofabrix.scala/figlet4s)
-[![Gitter chat](https://badges.gitter.im/ColOfAbRiX/figlet4s.png)](https://gitter.im/figlet4s/community)
-
-# Figlet4s
-
 ```
  _____ _       _      _   _  _
 |  ___(_) __ _| | ___| |_| || |  ___
@@ -14,6 +7,13 @@
          |___/
 ```
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Actions Status](https://github.com/ColOfAbRiX/figlet4s/workflows/tests/badge.svg)](https://github.com/ColOfAbRiX/figlet4s/actions)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.colofabrix.scala/figlet4s/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.colofabrix.scala/figlet4s)
+[![Gitter chat](https://badges.gitter.im/ColOfAbRiX/figlet4s.png)](https://gitter.im/figlet4s/community)
+
+# Figlet4s
+
 This is a library implementation of [FIGlet](http://www.figlet.org/) in pure Scala, with integrated
 fonts, minimal dependencies, extensive error reporting and support for effects including Cats `IO`.
 
@@ -21,14 +21,9 @@ fonts, minimal dependencies, extensive error reporting and support for effects i
 > letters made up of conglomerations of smaller ASCII characters (see ASCII art). The name derives
 > from "Frank, Ian and Glenn's letters".
 
-## DISCLAIMER
-
-This is a pre-release version, several bugs exists, it supports only one version of Scala and no
-binaries have been released yet.
-
 ## Setup
 
-Supports Scala version 2.13.
+Supports Scala version 2.13.x and 2.12.x.
 
 Not released on Maven Central yet.
 
@@ -77,7 +72,7 @@ object ShowcaseOptionsMain extends App {
   Figlet4s
     .builder("Hello, World!")      // Create the options builder with a text to render
     .withMaxWidth(80)              // Max width of the text
-    .withInternalFont("alligator") // Set the font
+    .withInternalFont("calgphy2")  // Set the font
     .defaultMaxWidth()             // Go back to the default max  width
     .withHorizontalLayout(
       HorizontalLayout.FullWidth   // Choose a layout
@@ -102,7 +97,7 @@ import com.colofabrix.scala.figlet4s.options._
 object LowLevelMain extends App {
 
   // Load a font, choose the layout and max width
-  val font           = Figlet4s.loadFontInternal("alligator")
+  val font           = Figlet4s.loadFontInternal("calgphy2")
   val maxWidth       = 120
   val layout         = HorizontalLayout.HorizontalFitting
   val printDirection = PrintDirection.LeftToRight
@@ -217,12 +212,10 @@ the FIGure or of a FIGcharacter.
 ### TODO
 
 * SBT code to deploy on maven central
-* Test and improve speed and memory performance
-* Add support for Scala 2.12 and look if Scala 3 support is feasible
-* Create proper Scaladoc documentation for API
-* Explain better the various options available in the README
-  * Or create a docsite
-* Create a command line interface
+* Add support for Scala 2.12
+* Create and deploy proper Scaladoc documentation for API
+* Create a docsite
+* Command line interpreter
 
 ## License
 

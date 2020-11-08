@@ -1,5 +1,6 @@
 import sbt._
 import sbtproject._
+import sbtproject.utils._
 import sbtproject.Dependencies._
 
 // General
@@ -15,8 +16,21 @@ val commonSettings: Seq[Def.Setting[_]] = Seq(
   Test / logBuffered := false,
 
   // Compiler options
-  scalacOptions := Compiler.TpolecatOptions_2_13 ++ Compiler.StrictOptions,
-  Test / scalacOptions := Compiler.TpolecatOptions_2_13,
+  scalacOptions := versioned(scalaVersion.value)(
+    Compiler.Options_2_12 ++ Compiler.StrictOptions,
+    Compiler.Options_2_13 ++ Compiler.StrictOptions
+  ),
+  Test / scalacOptions := versioned(scalaVersion.value)(
+    Compiler.Options_2_12,
+    Compiler.Options_2_13
+  ),
+
+  // Cross Scala Versions
+  crossScalaVersions := SupportedScalaLangVersion,
+
+  // Code styling
+  Compile / scalafmtOnCompile := true,
+  // Compile / scalafixOnCompile := true,
 
   // Wartremover
   Compile / wartremoverErrors := Warts.allBut(
@@ -40,19 +54,15 @@ val commonSettings: Seq[Def.Setting[_]] = Seq(
   )
 )
 
-// Scalafmt
-ThisBuild / Compile / scalafmtOnCompile := true
-
-// Scalafix
-ThisBuild / Compile / scalafixOnCompile := true
-ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.4.0"
-ThisBuild / scalafixScalaBinaryVersion := ScalaLangVersion.replaceAll("\\.\\d+$", "")
-ThisBuild / semanticdbEnabled := true
-ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
-
 // GIT version information
 ThisBuild / dynverVTagPrefix := false
 ThisBuild / dynverSeparator := "-"
+
+// Scalafix
+ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.4.3"
+ThisBuild / semanticdbEnabled := true
+ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
+ThisBuild / scalafixScalaBinaryVersion := CrossVersion.binaryScalaVersion(scalaVersion.value)
 
 // Figlet4s
 lazy val figlet4s: Project = project
@@ -61,6 +71,8 @@ lazy val figlet4s: Project = project
   .enablePlugins(ScalaUnidocPlugin)
   .settings(
     name := "figlet4s",
+    crossScalaVersions := Nil,
+    publish / skip := true,
   )
 
 // Figlet4s Core project
@@ -102,7 +114,6 @@ lazy val figlet4sEffects: Project = project
 lazy val figlet4sBenchmarks: Project = project
   .in(file("figlet4s-benchmarks"))
   .dependsOn(figlet4sCore)
-  .settings(commonSettings)
   .settings(
     name := "figlet4s-benchmarks",
     description := "Benchmarks for Figlet4s",
