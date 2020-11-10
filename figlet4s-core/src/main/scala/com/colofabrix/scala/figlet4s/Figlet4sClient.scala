@@ -38,7 +38,7 @@ private[figlet4s] object Figlet4sClient {
       internalFontsFromJar(resources).map(_.toSeq)
     else
       Sync[F].raiseError {
-        FigletException(new RuntimeException("Could not determine the type of artifacts"))
+        FigletError(new RuntimeException("Could not determine the type of artifacts"))
       }
   }
 

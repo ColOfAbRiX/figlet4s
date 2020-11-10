@@ -62,7 +62,7 @@ import scala.util._
  */
 package object either extends FIGureMixin with OptionsBuilderMixin {
 
-  type FigletEither[+A] = Either[FigletError, A]
+  type FigletEither[+A] = Either[FigletException, A]
 
   /**
    * Sync instance for Either
@@ -90,8 +90,8 @@ package object either extends FIGureMixin with OptionsBuilderMixin {
 
     def raiseError[A](t: Throwable): FigletEither[A] =
       t match {
-        case fe: FigletError => Left(fe)
-        case t: Throwable    => Left(FigletException(t))
+        case fe: FigletException => Left(fe)
+        case t: Throwable        => Left(FigletError(t))
       }
 
     // format: off
@@ -118,7 +118,7 @@ package object either extends FIGureMixin with OptionsBuilderMixin {
    */
   @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   implicit private[either] class FigletEitherOps[A](private val self: FigletEither[A]) extends AnyVal {
-    @throws(classOf[FigletError])
+    @throws(classOf[FigletException])
     def unsafeGet: A = self.fold(e => throw e, identity)
   }
 

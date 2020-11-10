@@ -87,7 +87,7 @@ package object unsafe extends OptionsBuilderMixin with FIGureMixin {
    */
   @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   implicit private[unsafe] class FigletResultOps[E, A](private val self: FigletResult[A]) extends AnyVal {
-    @throws(classOf[FigletError])
+    @throws(classOf[FigletException])
     def unsafeGet: A = self.fold(e => throw e.head, identity)
   }
 

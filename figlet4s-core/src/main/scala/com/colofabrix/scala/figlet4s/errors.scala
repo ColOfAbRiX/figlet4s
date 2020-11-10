@@ -3,6 +3,7 @@ package com.colofabrix.scala.figlet4s
 import cats.MonadError
 import cats.data._
 
+@SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements", "org.wartremover.warts.Null"))
 object errors {
 
   //  Error management  //
@@ -20,62 +21,87 @@ object errors {
    *
    * @tparam A The type of the valid value contained in a FigletResult
    */
-  type FigletResult[+A] = Validated[NonEmptyChain[FigletError], A]
+  type FigletResult[+A] = Validated[NonEmptyChain[FigletException], A]
 
   /**
    * Generic exception that can occur in the Figlet4s library
    */
-  sealed trait FigletError extends Throwable {
-    /** The description of the error */
-    def message: String
-  }
-
-  object FigletError {
-    def unapply(error: FigletError): Option[String] = Some(error.message)
+  sealed abstract class FigletException(message: String) extends RuntimeException(message)
+  object FigletException {
+    def unapply(error: FigletException): Option[String] = Some(error.getMessage())
   }
 
   /**
-   * An exception in FIGlet
+   * An error that occurred during the execution of Figlet4s
    *
-   * @param inner The generic Throwable exception that caused the failure
+   * @param message The description of the error
    */
-  final case class FigletException(inner: Throwable) extends FigletError {
-    /** The description of the error */
-    def message: String = inner.getMessage
+  final class FigletError(message: String) extends FigletException(message) {
+    def this(message: String, cause: Throwable) = {
+      this(message)
+      initCause(cause)
+    }
+    def this(cause: Throwable) = this(Option(cause).map(_.toString).orNull, cause)
+    def this() = this(null: String)
+  }
+  object FigletError {
+    def apply(cause: Throwable): FigletError = new FigletError(cause: Throwable)
+    def apply(message: String): FigletError  = new FigletError(message: String)
+    def apply(message: String, cause: Throwable): FigletError =
+      new FigletError(message: String, cause: Throwable)
+
+    def unapply(error: FigletError): Option[String] = Some(error.getMessage())
   }
 
   /**
    * An error that can occur when loading from file
    *
    * @param message The description of the error
-   * @param inner   The generic Throwable exception that caused the failure
    */
-  final case class FigletLoadingError(message: String, inner: Throwable) extends FigletError
+  final class FigletLoadingError(message: String) extends FigletException(message) {
+    def this(message: String, cause: Throwable) = {
+      this(message)
+      initCause(cause)
+    }
+  }
+  object FigletLoadingError {
+    def apply(message: String, cause: Throwable): FigletLoadingError =
+      new FigletLoadingError(message: String, cause: Throwable)
+  }
 
   /**
    * An error that can occur when interpreting a FIGLet file
    */
-  sealed trait FLFError extends FigletError
+  sealed abstract class FLFError(message: String) extends FigletException(message)
 
   /**
    * An error that can occur when interpreting a FIGheader
    *
    * @param message The description of the error
    */
-  final case class FIGheaderError(message: String) extends FLFError
+  final class FIGheaderError(message: String) extends FLFError(message)
+  object FIGheaderError {
+    def apply(message: String): FIGheaderError = new FIGheaderError(message: String)
+  }
 
   /**
    * An error that can occur when interpreting a FIGcharacter
    *
    * @param message The description of the error
    */
-  final case class FIGcharacterError(message: String) extends FLFError
+  final class FIGcharacterError(message: String) extends FLFError(message)
+  object FIGcharacterError {
+    def apply(message: String): FIGcharacterError = new FIGcharacterError(message: String)
+  }
 
   /**
    * An error that can occur when interpreting a FIGfont
    *
    * @param message The description of the error
    */
-  final case class FIGFontError(message: String) extends FLFError
+  final class FIGFontError(message: String) extends FLFError(message)
+  object FIGFontError {
+    def apply(message: String): FIGFontError = new FIGFontError(message: String)
+  }
 
 }

@@ -49,7 +49,9 @@ val commonSettings: Seq[Def.Setting[_]] = Seq(
     "-doc-title", "Figlet4s API Documentation",
     "-doc-version", version.value,
     "-encoding", "UTF-8"
-  )
+  ),
+
+  publishMavenStyle := true
 )
 
 // GIT version information
@@ -73,8 +75,11 @@ ThisBuild / sonatypeProjectHosting := Some(
 ThisBuild / developers := List(
   Developer("ColOfAbRiX", "Fabrizio Colonna", "colofabrix@tin.it", url("http://github.com/ColOfAbRiX")),
 )
-ThisBuild / publishTo := sonatypePublishTo.value
-ThisBuild / publishMavenStyle := true
+// ThisBuild / publishTo := sonatypePublishTo.value
+ThisBuild / publishTo := Some(
+  if (isSnapshot.value) Opts.resolver.sonatypeSnapshots
+  else Opts.resolver.sonatypeStaging
+)
 
 // Figlet4s
 lazy val figlet4s: Project = project

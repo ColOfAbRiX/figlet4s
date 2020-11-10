@@ -18,7 +18,7 @@ private[unsafe] trait OptionsBuilderMixin {
      *
      * @return The text to render as String
      */
-    @throws(classOf[FigletError])
+    @throws(classOf[FigletException])
     def text: String = buildOptions.text
 
     /**
@@ -26,7 +26,7 @@ private[unsafe] trait OptionsBuilderMixin {
      *
      * @return A FIGure representing the rendered text
      */
-    @throws(classOf[FigletError])
+    @throws(classOf[FigletException])
     def render(): FIGure =
       Figlet4s.renderString(buildOptions.text, options)
 
@@ -36,7 +36,7 @@ private[unsafe] trait OptionsBuilderMixin {
      * @param text The text to render
      * @return A FIGure representing the rendered text
      */
-    @throws(classOf[FigletError])
+    @throws(classOf[FigletException])
     def render(text: String): FIGure =
       self
         .text(text)
@@ -47,7 +47,7 @@ private[unsafe] trait OptionsBuilderMixin {
      *
      * @return The RenderOptions resulting from building the internal state
      */
-    @throws(classOf[FigletError])
+    @throws(classOf[FigletException])
     def options: RenderOptions = {
       val font =
         buildOptions

@@ -80,7 +80,7 @@ class Figlet4sUnsafeSpecs extends AnyFlatSpec with Matchers with Figlet4sMatcher
   //  Support  //
 
   private def interpretResult(font: String): PartialFunction[Try[_], Option[String]] = {
-    case Failure(fe @ FigletError(message)) =>
+    case Failure(fe @ FigletException(message)) =>
       Some(s"${fe.getClass.getSimpleName} on $font: $message")
     case Failure(exception: Throwable) =>
       Some(s"Exception on $font: ${exception.getMessage}")

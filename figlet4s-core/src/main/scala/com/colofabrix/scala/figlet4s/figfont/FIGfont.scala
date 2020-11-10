@@ -139,7 +139,7 @@ object FIGfont {
   def apply(name: String, lines: Iterator[String]): FigletResult[FIGfont] =
     lines
       .zipWithIndex
-      .foldLeft(FontBuilderState(name).validNec[FigletError]) {
+      .foldLeft(FontBuilderState(name).validNec[FigletException]) {
         case (i @ Invalid(_), _)           => i
         case (Valid(state), (line, index)) => processLine(state, line, index)
       }
@@ -334,7 +334,7 @@ object FIGfont {
     Option
       .when(splitFontTag.size > 1)(splitFontTag(1))
       .getOrElse("")
-      .validNec[FigletError]
+      .validNec[FigletException]
       .map(Option(_))
   }
 

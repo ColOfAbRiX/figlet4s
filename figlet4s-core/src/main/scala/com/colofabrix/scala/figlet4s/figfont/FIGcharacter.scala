@@ -159,7 +159,7 @@ object FIGcharacter {
     if (height <= 0)
       FIGcharacterError(s"The argument 'height' must be greater than zero: $height").invalidNec
     else if (cleanLines.value.size === height)
-      height.validNec[FigletError]
+      height.validNec[FigletException]
     else
       FIGcharacterError(
         s"The character '$name' defined at line ${position + 1} doesn't respect the specified " +
