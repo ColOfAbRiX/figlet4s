@@ -2,15 +2,14 @@ import sbt._
 import sbtproject._
 import sbtproject.utils._
 import sbtproject.Dependencies._
+import xerial.sbt.Sonatype._
 
 // General
 Global / onChangedBuildSource := ReloadOnSourceChanges
-ThisBuild / organization := "com.colofabrix.scala.figlet4s"
+ThisBuild / organization := "com.colofabrix.scala"
+ThisBuild / licenses := Seq("MIT" -> url("https://opensource.org/licenses/MIT"))
 ThisBuild / scalaVersion := ScalaLangVersion
 ThisBuild / turbo := true
-ThisBuild / developers := List(
-  Developer("ColOfAbRiX", "Fabrizio Colonna", "@ColOfAbRiX", url("http://github.com/ColOfAbRiX")),
-)
 
 val commonSettings: Seq[Def.Setting[_]] = Seq(
   Test / logBuffered := false,
@@ -18,11 +17,11 @@ val commonSettings: Seq[Def.Setting[_]] = Seq(
   // Compiler options
   scalacOptions := versioned(scalaVersion.value)(
     Compiler.Options_2_12 ++ Compiler.StrictOptions,
-    Compiler.Options_2_13 ++ Compiler.StrictOptions
+    Compiler.Options_2_13 ++ Compiler.StrictOptions,
   ),
   Test / scalacOptions := versioned(scalaVersion.value)(
     Compiler.Options_2_12,
-    Compiler.Options_2_13
+    Compiler.Options_2_13,
   ),
 
   // Cross Scala Versions
@@ -43,7 +42,6 @@ val commonSettings: Seq[Def.Setting[_]] = Seq(
     // Covered by ScalaFix
     Wart.PublicInference
   ),
-  Compile / wartremoverWarnings := Seq.empty,
 
   // Scaladoc
   Compile / autoAPIMappings := true,
@@ -60,9 +58,23 @@ ThisBuild / dynverSeparator := "-"
 
 // Scalafix
 ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.4.3"
+ThisBuild / scalafixScalaBinaryVersion := CrossVersion.binaryScalaVersion(scalaVersion.value)
 ThisBuild / semanticdbEnabled := true
 ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
-ThisBuild / scalafixScalaBinaryVersion := CrossVersion.binaryScalaVersion(scalaVersion.value)
+
+// Code coverage
+ThisBuild / coverageMinimum := 75
+ThisBuild / coverageFailOnMinimum := true
+
+// Publishing
+ThisBuild / sonatypeProjectHosting := Some(
+  GitHubHosting("ColOfAbRiX", "figlet4s", "colofabrix@tin.it")
+)
+ThisBuild / developers := List(
+  Developer("ColOfAbRiX", "Fabrizio Colonna", "colofabrix@tin.it", url("http://github.com/ColOfAbRiX")),
+)
+ThisBuild / publishTo := sonatypePublishTo.value
+ThisBuild / publishMavenStyle := true
 
 // Figlet4s
 lazy val figlet4s: Project = project

@@ -1,5 +1,7 @@
 package com.colofabrix.scala.figlet4s
 
+import cats.effect._
+import cats.implicits._
 import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options._
@@ -7,9 +9,12 @@ import com.colofabrix.scala.figlet4s.testutils._
 import com.colofabrix.scala.figlet4s.unsafe._
 import org.scalatest.flatspec._
 import org.scalatest.matchers.should._
+import scala.concurrent.ExecutionContext
 import scala.util._
 
 class Figlet4sUnsafeSpecs extends AnyFlatSpec with Matchers with Figlet4sMatchers with OriginalFigletTesting {
+
+  implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
 
   "Figlet4s" should "render a default text using the \"standard\" font" in {
     val computed = SpecsData.standardBuilder.render(SpecsData.standardInput)
@@ -19,16 +24,6 @@ class Figlet4sUnsafeSpecs extends AnyFlatSpec with Matchers with Figlet4sMatcher
       Vector(SpecsData.standardLines.toSubcolumns),
     )
     computed should lookLike(expected)
-  }
-
-  it should "throw an exception" in {
-    assertThrows[FigletLoadingError] {
-      Figlet4s
-        .builder(SpecsData.standardInput)
-        .withFont("non_existent")
-        .render()
-        .asString()
-    }
   }
 
   it should "return the list of internal fonts containing at least the \"standard\" font" in {
@@ -58,6 +53,27 @@ class Figlet4sUnsafeSpecs extends AnyFlatSpec with Matchers with Figlet4sMatcher
       val expected = renderWithFiglet(testBuilder.options, testData.renderText)
 
       computed should lookLike(expected)
+    }
+  }
+
+  it should "support loading of fonts in parallel" in {
+    Figlet4s
+      .internalFonts
+      .toList
+      .take(10)
+      .flatMap(Seq.fill(10)(_))
+      .parTraverse { font =>
+        IO(Figlet4s.loadFontInternal(font))
+      }
+  }
+
+  it should "throw an exception when there is an error like a font that doesn't exist" in {
+    assertThrows[FigletLoadingError] {
+      Figlet4s
+        .builder(SpecsData.standardInput)
+        .withFont("non_existent")
+        .render()
+        .asString()
     }
   }
 

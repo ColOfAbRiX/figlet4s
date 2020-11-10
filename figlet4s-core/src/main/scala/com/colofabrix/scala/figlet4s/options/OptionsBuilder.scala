@@ -23,7 +23,7 @@ import scala.io.Codec
  *
  * @param actions The list of building actions that will be executed to obtain the final configuration.
  */
-final class OptionsBuilder(private val actions: List[BuilderAction] = List.empty) {
+final class OptionsBuilder(private[figlet4s] val actions: List[BuilderAction] = List.empty) {
 
   /**
    * Set the text to render

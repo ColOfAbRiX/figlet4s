@@ -11,6 +11,7 @@ import java.io.File
 import java.nio.file.Paths
 import java.util.regex.Pattern
 import org.scalacheck._
+import org.scalacheck.Shrink.shrinkAny
 import org.scalactic.anyvals._
 import org.scalatest._
 import org.scalatestplus.scalacheck._
