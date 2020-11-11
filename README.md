@@ -1,3 +1,8 @@
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Actions Status](https://github.com/ColOfAbRiX/figlet4s/workflows/tests/badge.svg)](https://github.com/ColOfAbRiX/figlet4s/actions)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.colofabrix.scala/figlet4s-core/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.colofabrix.scala/figlet4s-core)
+[![Gitter chat](https://badges.gitter.im/ColOfAbRiX/figlet4s.png)](https://gitter.im/figlet4s/community)
+
 ```
  _____ _       _      _   _  _
 |  ___(_) __ _| | ___| |_| || |  ___
@@ -6,11 +11,6 @@
 |_|   |_|\__, |_|\___|\__|  |_| |___/  Figlet, but in Scala
          |___/
 ```
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Actions Status](https://github.com/ColOfAbRiX/figlet4s/workflows/tests/badge.svg)](https://github.com/ColOfAbRiX/figlet4s/actions)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.colofabrix.scala/figlet4s/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.colofabrix.scala/figlet4s)
-[![Gitter chat](https://badges.gitter.im/ColOfAbRiX/figlet4s.png)](https://gitter.im/figlet4s/community)
 
 # Figlet4s
 
@@ -21,11 +21,21 @@ fonts, minimal dependencies, extensive error reporting and support for effects i
 > letters made up of conglomerations of smaller ASCII characters (see ASCII art). The name derives
 > from "Frank, Ian and Glenn's letters".
 
-## Setup
-
 Supports Scala version 2.13.x and 2.12.x.
 
-Not released on Maven Central yet.
+## Setup
+
+If you are using SBT, add the following line to your build file:
+
+```scala
+# Core library
+libraryDependencies += "com.colofabrix.com" %% "figlet4s-core" % <version>
+
+# Effects extension
+libraryDependencies += "com.colofabrix.com" %% "figlet4s-core" % <version>
+```
+
+For the latest release version, see the Maven badge at the top of the readme.
 
 ## Quick start
 
@@ -46,13 +56,15 @@ import com.colofabrix.scala.figlet4s.unsafe._
 
 object QuickStartMain extends App {
 
-  // Obtain an options builder
+  // 1. Obtain an options builder.
   val builder = Figlet4s.builder()
 
-  // Render a text into a FIGure
+  // 2. This time we don't configure it.
+
+  // 3. Render a text into a FIGure
   val figure = builder.render("Hello, World!")
 
-  // Print the FIGure
+  // Do something with the FIGure
   figure.print()
 
 }

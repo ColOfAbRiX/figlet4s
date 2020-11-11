@@ -91,7 +91,7 @@ package object either extends FIGureMixin with OptionsBuilderMixin {
     def raiseError[A](t: Throwable): FigletEither[A] =
       t match {
         case fe: FigletException => Left(fe)
-        case t: Throwable        => Left(FigletError(t))
+        case t: Throwable        => Left(FigletError(t.getMessage, t))
       }
 
     // format: off

@@ -41,16 +41,12 @@ object errors {
       this(message)
       initCause(cause)
     }
-    def this(cause: Throwable) = this(Option(cause).map(_.toString).orNull, cause)
-    def this() = this(null: String)
   }
   object FigletError {
-    def apply(cause: Throwable): FigletError = new FigletError(cause: Throwable)
-    def apply(message: String): FigletError  = new FigletError(message: String)
+    def unapply(error: FigletError): Option[String] = Some(error.getMessage())
+    def apply(message: String): FigletError         = new FigletError(message: String)
     def apply(message: String, cause: Throwable): FigletError =
       new FigletError(message: String, cause: Throwable)
-
-    def unapply(error: FigletError): Option[String] = Some(error.getMessage())
   }
 
   /**

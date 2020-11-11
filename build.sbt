@@ -12,7 +12,10 @@ ThisBuild / scalaVersion := ScalaLangVersion
 ThisBuild / turbo := true
 
 val commonSettings: Seq[Def.Setting[_]] = Seq(
+  // Testing
   Test / logBuffered := false,
+  Test / parallelExecution := false,
+  Test / testOptions += Tests.Argument("-oFD"),
 
   // Compiler options
   scalacOptions := versioned(scalaVersion.value)(
@@ -28,7 +31,7 @@ val commonSettings: Seq[Def.Setting[_]] = Seq(
   crossScalaVersions := SupportedScalaLangVersion,
 
   // Code styling
-  Compile / scalafmtOnCompile := true,
+  // Compile / scalafmtOnCompile := true,
   // Compile / scalafixOnCompile := true,
 
   // Wartremover
@@ -51,22 +54,19 @@ val commonSettings: Seq[Def.Setting[_]] = Seq(
     "-encoding", "UTF-8"
   ),
 
-  publishMavenStyle := true
+  // Publishing
+  publishMavenStyle := true,
 )
 
 // GIT version information
 ThisBuild / dynverVTagPrefix := false
-ThisBuild / dynverSeparator := "-"
+ThisBuild / dynverSonatypeSnapshots := true
 
 // Scalafix
 ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.4.3"
 ThisBuild / scalafixScalaBinaryVersion := CrossVersion.binaryScalaVersion(scalaVersion.value)
 ThisBuild / semanticdbEnabled := true
 ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
-
-// Code coverage
-ThisBuild / coverageMinimum := 75
-ThisBuild / coverageFailOnMinimum := true
 
 // Publishing
 ThisBuild / sonatypeProjectHosting := Some(

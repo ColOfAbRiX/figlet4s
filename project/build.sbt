@@ -23,7 +23,6 @@ lazy val AssemblyVersion       = "0.15.0"
 lazy val DynverVersion         = "4.1.1"
 lazy val GpgVersion            = "2.0.1"
 lazy val NativePackagerVersion = "1.7.5"
-lazy val ReleaseVersion        = "1.0.13"
 lazy val SonatypeVersion       = "3.9.5"
 
 //  PLUGIN LIBRARIES  //
@@ -43,7 +42,6 @@ addSbtPlugin("org.wartremover"  % "sbt-wartremover"           % WartremoverVersi
 // Release
 addSbtPlugin("com.eed3si9n"      % "sbt-assembly"        % AssemblyVersion)
 addSbtPlugin("com.dwijnand"      % "sbt-dynver"          % DynverVersion)
-addSbtPlugin("com.github.gseitz" % "sbt-release"         % ReleaseVersion)
 addSbtPlugin("com.jsuereth"      % "sbt-pgp"             % GpgVersion)
 addSbtPlugin("com.typesafe.sbt"  % "sbt-native-packager" % NativePackagerVersion)
 addSbtPlugin("org.xerial.sbt"    % "sbt-sonatype"        % SonatypeVersion)

@@ -39,6 +39,17 @@ class Figlet4sUnsafeSpecs extends AnyFlatSpec with Matchers with Figlet4sMatcher
     loadingErrors shouldBe empty
   }
 
+  it should "support loading of fonts in parallel" in {
+    Figlet4s
+      .internalFonts
+      .toList
+      .take(10)
+      .flatMap(Seq.fill(10)(_))
+      .parTraverse { font =>
+        IO(Figlet4s.loadFontInternal(font))
+      }
+  }
+
   it should "render the texts as the original command line FIGlet does" taggedAs (SlowTest) in {
     figletRenderingTest { testData =>
       val testBuilder =
@@ -54,17 +65,6 @@ class Figlet4sUnsafeSpecs extends AnyFlatSpec with Matchers with Figlet4sMatcher
 
       computed should lookLike(expected)
     }
-  }
-
-  it should "support loading of fonts in parallel" in {
-    Figlet4s
-      .internalFonts
-      .toList
-      .take(10)
-      .flatMap(Seq.fill(10)(_))
-      .parTraverse { font =>
-        IO(Figlet4s.loadFontInternal(font))
-      }
   }
 
   it should "throw an exception when there is an error like a font that doesn't exist" in {

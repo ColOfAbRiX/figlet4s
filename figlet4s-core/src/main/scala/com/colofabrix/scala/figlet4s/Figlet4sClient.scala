@@ -38,7 +38,7 @@ private[figlet4s] object Figlet4sClient {
       internalFontsFromJar(resources).map(_.toSeq)
     else
       Sync[F].raiseError {
-        FigletError(new RuntimeException("Could not determine the type of artifacts"))
+        FigletError("Could not determine the type of artifacts to open to find the fonts")
       }
   }
 
@@ -132,7 +132,9 @@ private[figlet4s] object Figlet4sClient {
     // reporting in MonadError. See also: https://medium.com/@dkomanov/scala-try-with-resources-735baad0fd7d
     var exception: Throwable = null
     try {
-      f(resource)
+      this.synchronized {
+        f(resource)
+      }
     } catch {
       case e: Throwable =>
         exception = e
