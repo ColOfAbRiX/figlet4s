@@ -66,7 +66,7 @@ private[figlet4s] object Figlet4sClient {
     for {
       path    <- Sync[F].pure(s"fonts/$name.flf")
       decoder <- fileDecoder[F](Codec.ISO8859)
-      font    <- withResource(Source.fromResource(path)(decoder))(interpretFile[F](path))
+      font    <- withResource(sourceFromResource(path, decoder))(interpretFigletFile[F](path))
     } yield font
 
   /**
@@ -80,7 +80,7 @@ private[figlet4s] object Figlet4sClient {
   def loadFont[F[_]: Sync](path: String, codec: Codec): F[FigletResult[FIGfont]] =
     for {
       decoder <- fileDecoder[F](codec)
-      font    <- withResource(Source.fromFile(path)(decoder))(interpretFile[F](path))
+      font    <- withResource(Source.fromFile(path)(decoder))(interpretFigletFile[F](path))
     } yield font
 
   //  Support  //
@@ -117,12 +117,15 @@ private[figlet4s] object Figlet4sClient {
         .onMalformedInput(java.nio.charset.CodingErrorAction.REPORT)
     }
 
-  private def interpretFile[F[_]: Applicative](path: String)(source: BufferedSource): F[FigletResult[FIGfont]] =
-    Applicative[F].pure {
+  private def interpretFigletFile[F[_]: Sync](path: String)(source: BufferedSource): F[FigletResult[FIGfont]] =
+    Sync[F].pure {
       val name  = new File(path).getName.split('.').init.mkString("")
       val lines = source.getLines()
       FIGfont(name, lines)
     }
+
+  private def sourceFromResource(fileName: String, codec: Codec): BufferedSource =
+    Source.fromInputStream(this.getClass.getClassLoader.getResourceAsStream(fileName))(codec)
 
   @SuppressWarnings(Array("org.wartremover.warts.All"))
   private def withResource[F[_]: MonadThrowable, R <: AutoCloseable, A](resource: => R)(f: R => F[A]): F[A] = {
@@ -132,9 +135,7 @@ private[figlet4s] object Figlet4sClient {
     // reporting in MonadError. See also: https://medium.com/@dkomanov/scala-try-with-resources-735baad0fd7d
     var exception: Throwable = null
     try {
-      this.synchronized {
-        f(resource)
-      }
+      f(resource)
     } catch {
       case e: Throwable =>
         exception = e

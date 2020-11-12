@@ -14,8 +14,6 @@ import scala.util._
 
 class Figlet4sUnsafeSpecs extends AnyFlatSpec with Matchers with Figlet4sMatchers with OriginalFigletTesting {
 
-  implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
-
   "Figlet4s" should "render a default text using the \"standard\" font" in {
     val computed = SpecsData.standardBuilder.render(SpecsData.standardInput)
     val expected = FIGure(
@@ -40,14 +38,19 @@ class Figlet4sUnsafeSpecs extends AnyFlatSpec with Matchers with Figlet4sMatcher
   }
 
   it should "support loading of fonts in parallel" in {
-    Figlet4s
+    implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
+
+    val data = Figlet4s
       .internalFonts
       .toList
       .take(10)
       .flatMap(Seq.fill(10)(_))
-      .parTraverse { font =>
-        IO(Figlet4s.loadFontInternal(font))
-      }
+
+    val test = data.parTraverse { fontName =>
+      IO(Figlet4s.loadFontInternal(fontName))
+    }
+
+    test.unsafeRunSync()
   }
 
   it should "render the texts as the original command line FIGlet does" taggedAs (SlowTest) in {
