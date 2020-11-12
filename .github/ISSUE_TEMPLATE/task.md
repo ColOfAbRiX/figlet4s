@@ -2,7 +2,7 @@
 name: Task
 about: A thing that needs to be done like a refactoring
 title: "[TASK]"
-labels: ''
+labels: 'task'
 assignees: ''
 
 ---
