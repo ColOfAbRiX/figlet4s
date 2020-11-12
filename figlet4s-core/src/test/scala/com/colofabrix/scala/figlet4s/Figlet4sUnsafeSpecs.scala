@@ -25,7 +25,7 @@ class Figlet4sUnsafeSpecs extends AnyFlatSpec with Matchers with Figlet4sMatcher
   }
 
   it should "return the list of internal fonts containing at least the \"standard\" font" in {
-    Figlet4s.internalFonts should contain("standard")
+    Figlet4s.internalFonts should contain(Figlet4sClient.defaultFont)
   }
 
   it should "load all internal fonts successfully" in {
@@ -35,6 +35,14 @@ class Figlet4sUnsafeSpecs extends AnyFlatSpec with Matchers with Figlet4sMatcher
     } yield error
 
     loadingErrors shouldBe empty
+  }
+
+  it should "read a font from the file system" in {
+    val cwd    = System.getProperty("user.dir")
+    val font   = Try(Figlet4s.loadFont(s"$cwd/figlet4s-core/src/main/resources/fonts/standard.flf"))
+    val result = interpretResult(Figlet4sClient.defaultFont)(Try(font))
+
+    result shouldBe empty
   }
 
   it should "support loading of fonts in parallel" in {
@@ -80,6 +88,26 @@ class Figlet4sUnsafeSpecs extends AnyFlatSpec with Matchers with Figlet4sMatcher
     }
   }
 
+  "FIGure" should "return the same data for asSeq() and asString()" in {
+    val figure     = SpecsData.standardBuilder.render(SpecsData.standardInput)
+    val fromSeq    = figure.asSeq().mkString("\n")
+    val fromString = figure.asString()
+    fromSeq should equal(fromString)
+  }
+
+  it should "print the same data as asString()" in {
+    val figure = SpecsData.standardBuilder.render(SpecsData.standardInput)
+    val stream = new java.io.ByteArrayOutputStream()
+    Console.withOut(stream) {
+      figure.print()
+    }
+
+    val computed = stream.toString()
+    val expected = figure.asString() + "\n"
+
+    computed should equal(expected)
+  }
+
   //  Support  //
 
   private def interpretResult(font: String): PartialFunction[Try[_], Option[String]] = {
@@ -94,7 +122,7 @@ class Figlet4sUnsafeSpecs extends AnyFlatSpec with Matchers with Figlet4sMatcher
   private val defaultBuilder =
     Figlet4s
       .builder()
-      .withInternalFont("standard")
+      .withInternalFont(Figlet4sClient.defaultFont)
       .withHorizontalLayout(HorizontalLayout.FullWidth)
 
 }

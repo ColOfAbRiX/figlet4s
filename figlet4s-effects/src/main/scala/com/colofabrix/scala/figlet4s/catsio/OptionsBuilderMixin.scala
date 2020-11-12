@@ -66,7 +66,9 @@ private[catsio] trait OptionsBuilderMixin {
       } yield font
 
     private def builtDefaultFont: IO[FIGfont] =
-      Figlet4sClient.loadFontInternal[IO]().flatMap(_.asIO)
+      Figlet4sClient
+        .loadFontInternal[IO](Figlet4sClient.defaultFont)
+        .flatMap(_.asIO)
 
     private def builtMaxWidth: IO[Int] =
       for {

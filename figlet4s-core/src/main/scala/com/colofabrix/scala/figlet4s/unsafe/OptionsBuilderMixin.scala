@@ -2,6 +2,7 @@ package com.colofabrix.scala.figlet4s.unsafe
 
 import cats._
 import cats.implicits._
+import com.colofabrix.scala.figlet4s._
 import com.colofabrix.scala.figlet4s.api._
 import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont._
@@ -49,10 +50,12 @@ private[unsafe] trait OptionsBuilderMixin {
      */
     @throws(classOf[FigletException])
     def options: RenderOptions = {
+      lazy val defaultFont = Figlet4sClient.defaultFont
+
       val font =
         buildOptions
           .font
-          .getOrElse(Figlet4s.loadFontInternal().validNec)
+          .getOrElse(Figlet4s.loadFontInternal(defaultFont).validNec)
           .unsafeGet
 
       val maxWidth =

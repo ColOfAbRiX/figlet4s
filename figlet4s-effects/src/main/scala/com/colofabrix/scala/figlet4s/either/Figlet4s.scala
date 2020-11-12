@@ -4,6 +4,7 @@ import com.colofabrix.scala.figlet4s._
 import com.colofabrix.scala.figlet4s.api._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options._
+import scala.io.Codec
 
 /**
  * "FIGlet" stands for "Frank, Ian and Glenn's LETters and this is a pure Scala implementation
@@ -34,11 +35,11 @@ object Figlet4s extends Figlet4sAPI[FigletEither] with Figlet4sEffectfulAPI[Figl
   /**
    * Loads a FIGfont from file
    *
-   * @param path     The path of the font file to load. It can be a .flf file or a zipped file.
-   * @param encoding The encoding of the file if textual
+   * @param path  The path of the font file to load. It can be a .flf file or a zipped file.
+   * @param codec The codec of the file if textual. If it is a zipped file it will be ignored
    * @return The FIGfont loaded from the specified path
    */
-  def loadFont(path: String, encoding: String = "ISO8859_1"): FigletEither[FIGfont] =
+  def loadFont(path: String, encoding: Codec = Codec.ISO8859): FigletEither[FIGfont] =
     Figlet4sClient
       .loadFont[FigletEither](path, encoding)
       .flatMap(_.asEither)

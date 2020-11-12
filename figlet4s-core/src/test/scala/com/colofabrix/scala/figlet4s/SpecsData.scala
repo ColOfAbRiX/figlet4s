@@ -6,7 +6,7 @@ import com.colofabrix.scala.figlet4s.unsafe._
 
 object SpecsData {
 
-  val standardBuilder: OptionsBuilder = Figlet4s.builder().withInternalFont("standard")
+  val standardBuilder: OptionsBuilder = Figlet4s.builder().withInternalFont(Figlet4sClient.defaultFont)
   val standardInput: String           = "~ * Fao & C 123"
   val standardLines: SubLines = SubLines(
     Vector(

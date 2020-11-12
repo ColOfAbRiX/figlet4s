@@ -14,7 +14,6 @@ ThisBuild / turbo := true
 val commonSettings: Seq[Def.Setting[_]] = Seq(
   // Testing
   Test / logBuffered := false,
-  Test / parallelExecution := false,
   Test / testOptions += Tests.Argument("-oFD"),
 
   // Compiler options
@@ -59,7 +58,6 @@ val commonSettings: Seq[Def.Setting[_]] = Seq(
 )
 
 // GIT version information
-ThisBuild / dynverVTagPrefix := false
 ThisBuild / dynverSonatypeSnapshots := true
 
 // Scalafix

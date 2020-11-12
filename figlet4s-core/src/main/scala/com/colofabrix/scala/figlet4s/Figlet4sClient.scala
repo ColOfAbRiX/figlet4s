@@ -62,7 +62,7 @@ private[figlet4s] object Figlet4sClient {
    * @param name The name of the internal font to load, defaults to "standard"
    * @return The FIGfont of the requested internal font
    */
-  def loadFontInternal[F[_]: Sync](name: String = "standard"): F[FigletResult[FIGfont]] =
+  def loadFontInternal[F[_]: Sync](name: String): F[FigletResult[FIGfont]] =
     for {
       path    <- Sync[F].pure(s"fonts/$name.flf")
       decoder <- fileDecoder[F](Codec.ISO8859)
@@ -82,6 +82,11 @@ private[figlet4s] object Figlet4sClient {
       decoder <- fileDecoder[F](codec)
       font    <- withResource(Source.fromFile(path)(decoder))(interpretFigletFile[F](path))
     } yield font
+
+  /**
+   * The name of the default internal font. This font is always guaranteed to be present.
+   */
+  val defaultFont: String = "standard"
 
   //  Support  //
 

@@ -47,13 +47,6 @@ private[figlet4s] object utils {
   //  Enrichment methods  //
 
   /**
-   * Enrichment methods for Higher Kinded types
-   */
-  implicit final class RichHigherKind[F[_], A](private val self: F[A]) extends AnyVal {
-    def mapK[G[_]](implicit nt: F ~> G): G[A] = nt(self)
-  }
-
-  /**
    * Enrichment methods for Int for binary conversion
    */
   implicit final class BinaryInt(private val self: Int) extends AnyVal {

@@ -207,7 +207,7 @@ private[figlet4s] object OptionsBuilder {
   private def compileFonts[F[_]: Sync]: ActionCompiler[F] = {
     case (buildData, DefaultFontAction) =>
       Figlet4sClient
-        .loadFontInternal[F]("standard")
+        .loadFontInternal[F](Figlet4sClient.defaultFont)
         .map { font =>
           buildData.copy(font = Some(font))
         }

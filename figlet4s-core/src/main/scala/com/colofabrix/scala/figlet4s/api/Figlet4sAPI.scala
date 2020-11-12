@@ -2,6 +2,7 @@ package com.colofabrix.scala.figlet4s.api
 
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options._
+import scala.io.Codec
 
 /**
  * Common interface of all implementations of Figlet4s
@@ -27,11 +28,11 @@ trait Figlet4sAPI[F[_]] {
   /**
    * Loads a FIGfont from file
    *
-   * @param path     The path of the font file to load. It can be a .flf file or a zipped file.
-   * @param encoding The encoding of the file if textual
+   * @param path  The path of the font file to load. It can be a .flf file or a zipped file.
+   * @param codec The codec of the file if textual. If it is a zipped file it will be ignored
    * @return The FIGfont loaded from the specified path
    */
-  def loadFont(path: String, encoding: String): F[FIGfont]
+  def loadFont(path: String, codec: Codec = Codec.ISO8859): F[FIGfont]
 
   /**
    * Renders a given text as a FIGure
@@ -82,11 +83,11 @@ trait Figlet4sEffectfulAPI[F[_]] {
   /**
    * Loads a FIGfont from file
    *
-   * @param path     The path of the font file to load. It can be a .flf file or a zipped file.
-   * @param encoding The encoding of the file if textual
+   * @param path  The path of the font file to load. It can be a .flf file or a zipped file.
+   * @param codec The codec of the file if textual. If it is a zipped file it will be ignored
    * @return The FIGfont loaded from the specified path
    */
-  def loadFont(path: String, encoding: String): F[FIGfont]
+  def loadFont(path: String, codec: Codec = Codec.ISO8859): F[FIGfont]
 
   /**
    * Renders a given text as a FIGure

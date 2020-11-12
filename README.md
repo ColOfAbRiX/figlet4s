@@ -28,11 +28,11 @@ Supports Scala version 2.13.x and 2.12.x.
 If you are using SBT, add the following line to your build file:
 
 ```scala
-# Core library
-libraryDependencies += "com.colofabrix.com" %% "figlet4s-core" % <version>
+// Core library
+libraryDependencies += "com.colofabrix.scala" %% "figlet4s-core" % <version>
 
-# Effects extension
-libraryDependencies += "com.colofabrix.com" %% "figlet4s-core" % <version>
+// Effects extension
+libraryDependencies += "com.colofabrix.scala" %% "figlet4s-effects" % <version>
 ```
 
 For the latest release version, see the Maven badge at the top of the readme.
