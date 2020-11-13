@@ -6,10 +6,41 @@ import xerial.sbt.Sonatype._
 
 // General
 Global / onChangedBuildSource := ReloadOnSourceChanges
-ThisBuild / organization := "com.colofabrix.scala"
-ThisBuild / licenses := Seq("MIT" -> url("https://opensource.org/licenses/MIT"))
-ThisBuild / scalaVersion := ScalaLangVersion
 ThisBuild / turbo := true
+ThisBuild / scalaVersion := ScalaLangVersion
+
+// Project information
+ThisBuild / homepage := Some(url("https://github.com/ColOfAbRiX/figlet4s"))
+ThisBuild / organization := "com.colofabrix.scala"
+ThisBuild / organizationName := "ColOfAbRiX"
+ThisBuild / organizationHomepage := Some(url("https://github.com/ColOfAbRiX"))
+ThisBuild / licenses := Seq("MIT" -> url("https://opensource.org/licenses/MIT"))
+ThisBuild / scmInfo := Some(
+  ScmInfo(url("https://github.com/ColOfAbRiX/figlet4s"), "scm:git@github.com:ColOfAbRiX/figlet4s.git"),
+)
+ThisBuild / developers := List(
+  Developer("ColOfAbRiX", "Fabrizio Colonna", "colofabrix@tin.it", url("http://github.com/ColOfAbRiX")),
+)
+
+// Publishing
+ThisBuild / pomIncludeRepository := { _ => false }
+ThisBuild / publishMavenStyle := true
+ThisBuild / sonatypeProjectHosting := Some(
+  GitHubHosting("ColOfAbRiX", "figlet4s", "colofabrix@tin.it"),
+)
+ThisBuild / publishTo := Some(
+  if (isSnapshot.value) Opts.resolver.sonatypeSnapshots
+  else Opts.resolver.sonatypeStaging,
+)
+
+// GIT version information
+ThisBuild / dynverSonatypeSnapshots := true
+
+// Scalafix
+ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.4.3"
+ThisBuild / scalafixScalaBinaryVersion := CrossVersion.binaryScalaVersion(scalaVersion.value)
+ThisBuild / semanticdbEnabled := true
+ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
 
 val commonSettings: Seq[Def.Setting[_]] = Seq(
   // Testing
@@ -42,41 +73,29 @@ val commonSettings: Seq[Def.Setting[_]] = Seq(
     Wart.StringPlusAny,
     Wart.ToString,
     // Covered by ScalaFix
-    Wart.PublicInference
+    Wart.PublicInference,
   ),
 
   // Scaladoc
   Compile / autoAPIMappings := true,
   Compile / doc / scalacOptions ++= Seq(
-    "-doc-title", "Figlet4s API Documentation",
-    "-doc-version", version.value,
-    "-encoding", "UTF-8"
+    "-doc-title",
+    "Figlet4s API Documentation",
+    "-doc-version",
+    version.value,
+    "-encoding",
+    "UTF-8",
   ),
 
-  // Publishing
-  publishMavenStyle := true,
-)
-
-// GIT version information
-ThisBuild / dynverSonatypeSnapshots := true
-
-// Scalafix
-ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.4.3"
-ThisBuild / scalafixScalaBinaryVersion := CrossVersion.binaryScalaVersion(scalaVersion.value)
-ThisBuild / semanticdbEnabled := true
-ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
-
-// Publishing
-ThisBuild / sonatypeProjectHosting := Some(
-  GitHubHosting("ColOfAbRiX", "figlet4s", "colofabrix@tin.it")
-)
-ThisBuild / developers := List(
-  Developer("ColOfAbRiX", "Fabrizio Colonna", "colofabrix@tin.it", url("http://github.com/ColOfAbRiX")),
-)
-// ThisBuild / publishTo := sonatypePublishTo.value
-ThisBuild / publishTo := Some(
-  if (isSnapshot.value) Opts.resolver.sonatypeSnapshots
-  else Opts.resolver.sonatypeStaging
+  // Packaging and publishing
+  Compile / packageBin / packageOptions ++= Seq(
+    Package.ManifestAttributes(
+      ("Git-Build-Branch", git.gitCurrentBranch.value),
+      ("Git-Head-Commit-Date", git.gitHeadCommitDate.value.getOrElse("")),
+      ("Git-Head-Commit", git.gitHeadCommit.value.getOrElse("")),
+      ("Git-Uncommitted-Changes", git.gitUncommittedChanges.value.toString),
+    ),
+  ),
 )
 
 // Figlet4s
