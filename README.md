@@ -1,6 +1,6 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Maven Central](https://img.shields.io/maven-central/v/com.colofabrix.scala/figlet4s-core_2.13.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.colofabrix.scala%22%20AND%20a:%22figlet4s-core_2.13%22)
 [![Actions Status](https://github.com/ColOfAbRiX/figlet4s/workflows/tests/badge.svg)](https://github.com/ColOfAbRiX/figlet4s/actions)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.colofabrix.scala/figlet4s-core/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.colofabrix.scala/figlet4s-core)
 [![Gitter chat](https://badges.gitter.im/ColOfAbRiX/figlet4s.png)](https://gitter.im/figlet4s/community)
 
 ```
@@ -21,21 +21,26 @@ fonts, minimal dependencies, extensive error reporting and support for effects i
 > letters made up of conglomerations of smaller ASCII characters (see ASCII art). The name derives
 > from "Frank, Ian and Glenn's letters".
 
-Supports Scala version 2.13.x and 2.12.x.
-
 ## Setup
 
-If you are using SBT, add the following line to your build file:
+When using SBT, add the following line to your build file:
 
 ```scala
 // Core library
 libraryDependencies += "com.colofabrix.scala" %% "figlet4s-core" % <version>
+```
 
+If you want support for effects (see [below](#using-effects)) you also have to include a second
+package:
+
+```scala
 // Effects extension
 libraryDependencies += "com.colofabrix.scala" %% "figlet4s-effects" % <version>
 ```
 
 For the latest release version, see the Maven badge at the top of the readme.
+
+Figlet4s supports Scala version 2.13.x and 2.12.x.
 
 ## Quick start
 
@@ -214,18 +219,11 @@ the FIGure or of a FIGcharacter.
 
 ## Planned features, TODOs and Bugs
 
-### Features
-
 * Support for control files `*.flc`
 * Support for zipped fonts
 * Support for right-to-left
 * Support for vertical layout
-
-### TODO
-
-* SBT code to deploy on maven central
-* Add support for Scala 2.12
-* Create and deploy proper Scaladoc documentation for API
+* Deploy Scaladoc for the API
 * Create a docsite
 * Command line interpreter
 

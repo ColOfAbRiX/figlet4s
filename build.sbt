@@ -79,12 +79,9 @@ val commonSettings: Seq[Def.Setting[_]] = Seq(
   // Scaladoc
   Compile / autoAPIMappings := true,
   Compile / doc / scalacOptions ++= Seq(
-    "-doc-title",
-    "Figlet4s API Documentation",
-    "-doc-version",
-    version.value,
-    "-encoding",
-    "UTF-8",
+    "-doc-title", "Figlet4s API Documentation",
+    "-doc-version", version.value,
+    "-encoding", "UTF-8",
   ),
 
   // Packaging and publishing
