@@ -6,23 +6,28 @@ labels: 'bug'
 assignees: ''
 
 ---
+#### Configuration
 
-## Describe the bug
+OS type and version:
+JVM type and version:
+Scala version:
+Figlet4s version:
 
-A clear and concise description of what the bug is.
+#### Steps
 
-## To Reproduce
+<!--
+Describe the exact steps to reproduce your problems on our computer, including scala and library
+version. You can also add a minimum working example that reproduces the bug.
+-->
 
-Steps to reproduce the behaviour:
+#### Problem
 
-## Expected behaviour
+<!-- Next, describe the problem, or what you think is the problem. -->
 
-A clear and concise description of what you expected to happen.
+#### Expectation
 
-## Screenshots
+<!-- Describe what you think should've happened. -->
 
-If applicable, add screenshots to help explain your problem.
+#### Notes
 
-## Additional context
-
-Add any other context about the problem here.
+<!-- Something else you want to share here. -->

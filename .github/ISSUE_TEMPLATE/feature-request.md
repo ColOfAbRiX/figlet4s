@@ -6,19 +6,14 @@ labels: 'feature'
 assignees: ''
 
 ---
+#### Description
 
-## Is your feature request related to a problem? Please describe.
+<!--- Describe the new feature/improvement briefly below -->
 
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+#### Implementation
 
-## Describe the solution you'd like
+<!--- Describe how the feature would be used, why it is needed and what it would solve -->
 
-A clear and concise description of what you want to happen.
+#### Similar features in the wild
 
-## Describe alternatives you've considered
-
-A clear and concise description of any alternative solutions or features you've considered.
-
-## Additional context
-
-Add any other context or screenshots about the feature request here.
+<!-- Is there a product that implements the same feature in a way you like? Describe -->

@@ -17,11 +17,4 @@ final case class RenderOptions(
     horizontalLayout: HorizontalLayout = HorizontalLayout.FontDefault,
     printDirection: PrintDirection = PrintDirection.FontDefault,
     justification: Justification = Justification.FontDefault,
-) {
-  override def toString: String =
-    s"RenderOptions(font=${font.name}, " +
-    s"maxWidth=$maxWidth, " +
-    s"horizontalLayout=$horizontalLayout, " +
-    s"printDirection=$printDirection, " +
-    s"justification=$justification)"
-}
+)

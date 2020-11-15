@@ -67,7 +67,7 @@ object Figlet4s extends Figlet4sAPI[Id] {
    * @return An OptionBuilder to build the rendering options
    */
   def builder(): OptionsBuilder =
-    new OptionsBuilder()
+    OptionsBuilder()
 
   /**
    * Returns a new options builder with default settings and containing the specified text to render
@@ -76,6 +76,6 @@ object Figlet4s extends Figlet4sAPI[Id] {
    * @return An OptionBuilder to build the rendering options
    */
   def builder(text: String): OptionsBuilder =
-    new OptionsBuilder(BuilderAction.SetTextAction(text) :: Nil)
+    OptionsBuilder(BuilderAction.SetTextAction(text))
 
 }

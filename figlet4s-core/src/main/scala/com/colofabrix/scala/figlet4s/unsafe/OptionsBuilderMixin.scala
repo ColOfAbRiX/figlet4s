@@ -61,7 +61,7 @@ private[unsafe] trait OptionsBuilderMixin {
       val maxWidth =
         buildOptions
           .maxWidth
-          .getOrElse(Int.MaxValue)
+          .getOrElse(Figlet4sClient.defaultMaxWidth)
 
       RenderOptions(
         font,

@@ -20,10 +20,13 @@ fonts, minimal dependencies, extensive error reporting and support for effects i
 > FIGlet is a computer program that generates text banners, in a variety of typefaces, composed of
 > letters made up of conglomerations of smaller ASCII characters (see ASCII art). The name derives
 > from "Frank, Ian and Glenn's letters".
+>
+> -- _Wikipedia_
 
 ## Setup
 
-When using SBT, add the following line to your build file:
+When using SBT, add the following line to your build file (for the latest release version, see the
+Maven badge at the top of the readme):
 
 ```scala
 // Core library
@@ -38,9 +41,11 @@ package:
 libraryDependencies += "com.colofabrix.scala" %% "figlet4s-effects" % <version>
 ```
 
-For the latest release version, see the Maven badge at the top of the readme.
-
 Figlet4s supports Scala version 2.13.x and 2.12.x.
+
+## Documentation
+
+You can find the [API documentation here][1]
 
 ## Quick start
 
@@ -217,20 +222,13 @@ FIGcharacters following a specific layout.
 Represents the SubLines/SubColumns in Figlet which are the String that compose each line/column of
 the FIGure or of a FIGcharacter.
 
-## Planned features, TODOs and Bugs
-
-* Support for control files `*.flc`
-* Support for zipped fonts
-* Support for right-to-left
-* Support for vertical layout
-* Deploy Scaladoc for the API
-* Create a docsite
-* Command line interpreter
-
 ## License
 
-MIT
+Figlet4s is released under a "MIT" license. See [LICENSE](LICENSE) for specifics and copyright
+declaration.
 
 ## Author Information
 
 [Fabrizio Colonna](mailto:colofabrix@tin.it)
+
+[1]: https://oss.sonatype.org/service/local/repositories/releases/archive/com/colofabrix/scala/figlet4s-core_2.12/0.1.0/figlet4s-core_2.12-0.1.0-javadoc.jar/!/com/colofabrix/scala/figlet4s/unsafe/index.html

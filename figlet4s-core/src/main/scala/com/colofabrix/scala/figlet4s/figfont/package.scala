@@ -20,14 +20,8 @@ package object figfont {
   implicit private[figlet4s] val figFontSettingsEq: Eq[FIGfontSettings] =
     Eq.fromUniversalEquals
 
-  implicit private[figlet4s] val figureEq: Eq[FIGure] =
-    (x: FIGure, y: FIGure) => x.cleanColumns === y.cleanColumns
-
   implicit private[figlet4s] val subColumnsEq: Eq[SubColumns] =
     (x: SubColumns, y: SubColumns) => x.value === y.value
-
-  implicit private[figlet4s] val subLinesEq: Eq[SubLines] =
-    (x: SubLines, y: SubLines) => x.value === y.value
 
   implicit private[figlet4s] def seqEq[A: Eq]: Eq[Seq[A]] =
     (x: Seq[A], y: Seq[A]) => (x zip y).forall { case (a, b) => a === b }

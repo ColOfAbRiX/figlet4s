@@ -8,6 +8,7 @@ import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options.BuilderAction._
 import com.colofabrix.scala.figlet4s.options.OptionsBuilder._
 import scala.io.Codec
+import cats.Applicative
 
 /**
  * Builder of rendering options.
@@ -180,12 +181,29 @@ private[figlet4s] object OptionsBuilder {
   private type ActionCompiler[F[_]] = PartialFunction[(BuildData, BuilderAction), F[BuildData]]
 
   /**
+   * Creates a new OptionsBuilder with default settings
+   *
+   * @return A new OptionsBuilder
+   */
+  def apply(): OptionsBuilder =
+    new OptionsBuilder()
+
+  /**
+   * Creates a new OptionsBuilder with default settings and using an initial actions
+   *
+   * @param initialAction The first action to be stored in the builder
+   * @return A new OptionsBuilder
+   */
+  def apply(initialAction: BuilderAction): OptionsBuilder =
+    new OptionsBuilder(initialAction :: Nil)
+
+  /**
    * Compiler to run BuilderAction that create BuildData, generic in the effect
    */
   def compile[F[_]: Sync](self: OptionsBuilder): F[BuildData] =
     self
       .actions
-      .foldM(BuildData())(aggregate(allCompilers))
+      .foldM(BuildData())(foldCompilers(allCompilers))
 
   private def allCompilers[F[_]: Sync]: List[ActionCompiler[F]] =
     List(
@@ -198,9 +216,9 @@ private[figlet4s] object OptionsBuilder {
     )
 
   /** Compiles the settings for Text */
-  private def compileText[F[_]: Sync]: ActionCompiler[F] = {
+  private def compileText[F[_]: Applicative]: ActionCompiler[F] = {
     case (buildData, SetTextAction(text)) =>
-      Sync[F].pure(buildData.copy(text = text))
+      Applicative[F].pure(buildData.copy(text = text))
   }
 
   /** Compiles the settings for Fonts */
@@ -231,43 +249,43 @@ private[figlet4s] object OptionsBuilder {
   }
 
   /** Compiles the settings for Max Width */
-  private def compileMaxWidth[F[_]: Sync]: ActionCompiler[F] = {
+  private def compileMaxWidth[F[_]: Applicative]: ActionCompiler[F] = {
     case (buildData, DefaultMaxWidthAction) =>
-      Sync[F].pure(buildData.copy(maxWidth = None))
+      Applicative[F].pure(buildData.copy(maxWidth = None))
 
     case (buildData, SetMaxWidthAction(maxWidth)) =>
-      Sync[F].pure(buildData.copy(maxWidth = Some(maxWidth)))
+      Applicative[F].pure(buildData.copy(maxWidth = Some(maxWidth)))
   }
 
   /** Compiles the settings for Horizontal Layout */
-  private def compileHorizontalLayout[F[_]: Sync]: ActionCompiler[F] = {
+  private def compileHorizontalLayout[F[_]: Applicative]: ActionCompiler[F] = {
     case (buildData, DefaultHorizontalLayout) =>
-      Sync[F].pure(buildData.copy(horizontalLayout = HorizontalLayout.FontDefault))
+      Applicative[F].pure(buildData.copy(horizontalLayout = HorizontalLayout.FontDefault))
 
     case (buildData, SetHorizontalLayout(layout)) =>
-      Sync[F].pure(buildData.copy(horizontalLayout = layout))
+      Applicative[F].pure(buildData.copy(horizontalLayout = layout))
   }
 
   /** Compiles the settings for Print Direction */
-  private def compilePrintDirection[F[_]: Sync]: ActionCompiler[F] = {
+  private def compilePrintDirection[F[_]: Applicative]: ActionCompiler[F] = {
     case (buildData, DefaultPrintDirection) =>
-      Sync[F].pure(buildData.copy(printDirection = PrintDirection.FontDefault))
+      Applicative[F].pure(buildData.copy(printDirection = PrintDirection.FontDefault))
 
     case (buildData, SetPrintDirection(direction)) =>
-      Sync[F].pure(buildData.copy(printDirection = direction))
+      Applicative[F].pure(buildData.copy(printDirection = direction))
   }
 
   /** Compiles the settings for Justification */
-  private def compileJustification[F[_]: Sync]: ActionCompiler[F] = {
+  private def compileJustification[F[_]: Applicative]: ActionCompiler[F] = {
     case (buildData, DefaultJustification) =>
-      Sync[F].pure(buildData.copy(printDirection = PrintDirection.FontDefault))
+      Applicative[F].pure(buildData.copy(printDirection = PrintDirection.FontDefault))
 
     case (buildData, SetJustification(justification)) =>
-      Sync[F].pure(buildData.copy(justification = justification))
+      Applicative[F].pure(buildData.copy(justification = justification))
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
-  private def aggregate[F[_]: Sync](data: List[ActionCompiler[F]]): (BuildData, BuilderAction) => F[BuildData] =
+  private def foldCompilers[F[_]: Sync](data: List[ActionCompiler[F]]): (BuildData, BuilderAction) => F[BuildData] =
     Function.untupled(data.reduce(_ orElse _))
 
 }

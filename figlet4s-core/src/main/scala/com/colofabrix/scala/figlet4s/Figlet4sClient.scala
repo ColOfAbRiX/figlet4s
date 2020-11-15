@@ -88,6 +88,11 @@ private[figlet4s] object Figlet4sClient {
    */
   val defaultFont: String = "standard"
 
+  /**
+   * The default value of the Max Width option
+   */
+  val defaultMaxWidth: Int = Int.MaxValue
+
   //  Support  //
 
   private def internalFontsFromDirectory[F[_]: Sync](resources: URI): F[List[String]] =

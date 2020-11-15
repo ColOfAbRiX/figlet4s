@@ -30,10 +30,6 @@ final case class FIGcharacter private[figlet4s] (
 ) {
   /** The strings composing the column of the FIGcharacter */
   lazy val columns: SubColumns = lines.toSubcolumns
-
-  override def toString: String =
-    s"name: $name\n" +
-    lines.value.mkString("\n")
 }
 
 object FIGcharacter {
