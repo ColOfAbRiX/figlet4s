@@ -1,7 +1,8 @@
 import sbt._
 import sbtproject._
-import sbtproject.utils._
 import sbtproject.Dependencies._
+import sbtproject.TestDependencies._
+import sbtproject.utils._
 import xerial.sbt.Sonatype._
 
 // General
@@ -127,7 +128,7 @@ lazy val figlet4sCore: Project = project
 // Figlet4s Effects project
 lazy val figlet4sEffects: Project = project
   .in(file("figlet4s-effects"))
-  .dependsOn(figlet4sCore)
+  .dependsOn(figlet4sCore % "compile->compile;test->test")
   .settings(commonSettings)
   .settings(
     name := "figlet4s-effects",

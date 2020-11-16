@@ -53,9 +53,7 @@ object Figlet4s extends Figlet4sAPI[IO] with Figlet4sEffectfulAPI[IO] {
    * @return A FIGure representing the rendered text
    */
   def renderString(text: String, options: RenderOptions): FIGure =
-    Figlet4sClient
-      .renderString[IO](text, options)
-      .unsafeRunSync()
+    renderStringF(text, options).unsafeRunSync()
 
   /**
    * Returns a new options builder with default settings

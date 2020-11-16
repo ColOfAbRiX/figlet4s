@@ -5,7 +5,7 @@ import cats.implicits._
 import com.colofabrix.scala.figlet4s._
 import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont._
-import com.colofabrix.scala.figlet4s.options._
+import com.colofabrix.scala.figlet4s.StandardTestData._
 import com.colofabrix.scala.figlet4s.testutils._
 import com.colofabrix.scala.figlet4s.unsafe._
 import org.scalatest.flatspec._
@@ -18,19 +18,16 @@ class Figlet4sSpecs extends AnyFlatSpec with Matchers with Figlet4sMatchers with
   //  Rendering  //
 
   "Rendering APIs" should "render a default text using the \"standard\" font" in {
-    val computed = SpecsData.standardBuilder.render(SpecsData.standardInput)
-    val expected = FIGure(
-      SpecsData.standardBuilder.options.font,
-      SpecsData.standardInput,
-      Vector(SpecsData.standardLines.toSubcolumns),
-    )
+    val computed = Figlet4s.renderString(standardInput, standardBuilder.options)
+    val expected = FIGure(standardBuilder.options.font, standardInput, Vector(standardLines.toSubcolumns))
     computed should lookLike(expected)
   }
 
   it should "render the texts as the original command line FIGlet does" taggedAs (SlowTest) in {
     figletRenderingTest { testData =>
       val testBuilder =
-        defaultBuilder
+        Figlet4s
+          .builder()
           .text(testData.renderText)
           .withInternalFont(testData.fontName)
           .withHorizontalLayout(testData.horizontalLayout)
@@ -52,8 +49,8 @@ class Figlet4sSpecs extends AnyFlatSpec with Matchers with Figlet4sMatchers with
 
   it should "load all internal fonts successfully" in {
     val loadingErrors = for {
-      font  <- Figlet4s.internalFonts
-      error <- interpretResult(font)(Try(Figlet4s.loadFontInternal(font)))
+      fonts <- Figlet4s.internalFonts
+      error <- interpretResult(fonts)(Try(Figlet4s.loadFontInternal(fonts)))
     } yield error
     loadingErrors shouldBe empty
   }
@@ -105,11 +102,5 @@ class Figlet4sSpecs extends AnyFlatSpec with Matchers with Figlet4sMatchers with
     case Success(_) =>
       None
   }
-
-  private val defaultBuilder =
-    Figlet4s
-      .builder()
-      .withInternalFont(Figlet4sClient.defaultFont)
-      .withHorizontalLayout(HorizontalLayout.FullWidth)
 
 }

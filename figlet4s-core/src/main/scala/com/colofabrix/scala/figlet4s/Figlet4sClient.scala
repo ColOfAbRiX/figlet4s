@@ -52,7 +52,7 @@ private[figlet4s] object Figlet4sClient {
    */
   def renderString[F[_]: Sync](text: String, options: RenderOptions): F[FIGure] =
     Sync[F].pure {
-      HorizontalTextRenderer.render(text, options)
+      Rendering.render(text, options)
     }
 
   /**

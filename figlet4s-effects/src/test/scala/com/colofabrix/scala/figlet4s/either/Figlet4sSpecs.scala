@@ -1,11 +1,11 @@
-package com.colofabrix.scala.figlet4s
+package com.colofabrix.scala.figlet4s.either
 
 import com.colofabrix.scala.figlet4s.either._
 import org.scalatest._
 import org.scalatest.flatspec._
 import org.scalatest.matchers.should.Matchers
 
-class Figlet4sEitherSpecs extends AnyFlatSpec with Matchers with EitherValues {
+class Figlet4sSpecs extends AnyFlatSpec with Matchers with EitherValues {
 
   "figlet4s-either" should "return errors inside Left()" in {
     val result =

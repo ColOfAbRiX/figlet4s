@@ -13,8 +13,8 @@ import com.colofabrix.scala.figlet4s.figfont._
  */
 final case class RenderOptions(
     font: FIGfont,
-    maxWidth: Int = Int.MaxValue,
-    horizontalLayout: HorizontalLayout = HorizontalLayout.FontDefault,
-    printDirection: PrintDirection = PrintDirection.FontDefault,
-    justification: Justification = Justification.FontDefault,
+    maxWidth: Int,
+    horizontalLayout: HorizontalLayout,
+    printDirection: PrintDirection,
+    justification: Justification,
 )

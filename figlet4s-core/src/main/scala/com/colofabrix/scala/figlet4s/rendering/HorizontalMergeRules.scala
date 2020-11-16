@@ -2,28 +2,29 @@ package com.colofabrix.scala.figlet4s.rendering
 
 import cats.implicits._
 import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
-import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options.{ HorizontalLayout => ClientHorizontalLayout, RenderOptions }
 import com.colofabrix.scala.figlet4s.rendering.MergeAction._
 import com.colofabrix.scala.figlet4s.rendering.Rendering._
 
 /**
- * Renderer for Horizontal Layouts
+ * Merging rules for horizontal appending of characters
  */
-private[figlet4s] object HorizontalTextRenderer {
+private[figlet4s] object HorizontalMergeRules {
   /**
-   * Renders a String into a FIGure for a given FIGfont and options
+   * Creates a merge strategy to perform horizontal merging, based on the given RenderOptions.
    *
-   * @param text    The String to render as a FIGure
-   * @param options The RenderOptions used to render the text
-   * @return A FIGure containing the rendered text following the rendering options
+   * @param options The RenderOptions used to build the MergeStrategy
+   * @return A MergeStrategy function that performs horizontal merging
    */
-  def render(text: String, options: RenderOptions): FIGure = {
-    val chosenLayout  = ClientHorizontalLayout.toInternalLayout(options.font)(options.horizontalLayout)
-    val hardblank     = options.font.header.hardblank
-    val mergeStrategy = layout2mergeStrategy(hardblank)(chosenLayout)
-    horizontalRender(text, options, mergeStrategy)
+  def mergeStrategy(options: RenderOptions): MergeStrategy = {
+    val chosenLayout = ClientHorizontalLayout.toInternalLayout(options.font)(options.horizontalLayout)
+    layout2mergeStrategy(options.font.header.hardblank)(chosenLayout)
   }
+
+  //  Support  //
+
+  /** Function that smushes two characters */
+  private type SmushingStrategy = (Char, Char) => Option[Char]
 
   /**
    * Returns the merge strategy function given a layout

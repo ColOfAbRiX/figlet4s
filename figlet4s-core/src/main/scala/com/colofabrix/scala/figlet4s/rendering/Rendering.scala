@@ -104,9 +104,14 @@ import scala.annotation.tailrec
  * @param options       The options of the rendering
  * @param mergeStrategy The merge strategy used to merge together two characters
  */
-final private[rendering] class Rendering(text: String, options: RenderOptions, mergeStrategy: MergeStrategy) {
+final private[rendering] class Rendering(text: String, options: RenderOptions) {
 
-  def horizontalRender(): FIGure = {
+  /**
+   * Renders a String into a FIGure for a given FIGfont and options
+   *
+   * @return A FIGure containing the rendered text following the rendering options
+   */
+  def render(): FIGure = {
     val zero    = Vector(options.font.zero.lines.toSubcolumns.value.toVector)
     val figures = text.toList.map(options.font(_).columns.value.toVector).toList
     val result  = appendLoop(figures, zero, AppendLoopState()).map(SubColumns(_))
@@ -114,6 +119,8 @@ final private[rendering] class Rendering(text: String, options: RenderOptions, m
   }
 
   //  ----  //
+
+  private val mergeStrategy: MergeStrategy = HorizontalMergeRules.mergeStrategy(options)
 
   @tailrec
   private def appendLoop(text: List[Columns], partial: Vector[Columns], state: AppendLoopState): Vector[Columns] =
@@ -208,19 +215,15 @@ private[figlet4s] object Rendering {
   /** Function that, given a MergeState, merges two characters and determines the resulting MergeAction */
   type MergeStrategy = MergeState => (Char, Char) => MergeAction[Char]
 
-  /** Function that smushes two characters */
-  type SmushingStrategy = (Char, Char) => Option[Char]
-
   /**
-   * Renders a text horizontally by merging one character after the other
+   * Renders a String into a FIGure for a given FIGfont and options
    *
-   * @param text          The text to render
-   * @param options       The options of the rendering
-   * @param mergeStrategy The merge strategy used to merge together two characters
-   * @return A new FIGure that corresponds to the rendered text
+   * @param text    The String to render as a FIGure
+   * @param options The RenderOptions used to render the text
+   * @return A FIGure containing the rendered text following the rendering options
    */
-  def horizontalRender(text: String, options: RenderOptions, mergeStrategy: MergeStrategy): FIGure =
-    new Rendering(text, options, mergeStrategy).horizontalRender()
+  def render(text: String, options: RenderOptions): FIGure =
+    new Rendering(text, options).render()
 
   //  ----  //
 

@@ -101,7 +101,7 @@ object Compiler {
 
   // Stricter compile option to filter out in specific situation
   lazy val StrictOptions: Seq[String] = Seq(
-    "-Xfatal-warnings",                          // Fail the compilation if there are any warning.
+    "-Xfatal-warnings", // Fail the compilation if there are any warning.
   )
 
   // Options for the Splain plugin

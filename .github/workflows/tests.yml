@@ -28,3 +28,9 @@ jobs:
 
       - name: Run tests
         run: sbt +test
+
+      - name: Test Scalafix
+        run: sbt scalafixAll --check
+
+      - name: Test Scalafmt
+        run: sbt scalafmtCheckAll
