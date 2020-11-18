@@ -7,6 +7,7 @@ import xerial.sbt.Sonatype._
 
 // General
 Global / onChangedBuildSource := ReloadOnSourceChanges
+Global / lintUnusedKeysOnLoad := false
 ThisBuild / turbo := true
 ThisBuild / scalaVersion := ScalaLangVersion
 

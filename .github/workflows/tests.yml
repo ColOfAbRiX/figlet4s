@@ -26,11 +26,11 @@ jobs:
       - name: Install Figlet
         run: sudo apt-get install -y figlet
 
-      - name: Run tests
+      - name: Run tests on all versions
         run: sbt +test
-
-      - name: Test Scalafix
-        run: sbt scalafixAll --check
 
       - name: Test Scalafmt
         run: sbt scalafmtCheckAll
+
+      - name: Test Scalafix
+        run: sbt "scalafixAll --check"

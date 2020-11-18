@@ -19,12 +19,13 @@ lazy val SCoverageVersion    = "1.6.1"
 lazy val WartremoverVersion  = "2.4.10"
 
 // Release
-lazy val AssemblyVersion       = "0.15.0"
-lazy val DynverVersion         = "4.1.1"
-lazy val GitVersion            = "1.0.0"
-lazy val GpgVersion            = "2.0.1"
-lazy val NativePackagerVersion = "1.7.5"
-lazy val SonatypeVersion       = "3.9.5"
+lazy val AssemblyVersion          = "0.15.0"
+lazy val DynverVersion            = "4.1.1"
+lazy val GitVersion               = "1.0.0"
+lazy val GpgVersion               = "2.0.1"
+lazy val NativePackagerVersion    = "1.7.5"
+lazy val RemoveTestFromPomVersion = "0.1.0"
+lazy val SonatypeVersion          = "3.9.5"
 
 //  PLUGIN LIBRARIES  //
 
@@ -41,9 +42,10 @@ addSbtPlugin("org.scoverage"    % "sbt-scoverage"             % SCoverageVersion
 addSbtPlugin("org.wartremover"  % "sbt-wartremover"           % WartremoverVersion)
 
 // Release
-addSbtPlugin("com.dwijnand"     % "sbt-dynver"          % DynverVersion)
-addSbtPlugin("com.eed3si9n"     % "sbt-assembly"        % AssemblyVersion)
-addSbtPlugin("com.jsuereth"     % "sbt-pgp"             % GpgVersion)
-addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % NativePackagerVersion)
-addSbtPlugin("com.typesafe.sbt" % "sbt-git"             % GitVersion)
-addSbtPlugin("org.xerial.sbt"   % "sbt-sonatype"        % SonatypeVersion)
+addSbtPlugin("com.alejandrohdezma" %% "sbt-remove-test-from-pom" % RemoveTestFromPomVersion)
+addSbtPlugin("com.dwijnand"         % "sbt-dynver"               % DynverVersion)
+addSbtPlugin("com.eed3si9n"         % "sbt-assembly"             % AssemblyVersion)
+addSbtPlugin("com.jsuereth"         % "sbt-pgp"                  % GpgVersion)
+addSbtPlugin("com.typesafe.sbt"     % "sbt-git"                  % GitVersion)
+addSbtPlugin("com.typesafe.sbt"     % "sbt-native-packager"      % NativePackagerVersion)
+addSbtPlugin("org.xerial.sbt"       % "sbt-sonatype"             % SonatypeVersion)

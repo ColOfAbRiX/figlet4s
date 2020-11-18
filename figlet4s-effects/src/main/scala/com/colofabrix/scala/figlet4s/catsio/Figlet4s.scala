@@ -61,7 +61,7 @@ object Figlet4s extends Figlet4sAPI[IO] with Figlet4sEffectfulAPI[IO] {
    * @return An OptionBuilder to build the rendering options
    */
   def builder(): OptionsBuilder =
-    new OptionsBuilder()
+    builderF().unsafeRunSync()
 
   /**
    * Returns a new options builder with default settings and containing the specified text to render
@@ -70,7 +70,7 @@ object Figlet4s extends Figlet4sAPI[IO] with Figlet4sEffectfulAPI[IO] {
    * @return An OptionBuilder to build the rendering options
    */
   def builder(text: String): OptionsBuilder =
-    new OptionsBuilder(BuilderAction.SetTextAction(text) :: Nil)
+    builderF(text).unsafeRunSync()
 
   /**
    * Renders a given text as a FIGure
@@ -88,7 +88,7 @@ object Figlet4s extends Figlet4sAPI[IO] with Figlet4sEffectfulAPI[IO] {
    * @return An OptionBuilder to build the rendering options
    */
   def builderF(): IO[OptionsBuilder] =
-    IO.pure(builder())
+    IO.pure(OptionsBuilder())
 
   /**
    * Returns a new options builder with default settings and containing the specified text to render
@@ -97,6 +97,6 @@ object Figlet4s extends Figlet4sAPI[IO] with Figlet4sEffectfulAPI[IO] {
    * @return An OptionBuilder to build the rendering options
    */
   def builderF(text: String): IO[OptionsBuilder] =
-    IO.pure(builder(text))
+    IO.pure(OptionsBuilder(BuilderAction.SetTextAction(text)))
 
 }

@@ -52,9 +52,7 @@ object Figlet4s extends Figlet4sAPI[FigletEither] with Figlet4sEffectfulAPI[Figl
    * @return A FIGure representing the rendered text
    */
   def renderString(text: String, options: RenderOptions): FIGure =
-    Figlet4sClient
-      .renderString[FigletEither](text, options)
-      .unsafeGet
+    renderStringF(text, options).unsafeGet
 
   /**
    * Returns a new options builder with default settings
@@ -62,7 +60,7 @@ object Figlet4s extends Figlet4sAPI[FigletEither] with Figlet4sEffectfulAPI[Figl
    * @return An OptionBuilder to build the rendering options
    */
   def builder(): OptionsBuilder =
-    new OptionsBuilder()
+    builderF().unsafeGet
 
   /**
    * Returns a new options builder with default settings and containing the specified text to render
@@ -71,7 +69,7 @@ object Figlet4s extends Figlet4sAPI[FigletEither] with Figlet4sEffectfulAPI[Figl
    * @return An OptionBuilder to build the rendering options
    */
   def builder(text: String): OptionsBuilder =
-    new OptionsBuilder(BuilderAction.SetTextAction(text) :: Nil)
+    builderF(text).unsafeGet
 
   /**
    * Renders a given text as a FIGure
@@ -89,7 +87,7 @@ object Figlet4s extends Figlet4sAPI[FigletEither] with Figlet4sEffectfulAPI[Figl
    * @return An OptionBuilder to build the rendering options
    */
   def builderF(): FigletEither[OptionsBuilder] =
-    Right(builder())
+    Right(OptionsBuilder())
 
   /**
    * Returns a new options builder with default settings and containing the specified text to render
@@ -98,6 +96,6 @@ object Figlet4s extends Figlet4sAPI[FigletEither] with Figlet4sEffectfulAPI[Figl
    * @return An OptionBuilder to build the rendering options
    */
   def builderF(text: String): FigletEither[OptionsBuilder] =
-    Right(builder(text))
+    Right(OptionsBuilder(BuilderAction.SetTextAction(text)))
 
 }

@@ -13,7 +13,7 @@ import org.scalatest.matchers.should._
 import scala.concurrent.ExecutionContext
 import scala.util._
 
-class Figlet4sSpecs extends AnyFlatSpec with Matchers with Figlet4sMatchers with OriginalFigletTesting {
+class UnsafeFiglet4sSpecs extends AnyFlatSpec with Matchers with Figlet4sMatchers with OriginalFigletTesting {
 
   //  Rendering  //
 
@@ -90,6 +90,12 @@ class Figlet4sSpecs extends AnyFlatSpec with Matchers with Figlet4sMatchers with
     assertThrows[FigletLoadingError] {
       Figlet4s.loadFont("non_existent")
     }
+  }
+
+  //  Builder  //
+
+  "Builder API" should "create a builder" in {
+    Figlet4s.builder()
   }
 
   //  Support  //

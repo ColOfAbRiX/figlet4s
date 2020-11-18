@@ -5,7 +5,7 @@ import com.colofabrix.scala.figlet4s.StandardTestData._
 import org.scalatest.flatspec._
 import org.scalatest.matchers.should._
 
-class FIGureSpecs extends AnyFlatSpec with Matchers with Figlet4sMatchers with OriginalFigletTesting {
+class UnsafeFIGureSpecs extends AnyFlatSpec with Matchers with Figlet4sMatchers with OriginalFigletTesting {
 
   "FIGure" should "return the same data for asSeq() and asString()" in {
     val figure     = standardBuilder.render(standardInput)
