@@ -13,7 +13,6 @@ import org.scalatest._
 import org.scalatest.flatspec._
 import org.scalatest.matchers.should._
 import scala.concurrent._
-import com.colofabrix.scala.figlet4s.options.RenderOptions
 
 class CatsIOFiglet4sSpecs extends AnyFlatSpec with Matchers with OptionValues with Figlet4sMatchers {
 

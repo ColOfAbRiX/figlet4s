@@ -2,8 +2,10 @@ package com.colofabrix.scala.figlet4s.figfont
 
 import cats.implicits._
 import cats.kernel.Eq
+import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.utils._
 import enumeratum.values._
+import scala.util._
 
 /**
  * Parameters and configuration settings used by FIGheaders.
@@ -31,7 +33,8 @@ private[figfont] object FIGheaderParameters {
      * @param value The number representing the PrintDirection
      * @return The PrintDirection that corresponds to the given numeric value
      */
-    def apply(value: Int): PrintDirection = withValue(value)
+    def apply(value: Int): FigletResult[PrintDirection] =
+      Try(withValue(value)).toFigletResult
 
     val values: Vector[PrintDirection] = findValues.toVector
   }

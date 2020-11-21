@@ -7,14 +7,16 @@ import sbt._
  */
 object TestDependencies {
 
-  lazy val ScalaCheckVersion = "1.14.1"
-  lazy val ScalameterVersion = "0.19"
-  lazy val ScalaTestVersion  = "3.2.2"
+  lazy val CatsScalaTestVersion = "3.0.5"
+  lazy val ScalaCheckVersion    = "1.14.1"
+  lazy val ScalameterVersion    = "0.19"
+  lazy val ScalaTestVersion     = "3.2.2"
 
-  lazy val ScalameterDep              = "com.storm-enroute" %% "scalameter"               % ScalameterVersion % Test
-  lazy val ScalaTestDep               = "org.scalatest"     %% "scalatest"                % ScalaTestVersion  % Test
-  lazy val ScalaTestFlatSpecDep       = "org.scalatest"     %% "scalatest-flatspec"       % ScalaTestVersion  % Test
-  lazy val ScalaTestShouldMatchersDep = "org.scalatest"     %% "scalatest-shouldmatchers" % ScalaTestVersion  % Test
+  lazy val CatsScalaTestDep           = "com.ironcorelabs"  %% "cats-scalatest"           % CatsScalaTestVersion % Test
+  lazy val ScalameterDep              = "com.storm-enroute" %% "scalameter"               % ScalameterVersion    % Test
+  lazy val ScalaTestDep               = "org.scalatest"     %% "scalatest"                % ScalaTestVersion     % Test
+  lazy val ScalaTestFlatSpecDep       = "org.scalatest"     %% "scalatest-flatspec"       % ScalaTestVersion     % Test
+  lazy val ScalaTestShouldMatchersDep = "org.scalatest"     %% "scalatest-shouldmatchers" % ScalaTestVersion     % Test
 
   //  Support  //
 

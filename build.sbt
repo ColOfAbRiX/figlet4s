@@ -12,6 +12,7 @@ ThisBuild / turbo := true
 ThisBuild / scalaVersion := ScalaLangVersion
 
 // Project information
+ThisBuild / name := "figlet4s"
 ThisBuild / homepage := Some(url("https://github.com/ColOfAbRiX/figlet4s"))
 ThisBuild / organization := "com.colofabrix.scala"
 ThisBuild / organizationName := "ColOfAbRiX"
@@ -48,6 +49,7 @@ val commonSettings: Seq[Def.Setting[_]] = Seq(
   // Testing
   Test / logBuffered := false,
   Test / testOptions += Tests.Argument("-oFD"),
+  // Test / parallelExecution := false,
 
   // Compiler options
   scalacOptions := versioned(scalaVersion.value)(
@@ -119,6 +121,7 @@ lazy val figlet4sCore: Project = project
       CatsCoreDep,
       CatsEffectDep,
       CatsKernelDep,
+      CatsScalaTestDep,
       EnumeratumDep,
       ScalaTestFlatSpecDep,
       ScalaTestPlusCheckDep,
@@ -138,6 +141,7 @@ lazy val figlet4sEffects: Project = project
       CatsCoreDep,
       CatsEffectDep,
       CatsKernelDep,
+      CatsScalaTestDep,
       ScalaTestFlatSpecDep,
       ScalaTestShouldMatchersDep,
     ),

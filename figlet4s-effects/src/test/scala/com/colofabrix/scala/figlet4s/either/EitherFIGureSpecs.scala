@@ -1,11 +1,11 @@
 package com.colofabrix.scala.figlet4s.either
 
+import cats.scalatest._
 import com.colofabrix.scala.figlet4s.StandardTestData._
-import org.scalatest._
 import org.scalatest.flatspec._
 import org.scalatest.matchers.should._
 
-class EitherFIGureSpecs extends AnyFlatSpec with Matchers with EitherValues {
+class EitherFIGureSpecs extends AnyFlatSpec with Matchers with EitherMatchers with EitherValues {
 
   "FIGure" should "return the same data for asSeq() and asString()" in {
     val test =
@@ -17,8 +17,9 @@ class EitherFIGureSpecs extends AnyFlatSpec with Matchers with EitherValues {
         (fromSeq.mkString("\n"), fromString)
       }
 
-    val (computed, expected) = test.unsafeGet
+    test should be(right)
 
+    val (computed, expected) = test.value
     computed should equal(expected)
   }
 
@@ -30,7 +31,7 @@ class EitherFIGureSpecs extends AnyFlatSpec with Matchers with EitherValues {
     }
 
     val computed = stream.toString()
-    val expected = figure.map(_.asString() + "\n").unsafeGet
+    val expected = figure.map(_.asString() + "\n").value
 
     computed should equal(expected)
   }

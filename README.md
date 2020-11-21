@@ -23,6 +23,8 @@ fonts, minimal dependencies, extensive error reporting and support for effects i
 >
 > -- _Wikipedia_
 
+Try out [Figlet4s on Scastie](https://scastie.scala-lang.org/W6mH3brNSty1TeJeCRrOxg)!
+
 ## Setup
 
 When using SBT, add the following line to your build file (for the latest release version, see the
@@ -46,6 +48,16 @@ Figlet4s supports Scala version 2.13.x and 2.12.x.
 ## Documentation
 
 You can find the [API documentation here][1]
+
+## What can I use Figlet4s for?
+
+FIGlet is mainly a decorative application. But this doesn't mean it's not useful! You can use it to
+add some touch to your applications or environments!
+
+Some example applications are:
+
+* A banner for your logs
+* Great login message on shells
 
 ## Quick start
 

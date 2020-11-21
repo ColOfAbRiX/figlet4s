@@ -1,7 +1,9 @@
 package com.colofabrix.scala.figlet4s
 
-import cats.MonadError
 import cats.data._
+import cats.implicits._
+import cats.MonadError
+import scala.util._
 
 @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements", "org.wartremover.warts.Null"))
 object errors {
@@ -44,6 +46,7 @@ object errors {
   }
   object FigletError {
     def unapply(error: FigletError): Option[String] = Some(error.getMessage())
+    def apply(cause: Throwable): FigletError        = new FigletError(cause.getMessage)
     def apply(message: String): FigletError         = new FigletError(message: String)
     def apply(message: String, cause: Throwable): FigletError =
       new FigletError(message: String, cause: Throwable)
@@ -61,6 +64,7 @@ object errors {
     }
   }
   object FigletLoadingError {
+    def apply(message: String): FigletLoadingError = new FigletLoadingError(message: String)
     def apply(message: String, cause: Throwable): FigletLoadingError =
       new FigletLoadingError(message: String, cause: Throwable)
   }
@@ -75,9 +79,16 @@ object errors {
    *
    * @param message The description of the error
    */
-  final class FIGheaderError(message: String) extends FLFError(message)
+  final class FIGheaderError(message: String) extends FigletException(message) {
+    def this(message: String, cause: Throwable) = {
+      this(message)
+      initCause(cause)
+    }
+  }
   object FIGheaderError {
     def apply(message: String): FIGheaderError = new FIGheaderError(message: String)
+    def apply(message: String, cause: Throwable): FIGheaderError =
+      new FIGheaderError(message: String, cause: Throwable)
   }
 
   /**
@@ -98,6 +109,16 @@ object errors {
   final class FIGFontError(message: String) extends FLFError(message)
   object FIGFontError {
     def apply(message: String): FIGFontError = new FIGFontError(message: String)
+  }
+
+  //  Extension Methods  //
+
+  implicit private[figlet4s] class FigletTry[A](private val self: Try[A]) extends AnyVal {
+    def toFigletResult: FigletResult[A] =
+      self match {
+        case Failure(exception) => FigletError(exception).invalidNec
+        case Success(value)     => value.validNec
+      }
   }
 
 }

@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Changed
+
+* Errors returned in a more uniform format all internal to Figlet4s
+* Removed test dependencies from POM
+
 ## v0.1.0 - 2020/11/13
 
 Initial release.

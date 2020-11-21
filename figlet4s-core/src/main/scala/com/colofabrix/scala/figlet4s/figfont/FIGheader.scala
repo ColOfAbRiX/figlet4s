@@ -1,6 +1,6 @@
 package com.colofabrix.scala.figlet4s.figfont
 
-import cats.data.Validated
+import cats.data._
 import cats.data.Validated._
 import cats.implicits._
 import com.colofabrix.scala.figlet4s.compat._
@@ -37,18 +37,6 @@ final case class FIGheader private[figlet4s] (
     fullLayout: Option[Seq[FullLayout]],
     codetagCount: Option[Int],
 ) {
-  override def toString: String =
-    s"FIGheader(signature=$signature, " +
-    s"hardblank=$hardblank, " +
-    s"height=$height, " +
-    s"baseline=$baseline, " +
-    s"maxLength=$maxLength, " +
-    s"oldLayout=$oldLayout, " +
-    s"commentLines=$commentLines, " +
-    s"printDirection=$printDirection, " +
-    s"fullLayout=$fullLayout, " +
-    s"codetagCount=$codetagCount)"
-
   /**
    * Returns the the single-line representation of the FIGheader as defined in the FLF standard
    *
@@ -60,7 +48,7 @@ final case class FIGheader private[figlet4s] (
     val fullLayoutNum     = fullLayout.map(x => s" ${x.map(_.value).sum}").getOrElse("")
     val codetagCountNum   = codetagCount.map(x => s" $x").getOrElse("")
 
-    s"$signature$hardblank $height $baseline $maxLength $oldLayoutNum $commentLines $printDirectionNum $fullLayoutNum $codetagCountNum"
+    s"$signature$hardblank $height $baseline $maxLength $oldLayoutNum $commentLines$printDirectionNum$fullLayoutNum$codetagCountNum"
   }
 }
 
@@ -161,15 +149,17 @@ object FIGheader {
       .toIntOption
       .toValidNec(FIGheaderError(s"Couldn't parse header field 'commentLines': $commentLines"))
       .andThen { value =>
-        Validated.condNec(value > 0, value, FIGheaderError(s"Field 'commentLines' must be positive: $commentLines"))
+        Validated.condNec(value >= 0, value, FIGheaderError(s"Field 'commentLines' must be non-negative: $commentLines"))
       }
 
   private def validatePrintDirection(printDirection: Option[String]): FigletResult[Option[PrintDirection]] =
     printDirection.traverse { value =>
       value
         .toIntOption
-        .map(PrintDirection(_))
         .toValidNec(FIGheaderError(s"Couldn't parse header field 'printDirection': $printDirection"))
+        .andThen {
+          PrintDirection(_).leftMap(_.map(FIGheaderError(s"Invalid value for field 'printDirection': $value", _)))
+        }
     }
 
   private def validateFullLayout(fullLayout: Option[String]): FigletResult[Option[Vector[FullLayout]]] =
@@ -190,6 +180,10 @@ object FIGheader {
       value
         .toIntOption
         .toValidNec(FIGheaderError(s"Couldn't parse header field 'codetagCount': $codetagCount"))
+        .andThen { value =>
+          lazy val error = FIGheaderError(s"Field 'codetagCount' must be non-negative: $codetagCount")
+          Validated.condNec(value >= 0, value, error)
+        }
     }
 
   ->()
