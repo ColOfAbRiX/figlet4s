@@ -12,7 +12,12 @@ import org.scalatest.flatspec._
 import org.scalatest.matchers.should._
 import scala.concurrent._
 
-class EitherFiglet4sSpecs extends AnyFlatSpec with Matchers with Figlet4sMatchers with EitherMatchers with EitherValues {
+class EitherFiglet4sSpecs
+    extends AnyFlatSpec
+    with Matchers
+    with Figlet4sMatchers
+    with EitherMatchers
+    with EitherValues {
 
   //  Rendering  //
 
@@ -69,7 +74,7 @@ class EitherFiglet4sSpecs extends AnyFlatSpec with Matchers with Figlet4sMatcher
   //  Fonts  //
 
   "Fonts API" should "read a font from the file system" in {
-    val cwd = System.getProperty("user.dir")
+    val cwd      = System.getProperty("user.dir")
     val computed = Figlet4s.loadFont(s"$cwd/figlet4s-core/src/main/resources/fonts/standard.flf")
     computed should be(right)
   }

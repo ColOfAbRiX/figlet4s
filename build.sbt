@@ -49,7 +49,6 @@ val commonSettings: Seq[Def.Setting[_]] = Seq(
   // Testing
   Test / logBuffered := false,
   Test / testOptions += Tests.Argument("-oFD"),
-  // Test / parallelExecution := false,
 
   // Compiler options
   scalacOptions := versioned(scalaVersion.value)(

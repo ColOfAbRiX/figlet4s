@@ -4,31 +4,38 @@ import scala.collection.immutable.ListMap
 
 object StandardFont {
 
-  val header: ListMap[String,String] =
-    ListMap(
-      "signature"      -> "flf2a",
-      "hardblank"      -> "$",
-      "height"         -> "6",
-      "baseline"       -> "5",
-      "maxLength"      -> "16",
-      "oldLayout"      -> "15",
-      "commentLines"   -> "11",
-      "printDirection" -> "0",
-      "fullLayout"     -> "24463",
-      "codetagCount"   -> "4",
-    )
+  case class Header(
+      signature: String = "flf2a",
+      hardblank: String = "$",
+      height: String = "6",
+      baseline: String = "5",
+      maxLength: String = "16",
+      oldLayout: String = "15",
+      commentLines: String = "11",
+      printDirection: String = "0",
+      fullLayout: String = "24463",
+      codetagCount: String = "4",
+  ) {
+    // format: off
+    val toList: List[String] = List(
+      signature, hardblank, height, baseline, maxLength, oldLayout,
+      commentLines, printDirection, fullLayout, codetagCount)
+    // format: on
 
-  def toHeaderLine(header: ListMap[String, String]): String =
-    header.values.mkString(" ").replaceFirst(" ", "")
+    def toLine: String =
+      toList.mkString(" ").replaceFirst(" ", "")
 
-  def noPrintDirection(header: ListMap[String, String]): ListMap[String, String] =
-    header.dropRight(3)
+    def noPrintDirection: String =
+      toList.dropRight(3).mkString(" ").replaceFirst(" ", "")
 
-  def noFullLayout(header: ListMap[String, String]): ListMap[String, String] =
-    header.dropRight(2)
+    def noFullLayout: String =
+      toList.dropRight(2).mkString(" ").replaceFirst(" ", "")
 
-  def noCodetagCount(header: ListMap[String, String]): ListMap[String, String] =
-    header.dropRight(1)
+    def noCodetagCount: String =
+      toList.dropRight(1).mkString(" ").replaceFirst(" ", "")
+  }
+
+  val header: Header = Header()
 
   val comment: String =
     """|Standard by Glenn Chappell & Ian Chai 3/93 -- based on Frank's .sig
@@ -43,7 +50,7 @@ object StandardFont {
        |supported by FIGlet and FIGWin.  May also be slightly modified for better use
        |of new full-width/kern/smush alternatives, but default output is NOT changed.""".stripMargin
 
-  val characters: ListMap[String,String] =
+  val characters: ListMap[String, String] =
     ListMap(
       "032" -> """| $@
                   | $@
@@ -659,7 +666,7 @@ object StandardFont {
                   | |_|   @@""".stripMargin,
     )
 
-  val codeTag: ListMap[String,String] =
+  val codeTag: ListMap[String, String] =
     ListMap(
       "160" -> """|160  NO-BREAK SPACE
                   | $@

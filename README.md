@@ -57,7 +57,9 @@ add some touch to your applications or environments!
 Some example applications are:
 
 * A banner for your logs
-* Great login message on shells
+* Great login message on terminals
+* Text-base adventure game
+* ASCII-art for retro-looking websites
 
 ## Quick start
 

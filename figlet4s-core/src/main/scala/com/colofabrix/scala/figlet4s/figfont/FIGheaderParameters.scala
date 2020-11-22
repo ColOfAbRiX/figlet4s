@@ -34,7 +34,9 @@ private[figfont] object FIGheaderParameters {
      * @return The PrintDirection that corresponds to the given numeric value
      */
     def apply(value: Int): FigletResult[PrintDirection] =
-      Try(withValue(value)).toFigletResult
+      Try(withValue(value))
+        .toFigletResult
+        .leftMap(_.map(x => FIGheaderError(x.getMessage)))
 
     val values: Vector[PrintDirection] = findValues.toVector
   }
@@ -72,12 +74,20 @@ private[figfont] object FIGheaderParameters {
      * @param requestedSettings The number representing the FullLayout
      * @return The FullLayout that corresponds to the given numeric value
      */
-    def apply(requestedSettings: Int): Vector[FullLayout] =
-      values
-        .flatMap { setting =>
-          if ((setting.value.toBitSet & requestedSettings.toBitSet).nonEmpty) Vector(setting)
-          else Vector()
-        }
+    def apply(requestedSettings: Int): FigletResult[Vector[FullLayout]] =
+      if (requestedSettings < 0 || requestedSettings > 32767)
+        FIGheaderError(s"OldLayout needs a value between 0 and 32767, both included: $requestedSettings").invalidNec
+      else {
+        lazy val result =
+          values
+            .flatMap { setting =>
+              if ((setting.value.toBitSet & requestedSettings.toBitSet).nonEmpty) Vector(setting)
+              else Vector()
+            }
+        Try(result)
+          .toFigletResult
+          .leftMap(_.map(x => FIGheaderError(x.getMessage)))
+      }
 
     val values: Vector[FullLayout] = findValues.toVector
 
@@ -131,18 +141,25 @@ private[figfont] object FIGheaderParameters {
      * @param requestedSettings The number representing the OldLayout
      * @return The OldLayout that corresponds to the given numeric value
      */
-    def apply(requestedSettings: Int): Vector[OldLayout] =
-      if (requestedSettings < 0)
-        Vector(FullWidth)
+    def apply(requestedSettings: Int): FigletResult[Vector[OldLayout]] =
+      if (requestedSettings < -1 || requestedSettings > 63)
+        FIGheaderError(s"OldLayout needs a value between -1 and 63, both included: $requestedSettings").invalidNec
+      else if (requestedSettings === -1)
+        Vector(FullWidth).validNec
       else if (requestedSettings === 0)
-        Vector(HorizontalFitting)
-      else
-        values
-          .withFilter(_ =!= HorizontalFitting)
-          .flatMap { setting =>
-            if ((requestedSettings.toBitSet & setting.value.toBitSet) === setting.value.toBitSet) Vector(setting)
-            else Vector()
-          }
+        Vector(HorizontalFitting).validNec
+      else {
+        lazy val result =
+          values
+            .withFilter(_ =!= HorizontalFitting)
+            .flatMap { setting =>
+              if ((requestedSettings.toBitSet & setting.value.toBitSet) === setting.value.toBitSet) Vector(setting)
+              else Vector()
+            }
+        Try(result)
+          .toFigletResult
+          .leftMap(_.map(x => FIGheaderError(x.getMessage)))
+      }
 
     val values: Vector[OldLayout] = findValues.toVector
   }

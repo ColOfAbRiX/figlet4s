@@ -142,7 +142,7 @@ object FIGheader {
         lazy val error = FIGheaderError(s"Field 'oldLayout' must be between -1 and 63, both included: $value")
         Validated.condNec(valid, value, error)
       }
-      .map(OldLayout(_))
+      .andThen(OldLayout(_))
 
   private def validateCommentLines(commentLines: String): FigletResult[Int] =
     commentLines
@@ -172,7 +172,7 @@ object FIGheader {
           lazy val error = FIGheaderError(s"Field 'fullLayout' must be between 0 and 32767, both included: $value")
           Validated.condNec(valid, value, error)
         }
-        .map(FullLayout(_))
+        .andThen(FullLayout(_))
     }
 
   private def validateCodetagCount(codetagCount: Option[String]): FigletResult[Option[Int]] =
