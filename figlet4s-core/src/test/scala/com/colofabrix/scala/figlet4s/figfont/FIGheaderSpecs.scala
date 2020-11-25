@@ -4,10 +4,10 @@ import cats.data._
 import cats.implicits._
 import cats.scalatest._
 import com.colofabrix.scala.figlet4s.errors._
+import com.colofabrix.scala.figlet4s.figfont.FIGheaderParameters._
 import com.colofabrix.scala.figlet4s.figfont.StandardFont._
 import org.scalatest.flatspec._
 import org.scalatest.matchers.should._
-import com.colofabrix.scala.figlet4s.figfont.FIGheaderParameters.PrintDirection
 
 class FIGheaderSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers with ValidatedValues {
 
@@ -20,8 +20,7 @@ class FIGheaderSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers wi
   }
 
   it should "return the correct signature" in {
-    val lineHeader = header.toLine
-    val computed   = FIGheader(lineHeader).map(_.signature)
+    val computed = header.toFIGheader.map(_.signature)
     computed should beValid(header.signature)
   }
 
@@ -34,8 +33,7 @@ class FIGheaderSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers wi
   }
 
   it should "return the correct hardblank" in {
-    val lineHeader = header.toLine
-    val computed   = FIGheader(lineHeader).map(_.hardblank)
+    val computed = header.toFIGheader.map(_.hardblank)
     computed should beValid(header.hardblank.charAt(0))
   }
 
@@ -54,8 +52,7 @@ class FIGheaderSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers wi
   }
 
   it should "return the correct height" in {
-    val lineHeader = header.toLine
-    val computed   = FIGheader(lineHeader).map(_.height)
+    val computed = header.toFIGheader.map(_.height)
     computed should beValid(header.height.toInt)
   }
 
@@ -74,8 +71,7 @@ class FIGheaderSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers wi
   }
 
   it should "return the correct baseline" in {
-    val lineHeader = header.toLine
-    val computed   = FIGheader(lineHeader).map(_.baseline)
+    val computed = header.toFIGheader.map(_.baseline)
     computed should beValid(header.baseline.toInt)
   }
 
@@ -94,8 +90,7 @@ class FIGheaderSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers wi
   }
 
   it should "return the correct maxLength" in {
-    val lineHeader = header.toLine
-    val computed   = FIGheader(lineHeader).map(_.maxLength)
+    val computed = header.toFIGheader.map(_.maxLength)
     computed should beValid(header.maxLength.toInt)
   }
 
@@ -141,8 +136,7 @@ class FIGheaderSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers wi
   }
 
   it should "return the correct commentLines" in {
-    val lineHeader = header.toLine
-    val computed   = FIGheader(lineHeader).map(_.commentLines)
+    val computed = header.toFIGheader.map(_.commentLines)
     computed should beValid(header.commentLines.toInt)
   }
 
@@ -195,9 +189,8 @@ class FIGheaderSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers wi
   }
 
   it should "return the correct fullLayout when it's specified" in {
-    val expected   = FIGheaderParameters.FullLayout(header.fullLayout.toInt)
-    val lineHeader = header.toLine
-    val computed   = FIGheader(lineHeader).map(_.fullLayout)
+    val expected = FIGheaderParameters.FullLayout(header.fullLayout.toInt)
+    val computed = header.toFIGheader.map(_.fullLayout)
     computed should be(valid)
     computed.value.getOrElse(Vector.empty) should contain theSameElementsAs (expected.value)
   }
@@ -224,8 +217,7 @@ class FIGheaderSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers wi
   }
 
   it should "return the correct codetagCount when it's specified" in {
-    val lineHeader = header.toLine
-    val computed   = FIGheader(lineHeader).map(_.codetagCount)
+    val computed = header.toFIGheader.map(_.codetagCount)
     computed should be(valid)
     computed.value shouldBe Some(header.codetagCount.toInt)
   }

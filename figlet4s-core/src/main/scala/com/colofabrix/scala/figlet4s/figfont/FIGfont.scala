@@ -104,8 +104,9 @@ object FIGfont {
   ): FigletResult[FIGfont] = {
     val hash = (name + header.toString + comment + chars.mkString).md5
 
-    val hLayoutV = HorizontalLayout.fromHeader(header)
-    val vLayoutV = VerticalLayout.fromHeader(header)
+    val hLayoutV        = HorizontalLayout.fromHeader(header)
+    val vLayoutV        = VerticalLayout.fromHeader(header)
+    val printDirectionV = PrintDirection.fromHeader(header)
     val charsV =
       chars
         .toVector
@@ -119,8 +120,8 @@ object FIGfont {
             .toMap
         }
 
-    val settingsV = (hLayoutV, vLayoutV).mapN {
-      FIGfontSettings(_, _, PrintDirection.fromHeader(header))
+    val settingsV = (hLayoutV, vLayoutV, printDirectionV).mapN {
+      FIGfontSettings.apply _
     }
 
     (settingsV, charsV).mapN {
@@ -172,14 +173,15 @@ object FIGfont {
       FIGcharacterError("Incomplete character definition at the end of the file").invalidNec
 
     } else {
-      val header   = fontState.header.get
-      val nameV    = fontState.name.validNec
-      val hashV    = fontState.hash.validNec
-      val commentV = fontState.commentLines.mkString("\n").validNec
-      val hLayoutV = HorizontalLayout.fromHeader(header)
-      val vLayoutV = VerticalLayout.fromHeader(header)
-      val settingsV = (hLayoutV, vLayoutV).mapN {
-        FIGfontSettings(_, _, PrintDirection.fromHeader(header))
+      val header          = fontState.header.get
+      val nameV           = fontState.name.validNec
+      val hashV           = fontState.hash.validNec
+      val commentV        = fontState.commentLines.mkString("\n").validNec
+      val hLayoutV        = HorizontalLayout.fromHeader(header)
+      val vLayoutV        = VerticalLayout.fromHeader(header)
+      val printDirectionV = PrintDirection.fromHeader(header)
+      val settingsV = (hLayoutV, vLayoutV, printDirectionV).mapN {
+        FIGfontSettings.apply _
       }
 
       val charsV = fontState

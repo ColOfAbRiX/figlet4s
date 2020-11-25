@@ -247,11 +247,11 @@ private[figlet4s] object FIGfontParameters {
     /**
      * Interprets the header settings and returns the selected PrintDirection
      */
-    def fromHeader(header: FIGheader): PrintDirection =
+    def fromHeader(header: FIGheader): FigletResult[PrintDirection] =
       header.printDirection match {
-        case Some(FIGheaderParameters.PrintDirection.LeftToRight) => LeftToRight
-        case Some(FIGheaderParameters.PrintDirection.RightToLeft) => RightToLeft
-        case None                                                 => LeftToRight
+        case Some(FIGheaderParameters.PrintDirection.LeftToRight) => LeftToRight.validNec
+        case Some(FIGheaderParameters.PrintDirection.RightToLeft) => RightToLeft.validNec
+        case None                                                 => LeftToRight.validNec
       }
   }
 }

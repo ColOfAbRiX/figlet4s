@@ -19,7 +19,7 @@ private[figfont] object FIGheaderParameters {
    *
    * @param value The numeric value of the Print Direction, contained in the FLF header
    */
-  sealed abstract class PrintDirection(val value: Int) extends IntEnumEntry
+  sealed abstract class PrintDirection(val value: Int) extends IntEnumEntry with ADT
 
   object PrintDirection extends IntEnum[PrintDirection] {
     /** Print direction left-to-right */
@@ -120,7 +120,7 @@ private[figfont] object FIGheaderParameters {
    *
    * @param value The numeric value of the Old Layout, contained in the FLF header
    */
-  sealed abstract class OldLayout(val value: Int) extends IntEnumEntry
+  sealed abstract class OldLayout(val value: Int) extends IntEnumEntry with ADT
 
   object OldLayout extends IntEnum[OldLayout] {
 

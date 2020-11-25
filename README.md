@@ -1,4 +1,4 @@
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://choosealicense.com/licenses/mit/)
 [![Maven Central](https://img.shields.io/maven-central/v/com.colofabrix.scala/figlet4s-core_2.13.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.colofabrix.scala%22%20AND%20a:%22figlet4s-core_2.13%22)
 [![Actions Status](https://github.com/ColOfAbRiX/figlet4s/workflows/tests/badge.svg)](https://github.com/ColOfAbRiX/figlet4s/actions)
 [![Gitter chat](https://badges.gitter.im/ColOfAbRiX/figlet4s.png)](https://gitter.im/figlet4s/community)
@@ -57,9 +57,10 @@ add some touch to your applications or environments!
 Some example applications are:
 
 * A banner for your logs
-* Great login message on terminals
-* Text-base adventure game
+* Decorate your terminal, like with great login message on terminals
+* Develop your own text-base adventure game
 * ASCII-art for retro-looking websites
+* [There are plenty of projects that use Figlet!](https://github.com/topics/figlet)
 
 ## Quick start
 

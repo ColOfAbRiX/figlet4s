@@ -1,10 +1,11 @@
 package com.colofabrix.scala.figlet4s.figfont
 
+import com.colofabrix.scala.figlet4s.errors._
 import scala.collection.immutable.ListMap
 
 object StandardFont {
 
-  case class Header(
+  final case class Header(
       signature: String = "flf2a",
       hardblank: String = "$",
       height: String = "6",
@@ -21,6 +22,9 @@ object StandardFont {
       signature, hardblank, height, baseline, maxLength, oldLayout,
       commentLines, printDirection, fullLayout, codetagCount)
     // format: on
+
+    def toFIGheader: FigletResult[FIGheader] =
+      FIGheader(this.toLine)
 
     def toLine: String =
       toList.mkString(" ").replaceFirst(" ", "")
