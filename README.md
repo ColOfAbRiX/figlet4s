@@ -23,7 +23,36 @@ fonts, minimal dependencies, extensive error reporting and support for effects i
 >
 > -- _Wikipedia_
 
-Try out [Figlet4s on Scastie](https://scastie.scala-lang.org/W6mH3brNSty1TeJeCRrOxg)!
+Try out [Figlet4s on Scastie](https://scastie.scala-lang.org/W6mH3brNSty1TeJeCRrOxg) or jump to the
+[Quick Start](#quick-start)
+
+## Features
+
+Figlet4s is progressing to support all the features of the original command line figlet and, at the
+moment, this is what Figlet4s can do:
+
+* The rendering of figures is identical to the original FIGlet
+* Supports FLF font definitions files in plain text
+* Includes all the main FIGlet fonts (some of which have been fixed)
+* All figlet horizontal layout supported (only vertical fitting layout supported)
+* Default API provides direct access to the return values with exceptions thrown
+* Extention package adds support for Scala's `Either` and Cats' `IO`
+* A builder is provided to avoid to deal directly with each and every option
+* Extensive and detailed error reporting
+* Support for Scala 2.13 and 2.12
+
+## What can I use Figlet4s for?
+
+FIGlet is mainly a decorative application. But this doesn't mean it's not useful! You can use it to
+add some touch to your applications or environments!
+
+Some example applications are:
+
+* A banner for your logs
+* Decorate your terminal, like with great login message on terminals
+* Develop your own text-base adventure game
+* ASCII-art for retro-looking websites
+* [There are plenty of projects that use Figlet!](https://github.com/topics/figlet)
 
 ## Setup
 
@@ -43,24 +72,11 @@ package:
 libraryDependencies += "com.colofabrix.scala" %% "figlet4s-effects" % <version>
 ```
 
-Figlet4s supports Scala version 2.13.x and 2.12.x.
+Figlet4s supports Scala version 2.13 and 2.12.
 
 ## Documentation
 
 You can find the [API documentation here][1]
-
-## What can I use Figlet4s for?
-
-FIGlet is mainly a decorative application. But this doesn't mean it's not useful! You can use it to
-add some touch to your applications or environments!
-
-Some example applications are:
-
-* A banner for your logs
-* Decorate your terminal, like with great login message on terminals
-* Develop your own text-base adventure game
-* ASCII-art for retro-looking websites
-* [There are plenty of projects that use Figlet!](https://github.com/topics/figlet)
 
 ## Quick start
 
@@ -81,10 +97,10 @@ import com.colofabrix.scala.figlet4s.unsafe._
 
 object QuickStartMain extends App {
 
-  // 1. Obtain an options builder.
+  // 1. Obtain an options builder
   val builder = Figlet4s.builder()
 
-  // 2. This time we don't configure it.
+  // 2. In this example we use the default configuration
 
   // 3. Render a text into a FIGure
   val figure = builder.render("Hello, World!")
@@ -107,16 +123,16 @@ import com.colofabrix.scala.figlet4s.options._
 object ShowcaseOptionsMain extends App {
 
   Figlet4s
-    .builder("Hello, World!")      // Create the options builder with a text to render
-    .withMaxWidth(80)              // Max width of the text
-    .withInternalFont("calgphy2")  // Set the font
-    .defaultMaxWidth()             // Go back to the default max  width
+    .builder("Hello, World!")      // 1. Create the options builder with a text to render
+    .withMaxWidth(80)              // 2. Max width of the text
+    .withInternalFont("calgphy2")  // 2. Set the font
+    .defaultMaxWidth()             // 2. Go back to the default max  width
     .withHorizontalLayout(
-      HorizontalLayout.FullWidth   // Choose a layout
+      HorizontalLayout.FullWidth   // 2. Choose a layout
     )
-    .text("Hello, Scala!")         // Change the text to render
-    .render()                      // Render the text to a FIGure
-    .print()                       // Print the FIGure
+    .text("Hello, Scala!")         // 2. Change the text to render
+    .render()                      // 3. Render the text to a FIGure
+    .print()                       // Do something with the FIGure
 
 }
 ```
@@ -176,9 +192,9 @@ object IOMain extends IOApp {
 
   def run(args: List[String]): IO[ExitCode] =
     for {
-      builder <- Figlet4s.builderF()             // Obtain an options builder
-      figure  <- builder.render("Hello, World!") // Render a text into a FIGure
-      _       <- figure.print()                  // Print the FIGure
+      builder <- Figlet4s.builderF()             // 1. Obtain an options builder
+      figure  <- builder.render("Hello, World!") // 3. Render a text into a FIGure
+      _       <- figure.print()                  // Do something with the FIGure
     } yield ExitCode.Success
 
 }
@@ -193,8 +209,8 @@ object EitherMain extends App {
 
   val result =
     for {
-      builder <- Figlet4s.builderF()             // Obtain an options builder
-      figure  <- builder.render("Hello, World!") // Render a text into a FIGure
+      builder <- Figlet4s.builderF()             // 1. Obtain an options builder
+      figure  <- builder.render("Hello, World!") // 3. Render a text into a FIGure
       lines   <- figure.asSeq()                  // Store the FIGure as lines in a variable
     } yield lines
 

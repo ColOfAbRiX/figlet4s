@@ -103,24 +103,44 @@ object FIGcharacter {
    * Validates all lines endmarks
    */
   private def validateEndmark(name: Char, position: Int, lines: SubLines): FigletResult[Char] = {
-    val allEndmarks = lines.value.map(_.last).toSet
-    // TODO: Check that only the last endmark is 1 or 2 characters
-    allEndmarks
-      .headOption
-      .filter(_ => allEndmarks.size === 1)
-      .toValidNec(
+    val linesTerminations =
+      lines
+        .value
+        .flatMap {
+          """(.)\1?$""".r.findFirstIn(_).toList.headOption.toList
+        }
+        .map(_.trim())
+
+    val extractedEndmarksV =
+      Validated.condNec(
+        linesTerminations.forall(l => l.length > 0 && l.length <= 2),
+        linesTerminations.flatMap(_.toList).toSet,
         FIGcharacterError(
-          s"Multiple endmarks found for character '$name' defined at line ${position + 1}, " +
-          s"only one endmark character is allowed: $allEndmarks",
+          s"Can't determine endmark. There are lines with no termination or more than 2-characters termination on " +
+          s"character '$name' defined at line ${position + 1}: $linesTerminations",
         ),
       )
+
+    val chosenEndmarkV = extractedEndmarksV andThen { extractedEndmarks =>
+      Validated.condNec(
+        extractedEndmarks.size === 1,
+        extractedEndmarks.headOption,
+        FIGcharacterError(
+          s"Multiple endmarks found for character '$name' defined at line ${position + 1}, " +
+          s"only one endmark character is allowed: $linesTerminations",
+        ),
+      )
+    }
+
+    chosenEndmarkV andThen {
+      _.toValidNec(FIGcharacterError(s"Can't determine endmark for character '$name' defined at line ${position + 1}"))
+    }
   }
 
   /**
    * Removes the endmarks from the lines of the character
    */
   private def cleanLines(lines: SubLines)(endmark: Char): FigletResult[SubLines] = {
-    // FIXME: When the endmark and the last character are equal they're both removed because they look like 2 endmarks
     val find = Regex.quote(endmark.toString) + "{1,2}$"
     lines.map(_.replaceAll(find, "")).validNec
   }

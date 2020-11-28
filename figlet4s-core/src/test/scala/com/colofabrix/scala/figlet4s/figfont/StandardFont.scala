@@ -54,6 +54,25 @@ object StandardFont {
        |supported by FIGlet and FIGWin.  May also be slightly modified for better use
        |of new full-width/kern/smush alternatives, but default output is NOT changed.""".stripMargin
 
+  def getFIGcharacter(
+      charName: Char,
+      lines: SubLines = getLines("032"),
+      maxWidth: Int = header.maxLength.toInt,
+      height: Int = header.height.toInt,
+  ): FigletResult[FIGcharacter] =
+    header
+      .copy(maxLength = maxWidth.toString, height = height.toString)
+      .toFIGheader
+      .andThen { h =>
+        FIGcharacter("", h, charName, lines, None, 123)
+      }
+
+  def getLines(name: String): SubLines =
+    SubLines(characters(name).split("\n").toIndexedSeq)
+
+  def getLinesAndBind(name: String)(f: (String, Int) => Vector[String] = (x, _) => Vector(x)): SubLines =
+    SubLines(characters(name).split("\n").zipWithIndex.toIndexedSeq.flatMap(f.tupled))
+
   val characters: ListMap[String, String] =
     ListMap(
       "032" -> """| $@

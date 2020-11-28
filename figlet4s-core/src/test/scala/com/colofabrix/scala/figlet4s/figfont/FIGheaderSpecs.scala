@@ -11,9 +11,9 @@ import org.scalatest.matchers.should._
 
 class FIGheaderSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers with ValidatedValues {
 
-  //  signature  //
+  //  Signature  //
 
-  "FIGheader.apply()" should "fail with wrong signature" in {
+  "Signature validation" should "fail with wrong signature" in {
     val mistake  = header.copy(signature = "abcde").toLine
     val computed = adaptError(FIGheader(mistake))
     computed should haveInvalid("FIGheaderError - Wrong FLF signature: abcde")
@@ -24,9 +24,9 @@ class FIGheaderSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers wi
     computed should beValid(header.signature)
   }
 
-  //  hardblank  //
+  //  Hardblank  //
 
-  it should "fail with wrong hardblank" in {
+  "Hardblank validation" should "fail with wrong hardblank" in {
     val mistake  = header.copy(hardblank = "$$").toLine
     val computed = adaptError(FIGheader(mistake))
     computed should haveInvalid("FIGheaderError - The hardblank '$$' is not composed of only one character")
@@ -37,9 +37,9 @@ class FIGheaderSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers wi
     computed should beValid(header.hardblank.charAt(0))
   }
 
-  //  height  //
+  //  Height  //
 
-  it should "fail with a non-numeric height" in {
+  "Height validation" should "fail with a non-numeric height" in {
     val mistake  = header.copy(height = "abcd").toLine
     val computed = adaptError(FIGheader(mistake))
     computed should haveInvalid("FIGheaderError - Couldn't parse header field 'height': abcd")
@@ -56,9 +56,9 @@ class FIGheaderSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers wi
     computed should beValid(header.height.toInt)
   }
 
-  //  baseline  //
+  //  Baseline  //
 
-  it should "fail with a non-numeric baseline" in {
+  "Baseline validation" should "fail with a non-numeric baseline" in {
     val mistake  = header.copy(baseline = "abcd").toLine
     val computed = adaptError(FIGheader(mistake))
     computed should haveInvalid("FIGheaderError - Couldn't parse header field 'baseline': abcd")
@@ -75,9 +75,9 @@ class FIGheaderSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers wi
     computed should beValid(header.baseline.toInt)
   }
 
-  //  maxLength  //
+  //  Max Length  //
 
-  it should "fail with a non-numeric maxLength" in {
+  "Max Length validation" should "fail with a non-numeric maxLength" in {
     val mistake  = header.copy(maxLength = "abcd").toLine
     val computed = adaptError(FIGheader(mistake))
     computed should haveInvalid("FIGheaderError - Couldn't parse header field 'maxLength': abcd")
@@ -94,9 +94,9 @@ class FIGheaderSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers wi
     computed should beValid(header.maxLength.toInt)
   }
 
-  //  oldLayout  //
+  //  Old Layout  //
 
-  it should "fail with a non-numeric oldLayout" in {
+  "Old Layout validation" should "fail with a non-numeric oldLayout" in {
     val mistake  = header.copy(oldLayout = "abcd").toLine
     val computed = adaptError(FIGheader(mistake))
     computed should haveInvalid("FIGheaderError - Couldn't parse header field 'oldLayout': abcd")
@@ -121,9 +121,9 @@ class FIGheaderSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers wi
     computed.value should contain theSameElementsAs (expected.value)
   }
 
-  //  commentLines  //
+  //  Comment Lines  //
 
-  it should "fail with a non-numeric commentLines" in {
+  "Comment Lines validation" should "fail with a non-numeric commentLines" in {
     val mistake  = header.copy(commentLines = "abcd").toLine
     val computed = adaptError(FIGheader(mistake))
     computed should haveInvalid("FIGheaderError - Couldn't parse header field 'commentLines': abcd")
@@ -140,9 +140,9 @@ class FIGheaderSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers wi
     computed should beValid(header.commentLines.toInt)
   }
 
-  //  printDirection  //
+  //  Print Direction  //
 
-  it should "fail with a non-numeric printDirection" in {
+  "Print Direction validation" should "fail with a non-numeric printDirection" in {
     val mistake  = header.copy(printDirection = "abcd").toLine
     val computed = adaptError(FIGheader(mistake))
     computed should haveInvalid("FIGheaderError - Couldn't parse header field 'printDirection': Some(abcd)")
@@ -168,9 +168,9 @@ class FIGheaderSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers wi
     computed.value shouldBe None
   }
 
-  //  fullLayout  //
+  //  Full Layout  //
 
-  it should "fail with a non-numeric fullLayout" in {
+  "Full Layout validation" should "fail with a non-numeric fullLayout" in {
     val mistake  = header.copy(fullLayout = "abcd").toLine
     val computed = adaptError(FIGheader(mistake))
     computed should haveInvalid("FIGheaderError - Couldn't parse header field 'fullLayout': Some(abcd)")
@@ -202,9 +202,9 @@ class FIGheaderSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers wi
     computed.value shouldBe None
   }
 
-  //  codetagCount  //
+  //  Codetag Count  //
 
-  it should "fail with a non-numeric codetagCount" in {
+  "Codetag Count validation" should "fail with a non-numeric codetagCount" in {
     val mistake  = header.copy(codetagCount = "abcd").toLine
     val computed = adaptError(FIGheader(mistake))
     computed should haveInvalid("FIGheaderError - Couldn't parse header field 'codetagCount': Some(abcd)")
@@ -228,6 +228,8 @@ class FIGheaderSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers wi
     computed should be(valid)
     computed.value shouldBe None
   }
+
+  //  Other  //
 
   "FIGheader.singleLine()" should "return the same header that constructed it" in {
     val expected = header.toLine
