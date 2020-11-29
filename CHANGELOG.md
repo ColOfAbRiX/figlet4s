@@ -4,7 +4,7 @@
 
 ### Changed
 
-* Errors returned in a more uniform format all internal to Figlet4s
+* Errors are returned in a more uniform format defined in the library
 * Removed test dependencies from POM
 
 ## v0.1.0 - 2020/11/13

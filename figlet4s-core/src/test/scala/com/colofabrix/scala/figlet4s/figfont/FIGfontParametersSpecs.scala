@@ -8,11 +8,7 @@ import com.colofabrix.scala.figlet4s.figfont.StandardFont._
 import org.scalatest.flatspec._
 import org.scalatest.matchers.should._
 import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters.{
-  HorizontalLayout => HL,
-  VerticalLayout => VL,
-  HorizontalSmushingRule => HSR,
-  VerticalSmushingRules => VSR,
-  _
+  HorizontalLayout => HL, VerticalLayout => VL, HorizontalSmushingRule => HSR, VerticalSmushingRules => VSR, _,
 }
 import com.colofabrix.scala.figlet4s.figfont.FIGheaderParameters.{
   FullLayout => FL, OldLayout => OL, PrintDirection => HPD,
@@ -23,9 +19,9 @@ class FIGfontParametersSpecs extends AnyFlatSpec with Matchers with ValidatedMat
   "PrintDirection.fromHeader" should "return the correct values for every input value" in {
     val tests = Seq(
       // Header's print direction -> Font's print direction
-      Some(HPD.LeftToRight)       -> PrintDirection.LeftToRight,
-      Some(HPD.RightToLeft)       -> PrintDirection.RightToLeft,
-      None                        -> PrintDirection.LeftToRight,
+      Some(HPD.LeftToRight) -> PrintDirection.LeftToRight,
+      Some(HPD.RightToLeft) -> PrintDirection.RightToLeft,
+      None                  -> PrintDirection.LeftToRight,
     )
 
     // Making sure we are covering all input and all output values
@@ -131,23 +127,25 @@ class FIGfontParametersSpecs extends AnyFlatSpec with Matchers with ValidatedMat
   }
 
   "HorizontalLayout.fromHeader" should "values from fullLayout when present" in {
-    val newHeader = header.toFIGheader.value.copy(
-      oldLayout = Vector(OL.FullWidth),
-      fullLayout = Some(Vector(FL.HorizontalFitting))
-    )
-    val computed  = adaptError(HL.fromHeader(newHeader))
-    val expected  = HL.HorizontalFitting
+    val newHeader = header
+      .toFIGheader.value.copy(
+        oldLayout = Vector(OL.FullWidth),
+        fullLayout = Some(Vector(FL.HorizontalFitting)),
+      )
+    val computed = adaptError(HL.fromHeader(newHeader))
+    val expected = HL.HorizontalFitting
     computed should be(valid)
     computed.value should equal(expected)
   }
 
   it should "return values from oldLayout when fullLayout not present" in {
-    val newHeader = header.toFIGheader.value.copy(
-      oldLayout = Vector(OL.FullWidth),
-      fullLayout = None
-    )
-    val computed  = adaptError(HL.fromHeader(newHeader))
-    val expected  = HL.FullWidth
+    val newHeader = header
+      .toFIGheader.value.copy(
+        oldLayout = Vector(OL.FullWidth),
+        fullLayout = None,
+      )
+    val computed = adaptError(HL.fromHeader(newHeader))
+    val expected = HL.FullWidth
     computed should be(valid)
     computed.value should equal(expected)
   }

@@ -28,16 +28,13 @@ Try out [Figlet4s on Scastie](https://scastie.scala-lang.org/W6mH3brNSty1TeJeCRr
 
 ## Features
 
-Figlet4s is progressing to support all the features of the original command line figlet and, at the
-moment, this is what Figlet4s can do:
+This is what Figlet4s can do right now:
 
 * The rendering of figures is identical to the original FIGlet
-* Supports FLF font definitions files in plain text
+* Supports FLF font definitions with files in plain text
 * Includes all the main FIGlet fonts (some of which have been fixed)
-* All figlet horizontal layout supported (only vertical fitting layout supported)
-* Default API provides direct access to the return values with exceptions thrown
-* Extention package adds support for Scala's `Either` and Cats' `IO`
-* A builder is provided to avoid to deal directly with each and every option
+* All figlet horizontal layouts supported
+* API with direct access to the return values plus effect available as extra package
 * Extensive and detailed error reporting
 * Support for Scala 2.13 and 2.12
 

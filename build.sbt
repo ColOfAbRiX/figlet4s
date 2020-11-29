@@ -45,7 +45,11 @@ ThisBuild / scalafixScalaBinaryVersion := CrossVersion.binaryScalaVersion(scalaV
 ThisBuild / semanticdbEnabled := true
 ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
 
+lazy val styleApply = taskKey[Unit]("Formatting and code styling cheks")
+
 val commonSettings: Seq[Def.Setting[_]] = Seq(
+  styleApply := Def.sequential(Def.taskDyn(scalafmtAll), Def.taskDyn(scalafixAll.toTask(""))).value,
+
   // Testing
   Test / logBuffered := false,
   Test / testOptions += Tests.Argument("-oFD"),
@@ -62,10 +66,6 @@ val commonSettings: Seq[Def.Setting[_]] = Seq(
 
   // Cross Scala Versions
   crossScalaVersions := SupportedScalaLangVersion,
-
-  // Code styling
-  // Compile / scalafmtOnCompile := true,
-  // Compile / scalafixOnCompile := true,
 
   // Wartremover
   Compile / wartremoverErrors := Warts.allBut(

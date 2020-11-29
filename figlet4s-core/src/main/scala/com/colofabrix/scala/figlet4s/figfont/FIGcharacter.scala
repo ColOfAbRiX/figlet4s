@@ -117,7 +117,7 @@ object FIGcharacter {
         linesTerminations.flatMap(_.toList).toSet,
         FIGcharacterError(
           s"Can't determine endmark. There are lines with no termination or more than 2-characters termination on " +
-          s"character '$name' defined at line ${position + 1}: $linesTerminations",
+          s"character '$name' defined at line ${position + 1}: ${linesTerminations.mkString("(", ", ", ")")}",
         ),
       )
 
@@ -127,7 +127,7 @@ object FIGcharacter {
         extractedEndmarks.headOption,
         FIGcharacterError(
           s"Multiple endmarks found for character '$name' defined at line ${position + 1}, " +
-          s"only one endmark character is allowed: $linesTerminations",
+          s"only one endmark character is allowed: ${linesTerminations.mkString("(", ", ", ")")}",
         ),
       )
     }

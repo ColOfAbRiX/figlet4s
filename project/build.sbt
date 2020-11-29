@@ -7,7 +7,7 @@ import sbtproject.PublishDependencies._
 Compile / scalaSource := baseDirectory.value / "src/main/scala"
 
 // SBT Scala version
-scalaVersion := "2.12.11"
+scalaVersion := "2.12.12"
 
 // Add all dependencies
 sbtPlugins.map(addSbtPlugin(_))

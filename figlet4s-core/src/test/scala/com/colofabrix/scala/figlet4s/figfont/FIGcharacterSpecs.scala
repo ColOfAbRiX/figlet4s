@@ -36,7 +36,7 @@ class FIGcharacterSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers
     val computed = adaptError(getFIGcharacter('a', lines))
     computed should haveInvalid(
       "FIGcharacterError - Can't determine endmark. There are lines with no termination or more than 2-characters " +
-      "termination on character 'a' defined at line 124: ArraySeq(@, , @, @, @, @@)",
+      "termination on character 'a' defined at line 124: (@, , @, @, @, @@)",
     )
   }
 
@@ -59,7 +59,7 @@ class FIGcharacterSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers
     val computed = adaptError(getFIGcharacter('a', lines))
     computed should haveInvalid(
       "FIGcharacterError - Multiple endmarks found for character 'a' defined at line 124, only one endmark character " +
-      "is allowed: ArraySeq(a, bb, c, dd, e, ff)",
+      "is allowed: (a, bb, c, dd, e, ff)",
     )
   }
 
