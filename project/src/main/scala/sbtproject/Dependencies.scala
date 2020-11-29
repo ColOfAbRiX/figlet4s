@@ -13,8 +13,8 @@ object Dependencies {
 
   //  Libraries  //
 
-  lazy val CatsEffectVersion = "2.2.0"
-  lazy val CatsVersion       = "2.2.0"
+  lazy val CatsEffectVersion = "2.3.0"
+  lazy val CatsVersion       = "2.3.0"
   lazy val EnumeratumVersion = "1.6.1"
 
   lazy val CatsCoreDep   = "org.typelevel" %% "cats-core"   % CatsVersion
