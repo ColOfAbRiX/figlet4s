@@ -10,7 +10,7 @@ import org.scalatest.matchers.should._
 
 class FIGcharacterSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers with ValidatedValues {
 
-  "FIGcharacter creation" should "succeed when name is valid" in {
+  "FIGcharacter creation" should "succeed when data is valid" in {
     val computed = adaptError(getFIGcharacter(' '))
     computed should be(valid)
   }

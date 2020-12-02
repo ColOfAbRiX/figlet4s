@@ -26,18 +26,6 @@ fonts, minimal dependencies, extensive error reporting and support for effects i
 Try out [Figlet4s on Scastie](https://scastie.scala-lang.org/W6mH3brNSty1TeJeCRrOxg) or jump to the
 [Quick Start](#quick-start)
 
-## Features
-
-This is what Figlet4s can do right now:
-
-* The rendering of figures is identical to the original FIGlet
-* Supports FLF font definitions with files in plain text
-* Includes all the main FIGlet fonts (some of which have been fixed)
-* All figlet horizontal layouts supported
-* API with direct access to the return values plus effect available as extra package
-* Extensive and detailed error reporting
-* Support for Scala 2.13 and 2.12
-
 ## What can I use Figlet4s for?
 
 FIGlet is mainly a decorative application. But this doesn't mean it's not useful! You can use it to
