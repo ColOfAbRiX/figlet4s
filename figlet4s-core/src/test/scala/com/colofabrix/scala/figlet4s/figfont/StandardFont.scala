@@ -1,45 +1,27 @@
 package com.colofabrix.scala.figlet4s.figfont
 
-import com.colofabrix.scala.figlet4s.errors._
 import scala.collection.immutable.ListMap
 
 object StandardFont {
+  val signature: String = "flf2a"
 
-  final case class Header(
-      signature: String = "flf2a",
-      hardblank: String = "$",
-      height: String = "6",
-      baseline: String = "5",
-      maxLength: String = "16",
-      oldLayout: String = "15",
-      commentLines: String = "11",
-      printDirection: String = "0",
-      fullLayout: String = "24463",
-      codetagCount: String = "4",
-  ) {
-    // format: off
-    val toList: List[String] = List(
-      signature, hardblank, height, baseline, maxLength, oldLayout,
-      commentLines, printDirection, fullLayout, codetagCount)
-    // format: on
+  val hardblank: String = "$"
 
-    def toFIGheader: FigletResult[FIGheader] =
-      FIGheader(this.toLine)
+  val height: String = "6"
 
-    def toLine: String =
-      toList.mkString(" ").replaceFirst(" ", "")
+  val baseline: String = "5"
 
-    def noPrintDirection: String =
-      toList.dropRight(3).mkString(" ").replaceFirst(" ", "")
+  val maxLength: String = "16"
 
-    def noFullLayout: String =
-      toList.dropRight(2).mkString(" ").replaceFirst(" ", "")
+  val oldLayout: String = "15"
 
-    def noCodetagCount: String =
-      toList.dropRight(1).mkString(" ").replaceFirst(" ", "")
-  }
+  val commentLines: String = "11"
 
-  val header: Header = Header()
+  val printDirection: String = "0"
+
+  val fullLayout: String = "24463"
+
+  val codetagCount: String = "4"
 
   val comment: String =
     """|Standard by Glenn Chappell & Ian Chai 3/93 -- based on Frank's .sig
@@ -53,25 +35,6 @@ object StandardFont {
        |Modified by Paul Burton <solution@earthlink.net> 12/96 to include new parameter
        |supported by FIGlet and FIGWin.  May also be slightly modified for better use
        |of new full-width/kern/smush alternatives, but default output is NOT changed.""".stripMargin
-
-  def getFIGcharacter(
-      charName: Char,
-      lines: SubLines = getLines("032"),
-      maxWidth: Int = header.maxLength.toInt,
-      height: Int = header.height.toInt,
-  ): FigletResult[FIGcharacter] =
-    header
-      .copy(maxLength = maxWidth.toString, height = height.toString)
-      .toFIGheader
-      .andThen { h =>
-        FIGcharacter("", h, charName, lines, None, 123)
-      }
-
-  def getLines(name: String): SubLines =
-    SubLines(characters(name).split("\n").toIndexedSeq)
-
-  def getLinesAndBind(name: String)(f: (String, Int) => Vector[String] = (x, _) => Vector(x)): SubLines =
-    SubLines(characters(name).split("\n").zipWithIndex.toIndexedSeq.flatMap(f.tupled))
 
   val characters: ListMap[String, String] =
     ListMap(
@@ -165,7 +128,7 @@ object StandardFont {
                   |  _ @
                   | (_)@
                   |    @@""".stripMargin,
-      "047" -> """|    __@
+      "047" -> """|     __@
                   |    / /@
                   |   / / @
                   |  / /  @
@@ -327,7 +290,7 @@ object StandardFont {
                   |  | | @
                   | |___|@
                   |      @@""".stripMargin,
-      "074" -> """|     _ @
+      "074" -> """|      _ @
                   |     | |@
                   |  _  | |@
                   | | |_| |@

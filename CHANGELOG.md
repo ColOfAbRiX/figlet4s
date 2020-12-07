@@ -6,6 +6,7 @@
 
 * Errors are returned in a more uniform format defined in the library
 * Updated cats-core and cats-effect to version 2.3.0
+* Updated SBT to 1.4.4
 * Removed test dependencies from POM
 
 ## v0.1.0 - 2020/11/13

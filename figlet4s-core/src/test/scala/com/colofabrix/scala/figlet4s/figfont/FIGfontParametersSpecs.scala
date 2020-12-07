@@ -1,10 +1,6 @@
 package com.colofabrix.scala.figlet4s.figfont
 
-import cats.data._
-import cats.implicits._
 import cats.scalatest._
-import com.colofabrix.scala.figlet4s.errors._
-import com.colofabrix.scala.figlet4s.figfont.StandardFont._
 import org.scalatest.flatspec._
 import org.scalatest.matchers.should._
 import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters.{
@@ -16,7 +12,7 @@ import com.colofabrix.scala.figlet4s.figfont.FIGheaderParameters.{
 
 class FIGfontParametersSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers with ValidatedValues {
 
-  "PrintDirection.fromHeader" should "return the correct values for every input value" in {
+  "PrintDirection.fromHeader" should "return the correct values for every input value" in new HeaderScope {
     val tests = Seq(
       // Header's print direction -> Font's print direction
       Some(HPD.LeftToRight) -> PrintDirection.LeftToRight,
@@ -36,7 +32,7 @@ class FIGfontParametersSpecs extends AnyFlatSpec with Matchers with ValidatedMat
     }
   }
 
-  "HorizontalLayout.fromOldLayout" should "return the correct values for every input value" in {
+  "HorizontalLayout.fromOldLayout" should "return the correct values for every input value" in new HeaderScope {
     val tests = Seq(
       // Header's old layout            -> Font's horizontal layout
       Vector(OL.FullWidth)              -> HL.FullWidth,
@@ -61,7 +57,7 @@ class FIGfontParametersSpecs extends AnyFlatSpec with Matchers with ValidatedMat
     }
   }
 
-  it should "return multiple smushing rules in the output" in {
+  it should "return multiple smushing rules in the output" in new HeaderScope {
     val input     = Vector(OL.EqualCharacterSmushing, OL.UnderscoreSmushing)
     val newHeader = header.toFIGheader.value.copy(oldLayout = input)
     val computed  = adaptError(HL.fromOldLayout(newHeader))
@@ -70,7 +66,7 @@ class FIGfontParametersSpecs extends AnyFlatSpec with Matchers with ValidatedMat
     computed.value should equal(expected)
   }
 
-  it should "fail when given FullWidth + a smushing rule" in {
+  it should "fail when given FullWidth + a smushing rule" in new HeaderScope {
     val input     = Vector(OL.FullWidth, OL.UnderscoreSmushing)
     val newHeader = header.toFIGheader.value.copy(oldLayout = input)
     val computed  = adaptError(HL.fromOldLayout(newHeader))
@@ -79,7 +75,7 @@ class FIGfontParametersSpecs extends AnyFlatSpec with Matchers with ValidatedMat
     )
   }
 
-  it should "fail when given HorizontalFitting + a smushing rule" in {
+  it should "fail when given HorizontalFitting + a smushing rule" in new HeaderScope {
     val input     = Vector(OL.HorizontalFitting, OL.UnderscoreSmushing)
     val newHeader = header.toFIGheader.value.copy(oldLayout = input)
     val computed  = adaptError(HL.fromOldLayout(newHeader))
@@ -88,7 +84,7 @@ class FIGfontParametersSpecs extends AnyFlatSpec with Matchers with ValidatedMat
     )
   }
 
-  "HorizontalLayout.fromFullLayout" should "return the correct values for every input value" in {
+  "HorizontalLayout.fromFullLayout" should "return the correct values for every input value" in new HeaderScope {
     // format: off
     val tests = Seq(
       // Header's full layout                                                  -> Font's horizontal layout
@@ -117,7 +113,7 @@ class FIGfontParametersSpecs extends AnyFlatSpec with Matchers with ValidatedMat
     }
   }
 
-  it should "return multiple smushing rules in the output" in {
+  it should "return multiple smushing rules in the output" in new HeaderScope {
     val input     = Vector(FL.HorizontalSmushing, FL.EqualCharacterHorizontalSmushing, FL.BigXHorizontalSmushing)
     val newHeader = header.toFIGheader.value.copy(fullLayout = Some(input))
     val computed  = adaptError(HL.fromFullLayout(newHeader))
@@ -126,7 +122,7 @@ class FIGfontParametersSpecs extends AnyFlatSpec with Matchers with ValidatedMat
     computed.value should equal(expected)
   }
 
-  "HorizontalLayout.fromHeader" should "values from fullLayout when present" in {
+  "HorizontalLayout.fromHeader" should "values from fullLayout when present" in new HeaderScope {
     val newHeader = header
       .toFIGheader.value.copy(
         oldLayout = Vector(OL.FullWidth),
@@ -138,7 +134,7 @@ class FIGfontParametersSpecs extends AnyFlatSpec with Matchers with ValidatedMat
     computed.value should equal(expected)
   }
 
-  it should "return values from oldLayout when fullLayout not present" in {
+  it should "return values from oldLayout when fullLayout not present" in new HeaderScope {
     val newHeader = header
       .toFIGheader.value.copy(
         oldLayout = Vector(OL.FullWidth),
@@ -150,7 +146,7 @@ class FIGfontParametersSpecs extends AnyFlatSpec with Matchers with ValidatedMat
     computed.value should equal(expected)
   }
 
-  "VerticalLayout.fromHeader" should "return the correct values for every input value" in {
+  "VerticalLayout.fromHeader" should "return the correct values for every input value" in new HeaderScope {
     // format: off
     val tests = Seq(
       // Header's full layout                                              -> Font's vertical layout
@@ -178,7 +174,7 @@ class FIGfontParametersSpecs extends AnyFlatSpec with Matchers with ValidatedMat
     }
   }
 
-  it should "return multiple smushing rules in the output" in {
+  it should "return multiple smushing rules in the output" in new HeaderScope {
     val input     = Vector(FL.VerticalSmushing, FL.UnderscoreVerticalSmushing, FL.HierarchyVerticalSmushing)
     val newHeader = header.toFIGheader.value.copy(fullLayout = Some(input))
     val computed  = adaptError(VL.fromHeader(newHeader))
@@ -186,12 +182,5 @@ class FIGfontParametersSpecs extends AnyFlatSpec with Matchers with ValidatedMat
     computed should be(valid)
     computed.value should equal(expected)
   }
-
-  //  Support  //
-
-  private def adaptError[A](value: FigletResult[A]): ValidatedNel[String, A] =
-    value.leftMap { errors =>
-      errors.toNonEmptyList.map(error => s"${error.getClass.getSimpleName} - ${error.getMessage}")
-    }
 
 }

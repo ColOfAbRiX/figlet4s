@@ -79,60 +79,6 @@ object FIGfont {
       position: Int,
   )
 
-  // /**
-  //  * Creates a validated FIGfont with the given parameters using the given FIGcharacters
-  //  *
-  //  * @param name    The name of the FIGfont
-  //  * @param header  The FIGheader containing the raw definitions and settings of the FIGfont
-  //  * @param comment A description of the font
-  //  * @param chars   The list of FIGcharacter that compose the FIGfont
-  //  * @return A [[com.colofabrix.scala.figlet4s.errors.FigletResult FigletResult]] containing the new FIGfont or a listF
-  //  *         of errors occurred during the creation
-  //  */
-  // def apply(
-  //     name: String,
-  //     header: FIGheader,
-  //     comment: String,
-  //     chars: Seq[FIGcharacter],
-  // ): FigletResult[FIGfont] = {
-  //   val hash = (name + header.toString + comment + chars.mkString).md5
-
-  //   val hLayoutV        = HorizontalLayout.fromHeader(header)
-  //   val vLayoutV        = VerticalLayout.fromHeader(header)
-  //   val printDirectionV = PrintDirection.fromHeader(header)
-  //   val charsV =
-  //     chars
-  //       .toVector
-  //       .validNec
-  //       .andThen(validatedRequiredChars)
-  //       .andThen(validatedCharsUniformity)
-  //       .map { validChars =>
-  //         validChars
-  //           .map(_.copy(fontId = hash))
-  //           .map(char => char.name -> char)
-  //           .toMap
-  //       }
-
-  //   val settingsV = (hLayoutV, vLayoutV, printDirectionV).mapN {
-  //     FIGfontSettings.apply _
-  //   }
-
-  //   (settingsV, charsV).mapN {
-  //     FIGfont(hash, name, header, comment, _, _)
-  //   }
-  // }
-
-  // /**
-  //  * Check that the list of FIGcharacter are all uniform
-  //  */
-  // private def validatedCharsUniformity(chars: Seq[FIGcharacter]): FigletResult[Seq[FIGcharacter]] =
-  //   if (chars.map(_.lines.length).length =!= 1)
-  //     FIGcharacterError(s"All FIGcharacters must have the same number of lines").invalidNec
-  //   else if (chars.map(_.fontId).length =!= 1)
-  //     FIGcharacterError(s"All FIGcharacters must have the same fontId, even if empty").invalidNec
-  //   else
-  //     chars.validNec
-
   /**
    * Creates a new FIGfont by parsing an input collection of lines representing an FLF file
    *
@@ -228,7 +174,8 @@ object FIGfont {
    */
   private def buildChar(fontState: FontBuilderState, charState: CharBuilderState): FigletResult[FIGcharacter] =
     fontState
-      .header.map(
+      .header
+      .map(
         FIGcharacter(fontState.hash, _, charState.name, SubLines(charState.lines), charState.comment, charState.position),
       )
       .get

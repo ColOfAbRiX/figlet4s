@@ -14,8 +14,9 @@
 
 # Figlet4s
 
-This is a library implementation of [FIGlet](http://www.figlet.org/) in pure Scala, with integrated
-fonts, minimal dependencies, extensive error reporting and support for effects including Cats `IO`.
+Figlet4s is a an open source library implementation of [FIGlet](http://www.figlet.org/) in pure
+Scala, with integrated fonts, minimal dependencies, extensive error reporting and support for
+effects including Cats `IO`.
 
 > FIGlet is a computer program that generates text banners, in a variety of typefaces, composed of
 > letters made up of conglomerations of smaller ASCII characters (see ASCII art). The name derives
@@ -23,7 +24,7 @@ fonts, minimal dependencies, extensive error reporting and support for effects i
 >
 > -- _Wikipedia_
 
-Try out [Figlet4s on Scastie](https://scastie.scala-lang.org/W6mH3brNSty1TeJeCRrOxg) or jump to the
+Try out [Figlet4s on Scastie](https://scastie.scala-lang.org/PACf1v7ZSlGSVQkkBef0Mg) or jump to the
 [Quick Start](#quick-start)
 
 ## What can I use Figlet4s for?

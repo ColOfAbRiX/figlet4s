@@ -7,7 +7,6 @@ import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.StandardTestData._
 import com.colofabrix.scala.figlet4s.testutils._
-import com.colofabrix.scala.figlet4s.unsafe._
 import org.scalatest.flatspec._
 import org.scalatest.matchers.should._
 import scala.concurrent.ExecutionContext
