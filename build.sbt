@@ -101,7 +101,7 @@ val commonSettings: Seq[Def.Setting[_]] = Seq(
 // Figlet4s
 lazy val figlet4s: Project = project
   .in(file("."))
-  .aggregate(figlet4sCore, figlet4sEffects)
+  .aggregate(figlet4sCore, figlet4sEffects, figlet4sJava)
   .enablePlugins(ScalaUnidocPlugin)
   .settings(
     name := "figlet4s",
@@ -141,6 +141,23 @@ lazy val figlet4sEffects: Project = project
       CatsEffectDep,
       CatsKernelDep,
       CatsScalaTestDep,
+      ScalaTestFlatSpecDep,
+      ScalaTestShouldMatchersDep,
+    ),
+  )
+
+// Figlet4s Java integration project
+lazy val figlet4sJava: Project = project
+  .in(file("figlet4s-java"))
+  .dependsOn(figlet4sCore)
+  .settings(commonSettings)
+  .settings(
+    name := "figlet4s-java",
+    description := "Java integration for Figlet4s",
+    javacOptions += "-nowarn",
+    Compile / unmanagedSourceDirectories := (Compile / javaSource).value :: Nil,
+    Test / unmanagedSourceDirectories := (Test / javaSource).value :: Nil,
+    libraryDependencies ++= Seq(
       ScalaTestFlatSpecDep,
       ScalaTestShouldMatchersDep,
     ),
