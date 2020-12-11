@@ -66,7 +66,6 @@ object HorizontalLayout extends Enum[HorizontalLayout] {
 }
 
 /**
- * import scala.collection.immutable.IndexedSeq
  * Option to choose the rendering direction
  *
  * @todo This feature is not yet implemented
@@ -96,7 +95,6 @@ object PrintDirection extends Enum[PrintDirection] {
 }
 
 /**
- * import scala.collection.immutable.IndexedSeq
  * Option to choose the justification of the text
  *
  * @todo This feature is not yet implemented

@@ -108,11 +108,9 @@ object Compiler {
   // Options for Java compiler
   lazy val JavacOptions: Seq[String] = Seq(
     "-Werror",
-    //"-J-Xbootclasspath/p:$CHECKERFRAMEWORK/checker/dist/javac.jar",
-    //"-cp", "$CHECKERFRAMEWORK/checker/dist/checker.jar",
-    //"-processorpath", "$CHECKERFRAMEWORK/checker/dist/checker.jar",
-    //"-processor", "org.checkerframework.checker.nullness.NullnessChecker",
-    //"-source", "8", "-target", "8"
+    "-source", "1.8",
+    "-target", "1.8",
+    "-g:lines",
   )
 }
 

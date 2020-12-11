@@ -2,10 +2,10 @@ package com.colofabrix.scala.figlet4s.unsafe
 
 import cats.effect._
 import cats.implicits._
+import com.colofabrix.scala.figlet4s.StandardTestData._
 import com.colofabrix.scala.figlet4s._
 import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont._
-import com.colofabrix.scala.figlet4s.StandardTestData._
 import com.colofabrix.scala.figlet4s.testutils._
 import org.scalatest.flatspec._
 import org.scalatest.matchers.should._

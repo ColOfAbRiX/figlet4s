@@ -17,7 +17,7 @@ private[catsio] trait FIGureMixin {
     }
 
     /**
-     * Print the FIGure
+     * Print the FIGure to standard output
      */
     def print(): IO[Unit] =
       self.foreachLine(println)

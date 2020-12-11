@@ -1,14 +1,15 @@
-package com.colofabrix.scala.figlet4s.unsafe
+package com.colofabrix.java.figlet4s
 
-import com.colofabrix.scala.figlet4s.StandardTestData._
+import com.colofabrix.java.figlet4s.JavaStandardTestData._
+import java.util.stream.Collectors
 import org.scalatest.flatspec._
 import org.scalatest.matchers.should._
 
-class UnsafeFIGureSpecs extends AnyFlatSpec with Matchers {
+class JavaFIGureSpecs extends AnyFlatSpec with Matchers {
 
   "FIGure" should "return the same data for asSeq() and asString()" in {
     val figure     = standardBuilder.render(standardInput)
-    val fromSeq    = figure.asSeq().mkString("\n")
+    val fromSeq    = figure.asList().stream().collect(Collectors.joining("\n"))
     val fromString = figure.asString()
     fromSeq should equal(fromString)
   }

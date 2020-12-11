@@ -146,16 +146,14 @@ lazy val figlet4sEffects: Project = project
 // Figlet4s Java integration project
 lazy val figlet4sJava: Project = project
   .in(file("figlet4s-java"))
-  .dependsOn(figlet4sCore)
-  .settings(commonSettings)
+  .dependsOn(figlet4sCore % "compile->compile;test->test")
   .settings(
     name := "figlet4s-java",
     description := "Java integration for Figlet4s",
     javacOptions ++= Compiler.JavacOptions,
-    Compile / unmanagedSourceDirectories := (Compile / javaSource).value :: Nil,
-    Test / unmanagedSourceDirectories := (Test / javaSource).value :: Nil,
+    Compile / doc / javacOptions := Seq(),
+    crossPaths := false,
     libraryDependencies ++= Seq(
-      JavaCheckerQualDep,
       ScalaTestFlatSpecDep,
       ScalaTestShouldMatchersDep,
     ),

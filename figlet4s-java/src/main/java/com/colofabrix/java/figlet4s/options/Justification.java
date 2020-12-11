@@ -1,11 +1,24 @@
 package com.colofabrix.java.figlet4s.options;
 
+/**
+ * Option to choose the justification of the text
+ */
 public enum Justification {
+    /** Centers the output horizontally */
     CENTER,
+    /** Makes it flush-right */
     FLUSH_RIGHT,
+    /** Makes the output flush-left */
     FLUSH_LEFT,
+    /** Use the default value specified in the FIGfont */
     FONT_DEFAULT;
 
+    /**
+     * Converts the Java enum Justification into the Scala Justification ADT
+     *
+     * @param value The Justification instance to convert
+     * @return The scala Justification instance equivalent to the input value
+     */
     public static com.colofabrix.scala.figlet4s.options.Justification toScala(Justification value) {
         com.colofabrix.scala.figlet4s.options.Justification result;
 

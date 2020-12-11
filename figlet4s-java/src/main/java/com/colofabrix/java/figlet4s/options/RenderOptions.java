@@ -2,6 +2,9 @@ package com.colofabrix.java.figlet4s.options;
 
 import com.colofabrix.scala.figlet4s.figfont.FIGfont;
 
+/**
+ * Rendering options, including the FIGfont to use
+ */
 public class RenderOptions {
     private final FIGfont font;
     private final int maxWidth;
@@ -9,6 +12,15 @@ public class RenderOptions {
     private final PrintDirection printDirection;
     private final Justification justification;
 
+    /**
+     * Creates a new RenderOptions
+     *
+     * @param font             The FIGfont to use to render the text
+     * @param horizontalLayout The desired horizontal layout to render the text
+     * @param justification    The text justification
+     * @param maxWidth         The maximum width of rendered text
+     * @param printDirection   The print direction
+     */
     public RenderOptions(FIGfont font, int maxWidth, HorizontalLayout horizontalLayout, PrintDirection printDirection, Justification justification) {
         this.font = font;
         this.maxWidth = maxWidth;
@@ -17,6 +29,11 @@ public class RenderOptions {
         this.justification = justification;
     }
 
+    /**
+     * Converts this object into the Scala original
+     *
+     * @return Tts this object into the Scala original
+     */
     public com.colofabrix.scala.figlet4s.options.RenderOptions toScala() {
         com.colofabrix.scala.figlet4s.options.HorizontalLayout horizontalLayout = HorizontalLayout.toScala(this.horizontalLayout);
         com.colofabrix.scala.figlet4s.options.Justification justification = Justification.toScala(this.justification);
@@ -24,23 +41,48 @@ public class RenderOptions {
         return new com.colofabrix.scala.figlet4s.options.RenderOptions(this.font, this.maxWidth, horizontalLayout, printDirection, justification);
     }
 
-    FIGfont getFont() {
+    /**
+     * Get the FIGfont to use to render the text
+     *
+      @return The FIGfont to use to render the text
+     */
+    public FIGfont getFont() {
         return this.font;
     }
 
-    int getMaxWidth() {
+    /**
+     * Get the maximum width of rendered text
+     *
+      @return The maximum width of rendered text
+     */
+    public int getMaxWidth() {
         return this.maxWidth;
     }
 
-    HorizontalLayout getHorizontalLayout() {
+    /**
+     * Get the desired horizontal layout to render the text
+     *
+      @return The desired horizontal layout to render the text
+     */
+    public HorizontalLayout getHorizontalLayout() {
         return this.horizontalLayout;
     }
 
-    PrintDirection getPrintDirection() {
+    /**
+     * Get the print direction
+     *
+      @return The print direction
+     */
+    public PrintDirection getPrintDirection() {
         return this.printDirection;
     }
 
-    Justification getJustification() {
+    /**
+     * Get the text justification
+     *
+      @return The text justification
+     */
+    public Justification getJustification() {
         return this.justification;
     }
 }

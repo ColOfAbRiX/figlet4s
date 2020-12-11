@@ -16,7 +16,7 @@ private[unsafe] trait FIGureMixin {
       self.cleanLines.foreach(_.foreach(f))
 
     /**
-     * Print the FIGure
+     * Print the FIGure to standard output
      */
     def print(): Unit =
       self.foreachLine(println)

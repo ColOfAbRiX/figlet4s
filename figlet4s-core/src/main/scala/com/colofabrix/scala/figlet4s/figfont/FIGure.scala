@@ -7,6 +7,10 @@ import com.colofabrix.scala.figlet4s.compat._
  *
  * A FIGure cannot be instantiated directly as a case class but one must go through the factory methods defined
  * in the companion object [[FIGure$ FIGure]] that perform validation of the defining lines of the character
+ *
+ * @param font    The FIGfont used to render the FIGure
+ * @param value   The String value rendered in the FIGure
+ * @param columns The FIGure represented with a collection of columns
  */
 final case class FIGure private[figlet4s] (
     font: FIGfont,
@@ -17,19 +21,19 @@ final case class FIGure private[figlet4s] (
     font.header.hardblank.toString
 
   /**
-   * The FIGure represented with lines
+   * The FIGure represented with a collection of lines
    */
   lazy val lines: Seq[SubLines] =
     columns.map(_.toSublines)
 
   /**
-   * Lines stripped of their hardblanks
+   * The FIGure represented with a list of lines stripped of their hardblanks
    */
   lazy val cleanLines: Seq[SubLines] =
     lines.map(_.replace(hardblank, " "))
 
   /**
-   * Columns stripped of their hardblanks
+   * The columns representing the rendered FIGure stripped of their hardblanks
    */
   lazy val cleanColumns: Seq[SubColumns] =
     columns.map(_.replace(hardblank, " "))

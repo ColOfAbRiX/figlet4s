@@ -7,6 +7,9 @@ import java.util.stream.Collectors;
 import scala.collection.immutable.Seq;
 import scala.jdk.CollectionConverters;
 
+/**
+ * Utility class that contains conversion facilities between Scala and Java
+ */
 class ScalaInterop {
 
     public static <A> List<A> seqAsList(Seq<A> data) {
@@ -28,9 +31,8 @@ class ScalaInterop {
     }
 
     public static <A> void listNotNull(String name, List<A> value) {
-        valueNotNull(name, value);
         if (value.stream().anyMatch(Objects::isNull))
-            throw new IllegalArgumentException("All elements of list " + value + "must not be null");
+            throw new IllegalArgumentException("All elements of list '" + name + "' must not be null");
     }
 
 }
