@@ -49,11 +49,9 @@ lazy val styleApply = taskKey[Unit]("Formatting and code styling cheks")
 
 val commonSettings: Seq[Def.Setting[_]] = Seq(
   styleApply := Def.sequential(Def.taskDyn(scalafmtAll), Def.taskDyn(scalafixAll.toTask(""))).value,
-
   // Testing
   Test / logBuffered := false,
   Test / testOptions += Tests.Argument("-oFD"),
-
   // Compiler options
   scalacOptions := versioned(scalaVersion.value)(
     Compiler.Options_2_12 ++ Compiler.StrictOptions,
@@ -63,10 +61,8 @@ val commonSettings: Seq[Def.Setting[_]] = Seq(
     Compiler.Options_2_12,
     Compiler.Options_2_13,
   ),
-
   // Cross Scala Versions
   crossScalaVersions := SupportedScalaLangVersion,
-
   // Wartremover
   Compile / wartremoverErrors := Warts.allBut(
     Wart.Any,
@@ -78,15 +74,16 @@ val commonSettings: Seq[Def.Setting[_]] = Seq(
     // Covered by ScalaFix
     Wart.PublicInference,
   ),
-
   // Scaladoc
   Compile / autoAPIMappings := true,
   Compile / doc / scalacOptions ++= Seq(
-    "-doc-title", "Figlet4s API Documentation",
-    "-doc-version", version.value,
-    "-encoding", "UTF-8",
+    "-doc-title",
+    "Figlet4s API Documentation",
+    "-doc-version",
+    version.value,
+    "-encoding",
+    "UTF-8",
   ),
-
   // Packaging and publishing
   Compile / packageBin / packageOptions ++= Seq(
     Package.ManifestAttributes(
@@ -154,10 +151,11 @@ lazy val figlet4sJava: Project = project
   .settings(
     name := "figlet4s-java",
     description := "Java integration for Figlet4s",
-    javacOptions += "-nowarn",
+    javacOptions ++= Compiler.JavacOptions,
     Compile / unmanagedSourceDirectories := (Compile / javaSource).value :: Nil,
     Test / unmanagedSourceDirectories := (Test / javaSource).value :: Nil,
     libraryDependencies ++= Seq(
+      JavaCheckerQualDep,
       ScalaTestFlatSpecDep,
       ScalaTestShouldMatchersDep,
     ),

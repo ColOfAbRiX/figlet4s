@@ -22,4 +22,10 @@ object Dependencies {
   lazy val CatsKernelDep = "org.typelevel" %% "cats-kernel" % CatsVersion
   lazy val EnumeratumDep = "com.beachape"  %% "enumeratum"  % EnumeratumVersion % Compile
 
+  //  Java  //
+
+  lazy val JavaCheckerQualVersion = "3.8.0"
+
+  lazy val JavaCheckerQualDep = "org.checkerframework" % "checker-qual" % JavaCheckerQualVersion
+
 }

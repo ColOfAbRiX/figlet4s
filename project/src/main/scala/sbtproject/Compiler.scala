@@ -1,10 +1,10 @@
 package sbtproject
 
+// format: off
+
 object Compiler {
 
   private lazy val cores = java.lang.Runtime.getRuntime.availableProcessors
-
-  // format: off
 
   // Compiler options for Scala 2.13
   // https://nathankleyn.com/2019/05/13/recommended-scalac-flags-for-2-13/
@@ -97,8 +97,6 @@ object Compiler {
     "-Ywarn-value-discard"               // Warn when non-Unit expression results are unused.
   )
 
-  // format: on
-
   // Stricter compile option to filter out in specific situation
   lazy val StrictOptions: Seq[String] = Seq(
     "-Xfatal-warnings", // Fail the compilation if there are any warning.
@@ -107,4 +105,15 @@ object Compiler {
   // Options for the Splain plugin
   lazy val SplainOptions: Seq[String] = Seq("-P:splain:all")
 
+  // Options for Java compiler
+  lazy val JavacOptions: Seq[String] = Seq(
+    "-Werror",
+    //"-J-Xbootclasspath/p:$CHECKERFRAMEWORK/checker/dist/javac.jar",
+    //"-cp", "$CHECKERFRAMEWORK/checker/dist/checker.jar",
+    //"-processorpath", "$CHECKERFRAMEWORK/checker/dist/checker.jar",
+    //"-processor", "org.checkerframework.checker.nullness.NullnessChecker",
+    //"-source", "8", "-target", "8"
+  )
 }
+
+// format: on
