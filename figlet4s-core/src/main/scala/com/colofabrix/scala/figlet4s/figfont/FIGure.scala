@@ -60,21 +60,21 @@ object FIGure {
     FIGure(font.zero, font)
 
   /**
-   * The
+   * Creates a FIGure that contains a single character given as FIGcharacter
    *
-   * @param char
+   * @param char The first character of the FIGure
    * @param font The FIGfont that the FIGure uses
-   * @return
+   * @return An FIGure containing one character that uses the given FIGfont
    */
   def apply(char: FIGcharacter, font: FIGfont): FIGure =
     FIGure(font, char.name.toString, Seq(char.columns))
 
   /**
-   * The
+   * Creates a FIGure that contains a single character given as a Char
    *
-   * @param char
+   * @param char The first character of the FIGure
    * @param font The FIGfont that the FIGure uses
-   * @return
+   * @return An FIGure containing one character that uses the given FIGfont
    */
   def apply(char: Char, font: FIGfont): FIGure =
     FIGure(font, char.toString, Seq(font(char).columns))

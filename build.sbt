@@ -50,7 +50,6 @@ lazy val styleApply = taskKey[Unit]("Formatting and code styling cheks")
 val commonSettings: Seq[Def.Setting[_]] = Seq(
   styleApply := Def.sequential(Def.taskDyn(scalafmtAll), Def.taskDyn(scalafixAll.toTask(""))).value,
   // Testing
-  Test / logBuffered := false,
   Test / testOptions += Tests.Argument("-oFD"),
   // Compiler options
   scalacOptions := versioned(scalaVersion.value)(
@@ -104,6 +103,7 @@ lazy val figlet4s: Project = project
     name := "figlet4s",
     crossScalaVersions := Nil,
     publish / skip := true,
+    ScalaUnidoc / unidoc / unidocProjectFilter := inAnyProject -- inProjects(figlet4sJava),
   )
 
 // Figlet4s Core project

@@ -102,7 +102,6 @@ import scala.annotation.tailrec
  *
  * @param text          The text to render
  * @param options       The options of the rendering
- * @param mergeStrategy The merge strategy used to merge together two characters
  */
 final private[rendering] class Rendering(text: String, options: RenderOptions) {
 
@@ -113,7 +112,7 @@ final private[rendering] class Rendering(text: String, options: RenderOptions) {
    */
   def render(): FIGure = {
     val zero    = Vector(options.font.zero.lines.toSubcolumns.value.toVector)
-    val figures = text.toList.map(options.font(_).columns.value.toVector).toList
+    val figures = text.toList.map(options.font(_).columns.value.toVector)
     val result  = appendLoop(figures, zero, AppendLoopState()).map(SubColumns(_))
     FIGure(options.font, text, result)
   }

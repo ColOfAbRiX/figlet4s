@@ -36,7 +36,7 @@ object Figlet4s extends Figlet4sAPI[FigletEither] with Figlet4sEffectfulAPI[Figl
    * Loads a FIGfont from file
    *
    * @param path  The path of the font file to load. It can be a .flf file or a zipped file.
-   * @param codec The codec of the file if textual. If it is a zipped file it will be ignored
+   * @param encoding The codec of the file if textual. If it is a zipped file it will be ignored
    * @return The FIGfont loaded from the specified path
    */
   def loadFont(path: String, encoding: Codec = Codec.ISO8859): FigletEither[FIGfont] =

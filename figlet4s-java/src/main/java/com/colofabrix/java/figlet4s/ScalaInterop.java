@@ -25,14 +25,4 @@ class ScalaInterop {
             .collect(Collectors.toList());
     }
 
-    public static <A> void valueNotNull(String name, A value) {
-        if (value == null)
-            throw new IllegalArgumentException("Argument '" + name + "' cannot be null.");
-    }
-
-    public static <A> void listNotNull(String name, List<A> value) {
-        if (value.stream().anyMatch(Objects::isNull))
-            throw new IllegalArgumentException("All elements of list '" + name + "' must not be null");
-    }
-
 }

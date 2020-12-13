@@ -43,8 +43,7 @@ private[catsio] trait OptionsBuilderMixin {
     /**
      * Builds the options and then renders the text into a FIGure
      *
-     * @param text The text to render
-     * @return A FIGure representing the rendered text
+     * @return The RenderOptions resulting from building the internal state
      */
     def options: IO[RenderOptions] =
       for {

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v0.2.0 - 2020/12/14
+
 ### Changed
 
 * Added direct support for Java

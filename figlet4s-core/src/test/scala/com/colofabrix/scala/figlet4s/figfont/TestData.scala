@@ -73,9 +73,9 @@ case class TestFont(
     val partial =
       updatedHeader.toLine +:
       comment.split("\n") ++:
-      characters.values.map(_.split("\n")).flatten.toVector
+      characters.values.flatMap(_.split("\n")).toVector
 
-    if (includeTags) partial ++: codeTag.values.map(_.split("\n")).flatten.toVector else partial
+    if (includeTags) partial ++: codeTag.values.flatMap(_.split("\n")).toVector else partial
   }
 
   def flatMapChars(includeTags: Boolean = true)(f: (String, Int) => Vector[String]): Vector[String] = {
@@ -88,8 +88,7 @@ case class TestFont(
         .values
         .zipWithIndex
         .flatMap(f.tupled)
-        .map(_.split("\n"))
-        .flatten
+        .flatMap(_.split("\n"))
         .toVector
 
     val partial =
@@ -97,7 +96,7 @@ case class TestFont(
       comment.split("\n") ++:
       newChars
 
-    if (includeTags) partial ++: codeTag.values.map(_.split("\n")).flatten.toVector else partial
+    if (includeTags) partial ++: codeTag.values.flatMap(_.split("\n")).toVector else partial
   }
 
   def flatMapTagged(f: (String, Int) => Vector[String]): Vector[String] = {
@@ -106,13 +105,12 @@ case class TestFont(
         .values
         .zipWithIndex
         .flatMap(f.tupled)
-        .map(_.split("\n"))
-        .flatten
+        .flatMap(_.split("\n"))
         .toVector
 
     header.toLine +:
     comment.split("\n") ++:
-    characters.values.map(_.split("\n")).flatten.toVector ++:
+    characters.values.flatMap(_.split("\n")).toVector ++:
     newTagged
   }
 }

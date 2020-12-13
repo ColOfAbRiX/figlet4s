@@ -10,6 +10,6 @@ Compile / scalaSource := baseDirectory.value / "src/main/scala"
 scalaVersion := "2.12.12"
 
 // Add all dependencies
-sbtPlugins.map(addSbtPlugin(_))
-publishSbtPlugins.map(addSbtPlugin(_))
-codeQualitySbtPlugins.map(addSbtPlugin(_))
+sbtPlugins.map(addSbtPlugin)
+publishSbtPlugins.map(addSbtPlugin)
+codeQualitySbtPlugins.map(addSbtPlugin)

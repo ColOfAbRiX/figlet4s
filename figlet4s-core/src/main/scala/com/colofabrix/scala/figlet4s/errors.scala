@@ -30,7 +30,7 @@ object errors {
    */
   sealed abstract class FigletException(message: String) extends RuntimeException(message)
   object FigletException {
-    def unapply(error: FigletException): Option[String] = Some(error.getMessage())
+    def unapply(error: FigletException): Option[String] = Some(error.getMessage)
   }
 
   /**
@@ -45,7 +45,7 @@ object errors {
     }
   }
   object FigletError {
-    def unapply(error: FigletError): Option[String] = Some(error.getMessage())
+    def unapply(error: FigletError): Option[String] = Some(error.getMessage)
     def apply(cause: Throwable): FigletError        = new FigletError(cause.getMessage)
     def apply(message: String): FigletError         = new FigletError(message: String)
     def apply(message: String, cause: Throwable): FigletError =
