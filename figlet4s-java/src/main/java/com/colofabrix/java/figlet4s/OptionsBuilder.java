@@ -2,10 +2,7 @@ package com.colofabrix.java.figlet4s;
 
 import com.colofabrix.scala.figlet4s.errors.*;
 import com.colofabrix.scala.figlet4s.figfont.FIGfont;
-import com.colofabrix.scala.figlet4s.options.HorizontalLayout;
-import com.colofabrix.scala.figlet4s.options.Justification;
-import com.colofabrix.scala.figlet4s.options.PrintDirection;
-import com.colofabrix.scala.figlet4s.options.RenderOptions;
+import com.colofabrix.java.figlet4s.options.*;
 import com.colofabrix.scala.figlet4s.unsafe.OptionsBuilderMixin;
 import scala.io.Codec$;
 import scala.io.Codec;
@@ -75,6 +72,18 @@ public class OptionsBuilder implements OptionsBuilderMixin {
      * The loading of the font is performed when the [[RenderOptions]] is built.
      *
      * @param fontPath Path of the font, including the extension
+     * @return The option builder with the rendering font set to the loaded font
+     */
+    public OptionsBuilder withFont(String fontPath) {
+        return new OptionsBuilder(this.optionsBuilder.withFont(fontPath, Codec$.MODULE$.ISO8859()));
+    }
+
+    /**
+     * Use a font loaded from file
+     *
+     * The loading of the font is performed when the [[RenderOptions]] is built.
+     *
+     * @param fontPath Path of the font, including the extension
      * @param codec Encoding of the font. The default is ISO-8859
      * @return The option builder with the rendering font set to the loaded font
      */
@@ -123,7 +132,11 @@ public class OptionsBuilder implements OptionsBuilderMixin {
      * @return The option builder with the rendering font set to the specified font
      */
     public OptionsBuilder withHorizontalLayout(HorizontalLayout layout) {
-        return new OptionsBuilder(this.optionsBuilder.withHorizontalLayout(layout));
+        return new OptionsBuilder(
+            this.optionsBuilder.withHorizontalLayout(
+                HorizontalLayout.toScala(layout)
+            )
+        );
     }
 
     //  Max Width  //
@@ -165,7 +178,11 @@ public class OptionsBuilder implements OptionsBuilderMixin {
      * @return The option builder with the print direction set to the specified one
      */
     public OptionsBuilder withPrintDirection(PrintDirection direction) {
-        return new OptionsBuilder(this.optionsBuilder.withPrintDirection(direction));
+        return new OptionsBuilder(
+            this.optionsBuilder.withPrintDirection(
+                PrintDirection.toScala(direction)
+            )
+        );
     }
 
     //  Justification  //
@@ -186,7 +203,11 @@ public class OptionsBuilder implements OptionsBuilderMixin {
      * @return The option builder with the justification set to the specified one
      */
     public OptionsBuilder withJustification(Justification justification) {
-        return new OptionsBuilder(this.optionsBuilder.withJustification(justification));
+        return new OptionsBuilder(
+            this.optionsBuilder.withJustification(
+                Justification.toScala(justification)
+            )
+        );
     }
 
     //  Operations  //
@@ -225,7 +246,7 @@ public class OptionsBuilder implements OptionsBuilderMixin {
      * @return The RenderOptions resulting from building the internal state
      */
     public RenderOptions getOptions() throws FigletException {
-        return this.optionsBuilderOps.options();
+        return new RenderOptions(this.optionsBuilderOps.options());
     }
 
 }

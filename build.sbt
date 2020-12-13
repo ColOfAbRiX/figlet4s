@@ -136,7 +136,7 @@ lazy val figlet4sEffects: Project = project
     libraryDependencies ++= Seq(
       CatsCoreDep,
       CatsEffectDep,
-      CatsKernelDep,
+      CatsKernelDep % Runtime,
       CatsScalaTestDep,
       ScalaTestFlatSpecDep,
       ScalaTestShouldMatchersDep,

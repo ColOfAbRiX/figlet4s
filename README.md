@@ -15,8 +15,8 @@
 # Figlet4s
 
 Figlet4s is a an open source library implementation of [FIGlet](http://www.figlet.org/) in pure
-Scala, with integrated fonts, minimal dependencies, extensive error reporting and support for
-effects including Cats `IO`.
+Scala, for Scala and Java, with integrated fonts, minimal dependencies, extensive error reporting
+and support for effects including Cats `IO`. It also includes direct support for Java.
 
 > FIGlet is a computer program that generates text banners, in a variety of typefaces, composed of
 > letters made up of conglomerations of smaller ASCII characters (see ASCII art). The name derives
@@ -42,6 +42,14 @@ Some example applications are:
 
 ## Setup
 
+### Requirements
+
+Figlet4s supports Scala version 2.13 and 2.12.
+
+Figet4s requires Java 8.
+
+### SBT
+
 When using SBT, add the following line to your build file (for the latest release version, see the
 Maven badge at the top of the readme):
 
@@ -54,11 +62,34 @@ If you want support for effects (see [below](#using-effects)) you also have to i
 package:
 
 ```scala
-// Effects extension
+// Effects extension package
 libraryDependencies += "com.colofabrix.scala" %% "figlet4s-effects" % <version>
 ```
 
-Figlet4s supports Scala version 2.13 and 2.12.
+If you want to use Figlet4s in a pure Java project you can import the Java package:
+
+```scala
+// Java extension package
+libraryDependencies += "com.colofabrix.scala" % "figlet4s-java" % <version>
+```
+
+Note that this lines only a single `%` between the group id and the artifact id.
+
+### Maven for Java
+
+If you're using Maven you're probably looking to use Figlet4s inside Java. This is what to use with
+maven:
+
+```xml
+<dependency>
+  <groupId>com.colofabrix.scala</groupId>
+  <artifactId>figlet4s-java</artifactId>
+  <version><!-- figlet4s_version --></version>
+</dependency>
+```
+
+Where `figlet4s_version` is the Figlet4s version (for the latest release version, see the Maven
+badge at the top of the readme).
 
 ## Documentation
 
@@ -140,9 +171,10 @@ object LowLevelMain extends App {
   val maxWidth       = 120
   val layout         = HorizontalLayout.HorizontalFitting
   val printDirection = PrintDirection.LeftToRight
+  val justification  = Justification.FontDefault
 
   // Build the render options
-  val options = RenderOptions(font, maxWidth, layout, printDirection)
+  val options = RenderOptions(font, maxWidth, layout, printDirection, justification)
 
   // Render a string into a FIGure
   val figure = Figlet4s.renderString("Hello, World!", options)
@@ -206,6 +238,57 @@ object EitherMain extends App {
     case Right(value) => value.foreach(println)
   }
 
+}
+```
+
+## Pure Java project
+
+If you want to use Figlet4s on Java you can benefit from the thin wrapper developed for this purpose
+and bundled in the `figlet4s-java` library. Using a Scala library from Java is very simple and
+almost pain-free but there is still some manual conversion you have to do, especially with
+collections, and some details you need to know like how to call a Scala `object` or extension
+methods. `figlet4s-java` does the tricky bits for you.
+
+Make sure you include in your project the correct dependencies (see the [Setup](#maven-for-java) for
+the details).
+
+Let's see the same examples we've seen above but this time from a pure Java perspective. This is the
+example that uses the builder, in Java:
+
+```java
+import com.colofabrix.java.figlet4s.*;
+import com.colofabrix.java.figlet4s.options.*;
+
+public class Main {
+    public static void main(String [] args) {
+        Figlet4s
+            .builder()
+            .withHorizontalLayout(HorizontalLayout.HORIZONTAL_FITTING)
+            .render("Hello, World!")
+            .print();
+    }
+}
+```
+
+And this one is the one that sets explicitly each option:
+
+```java
+import com.colofabrix.java.figlet4s.*;
+import com.colofabrix.java.figlet4s.options.*;
+
+public class Main {
+    public static void main(String [] args) {
+        RenderOptions options = new RenderOptions(
+            Figlet4s.loadFontInternal("standard"),
+            120,
+            HorizontalLayout.HORIZONTAL_FITTING,
+            PrintDirection.LEFT_TO_RIGHT,
+            Justification.FONT_DEFAULT);
+
+        Figlet4s
+            .renderString("Hello, World!", options)
+            .print();
+    }
 }
 ```
 

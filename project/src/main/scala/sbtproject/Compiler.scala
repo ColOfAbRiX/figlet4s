@@ -103,7 +103,9 @@ object Compiler {
   )
 
   // Options for the Splain plugin
-  lazy val SplainOptions: Seq[String] = Seq("-P:splain:all")
+  lazy val SplainOptions: Seq[String] = Seq(
+    "-P:splain:all"
+  )
 
   // Options for Java compiler
   lazy val JavacOptions: Seq[String] = Seq(

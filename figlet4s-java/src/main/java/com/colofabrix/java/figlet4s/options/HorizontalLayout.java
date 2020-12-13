@@ -38,8 +38,8 @@ public enum HorizontalLayout {
     /**
      * Converts the Java enum HorizontalLayout into the Scala HorizontalLayout ADT
      *
-     * @param value The HorizontalLayout instance to convert
-     * @return The scala HorizontalLayout instance equivalent to the input value
+     * @param value The Java HorizontalLayout instance to convert
+     * @return The Scala HorizontalLayout instance equivalent to the input value
      */
     public static com.colofabrix.scala.figlet4s.options.HorizontalLayout toScala(HorizontalLayout value) {
         com.colofabrix.scala.figlet4s.options.HorizontalLayout result;
@@ -64,6 +64,34 @@ public enum HorizontalLayout {
             default:
             case FONT_DEFAULT:
                 result = com.colofabrix.scala.figlet4s.options.HorizontalLayout.FontDefault$.MODULE$;
+        }
+
+        return result;
+    }
+
+    /**
+     * Converts the Scala HorizontalLayout ADT into the Java enum HorizontalLayout
+     *
+     * @param value The Scala HorizontalLayout instance to convert
+     * @return The Java HorizontalLayout instance equivalent to the input value
+     */
+    public static HorizontalLayout fromScala(com.colofabrix.scala.figlet4s.options.HorizontalLayout value) {
+        HorizontalLayout result;
+
+        if (value instanceof com.colofabrix.scala.figlet4s.options.HorizontalLayout.FullWidth$) {
+            result = FULL_WIDTH;
+        }
+        else if (value instanceof com.colofabrix.scala.figlet4s.options.HorizontalLayout.HorizontalFitting$) {
+            result = HORIZONTAL_FITTING;
+        }
+        else if (value instanceof com.colofabrix.scala.figlet4s.options.HorizontalLayout.HorizontalSmushing$) {
+            result = HORIZONTAL_SMUSHING;
+        }
+        else if (value instanceof com.colofabrix.scala.figlet4s.options.HorizontalLayout.ForceHorizontalSmushing$) {
+            result = FORCE_HORIZONTAL_SMUSHING;
+        }
+        else {
+            result = FONT_DEFAULT;
         }
 
         return result;

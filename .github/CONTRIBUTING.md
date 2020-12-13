@@ -47,12 +47,26 @@ to put your changes on a GIT branch.
 
 ### Tests and Code style
 
+Each Pull Request will be validated by an automatic tool that will check several aspects of the
+code:
+
+* All test must pass for all the supported versions of Scala (`sbt +test`)
+* Documentation must be present and build succesfully (`sbt unidoc`)
+* Code must be properly formatted (`sbt styleApply`)
+
+All these test must pass for the PR to be accepted.
+
 If you write any code, be sure to write the test that goes with it and before pushing anything,
-please be sure to check that the tests are OK by running `sbt test`. Some tests require that you
+please be sure to check that the tests are OK by running `sbt +test`. Some tests require that you
 have figlet installed on your system and available on the PATH.
 
-Code styling is ensured by two tools that run in automatic: scalafmt and scalafix. You don't have
-to do anything in particular because the tools will format the code when the code is compiled.
+Code styling is checked by two tools that run in automatic: scalafmt and scalafix. To run them both
+before pushing you can use `sbt styleApply`.
+
+The API documentation is also an important part of Figlet4s because it helps developers
+understanding how to use the library so it's important that you write it and that it can be included
+in the release. You can test and generate the documentation by using `sbt unidoc` on the root
+project.
 
 ### Documentation
 

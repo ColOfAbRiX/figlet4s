@@ -7,10 +7,10 @@ import sbt._
  */
 object TestDependencies {
 
-  lazy val CatsScalaTestVersion = "3.0.5"
-  lazy val ScalaCheckVersion    = "1.14.1"
+  lazy val CatsScalaTestVersion = "3.1.1"
+  lazy val ScalaCheckVersion    = "1.15.0"
   lazy val ScalameterVersion    = "0.19"
-  lazy val ScalaTestVersion     = "3.2.2"
+  lazy val ScalaTestVersion     = "3.2.3"
 
   lazy val CatsScalaTestDep           = "com.ironcorelabs"  %% "cats-scalatest"           % CatsScalaTestVersion % Test
   lazy val ScalameterDep              = "com.storm-enroute" %% "scalameter"               % ScalameterVersion    % Test

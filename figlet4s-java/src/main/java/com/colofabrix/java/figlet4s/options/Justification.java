@@ -16,8 +16,8 @@ public enum Justification {
     /**
      * Converts the Java enum Justification into the Scala Justification ADT
      *
-     * @param value The Justification instance to convert
-     * @return The scala Justification instance equivalent to the input value
+     * @param value The Java Justification instance to convert
+     * @return The Scala Justification instance equivalent to the input value
      */
     public static com.colofabrix.scala.figlet4s.options.Justification toScala(Justification value) {
         com.colofabrix.scala.figlet4s.options.Justification result;
@@ -38,6 +38,31 @@ public enum Justification {
             default:
             case FONT_DEFAULT:
                 result = com.colofabrix.scala.figlet4s.options.Justification.FontDefault$.MODULE$;
+        }
+
+        return result;
+    }
+
+    /**
+     * Converts the Scala Justification ADT into the Java enum Justification
+     *
+     * @param value The Scala Justification instance to convert
+     * @return The Java Justification instance equivalent to the input value
+     */
+    public static Justification fromScala(com.colofabrix.scala.figlet4s.options.Justification value) {
+        Justification result;
+
+        if (value instanceof com.colofabrix.scala.figlet4s.options.Justification.Center$) {
+            result = CENTER;
+        }
+        else if (value instanceof com.colofabrix.scala.figlet4s.options.Justification.FlushLeft$) {
+            result = FLUSH_LEFT;
+        }
+        else if (value instanceof com.colofabrix.scala.figlet4s.options.Justification.FlushRight$) {
+            result = FLUSH_RIGHT;
+        }
+        else {
+            result = FONT_DEFAULT;
         }
 
         return result;

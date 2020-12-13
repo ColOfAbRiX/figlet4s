@@ -14,8 +14,8 @@ public enum PrintDirection {
     /**
      * Converts the Java enum PrintDirection into the Scala PrintDirection ADT
      *
-     * @param value The PrintDirection instance to convert
-     * @return The scala PrintDirection instance equivalent to the input value
+     * @param value The Java PrintDirection instance to convert
+     * @return The Scala PrintDirection instance equivalent to the input value
      */
     public static com.colofabrix.scala.figlet4s.options.PrintDirection toScala(PrintDirection value) {
         com.colofabrix.scala.figlet4s.options.PrintDirection result;
@@ -32,6 +32,28 @@ public enum PrintDirection {
             default:
             case FONT_DEFAULT:
                 result = com.colofabrix.scala.figlet4s.options.PrintDirection.FontDefault$.MODULE$;
+        }
+
+        return result;
+    }
+
+    /**
+     * Converts the Scala PrintDirection ADT into the Java enum PrintDirection
+     *
+     * @param value The Scala PrintDirection instance to convert
+     * @return The Java PrintDirection instance equivalent to the input value
+     */
+    public static PrintDirection fromScala(com.colofabrix.scala.figlet4s.options.PrintDirection value) {
+        PrintDirection result;
+
+        if (value instanceof com.colofabrix.scala.figlet4s.options.PrintDirection.LeftToRight$) {
+            result = LEFT_TO_RIGHT;
+        }
+        else if (value instanceof com.colofabrix.scala.figlet4s.options.PrintDirection.RightToLeft$) {
+            result = RIGHT_TO_LEFT;
+        }
+        else {
+            result = FONT_DEFAULT;
         }
 
         return result;

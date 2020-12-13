@@ -29,6 +29,9 @@ jobs:
       - name: Run tests on all versions
         run: sbt +test
 
+      - name: Try generate documentation
+        run: sbt unidoc
+
       - name: Test Scalafmt
         run: sbt scalafmtCheckAll
 

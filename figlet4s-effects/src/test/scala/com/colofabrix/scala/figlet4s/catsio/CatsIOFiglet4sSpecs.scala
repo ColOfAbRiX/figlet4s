@@ -3,7 +3,6 @@ package com.colofabrix.scala.figlet4s.catsio
 import cats.effect._
 import cats.implicits._
 import com.colofabrix.scala.figlet4s._
-import com.colofabrix.scala.figlet4s.catsio._
 import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.StandardTestData._

@@ -15,6 +15,19 @@ public class RenderOptions {
     /**
      * Creates a new RenderOptions
      *
+     * @param options The Scala RenderOptions that will we wrapped in this object
+     */
+    public RenderOptions(com.colofabrix.scala.figlet4s.options.RenderOptions options) {
+        this.font = options.font();
+        this.maxWidth = options.maxWidth();
+        this.horizontalLayout = HorizontalLayout.fromScala(options.horizontalLayout());
+        this.printDirection = PrintDirection.fromScala(options.printDirection());
+        this.justification = Justification.fromScala(options.justification());
+    }
+
+    /**
+     * Creates a new RenderOptions
+     *
      * @param font             The FIGfont to use to render the text
      * @param horizontalLayout The desired horizontal layout to render the text
      * @param justification    The text justification
