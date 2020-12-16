@@ -103,18 +103,20 @@ import scala.annotation.tailrec
  * @param text          The text to render
  * @param options       The options of the rendering
  */
-final private[rendering] class Rendering(text: String, options: RenderOptions) {
+final private[rendering] class Rendering(options: RenderOptions) {
 
   /**
    * Renders a String into a FIGure for a given FIGfont and options
    *
    * @return A FIGure containing the rendered text following the rendering options
    */
-  def render(): FIGure = {
-    val zero    = Vector(options.font.zero.lines.toSubcolumns.value.toVector)
-    val figures = text.toList.map(options.font(_).columns.value.toVector)
-    val result  = appendLoop(figures, zero, AppendLoopState()).map(SubColumns(_))
-    FIGure(options.font, text, result)
+  def render(text: String): FIGure = {
+    val adaptedText = HorizontalMergeRules.applyPrintDirection(options, text)
+    val zero        = Vector(options.font.zero.lines.toSubcolumns.value.toVector)
+    val figures     = adaptedText.toList.map(options.font(_).columns.value.toVector)
+    val result      = appendLoop(figures, zero, AppendLoopState()).map(SubColumns(_))
+    val flushed     = HorizontalMergeRules.applyFlushing(options, result)
+    FIGure(options.font, adaptedText, flushed)
   }
 
   //  ----  //
@@ -122,8 +124,8 @@ final private[rendering] class Rendering(text: String, options: RenderOptions) {
   private val mergeStrategy: MergeStrategy = HorizontalMergeRules.mergeStrategy(options)
 
   @tailrec
-  private def appendLoop(text: List[Columns], partial: Vector[Columns], state: AppendLoopState): Vector[Columns] =
-    (text, partial) match {
+  private def appendLoop(figures: List[Columns], partial: Vector[Columns], state: AppendLoopState): Vector[Columns] =
+    (figures, partial) match {
       case (Nil, _) => partial
       case (figChar :: remainingChars, upperLines :+ lastLine) =>
         val merged    = merge(MergeLoopState(lastLine, figChar, appendLoopState = state))
@@ -222,7 +224,7 @@ private[figlet4s] object Rendering {
    * @return A FIGure containing the rendered text following the rendering options
    */
   def render(text: String, options: RenderOptions): FIGure =
-    new Rendering(text, options).render()
+    new Rendering(options).render(text)
 
   //  ----  //
 

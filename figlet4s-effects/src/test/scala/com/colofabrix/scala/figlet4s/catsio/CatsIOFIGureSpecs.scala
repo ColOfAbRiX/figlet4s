@@ -1,19 +1,24 @@
 package com.colofabrix.scala.figlet4s.catsio
 
+import cats.effect.IO
 import com.colofabrix.scala.figlet4s.StandardTestData._
 import org.scalatest.flatspec._
 import org.scalatest.matchers.should._
 
 class CatsIOFIGureSpecs extends AnyFlatSpec with Matchers {
 
+  private def run[A](a: IO[A]): A = a.unsafeRunSync()
+
   "FIGure" should "return the same data for asSeq() and asString()" in {
-    for {
-      figure     <- standardBuilder.render(standardInput)
-      fromSeq    <- figure.asSeqF()
-      fromString <- figure.asStringF()
-    } yield {
-      fromSeq.mkString("\n") should equal(fromString)
-    }
+    val test =
+      for {
+        figure     <- standardBuilder.render(standardInput)
+        fromSeq    <- figure.asSeqF()
+        fromString <- figure.asStringF()
+      } yield {
+        fromSeq.mkString("\n") should equal(fromString)
+      }
+   run(test)
   }
 
   it should "print the same data as asString()" in {
@@ -24,7 +29,7 @@ class CatsIOFIGureSpecs extends AnyFlatSpec with Matchers {
     }
 
     val computed = stream.toString()
-    val expected = figure.map(_.asString() + "\n").unsafeRunSync()
+    val expected = run(figure.map(_.asString() + "\n"))
 
     computed should equal(expected)
   }

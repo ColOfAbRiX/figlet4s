@@ -44,9 +44,7 @@ Some example applications are:
 
 ### Requirements
 
-Figlet4s supports Scala version 2.13 and 2.12.
-
-Figet4s requires Java 8.
+Figet4s requires miminum Java 8 and supports Scala version 2.13 and 2.12.
 
 ### SBT
 

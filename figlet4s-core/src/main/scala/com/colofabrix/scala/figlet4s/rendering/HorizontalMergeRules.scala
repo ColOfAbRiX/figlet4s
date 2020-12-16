@@ -2,9 +2,13 @@ package com.colofabrix.scala.figlet4s.rendering
 
 import cats.implicits._
 import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
-import com.colofabrix.scala.figlet4s.options.{ HorizontalLayout => ClientHorizontalLayout, RenderOptions }
+import com.colofabrix.scala.figlet4s.figfont.SubColumns
 import com.colofabrix.scala.figlet4s.rendering.MergeAction._
 import com.colofabrix.scala.figlet4s.rendering.Rendering._
+import com.colofabrix.scala.figlet4s.options.{
+  HorizontalLayout => ClientHorizontalLayout, PrintDirection => ClientPrintDirection,
+  Justification => ClientJustification, RenderOptions,
+}
 
 /**
  * Merging rules for horizontal appending of characters
@@ -20,6 +24,31 @@ private[figlet4s] object HorizontalMergeRules {
     val chosenLayout = ClientHorizontalLayout.toInternalLayout(options.font)(options.horizontalLayout)
     layout2mergeStrategy(options.font.header.hardblank)(chosenLayout)
   }
+
+  def applyPrintDirection(options: RenderOptions, text: String): String =
+    if (printDirectionReverse(options)) text else text.reverse
+
+  def applyFlushing(options: RenderOptions, outputLines: Vector[SubColumns]): Vector[SubColumns] =
+    outputLines.map { columns =>
+      val lines = columns.toSublines
+      options.justification match {
+        case ClientJustification.FlushLeft   =>
+        case ClientJustification.Center      => "A"
+        case ClientJustification.FlushRight  => "C"
+        case ClientJustification.FontDefault => "A"
+      }
+    }
+
+  private def printDirectionReverse(options: RenderOptions): Boolean =
+    options.printDirection match {
+      case ClientPrintDirection.LeftToRight => false
+      case ClientPrintDirection.RightToLeft => true
+      case ClientPrintDirection.FontDefault =>
+        options.font.settings.printDirection match {
+          case PrintDirection.LeftToRight => false
+          case PrintDirection.RightToLeft => true
+        }
+    }
 
   //  Support  //
 

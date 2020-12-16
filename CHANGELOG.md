@@ -4,9 +4,12 @@
 
 ## v0.2.0 - 2020/12/14
 
-### Changed
+### Added
 
 * Added direct support for Java
+
+### Changed
+
 * Errors are returned in a more uniform format defined in the library
 * Removed test dependencies from POM
 * Updated cats-core and cats-effect to version 2.3.0
