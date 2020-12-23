@@ -10,6 +10,7 @@ import com.colofabrix.scala.figlet4s.rendering._
 import java.io._
 import java.net._
 import scala.io._
+import java.nio.file.Paths
 
 /**
  * Layer of API internal to figlet4s, used to have uniform and generic access to resources when implementing client APIs
@@ -64,7 +65,7 @@ private[figlet4s] object Figlet4sClient {
    */
   def loadFontInternal[F[_]: Sync](name: String): F[FigletResult[FIGfont]] =
     for {
-      path    <- Sync[F].pure(s"fonts/$name.flf")
+      path    <- Sync[F].pure(Paths.get("fonts", s"$name.flf").toString)
       decoder <- fileDecoder[F](Codec.ISO8859)
       font    <- withResource(sourceFromResource(path, decoder))(interpretFigletFile[F](path))
     } yield font
@@ -91,7 +92,7 @@ private[figlet4s] object Figlet4sClient {
   /**
    * The default value of the Max Width option
    */
-  val defaultMaxWidth: Int = Int.MaxValue
+  val defaultMaxWidth: Int = 80
 
   //  Support  //
 

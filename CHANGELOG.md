@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Changed
+
+* Set the default Max Width to 80, same as original figlet
+* Fixed path issues on different platforms
+
 ## v0.2.0 - 2020/12/14
 
 ### Added

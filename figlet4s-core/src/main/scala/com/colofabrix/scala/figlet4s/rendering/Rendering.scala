@@ -116,7 +116,7 @@ final private[rendering] class Rendering(options: RenderOptions) {
     val figures     = adaptedText.toList.map(options.font(_).columns.value.toVector)
     val result      = appendLoop(figures, zero, AppendLoopState()).map(SubColumns(_))
     val flushed     = HorizontalMergeRules.applyFlushing(options, result)
-    FIGure(options.font, adaptedText, flushed)
+    FIGure(options.font, text, flushed)
   }
 
   //  ----  //

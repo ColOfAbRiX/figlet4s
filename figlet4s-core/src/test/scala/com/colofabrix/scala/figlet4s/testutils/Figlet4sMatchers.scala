@@ -53,7 +53,7 @@ trait Figlet4sMatchers {
       val max     = Math.max(maxC, maxE)
       val margins = " +" + "|" * max + "+ "
 
-      def differences =
+      lazy val differences =
         for {
           ((c, e), i) <- cc.value.zip(ec.value).zipWithIndex
           result      <- columnsDiff(i, c, e, max)
@@ -61,8 +61,13 @@ trait Figlet4sMatchers {
           result
         }
 
-      def printableDiffs =
-        SubColumns(Vector(margins) ++: differences.toVector ++: Vector(margins))
+      lazy val paddedDiffs = {
+        val maxLength = differences.map(_.length).max
+        differences.map(x => x + " " * (maxLength - x.length))
+      }
+
+      lazy val printableDiffs =
+        SubColumns(Vector(margins) ++: paddedDiffs ++: Vector(margins))
           .toSublines
           .map { x =>
             if (x.length > consoleWidth - 13)
@@ -71,7 +76,7 @@ trait Figlet4sMatchers {
           }
           .toString
 
-      def diffMessage =
+      lazy val diffMessage =
         s"The expected FIGure doesn't look like the computed FIGure. Here is a breakdown of the differences:\n\n" +
         s"Text: '${computed.value}'\n\n" +
         s"Font: \n${niceFont(computed.font)}\n\n" +
@@ -95,14 +100,11 @@ trait Figlet4sMatchers {
       s"  Codetag Count: ${font.header.codetagCount}"
     }
 
-    private def padToLen(self: String)(len: Int, elem: String): String =
-      elem * Math.max(len - self.length, 0)
-
     private def columnsDiff(i: Int, e: String, c: String, maxLength: Int): Vector[String] = {
       val paddedC = padToLen(c)(maxLength, " ")
       val paddedE = padToLen(e)(maxLength, " ")
 
-      if (e =!= c) {
+      val result = if (e =!= c) {
         val List(n1, n2, n3) = "%3d".format(i).toList.map(_.toString)
         val spacer           = "+" + "|" * (e.length) + "+ "
         Vector(
@@ -113,10 +115,15 @@ trait Figlet4sMatchers {
           "|" + spacer,
         )
       } else Vector(s" -$paddedE- ")
+
+      result
     }
 
     private val consoleWidth = Option(System.getenv("COLUMNS")).map(_.toInt).getOrElse(120)
   }
+
+  private def padToLen(self: String)(len: Int, elem: String): String =
+    self + elem * Math.max(len - self.length, 0)
 
   /**
    * Compares a FIGure with another FIGure to see if they look the same

@@ -6,12 +6,10 @@ import cats.implicits._
 import com.colofabrix.scala.figlet4s.compat._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options._
-import com.colofabrix.scala.figlet4s.unsafe._
 import java.io.File
 import java.nio.file.Paths
 import java.util.regex.Pattern
 import org.scalacheck._
-import org.scalacheck.Shrink.shrinkAny
 import org.scalactic.anyvals._
 import org.scalatest._
 import org.scalatestplus.scalacheck._
@@ -22,6 +20,28 @@ import scala.concurrent.ExecutionContext
  */
 trait OriginalFigletTesting extends Notifying {
   import ScalaCheckDrivenPropertyChecks._
+
+  //  Settings  //
+
+  private val parallelism = 1 // Runtime.getRuntime.availableProcessors.toLong
+
+  /**
+   * Exclude "dodgy" fonts because some fonts are known to have issues:
+   * https://github.com/pwaller/pyfiglet/blob/master/pyfiglet/test.py#L37
+   */
+  // format: off
+  private def dodgyFonts(fontName: String): Boolean =
+    List(
+      // Some fonts seem to treat the hardblanks differently in that they smush together a hardblank and a char but I
+      // can't find what's wrong in Figlet4s implementation of the algorithm (and where to find this behaviour in the
+      // reference doc)
+      "alligator", "alligator2", "alligator3", "colossal", "univers",
+      // The original figlet renders this font as all whitespaces, maybe the font is corrupted?
+      "dosrebel",
+      // Doesn't respect spacing (Try "j  k")
+      "cricket",
+    ).contains(fontName)
+  // format: on
 
   case class TestRenderOptions(
       renderText: String,
@@ -46,7 +66,7 @@ trait OriginalFigletTesting extends Notifying {
    */
   def renderWithFiglet(options: RenderOptions, text: String): FIGure = {
     val output        = figletCommand(options, text).runStream.toVector
-    val maxWidth      = output.map(_.length()).maxOption.getOrElse(0)
+    val maxWidth      = output.map(_.length).maxOption.getOrElse(0)
     val uniformOutput = output.map(x => x + " " * (maxWidth - x.length()))
     FIGure(options.font, text, Vector(SubLines(uniformOutput).toSubcolumns))
   }
@@ -62,22 +82,21 @@ trait OriginalFigletTesting extends Notifying {
    * Runs property testing on a given function to test Figlet4s
    */
   def figletRenderingTest[A](f: TestRenderOptions => A): Unit = {
-    val parallelism = Runtime.getRuntime.availableProcessors.toLong
-
     val parallelTests = for {
       _              <- Vector(assumeExecutableInPath("figlet"))
-      fontName       <- Figlet4s.internalFonts.filterNot(dodgyFonts)
+      fontName       <- Vector("standard").filterNot(dodgyFonts) //Figlet4s.internalFonts.filterNot(dodgyFonts)
       hLayout        <- HorizontalLayout.values.filterNot(_ == HorizontalLayout.ForceHorizontalSmushing)
-      printDirection <- Vector(PrintDirection.LeftToRight)
+      printDirection <- PrintDirection.values.filterNot(_ == PrintDirection.FontDefault)
       justification  <- Vector(Justification.FlushLeft)
     } yield {
       TestRenderOptions("", fontName, hLayout, printDirection, justification)
     }
 
-    parallelTests
-      .parTraverseN(parallelism)(runTests(f))
-      .map(_ => ())
-      .unsafeRunSync()
+    val tests =
+      if (parallelism == 1) parallelTests.traverse(runTests(f))
+      else parallelTests.parTraverseN(parallelism.toLong)(runTests(f))
+
+    (tests *> IO.unit).unsafeRunSync()
   }
 
   //  Support  //
@@ -88,26 +107,6 @@ trait OriginalFigletTesting extends Notifying {
       val testDataSet = (cycleGen, "testData")
       forAll(testDataSet)(f)
     }
-
-  // NOTE: Some fonts are known to have issues: https://github.com/pwaller/pyfiglet/blob/master/pyfiglet/test.py#L37
-  private def dodgyFonts(fontName: String): Boolean = {
-    val dodgyList = List(
-      // NOTE: Some fonts seem to treat the hardblanks differently in that they smush together a hardblank and a char
-      //       but I can't find what's wrong in Figlet4s implementation of the algorithm (and where to find this
-      //       behaviour in the reference doc)
-      "alligator",
-      "alligator2",
-      "alligator3",
-      "colossal",
-      "univers",
-      // NOTE: The original figlet renders this font as all whitespaces, maybe the font is corrupted?
-      "dosrebel",
-      // NOTE: Doesn't respect spacing (Try "j  k")
-      "cricket",
-    )
-
-    dodgyList.contains(fontName)
-  }
 
   // NOTE: I found issues when rendering higher-number characters with figlet so I decided to work on only a subset
   //       of a font's charset. The ideal scenario would be to test all possible characters: font.characters.keySet
@@ -124,8 +123,10 @@ trait OriginalFigletTesting extends Notifying {
       .map(path => new File(Paths.get(path, exec).toAbsolutePath.toString))
       .exists(file => file.exists() && file.canExecute)
 
+  //  Figlet command line  //
+
   private def figletCommand(options: RenderOptions, text: String): List[String] = {
-    val maxWidth       = figletWidth(options, text)
+    val maxWidth       = figletWidth(options)
     val fontFile       = figletFont(options)
     val hLayout        = figletHorizontalLayout(options)
     val printDirection = figletPrintDirection(options)
@@ -133,16 +134,12 @@ trait OriginalFigletTesting extends Notifying {
     List("figlet") ++: fontFile ++: maxWidth ++: hLayout ++: printDirection ++: justification ++: List("--", text)
   }
 
-  private def figletWidth(options: RenderOptions, text: String): List[String] =
-    List("-w", (options.font.header.maxLength * text.length()).toString)
+  private def figletWidth(options: RenderOptions): List[String] =
+    List("-w", options.maxWidth.toString)
 
   private def figletFont(options: RenderOptions): List[String] = {
-    val fontFile =
-      Paths.get(
-        options.getClass.getProtectionDomain.getCodeSource.getLocation.getPath,
-        "fonts",
-        options.font.name + ".flf",
-      )
+    val basePath = Paths.get(options.getClass.getProtectionDomain.getCodeSource.getLocation.getPath).toAbsolutePath
+    val fontFile = Paths.get(basePath.toString, "fonts", options.font.name + ".flf")
     List("-f", fontFile.toAbsolutePath.toString)
   }
 

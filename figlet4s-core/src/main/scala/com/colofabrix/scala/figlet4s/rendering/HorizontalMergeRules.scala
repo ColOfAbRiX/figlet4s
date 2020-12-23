@@ -1,8 +1,8 @@
 package com.colofabrix.scala.figlet4s.rendering
 
 import cats.implicits._
+import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
-import com.colofabrix.scala.figlet4s.figfont.SubColumns
 import com.colofabrix.scala.figlet4s.rendering.MergeAction._
 import com.colofabrix.scala.figlet4s.rendering.Rendering._
 import com.colofabrix.scala.figlet4s.options.{
@@ -26,31 +26,44 @@ private[figlet4s] object HorizontalMergeRules {
   }
 
   def applyPrintDirection(options: RenderOptions, text: String): String =
-    if (printDirectionReverse(options)) text else text.reverse
-
-  def applyFlushing(options: RenderOptions, outputLines: Vector[SubColumns]): Vector[SubColumns] =
-    outputLines.map { columns =>
-      val lines = columns.toSublines
-      options.justification match {
-        case ClientJustification.FlushLeft   =>
-        case ClientJustification.Center      => "A"
-        case ClientJustification.FlushRight  => "C"
-        case ClientJustification.FontDefault => "A"
-      }
-    }
-
-  private def printDirectionReverse(options: RenderOptions): Boolean =
     options.printDirection match {
-      case ClientPrintDirection.LeftToRight => false
-      case ClientPrintDirection.RightToLeft => true
+      case ClientPrintDirection.LeftToRight => text
+      case ClientPrintDirection.RightToLeft => text.reverse
       case ClientPrintDirection.FontDefault =>
         options.font.settings.printDirection match {
-          case PrintDirection.LeftToRight => false
-          case PrintDirection.RightToLeft => true
+          case FIGfontParameters.PrintDirection.LeftToRight => text
+          case FIGfontParameters.PrintDirection.RightToLeft => text.reverse
         }
     }
 
+  def applyFlushing(options: RenderOptions, outputLines: Seq[SubColumns]): Seq[SubColumns] =
+    outputLines.map { columns =>
+      val lines = columns.toSublines
+      val flushed =
+        options.justification match {
+          case ClientJustification.FlushLeft   => lines
+          case ClientJustification.Center      => alignCenter(lines, options.maxWidth)
+          case ClientJustification.FlushRight  => alignRight(lines, options.maxWidth)
+          case ClientJustification.FontDefault => lines
+        }
+      flushed.toSubcolumns
+    }
+
   //  Support  //
+
+  /** Align SubLines in the center of the given width */
+  private def alignCenter(input: SubLines, maxWidth: Int): SubLines = {
+    val halfSpaces   = (maxWidth - input.width) / 2.0
+    val leftPadding  = " " * Math.ceil(halfSpaces).toInt
+    val rightPadding = " " * Math.floor(halfSpaces).toInt
+    input.map(leftPadding + _ + rightPadding)
+  }
+
+  /** Align SubLines at the right of the given width */
+  private def alignRight(input: SubLines, maxWidth: Int): SubLines = {
+    val leftPadding = " " * (maxWidth - input.width - 1)
+    input.map(leftPadding + _)
+  }
 
   /** Function that smushes two characters */
   private type SmushingStrategy = (Char, Char) => Option[Char]
