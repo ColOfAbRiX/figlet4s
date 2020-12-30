@@ -111,11 +111,23 @@ final private[rendering] class Rendering(options: RenderOptions) {
    * @return A FIGure containing the rendered text following the rendering options
    */
   def render(text: String): FIGure = {
-    val adaptedText = HorizontalMergeRules.applyPrintDirection(options, text)
-    val zero        = Vector(options.font.zero.lines.toSubcolumns.value.toVector)
-    val figures     = adaptedText.toList.map(options.font(_).columns.value.toVector)
-    val result      = appendLoop(figures, zero, AppendLoopState()).map(SubColumns(_))
-    val flushed     = HorizontalMergeRules.applyFlushing(options, result)
+    if (Direction.isPrintLeft(options)) renderLeftToRight(text)
+    else renderRightToLeft(text)
+  }
+
+  private def renderLeftToRight(text: String): FIGure = {
+    val figures = text.toList.map(options.font(_).columns.value.toVector)
+    val zero    = Vector(options.font.zero.lines.toSubcolumns.value.toVector)
+    val result  = appendLoop(figures, zero, AppendLoopState()).map(SubColumns(_))
+    val flushed = Alignment.applyAlignment(options, result)
+    FIGure(options.font, text, flushed)
+  }
+
+  private def renderRightToLeft(text: String): FIGure = {
+    val figures = text.reverse.toList.map(options.font(_).mirroredColumns.value.toVector)
+    val zero    = Vector(options.font.zero.lines.toSubcolumns.value.toVector)
+    val result  = appendLoop(figures, zero, AppendLoopState()).map(SubColumns(_))
+    val flushed = Alignment.applyAlignment(options, result)
     FIGure(options.font, text, flushed)
   }
 
@@ -209,6 +221,11 @@ final private[rendering] class Rendering(options: RenderOptions) {
 }
 
 private[figlet4s] object Rendering {
+
+  import com.colofabrix.scala.figlet4s.utils.ADT
+  sealed trait MirrorTuple[+A]                             extends ADT
+  final case class LeftBiasedTuple[+A](left: A, right: A)  extends MirrorTuple[A]
+  final case class RightBiasedTuple[+A](right: A, left: A) extends MirrorTuple[A]
 
   /** Current state of the merge used to provide context to the MergeStrategy */
   final case class MergeState(overlap: Int, currentCharWidth: Int, lastCharWidth: Int)

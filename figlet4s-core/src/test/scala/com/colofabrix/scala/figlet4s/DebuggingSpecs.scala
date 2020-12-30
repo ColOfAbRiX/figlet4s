@@ -17,8 +17,11 @@ class DebuggingSpecs extends AnyFlatSpec with Matchers with OriginalFigletTestin
         .withMaxWidth(120)
         .withInternalFont("standard")
         .withHorizontalLayout(HorizontalLayout.HorizontalFitting)
-        .withJustification(Justification.FlushLeft)
+        // .withJustification(Justification.FlushLeft)
         .withPrintDirection(PrintDirection.RightToLeft)
+
+    builder.options.font('A').lines.foreach(println)
+    builder.options.font('A').mirroredLines.foreach(println)
 
     println("COMPUTED:")
     val computed = builder.render()

@@ -6,6 +6,7 @@
 
 * Set the default Max Width to 80, same as original figlet
 * Fixed path issues on different platforms
+* Updated SBT to 1.4.6
 
 ## v0.2.0 - 2020/12/14
 
