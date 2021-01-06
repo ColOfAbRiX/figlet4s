@@ -3,8 +3,7 @@ package com.colofabrix.scala.figlet4s
 import org.scalameter.api._
 import org.scalameter.picklers.Implicits._
 
-@SuppressWarnings(Array("org.wartremover.warts.LeakingSealed"))
-abstract class LocalHTMLReporter extends Bench[Double] {
+abstract class FigletBenchmark extends Bench[Double] {
   import org.scalameter.reporting._
   import org.scalameter._
 
@@ -23,6 +22,9 @@ abstract class LocalHTMLReporter extends Bench[Double] {
       def numeric: Numeric[Double] = implicitly[Numeric[Double]]
     }
 
+  def persistor: Persistor =
+    new persistence.GZIPJSONSerializationPersistor
+
   override def reporter: Reporter[Double] =
     Reporter.Composite(
       new RegressionReporter(tester, historian),
@@ -34,7 +36,4 @@ abstract class LocalHTMLReporter extends Bench[Double] {
 
   private def historian: RegressionReporter.Historian =
     RegressionReporter.Historian.ExponentialBackoff()
-
-  override def persistor: Persistor =
-    new persistence.GZIPJSONSerializationPersistor
 }

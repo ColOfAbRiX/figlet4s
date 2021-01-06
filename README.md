@@ -14,9 +14,11 @@
 
 # Figlet4s
 
-Figlet4s is a an open source library implementation of [FIGlet](http://www.figlet.org/) in pure
-Scala, for Scala and Java, with integrated fonts, minimal dependencies, extensive error reporting
-and support for effects including Cats `IO`. It also includes direct support for Java.
+Figlet4s is a pure Scala, open source, library implementation of the ASCII-art program
+[FIGlet](http://www.figlet.org/), with integrated fonts, minimal dependencies, extensive error
+reporting and support for effects including Cats `IO`. It also includes direct support for Java.
+
+But what is Figlet?
 
 > FIGlet is a computer program that generates text banners, in a variety of typefaces, composed of
 > letters made up of conglomerations of smaller ASCII characters (see ASCII art). The name derives
@@ -44,7 +46,7 @@ Some example applications are:
 
 ### Requirements
 
-Figet4s requires miminum Java 8 and supports Scala version 2.13 and 2.12.
+Figet4s requires at least Java 8 and supports Scala versions 2.13 and 2.12.
 
 ### SBT
 
@@ -68,10 +70,9 @@ If you want to use Figlet4s in a pure Java project you can import the Java packa
 
 ```scala
 // Java extension package
+// Note that this line uses only a single `%` between the group id and the artifact id.
 libraryDependencies += "com.colofabrix.scala" % "figlet4s-java" % <version>
 ```
-
-Note that this lines only a single `%` between the group id and the artifact id.
 
 ### Maven for Java
 
@@ -82,11 +83,11 @@ maven:
 <dependency>
   <groupId>com.colofabrix.scala</groupId>
   <artifactId>figlet4s-java</artifactId>
-  <version><!-- figlet4s_version --></version>
+  <version><!-- version --></version>
 </dependency>
 ```
 
-Where `figlet4s_version` is the Figlet4s version (for the latest release version, see the Maven
+Where `version` is the Figlet4s version (for the latest release version, see the Maven
 badge at the top of the readme).
 
 ## Documentation
@@ -152,6 +153,32 @@ object ShowcaseOptionsMain extends App {
 }
 ```
 
+### Playing with the FIGure
+
+When the FIGure has been rendered you can play with it. We've seen how to print it to screen but you
+can also obtain the displayable lines (SubLines) that compose the FIGure as a collection and then
+you can manipulate it.
+
+The logo of Figlet4s has been created with this code:
+
+```scala
+import com.colofabrix.scala.figlet4s.unsafe._
+
+object UsingFIGureMain extends App {
+
+  Figlet4s
+    .builder("Figlet4s")
+    .render()
+    .asSeq()
+    .zipWithIndex
+    .foreach { case (line, i) =>
+      if (i == 4) println(s"$line  Figlet, but in Scala")
+      else println(line)
+    }
+
+}
+```
+
 ### Using the Figlet4s client
 
 If you need to have more fine-grained control on the operations, or you prefer to not use the option
@@ -168,6 +195,7 @@ object LowLevelMain extends App {
   val font           = Figlet4s.loadFontInternal("calgphy2")
   val maxWidth       = 120
   val layout         = HorizontalLayout.HorizontalFitting
+  // These settings are present but not working yet, as per release 0.2.0
   val printDirection = PrintDirection.LeftToRight
   val justification  = Justification.FontDefault
 
@@ -329,4 +357,4 @@ declaration.
 
 [Fabrizio Colonna](mailto:colofabrix@tin.it)
 
-[1]: https://oss.sonatype.org/service/local/repositories/releases/archive/com/colofabrix/scala/figlet4s-core_2.12/0.1.0/figlet4s-core_2.12-0.1.0-javadoc.jar/!/com/colofabrix/scala/figlet4s/unsafe/index.html
+[1]: https://oss.sonatype.org/service/local/repositories/releases/archive/com/colofabrix/scala/figlet4s-core_2.13/0.2.0/figlet4s-core_2.13-0.2.0-javadoc.jar/!/com/colofabrix/scala/figlet4s/unsafe/index.html

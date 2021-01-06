@@ -111,35 +111,35 @@ final private[rendering] class Rendering(options: RenderOptions) {
    * @return A FIGure containing the rendered text following the rendering options
    */
   def render(text: String): FIGure = {
-    if (Direction.isPrintLeft(options)) renderLeftToRight(text)
-    else renderRightToLeft(text)
-  }
-
-  private def renderLeftToRight(text: String): FIGure = {
-    val figures = text.toList.map(options.font(_).columns.value.toVector)
+    val figures = text.toVector.map(options.font(_).columns.value.toVector)
     val zero    = Vector(options.font.zero.lines.toSubcolumns.value.toVector)
     val result  = appendLoop(figures, zero, AppendLoopState()).map(SubColumns(_))
-    val flushed = Alignment.applyAlignment(options, result)
-    FIGure(options.font, text, flushed)
-  }
-
-  private def renderRightToLeft(text: String): FIGure = {
-    val figures = text.reverse.toList.map(options.font(_).mirroredColumns.value.toVector)
-    val zero    = Vector(options.font.zero.lines.toSubcolumns.value.toVector)
-    val result  = appendLoop(figures, zero, AppendLoopState()).map(SubColumns(_))
-    val flushed = Alignment.applyAlignment(options, result)
-    FIGure(options.font, text, flushed)
+    FIGure(options.font, text, result)
   }
 
   //  ----  //
 
-  private val mergeStrategy: MergeStrategy = HorizontalMergeRules.mergeStrategy(options)
+  private val isPrintLeft: Boolean =
+    options.printDirection match {
+      case PrintDirection.LeftToRight => true
+      case PrintDirection.RightToLeft => false
+      case PrintDirection.FontDefault =>
+        options.font.settings.printDirection match {
+          case FIGfontParameters.PrintDirection.LeftToRight => true
+          case FIGfontParameters.PrintDirection.RightToLeft => false
+        }
+    }
+
+  private val mergeStrategy: MergeStrategy = {
+    val strategy = HorizontalMergeRules.mergeStrategy(options)
+    if (isPrintLeft) strategy else s => (a, b) => strategy(s)(b, a)
+  }
 
   @tailrec
-  private def appendLoop(figures: List[Columns], partial: Vector[Columns], state: AppendLoopState): Vector[Columns] =
+  private def appendLoop(figures: Vector[Columns], partial: Vector[Columns], state: AppendLoopState): Vector[Columns] =
     (figures, partial) match {
-      case (Nil, _) => partial
-      case (figChar :: remainingChars, upperLines :+ lastLine) =>
+      case (Vector(), _) => partial
+      case (figChar +: remainingChars, upperLines :+ lastLine) =>
         val merged    = merge(MergeLoopState(lastLine, figChar, appendLoopState = state))
         def onBorder  = merge(MergeLoopState(b = figChar))
         val result    = if (merged.length <= options.maxWidth) upperLines :+ merged else partial :+ onBorder
@@ -221,11 +221,6 @@ final private[rendering] class Rendering(options: RenderOptions) {
 }
 
 private[figlet4s] object Rendering {
-
-  import com.colofabrix.scala.figlet4s.utils.ADT
-  sealed trait MirrorTuple[+A]                             extends ADT
-  final case class LeftBiasedTuple[+A](left: A, right: A)  extends MirrorTuple[A]
-  final case class RightBiasedTuple[+A](right: A, left: A) extends MirrorTuple[A]
 
   /** Current state of the merge used to provide context to the MergeStrategy */
   final case class MergeState(overlap: Int, currentCharWidth: Int, lastCharWidth: Int)

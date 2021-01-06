@@ -16,13 +16,15 @@ import com.colofabrix.scala.figlet4s.errors._
  * {{{
  * import com.colofabrix.scala.figlet4s.unsafe._
  *
- * // Obtain an options builder
+ * // 1. Obtain an options builder
  * val builder = Figlet4s.builder()
  *
- * // Render a text into a FIGure
+ * // 2. In this example we use the default configuration
+ *
+ * // 3. Render a text into a FIGure
  * val figure = builder.render("Hello, World!")
  *
- * // Print the FIGure
+ * // Do something with the FIGure
  * figure.print()
  * }}}
  *
@@ -33,13 +35,14 @@ import com.colofabrix.scala.figlet4s.errors._
  * import com.colofabrix.scala.figlet4s.options._
  *
  * // Load a font, choose the layout and max width
- * val font           = Figlet4s.loadFontInternal("alligator")
+ * val font           = Figlet4s.loadFontInternal("calgphy2")
  * val maxWidth       = 120
  * val layout         = HorizontalLayout.HorizontalFitting
  * val printDirection = PrintDirection.LeftToRight
+ * val justification  = Justification.FontDefault
  *
  * // Build the render options
- * val options = RenderOptions(font, maxWidth, layout, printDirection)
+ * val options = RenderOptions(font, maxWidth, layout, printDirection, justification)
  *
  * // Render a string into a FIGure
  * val figure = Figlet4s.renderString("Hello, World!", options)

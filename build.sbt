@@ -8,16 +8,16 @@ import xerial.sbt.Sonatype._
 // General
 Global / onChangedBuildSource := ReloadOnSourceChanges
 Global / lintUnusedKeysOnLoad := false
-ThisBuild / turbo := true
-ThisBuild / scalaVersion := ScalaLangVersion
+ThisBuild / turbo             := true
+ThisBuild / scalaVersion      := ScalaLangVersion
 
 // Project information
-ThisBuild / name := "figlet4s"
-ThisBuild / homepage := Some(url("https://github.com/ColOfAbRiX/figlet4s"))
-ThisBuild / organization := "com.colofabrix.scala"
-ThisBuild / organizationName := "ColOfAbRiX"
+ThisBuild / name                 := "figlet4s"
+ThisBuild / homepage             := Some(url("https://github.com/ColOfAbRiX/figlet4s"))
+ThisBuild / organization         := "com.colofabrix.scala"
+ThisBuild / organizationName     := "ColOfAbRiX"
 ThisBuild / organizationHomepage := Some(url("https://github.com/ColOfAbRiX"))
-ThisBuild / licenses := Seq("MIT" -> url("https://opensource.org/licenses/MIT"))
+ThisBuild / licenses             := Seq("MIT" -> url("https://opensource.org/licenses/MIT"))
 ThisBuild / scmInfo := Some(
   ScmInfo(url("https://github.com/ColOfAbRiX/figlet4s"), "scm:git@github.com:ColOfAbRiX/figlet4s.git"),
 )
@@ -27,7 +27,7 @@ ThisBuild / developers := List(
 
 // Publishing
 ThisBuild / pomIncludeRepository := { _ => false }
-ThisBuild / publishMavenStyle := true
+ThisBuild / publishMavenStyle    := true
 ThisBuild / sonatypeProjectHosting := Some(
   GitHubHosting("ColOfAbRiX", "figlet4s", "colofabrix@tin.it"),
 )
@@ -40,10 +40,10 @@ ThisBuild / publishTo := Some(
 ThisBuild / dynverSonatypeSnapshots := true
 
 // Scalafix
-ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.4.3"
+ThisBuild / scalafixDependencies       += "com.github.liancheng" %% "organize-imports" % "0.4.3"
 ThisBuild / scalafixScalaBinaryVersion := CrossVersion.binaryScalaVersion(scalaVersion.value)
-ThisBuild / semanticdbEnabled := true
-ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
+ThisBuild / semanticdbEnabled          := true
+ThisBuild / semanticdbVersion          := scalafixSemanticdb.revision
 
 lazy val styleApply = taskKey[Unit]("Formatting and code styling cheks")
 
@@ -100,9 +100,9 @@ lazy val figlet4s: Project = project
   .aggregate(figlet4sCore, figlet4sEffects, figlet4sJava)
   .enablePlugins(ScalaUnidocPlugin)
   .settings(
-    name := "figlet4s",
-    crossScalaVersions := Nil,
-    publish / skip := true,
+    name                                       := "figlet4s",
+    crossScalaVersions                         := Nil,
+    publish / skip                             := true,
     ScalaUnidoc / unidoc / unidocProjectFilter := inAnyProject -- inProjects(figlet4sJava),
   )
 
@@ -111,7 +111,7 @@ lazy val figlet4sCore: Project = project
   .in(file("figlet4s-core"))
   .settings(commonSettings)
   .settings(
-    name := "figlet4s-core",
+    name        := "figlet4s-core",
     description := "Scala FIGlet implementation",
     libraryDependencies ++= Seq(
       CatsCoreDep,
@@ -131,7 +131,7 @@ lazy val figlet4sEffects: Project = project
   .dependsOn(figlet4sCore % "compile->compile;test->test")
   .settings(commonSettings)
   .settings(
-    name := "figlet4s-effects",
+    name        := "figlet4s-effects",
     description := "Effects extension for Figlet4s",
     libraryDependencies ++= Seq(
       CatsCoreDep,
@@ -148,11 +148,11 @@ lazy val figlet4sJava: Project = project
   .in(file("figlet4s-java"))
   .dependsOn(figlet4sCore % "compile->compile;test->test")
   .settings(
-    name := "figlet4s-java",
-    description := "Java integration for Figlet4s",
-    javacOptions ++= Compiler.JavacOptions,
+    name                         := "figlet4s-java",
+    description                  := "Java integration for Figlet4s",
+    javacOptions                ++= Compiler.JavacOptions,
     Compile / doc / javacOptions := Seq(),
-    crossPaths := false,
+    crossPaths                   := false,
     libraryDependencies ++= Seq(
       ScalaTestFlatSpecDep,
       ScalaTestShouldMatchersDep,
@@ -164,13 +164,15 @@ lazy val figlet4sBenchmarks: Project = project
   .in(file("figlet4s-benchmarks"))
   .dependsOn(figlet4sCore)
   .settings(
-    name := "figlet4s-benchmarks",
-    description := "Benchmarks for Figlet4s",
-    publishArtifact := false,
-    logBuffered := false,
+    name                     := "figlet4s-benchmarks",
+    description              := "Benchmarks for Figlet4s",
+    publishArtifact          := false,
+    logBuffered              := false,
     Test / parallelExecution := false,
-    resolvers ++= SonatypeRepos,
-    testFrameworks += new TestFramework("org.scalameter.ScalaMeterFramework"),
+    Test / logBuffered       := false,
+    resolvers               ++= SonatypeRepos,
+    testFrameworks           += new TestFramework("org.scalameter.ScalaMeterFramework"),
+    resolvers += Resolver.mavenLocal,
     libraryDependencies ++= Seq(
       CatsCoreDep,
       ScalameterDep,
