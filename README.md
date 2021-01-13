@@ -286,7 +286,7 @@ import com.colofabrix.java.figlet4s.*;
 import com.colofabrix.java.figlet4s.options.*;
 
 public class Main {
-    public static void main(String [] args) {
+    public static void main(String[] args) {
         Figlet4s
             .builder()
             .withHorizontalLayout(HorizontalLayout.HORIZONTAL_FITTING)
@@ -303,7 +303,7 @@ import com.colofabrix.java.figlet4s.*;
 import com.colofabrix.java.figlet4s.options.*;
 
 public class Main {
-    public static void main(String [] args) {
+    public static void main(String[] args) {
         RenderOptions options = new RenderOptions(
             Figlet4s.loadFontInternal("standard"),
             120,

@@ -30,12 +30,6 @@ final case class FIGcharacter private[figlet4s] (
 ) {
   /** The strings composing the column of the FIGcharacter */
   lazy val columns: SubColumns = lines.toSubcolumns
-
-  /** The lines of the character but mirrored */
-  lazy val mirroredLines: SubLines = lines.map(_.reverse)
-
-  /** The columns of the character but mirrored */
-  lazy val mirroredColumns: SubColumns = mirroredLines.toSubcolumns
 }
 
 object FIGcharacter {

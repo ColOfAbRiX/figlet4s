@@ -91,7 +91,7 @@ class JavaOptionsBuilderSpecs extends AnyFlatSpec with Matchers with Figlet4sMat
 
   "defaultMaxWidth/withMaxWidth" should "set the MaxWidth to the default value" in {
     val computed = Figlet4s.builder().defaultMaxWidth().getOptions.getMaxWidth
-    val expected = 2147483647
+    val expected = 80
     computed should equal(expected)
   }
 

@@ -8,14 +8,16 @@ import org.scalameter.api._
 // Run on SBT with figlet4sBenchmarks/test
 final class Figlet4sUnsafeBenchmark extends FigletBenchmark {
 
-  private val maxLength     = 1000
-  private val textLengthGen = Gen.range("text_length")(1, maxLength, 50)
+  private val maxLength     = 500
+  private val textLengthGen = Gen.range("text_length")(1, maxLength, 10)
   private val standardFont  = Figlet4s.loadFontInternal("standard")
 
   private val opts = Context(
-    exec.benchRuns -> 25,
-    exec.jvmflags  -> List("-Xms2G", "-Xmx2G"),
-    verbose        -> true,
+    exec.maxWarmupRuns -> 1,
+    exec.benchRuns          -> 1,
+    exec.jvmflags           -> List("-Xms1G", "-Xmx1G"),
+    exec.independentSamples -> 1,
+    verbose                 -> true,
   )
 
   private val charSet = standardFont.characters.keySet.toVector

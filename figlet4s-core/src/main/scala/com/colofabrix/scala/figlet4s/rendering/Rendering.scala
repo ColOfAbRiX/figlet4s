@@ -111,7 +111,7 @@ final private[rendering] class Rendering(options: RenderOptions) {
    * @return A FIGure containing the rendered text following the rendering options
    */
   def render(text: String): FIGure = {
-    val figures = text.toVector.map(options.font(_).columns.value.toVector)
+    val figures = text.map(options.font(_).columns.value.toVector).toVector
     val zero    = Vector(options.font.zero.lines.toSubcolumns.value.toVector)
     val result  = appendLoop(figures, zero, AppendLoopState()).map(SubColumns(_))
     FIGure(options.font, text, result)
@@ -119,21 +119,7 @@ final private[rendering] class Rendering(options: RenderOptions) {
 
   //  ----  //
 
-  private val isPrintLeft: Boolean =
-    options.printDirection match {
-      case PrintDirection.LeftToRight => true
-      case PrintDirection.RightToLeft => false
-      case PrintDirection.FontDefault =>
-        options.font.settings.printDirection match {
-          case FIGfontParameters.PrintDirection.LeftToRight => true
-          case FIGfontParameters.PrintDirection.RightToLeft => false
-        }
-    }
-
-  private val mergeStrategy: MergeStrategy = {
-    val strategy = HorizontalMergeRules.mergeStrategy(options)
-    if (isPrintLeft) strategy else s => (a, b) => strategy(s)(b, a)
-  }
+  private val mergeStrategy: MergeStrategy = HorizontalMergeRules.mergeStrategy(options)
 
   @tailrec
   private def appendLoop(figures: Vector[Columns], partial: Vector[Columns], state: AppendLoopState): Vector[Columns] =

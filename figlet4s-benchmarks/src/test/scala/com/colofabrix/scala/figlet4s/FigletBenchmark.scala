@@ -8,7 +8,7 @@ abstract class FigletBenchmark extends Bench[Double] {
   import org.scalameter._
 
   def executor: Executor[Double] =
-    new execution.LocalExecutor(warmer, aggregator, measurer)
+    new execution.SeparateJvmsExecutor(warmer, aggregator, measurer)
 
   private def warmer: Warmer =
     new Warmer.Default
@@ -26,10 +26,7 @@ abstract class FigletBenchmark extends Bench[Double] {
     new persistence.GZIPJSONSerializationPersistor
 
   override def reporter: Reporter[Double] =
-    Reporter.Composite(
-      new RegressionReporter(tester, historian),
-      HtmlReporter(embedDsv = true),
-    )
+    LoggingReporter()
 
   private def tester: RegressionReporter.Tester =
     RegressionReporter.Tester.Accepter()
