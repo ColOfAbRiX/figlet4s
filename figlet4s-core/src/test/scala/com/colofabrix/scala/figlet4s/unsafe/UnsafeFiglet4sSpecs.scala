@@ -28,7 +28,7 @@ class UnsafeFiglet4sSpecs extends AnyFlatSpec with Matchers with Figlet4sMatcher
         Figlet4s
           .builder()
           .text(testData.renderText)
-          .withMaxWidth(500)
+          .withMaxWidth(testData.renderText.length * 50)
           .withInternalFont(testData.fontName)
           .withHorizontalLayout(testData.horizontalLayout)
           .withPrintDirection(testData.printDirection)

@@ -5,7 +5,7 @@ import cats.implicits._
 import cats.MonadError
 import scala.util._
 
-@SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements", "org.wartremover.warts.Null"))
+@SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
 object errors {
 
   //  Error management  //

@@ -18,7 +18,7 @@ class CatsIOFIGureSpecs extends AnyFlatSpec with Matchers {
       } yield {
         fromSeq.mkString("\n") should equal(fromString)
       }
-   run(test)
+    run(test)
   }
 
   it should "print the same data as asString()" in {
