@@ -1,5 +1,3 @@
-package sbtproject
-
 // format: off
 
 object Compiler {

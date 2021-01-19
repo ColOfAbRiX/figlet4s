@@ -1,5 +1,3 @@
-package sbtproject
-
 import sbt._
 
 /**

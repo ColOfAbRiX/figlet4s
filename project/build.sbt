@@ -1,10 +1,7 @@
 import sbt._
-import sbtproject.CodeQualityDependencies._
-import sbtproject.Dependencies._
-import sbtproject.PublishDependencies._
-
-// SBT Sources
-Compile / scalaSource := baseDirectory.value / "src/main/scala"
+import CodeQualityDependencies._
+import Dependencies._
+import PublishDependencies._
 
 // SBT Scala version
 scalaVersion := "2.12.12"

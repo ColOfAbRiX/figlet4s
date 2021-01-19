@@ -1,8 +1,7 @@
 import sbt._
-import sbtproject._
-import sbtproject.Dependencies._
-import sbtproject.TestDependencies._
-import sbtproject.utils._
+import Dependencies._
+import TestDependencies._
+import utils._
 import xerial.sbt.Sonatype._
 
 // General
