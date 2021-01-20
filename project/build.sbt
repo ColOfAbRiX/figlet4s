@@ -1,6 +1,6 @@
 import sbt._
 import CodeQualityDependencies._
-import Dependencies._
+import Plugins._
 import PublishDependencies._
 
 // SBT Scala version

@@ -97,12 +97,24 @@ val commonSettings: Seq[Def.Setting[_]] = Seq(
 lazy val figlet4s: Project = project
   .in(file("."))
   .aggregate(figlet4sCore, figlet4sEffects, figlet4sJava)
-  .enablePlugins(ScalaUnidocPlugin)
+  .enablePlugins(MicrositesPlugin, ScalaUnidocPlugin)
   .settings(
-    name                                       := "figlet4s",
-    crossScalaVersions                         := Nil,
-    publish / skip                             := true,
+    name               := "figlet4s",
+    crossScalaVersions := Nil,
+    publish / skip     := true,
+    onLoadMessage :=
+      """   _____ _       _      _   _  _
+        |  |  ___(_) __ _| | ___| |_| || |  ___
+        |  | |_  | |/ _` | |/ _ \ __| || |_/ __|
+        |  |  _| | | (_| | |  __/ |_|__   _\__ \
+        |  |_|   |_|\__, |_|\___|\__|  |_| |___/
+        |           |___/
+        |Welcome to the build for Figlet4s.
+        |""".stripMargin,
     ScalaUnidoc / unidoc / unidocProjectFilter := inAnyProject -- inProjects(figlet4sJava),
+    mdocVariables := Map(
+      "VERSION" -> version.value,
+    ),
   )
 
 // Figlet4s Core project
@@ -171,7 +183,6 @@ lazy val figlet4sBenchmarks: Project = project
     Test / logBuffered       := false,
     resolvers               ++= SonatypeRepos,
     testFrameworks           += new TestFramework("org.scalameter.ScalaMeterFramework"),
-    resolvers += Resolver.mavenLocal,
     libraryDependencies ++= Seq(
       CatsCoreDep,
       ScalameterDep,
