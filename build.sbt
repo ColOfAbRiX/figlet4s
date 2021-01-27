@@ -12,6 +12,7 @@ ThisBuild / scalaVersion      := ScalaLangVersion
 
 // Project information
 ThisBuild / name                 := "figlet4s"
+ThisBuild / startYear            := Some(2020)
 ThisBuild / homepage             := Some(url("https://github.com/ColOfAbRiX/figlet4s"))
 ThisBuild / organization         := "com.colofabrix.scala"
 ThisBuild / organizationName     := "ColOfAbRiX"
@@ -39,15 +40,14 @@ ThisBuild / publishTo := Some(
 ThisBuild / dynverSonatypeSnapshots := true
 
 // Scalafix
-ThisBuild / scalafixDependencies       += "com.github.liancheng" %% "organize-imports" % "0.4.3"
+ThisBuild / scalafixDependencies       += "com.github.liancheng" %% "organize-imports" % "0.4.4"
 ThisBuild / scalafixScalaBinaryVersion := CrossVersion.binaryScalaVersion(scalaVersion.value)
 ThisBuild / semanticdbEnabled          := true
 ThisBuild / semanticdbVersion          := scalafixSemanticdb.revision
 
-lazy val styleApply = taskKey[Unit]("Formatting and code styling cheks")
+addCommandAlias("styleApply", "; scalafmtAll; scalafixAll \"\"")
 
 val commonSettings: Seq[Def.Setting[_]] = Seq(
-  styleApply := Def.sequential(Def.taskDyn(scalafmtAll), Def.taskDyn(scalafixAll.toTask(""))).value,
   // Testing
   Test / testOptions += Tests.Argument("-oFD"),
   // Compiler options
@@ -97,24 +97,23 @@ val commonSettings: Seq[Def.Setting[_]] = Seq(
 lazy val figlet4s: Project = project
   .in(file("."))
   .aggregate(figlet4sCore, figlet4sEffects, figlet4sJava)
-  .enablePlugins(MicrositesPlugin, ScalaUnidocPlugin)
+  .enablePlugins(ScalaUnidocPlugin)
   .settings(
     name               := "figlet4s",
     crossScalaVersions := Nil,
     publish / skip     := true,
     onLoadMessage :=
-      """   _____ _       _      _   _  _
-        |  |  ___(_) __ _| | ___| |_| || |  ___
-        |  | |_  | |/ _` | |/ _ \ __| || |_/ __|
-        |  |  _| | | (_| | |  __/ |_|__   _\__ \
-        |  |_|   |_|\__, |_|\___|\__|  |_| |___/
-        |           |___/
-        |Welcome to the build for Figlet4s.
+      """
+        |    _____ _       _      _   _  _
+        |   |  ___(_) __ _| | ___| |_| || |  ___
+        |   | |_  | |/ _` | |/ _ \ __| || |_/ __|
+        |   |  _| | | (_| | |  __/ |_|__   _\__ \
+        |   |_|   |_|\__, |_|\___|\__|  |_| |___/
+        |            |___/
+        |     Welcome to the build for Figlet4s
+        |
         |""".stripMargin,
     ScalaUnidoc / unidoc / unidocProjectFilter := inAnyProject -- inProjects(figlet4sJava),
-    mdocVariables := Map(
-      "VERSION" -> version.value,
-    ),
   )
 
 // Figlet4s Core project
@@ -168,6 +167,27 @@ lazy val figlet4sJava: Project = project
       ScalaTestFlatSpecDep,
       ScalaTestShouldMatchersDep,
     ),
+  )
+
+lazy val figlet4sMicrosite = project
+  .in(file("figlet4s-microsite"))
+  .enablePlugins(MicrositesPlugin)
+  .settings(
+    name                      := "figlet4s-microsite",
+    publish / skip            := true,
+    micrositeName             := "Figlet4s",
+    micrositeDescription      := "ASCII-art banners, in Scala",
+    micrositeAuthor           := "com.colofabrix.scala",
+    // micrositeHomepage         := "https://colofabrix.github.io/",
+    // micrositeDocumentationUrl := "figlet4s/docs/",
+    micrositeDocumentationUrl := "docs",
+    micrositeGithubOwner      := "ColOfAbRiX",
+    micrositeGithubRepo       := "figlet4s",
+    micrositeGithubToken      := sys.env.get("GITHUB_TOKEN"),
+    micrositeGitterChannel    := false,
+    micrositeTheme            := "pattern",
+    micrositeHighlightTheme   := "atom-one-dark", // https://highlightjs.org/static/demo/
+    mdocVariables             := Map("VERSION" -> version.value),
   )
 
 // Figlet4s Benchmarks project

@@ -1,0 +1,21 @@
+options:
+  - title: Introduction
+    url: docs/
+
+  - title: Setup
+    url: docs/setup/
+
+  - title: Getting Started
+    url: docs/getting-started/
+
+  - title: Using Java
+    url: docs/using-java/
+
+  - title: Advanced usage
+    url: docs/advanced-usage/
+
+  - title: Glossary
+    url: docs/glossary/
+
+  - title: FIGfonts Reference
+    url: docs/figfont-reference/

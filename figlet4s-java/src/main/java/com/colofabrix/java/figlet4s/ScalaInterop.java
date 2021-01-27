@@ -1,7 +1,6 @@
 package com.colofabrix.java.figlet4s;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import scala.collection.immutable.Seq;
