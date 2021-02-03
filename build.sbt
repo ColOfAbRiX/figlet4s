@@ -185,7 +185,6 @@ lazy val figlet4sMicrosite = project
     micrositeGithubRepo       := "figlet4s",
     micrositeGithubToken      := sys.env.get("GITHUB_TOKEN"),
     micrositeGitterChannel    := false,
-    micrositeTheme            := "pattern",
     micrositeHighlightTheme   := "atom-one-dark", // https://highlightjs.org/static/demo/
     mdocVariables             := Map("VERSION" -> version.value),
   )

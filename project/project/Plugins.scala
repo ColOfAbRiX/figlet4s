@@ -6,7 +6,7 @@ import sbt._
 object Plugins {
 
   lazy val ErrorsSummaryVersion = "0.6.3"
-  lazy val MicrositesVersion    = "1.1.5"
+  lazy val MicrositesVersion    = "1.3.1"
   lazy val SbtStatsVersion      = "1.0.7"
   lazy val UnidocVersion        = "0.4.3"
   lazy val UpdatesVersion       = "0.5.1"
