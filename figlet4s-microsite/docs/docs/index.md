@@ -18,7 +18,7 @@ But what is Figlet?
 > -- _Wikipedia_
 
 Try out [Figlet4s on Scastie](https://scastie.scala-lang.org/PACf1v7ZSlGSVQkkBef0Mg) or jump to the
-[Getting started](getting-started/) section.
+[Getting started](../../docs/using-figlet4s/) section.
 
 ## What can I use Figlet4s for?
 
@@ -35,7 +35,11 @@ Some example applications are:
 
 ## API Documentation
 
-The API documentation can be found [here]( https://oss.sonatype.org/service/local/repositories/releases/archive/com/colofabrix/scala/figlet4s-core_2.13/@VERSION@/figlet4s-core_2.13-@VERSION@-javadoc.jar/!/com/colofabrix/scala/figlet4s/unsafe/index.html).
+The API documentation can be found at the following links:
+
+* [Core library](https://oss.sonatype.org/service/local/repositories/releases/archive/com/colofabrix/scala/figlet4s-core_2.13/@VERSION@/figlet4s-core_2.13-@VERSION@-javadoc.jar/!/com/colofabrix/scala/figlet4s/unsafe/index.html)
+* [Effects support library](https://oss.sonatype.org/service/local/repositories/releases/archive/com/colofabrix/scala/figlet4s-effects_2.13/@VERSION@/figlet4s-effects_2.13-@VERSION@-javadoc.jar/!/com/colofabrix/scala/figlet4s/index.html)
+* [Java wrapper library](https://oss.sonatype.org/service/local/repositories/releases/archive/com/colofabrix/scala/figlet4s-java/@VERSION@/figlet4s-java-@VERSION@-javadoc.jar/!/overview-summary.html)
 
 ## License
 

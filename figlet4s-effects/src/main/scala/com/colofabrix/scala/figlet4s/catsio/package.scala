@@ -32,14 +32,14 @@ import com.colofabrix.scala.figlet4s.errors._
  * val result =
  *   for {
  *     // Load a font, choose the layout and max width
- *     font <- Figlet4s.loadFontInternal("alligator")
- *     maxWidth       = 120
- *     layout         = HorizontalLayout.HorizontalFitting
- *     printDirection = PrintDirection.LeftToRight
+ *     font     <- Figlet4s.loadFontInternal("alligator")
+ *     maxWidth  = 120
+ *     layout    = HorizontalLayout.HorizontalFitting
+ *     printDir  = PrintDirection.LeftToRight
  *     // Build the render options
- *     options = RenderOptions(font, maxWidth, layout, printDirection)
+ *     options   = RenderOptions(font, maxWidth, layout, printDir)
  *     // Render the string into a FIGure
- *     figure <- Figlet4s.renderStringF("Hello, World!", options)
+ *     figure   <- Figlet4s.renderStringF("Hello, World!", options)
  *   } yield figure
  *
  * // Interpreting the result

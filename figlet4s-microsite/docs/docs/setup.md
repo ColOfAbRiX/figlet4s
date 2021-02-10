@@ -16,8 +16,8 @@ When using SBT, add the following line to your build file:
 libraryDependencies += "com.colofabrix.scala" %% "figlet4s-core" % "@VERSION@"
 ```
 
-If you want support for effects (see [below](advanced.md#using-effects)) you also have to include a
-second package:
+If you want support for effects (see the section [Using
+effects](../../docs/advanced-usage/#using-effects)) you also have to include a second package:
 
 ```scala
 // Effects extension package
@@ -30,6 +30,16 @@ If you want to use Figlet4s in a pure Java project you can import the Java packa
 // Note that this line uses only a single `%` between the group id and the artifact id.
 libraryDependencies += "com.colofabrix.scala" % "figlet4s-java" % "@VERSION@"
 ```
+
+## Ammonite
+
+If you want to play with Figlet4s on Ammonite, use the following import inside the Ammonite REPL:
+
+```scala
+import $ivy.`com.colofabrix::figlet4s-core:@VERSION@`
+```
+
+or add that same line inside Ammonite's user file `~/.ammonite/predef.sc`
 
 ## Maven for Java
 

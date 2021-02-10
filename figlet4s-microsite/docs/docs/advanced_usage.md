@@ -51,6 +51,18 @@ effects supports:
 that can be used by importing the corresponding package. The effectful API have exactly the same
 signature as their unsafe version, but the result is wrapped inside the effect monad.
 
+When using the effect library extention, new methods will be available that return a monadic result
+and that are postfixed by a capital f `F`. For example you'll be able to use two methods to create
+a builder:
+
+```scala
+// Standard version
+def builder(text: String): OptionsBuilder
+
+// Monadic version
+def builderF(text: String): F[OptionsBuilder]
+```
+
 ### Example using Cats IO
 
 ```scala

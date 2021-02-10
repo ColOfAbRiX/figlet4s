@@ -5,8 +5,8 @@ options:
   - title: Setup
     url: docs/setup/
 
-  - title: Getting Started
-    url: docs/getting-started/
+  - title: Using Figlet4s
+    url: docs/using-figlet4s/
 
   - title: Using Java
     url: docs/using-java/

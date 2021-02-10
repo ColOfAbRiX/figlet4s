@@ -8,7 +8,7 @@
 |  ___(_) __ _| | ___| |_| || |  ___
 | |_  | |/ _` | |/ _ \ __| || |_/ __|
 |  _| | | (_| | |  __/ |_|__   _\__ \
-|_|   |_|\__, |_|\___|\__|  |_| |___/  Figlet, but in Scala
+|_|   |_|\__, |_|\___|\__|  |_| |___/  ASCII-art banners, in Scala
          |___/
 ```
 
@@ -172,7 +172,7 @@ object UsingFIGureMain extends App {
     .asSeq()
     .zipWithIndex
     .foreach { case (line, i) =>
-      if (i == 4) println(s"$line  Figlet, but in Scala")
+      if (i == 4) println(s"$line  ASCII-art banners, in Scala")
       else println(line)
     }
 
@@ -317,6 +317,16 @@ public class Main {
     }
 }
 ```
+
+## Missing features
+
+Some features of figlet are not yet implemented. These are:
+
+* Print direction (right-to-left flushing)
+* Justification (align-right and center)
+* Vertical alignment
+* Use of control files .flc
+* Support for zipped fonts
 
 ## Glossary of Figlet4s terms
 

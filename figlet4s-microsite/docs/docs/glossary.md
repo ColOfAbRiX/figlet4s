@@ -6,7 +6,7 @@ permalink: docs/glossary
 # Figlet Glossary
 
 Figlet4s defines several concepts that broadly correspond to the ones defined in the [The FIGfont
-Version 2 FIGfont and FIGdriver Standard](figfont-reference/) but in this library they
+Version 2 FIGfont and FIGdriver Standard](../../docs/figfont-reference/) but in this library they
 might assume a more specific meaning.
 
 ##### FIGfont
