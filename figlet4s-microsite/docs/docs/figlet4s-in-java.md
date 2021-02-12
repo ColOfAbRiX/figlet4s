@@ -1,9 +1,8 @@
 ---
 layout: docs
-title: Using Java
-permalink: docs/using-java
+title: Figlet4s in Java
 ---
-# Using Java
+# Figlet4s in Java
 
 If you want to use Figlet4s on Java you can benefit from the thin wrapper developed for this purpose
 and bundled in the `figlet4s-java` library. Using a Scala library from Java is very simple and
@@ -11,7 +10,7 @@ almost pain-free but there is still some manual conversion you have to do, espec
 collections, and some details you need to know like how to call a Scala `object` or extension
 methods. `figlet4s-java` does the tricky bits for you.
 
-Make sure you include in your project the correct dependencies (see the [Setup](setup.md#maven-for-java)
+Make sure you include in your project the correct dependencies (see the [Setup](setup.html#maven-for-java)
 for details).
 
 ## Examples

@@ -1,7 +1,6 @@
 ---
 layout: docs
 title: Getting started
-permalink: docs/using-figlet4s
 ---
 # Using Figlet4s
 

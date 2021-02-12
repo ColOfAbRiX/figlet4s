@@ -173,20 +173,23 @@ lazy val figlet4sMicrosite = project
   .in(file("figlet4s-microsite"))
   .enablePlugins(MicrositesPlugin)
   .settings(
-    name                 := "figlet4s-microsite",
-    publish / skip       := true,
-    micrositeName        := "Figlet4s",
-    micrositeDescription := "ASCII-art banners, in Scala",
-    micrositeAuthor      := "ColOfAbRiX",
-    micrositeHomepage         := "https://colofabrix.github.io/",
-    micrositeDocumentationUrl := "figlet4s/docs/",
-    micrositeDocumentationUrl := "docs",
-    micrositeGithubOwner      := "ColOfAbRiX",
-    micrositeGithubRepo       := "figlet4s",
-    micrositeGithubToken      := sys.env.get("GITHUB_TOKEN"),
-    micrositeGitterChannel    := false,
-    micrositeHighlightTheme   := "atom-one-dark", // https://highlightjs.org/static/demo/
-    mdocVariables             := Map("VERSION" -> """\d+\.\d+\.\d""".r.findFirstIn(version.value).getOrElse("Unreleased")),
+    name                         := "figlet4s-microsite",
+    publish / skip               := true,
+    micrositeAuthor              := "ColOfAbRiX",
+    micrositeBaseUrl             := "figlet4s",
+    micrositeDescription         := "ASCII-art banners, in Scala",
+    micrositeDocumentationUrl    := "docs/",
+    micrositeGithubOwner         := "ColOfAbRiX",
+    micrositeGithubRepo          := "figlet4s",
+    micrositeGithubToken         := sys.env.get("GITHUB_TOKEN"),
+    micrositeGitterChannel       := false,
+    micrositeHighlightLanguages ++= Seq("xml"),
+    micrositeHighlightTheme      := "atom-one-dark", // https://highlightjs.org/static/demo/
+    micrositeHomepage            := "https://colofabrix.github.io/",
+    micrositeName                := "Figlet4s",
+    micrositePushSiteWith        := GitHub4s,
+    mdocVariables                := Map("VERSION" -> """\d+\.\d+\.\d""".r.findFirstIn(version.value).getOrElse("")),
+    mdocExtraArguments           := Seq("--no-link-hygiene"),
   )
 
 // Figlet4s Benchmarks project

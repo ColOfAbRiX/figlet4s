@@ -1,7 +1,6 @@
 ---
 layout: docs
 title: Setup
-permalink: docs/setup
 ---
 # Setup
 
@@ -17,7 +16,7 @@ libraryDependencies += "com.colofabrix.scala" %% "figlet4s-core" % "@VERSION@"
 ```
 
 If you want support for effects (see the section [Using
-effects](../../docs/advanced-usage/#using-effects)) you also have to include a second package:
+effects](advanced-usage.html#using-effects)) you also have to include a second package:
 
 ```scala
 // Effects extension package

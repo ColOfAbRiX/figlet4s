@@ -1,21 +1,21 @@
 options:
   - title: Introduction
-    url: docs/
+    url: docs/index.html
 
   - title: Setup
-    url: docs/setup/
+    url: docs/setup.html
 
   - title: Using Figlet4s
-    url: docs/using-figlet4s/
+    url: docs/using-figlet4s.html
 
-  - title: Using Java
-    url: docs/using-java/
+  - title: Figlet4s in Java
+    url: docs/figlet4s-in-java.html
 
   - title: Advanced usage
-    url: docs/advanced-usage/
+    url: docs/advanced-usage.html
 
   - title: Glossary
-    url: docs/glossary/
+    url: docs/glossary.html
 
   - title: FIGfonts Reference
-    url: docs/figfont-reference/
+    url: docs/figfont-reference.html

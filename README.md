@@ -26,7 +26,7 @@ But what is Figlet?
 >
 > -- _Wikipedia_
 
-Try out [Figlet4s on Scastie](https://scastie.scala-lang.org/PACf1v7ZSlGSVQkkBef0Mg) or jump to the
+Try out [Figlet4s on Scastie](https://scastie.scala-lang.org/9YY836k5SHmcrqeiNdL0pw) or jump to the
 [Quick Start](#quick-start)
 
 ## What can I use Figlet4s for?
