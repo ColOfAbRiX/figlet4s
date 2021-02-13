@@ -4,22 +4,23 @@ title: Getting started
 ---
 # Using Figlet4s
 
-These examples show step-by-step how to use Figlet4s. This is the basic scenario where we assume
-users don't want to use or don't want to deal with effects, and we want errors to be thrown as
+These examples show step-by-step how to use Figlet4s. This is a basic scenario where we assume the
+users don't want to use or deal with effects, and it's acceptable that errors are thrown as
 exceptions.
 
 The general way to use Figlet4s involves 3 steps:
 
-* first obtain a builder to set the options;
-* then configure the options of the builder, if needed;
-* last render a text into a FIGure
+1. Obtain a builder to set the options.
+2. Configure the options of the builder, if needed.
+3. Render a text into a `FIGure`
 
-Once you have a FIGure you can do further processing like printing it or converting it to a string.
+A `FIGure` is the object that hold the rendered text. Once you have a `FIGure` you can do further
+processing like printing it or converting it to a string.
 
 ```scala
 import com.colofabrix.scala.figlet4s.unsafe._
 
-object QuickStartMain extends App {
+object Main extends App {
 
   // 1. Obtain an options builder
   val builder = Figlet4s.builder()
@@ -44,7 +45,7 @@ the calls, without storing objects at each step.
 import com.colofabrix.scala.figlet4s.unsafe._
 import com.colofabrix.scala.figlet4s.options._
 
-object ShowcaseOptionsMain extends App {
+object Main extends App {
 
   Figlet4s
     .builder("Hello, World!")      // 1. Create the options builder with a text to render
@@ -60,11 +61,10 @@ object ShowcaseOptionsMain extends App {
 
 }
 ```
-
 ## Playing with the FIGure
 
 When the FIGure has been rendered you can play with it. We've seen how to print it to screen, but
-you  can also obtain the displayable lines (SubLines) that compose the FIGure as a collection and
+you  can also obtain the displayable lines `SubLines`, that compose the FIGure as a collection and
 then you can manipulate it.
 
 The logo of Figlet4s has been created with this code:
@@ -72,7 +72,7 @@ The logo of Figlet4s has been created with this code:
 ```scala
 import com.colofabrix.scala.figlet4s.unsafe._
 
-object UsingFIGureMain extends App {
+object Main extends App {
 
   Figlet4s
     .builder("Figlet4s")
@@ -138,7 +138,7 @@ object Main extends App {
 
 Result:
 
-```
+```plaintext
   _   _          _   _                __        __                 _       _   _
  | | | |   ___  | | | |   ___         \ \      / /   ___    _ __  | |   __| | | |
  | |_| |  / _ \ | | | |  / _ \         \ \ /\ / /   / _ \  | '__| | |  / _` | | |
@@ -171,7 +171,7 @@ object Main extends App {
 
 Result:
 
-```
+```plaintext
  _   _        _  _           __        __            _      _  _
 | | | |  ___ | || |  ___     \ \      / /___   _ __ | |  __| || |
 | |_| | / _ \| || | / _ \     \ \ /\ / // _ \ | '__|| | / _` || |
@@ -206,7 +206,7 @@ object Main extends App {
 
 Result:
 
-```
+```plaintext
  _   _      _ _         __        __         _     _ _
 | | | | ___| | | ___    \ \      / /__  _ __| | __| | |
 | |_| |/ _ \ | |/ _ \    \ \ /\ / / _ \| '__| |/ _` | |

@@ -1,7 +1,6 @@
 ---
 layout: docs
 title: Intro
-permalink: docs/
 ---
 # Introduction
 
@@ -35,11 +34,22 @@ Some example applications are:
 
 ## API Documentation
 
-The API documentation can be found at the following links:
+You can find the API documentation at the following links:
 
-* [Core library](https://oss.sonatype.org/service/local/repositories/releases/archive/com/colofabrix/scala/figlet4s-core_2.13/@VERSION@/figlet4s-core_2.13-@VERSION@-javadoc.jar/!/com/colofabrix/scala/figlet4s/unsafe/index.html)
-* [Effects support library](https://oss.sonatype.org/service/local/repositories/releases/archive/com/colofabrix/scala/figlet4s-effects_2.13/@VERSION@/figlet4s-effects_2.13-@VERSION@-javadoc.jar/!/com/colofabrix/scala/figlet4s/index.html)
+* [Core library](https://oss.sonatype.org/service/local/repositories/releases/archive/com/colofabrix/scala/figlet4s-core_@SCALA_VERSION@/@VERSION@/figlet4s-core_@SCALA_VERSION@-@VERSION@-javadoc.jar/!/com/colofabrix/scala/figlet4s/unsafe/index.html)
+* [Effects support library](https://oss.sonatype.org/service/local/repositories/releases/archive/com/colofabrix/scala/figlet4s-effects_@SCALA_VERSION@/@VERSION@/figlet4s-effects_@SCALA_VERSION@-@VERSION@-javadoc.jar/!/com/colofabrix/scala/figlet4s/index.html)
 * [Java wrapper library](https://oss.sonatype.org/service/local/repositories/releases/archive/com/colofabrix/scala/figlet4s-java/@VERSION@/figlet4s-java-@VERSION@-javadoc.jar/!/overview-summary.html)
+
+## Missing features
+
+Figlet4s doesn't implement all figlet features yet, although they are in the plan. The following
+are the missing features:
+
+* Print direction
+* Justification
+* Vertical alignment
+* Loading of zipped fonts
+* Control files
 
 ## License
 

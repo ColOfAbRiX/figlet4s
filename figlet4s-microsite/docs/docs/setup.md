@@ -16,7 +16,7 @@ libraryDependencies += "com.colofabrix.scala" %% "figlet4s-core" % "@VERSION@"
 ```
 
 If you want support for effects (see the section [Using
-effects](advanced-usage.html#using-effects)) you also have to include a second package:
+effects](advanced-usage.html#using-effects)) you also need to include a second package:
 
 ```scala
 // Effects extension package
@@ -32,13 +32,13 @@ libraryDependencies += "com.colofabrix.scala" % "figlet4s-java" % "@VERSION@"
 
 ## Ammonite
 
-If you want to play with Figlet4s on Ammonite, use the following import inside the Ammonite REPL:
+To play with Figlet4s on [Ammonite](http://ammonite.io/), use the following import inside the
+Ammonite REPL or add that same line inside Ammonite's user file `~/.ammonite/predef.sc`:
 
 ```scala
-import $ivy.`com.colofabrix::figlet4s-core:@VERSION@`
+import $ivy.`com.colofabrix.scala::figlet4s-core:@VERSION@`
+import $ivy.`com.colofabrix.scala::figlet4s-effects:@VERSION@`
 ```
-
-or add that same line inside Ammonite's user file `~/.ammonite/predef.sc`
 
 ## Maven for Java
 

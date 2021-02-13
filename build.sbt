@@ -174,7 +174,8 @@ lazy val figlet4sMicrosite = project
   .enablePlugins(MicrositesPlugin)
   .settings(
     name                         := "figlet4s-microsite",
-    publish / skip               := true,
+    crossScalaVersions           := SupportedScalaLangVersion,
+    micrositeAnalyticsToken      := "",
     micrositeAuthor              := "ColOfAbRiX",
     micrositeBaseUrl             := "figlet4s",
     micrositeDescription         := "ASCII-art banners, in Scala",
@@ -183,13 +184,17 @@ lazy val figlet4sMicrosite = project
     micrositeGithubRepo          := "figlet4s",
     micrositeGithubToken         := sys.env.get("GITHUB_TOKEN"),
     micrositeGitterChannel       := false,
-    micrositeHighlightLanguages ++= Seq("xml"),
+    micrositeHighlightLanguages ++= Seq("xml", "plaintext"),
     micrositeHighlightTheme      := "atom-one-dark", // https://highlightjs.org/static/demo/
     micrositeHomepage            := "https://colofabrix.github.io/",
     micrositeName                := "Figlet4s",
     micrositePushSiteWith        := GitHub4s,
-    mdocVariables                := Map("VERSION" -> """\d+\.\d+\.\d""".r.findFirstIn(version.value).getOrElse("")),
     mdocExtraArguments           := Seq("--no-link-hygiene"),
+    publish / skip               := true,
+    mdocVariables := Map(
+      "VERSION"       -> """\d+\.\d+\.\d""".r.findFirstIn(version.value).getOrElse(""),
+      "SCALA_VERSION" -> """\d+\.\d+""".r.findFirstIn(scalaVersion.value).getOrElse(""),
+    ),
   )
 
 // Figlet4s Benchmarks project

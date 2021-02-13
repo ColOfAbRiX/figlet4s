@@ -1,9 +1,8 @@
 ---
 layout: docs
 title: FIGfonts Reference
-permalink: docs/figfont-reference
 ---
-```text
+```plaintext
         _____  ___  ____   __                _
        |  ___||_ _|/ ___| / _|  ___   _ __  | |_  ___  _
        | |_    | || |  _ | |_  / _ \ | '_ \ | __|/ __|(_)

@@ -1,4 +1,4 @@
-name: Build and publish te documentation microsite
+name: Build and publish the documentation microsite
 
 on:
   workflow_dispatch:
@@ -33,9 +33,6 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
-
-      - name: Test microsite
-        run: sbt "figlet4sMicrosite/makeMicrosite"
 
       - name: Publish microsite
         run: sbt "figlet4sMicrosite/publishMicrosite"
