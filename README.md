@@ -12,21 +12,11 @@
          |___/
 ```
 
-[https://colofabrix.github.io/figlet4s/](https://colofabrix.github.io/figlet4s/)
-
 # Figlet4s
 
-Figlet4s is a pure Scala, open source, library implementation of the ASCII-art program
+Figlet4s is a pure Scala and open source library implementation of the ASCII-art program
 [FIGlet](http://www.figlet.org/), with integrated fonts, minimal dependencies, extensive error
 reporting and support for effects including Cats `IO`. It also includes direct support for Java.
-
-But what is Figlet?
-
-> FIGlet is a computer program that generates text banners, in a variety of typefaces, composed of
-> letters made up of conglomerations of smaller ASCII characters (see ASCII art). The name derives
-> from "Frank, Ian and Glenn's letters".
->
-> -- _Wikipedia_
 
 Try out [Figlet4s on Scastie](https://scastie.scala-lang.org/9YY836k5SHmcrqeiNdL0pw) or jump to the
 [Quick Start](#quick-start)

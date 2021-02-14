@@ -1,4 +1,4 @@
-name: tests
+name: Build and tests the library
 
 on:
   workflow_dispatch:
@@ -16,8 +16,8 @@ on:
       - 'figlet4s-benchmarks/**'
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  test_library:
+    runs-on: ubuntu-20.04
 
     steps:
       - uses: actions/checkout@v2

@@ -173,9 +173,8 @@ lazy val figlet4sMicrosite = project
   .in(file("figlet4s-microsite"))
   .enablePlugins(MicrositesPlugin)
   .settings(
-    name                         := "figlet4s-microsite",
     crossScalaVersions           := SupportedScalaLangVersion,
-    micrositeAnalyticsToken      := "",
+    micrositeAnalyticsToken      := "UA-189728436-1",
     micrositeAuthor              := "ColOfAbRiX",
     micrositeBaseUrl             := "figlet4s",
     micrositeDescription         := "ASCII-art banners, in Scala",
@@ -189,6 +188,7 @@ lazy val figlet4sMicrosite = project
     micrositeHomepage            := "https://colofabrix.github.io/",
     micrositeName                := "Figlet4s",
     micrositePushSiteWith        := GitHub4s,
+    name                         := "figlet4s-microsite",
     mdocExtraArguments           := Seq("--no-link-hygiene"),
     publish / skip               := true,
     mdocVariables := Map(
@@ -206,6 +206,7 @@ lazy val figlet4sBenchmarks: Project = project
     description              := "Benchmarks for Figlet4s",
     publishArtifact          := false,
     logBuffered              := false,
+    publish / skip           := true,
     Test / parallelExecution := false,
     Test / logBuffered       := false,
     resolvers               ++= SonatypeRepos,

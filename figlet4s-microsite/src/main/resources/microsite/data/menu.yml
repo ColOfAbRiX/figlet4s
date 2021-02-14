@@ -8,11 +8,11 @@ options:
   - title: Using Figlet4s
     url: docs/using-figlet4s.html
 
-  - title: Figlet4s in Java
-    url: docs/figlet4s-in-java.html
-
   - title: Advanced usage
     url: docs/advanced-usage.html
+
+  - title: Figlet4s in Java
+    url: docs/figlet4s-in-java.html
 
   - title: Glossary
     url: docs/glossary.html

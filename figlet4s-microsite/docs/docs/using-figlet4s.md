@@ -14,7 +14,7 @@ The general way to use Figlet4s involves 3 steps:
 2. Configure the options of the builder, if needed.
 3. Render a text into a `FIGure`
 
-A `FIGure` is the object that hold the rendered text. Once you have a `FIGure` you can do further
+A `FIGure` is the object that holds the rendered text. Once you have a `FIGure` you can do further
 processing like printing it or converting it to a string.
 
 ```scala

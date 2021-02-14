@@ -13,7 +13,7 @@ final class Figlet4sUnsafeBenchmark extends FigletBenchmark {
   private val standardFont  = Figlet4s.loadFontInternal("standard")
 
   private val opts = Context(
-    exec.maxWarmupRuns -> 1,
+    exec.maxWarmupRuns      -> 1,
     exec.benchRuns          -> 1,
     exec.jvmflags           -> List("-Xms1G", "-Xmx1G"),
     exec.independentSamples -> 1,

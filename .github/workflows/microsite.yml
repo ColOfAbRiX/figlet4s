@@ -2,39 +2,38 @@ name: Build and publish the documentation microsite
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - master
-    paths:
-      - 'figlet4s-microsite/docs/**'
-  pull_request:
-    branches:
-      - master
-    paths:
-      - 'figlet4s-microsite/docs/**'
+  # push:
+  #   branches:
+  #     - master
+  #   paths:
+  #     - 'figlet4s-microsite/docs/**'
+  # pull_request:
+  #   branches:
+  #     - master
+  #   paths:
+  #     - 'figlet4s-microsite/docs/**'
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    env:
-      GEM_HOME: "$HOME/gems"
-      PATH: "$HOME/gems/bin:$PATH"
+  publish_microsite:
+    runs-on: ubuntu-20.04
 
     steps:
       - uses: actions/checkout@v2
 
-      - name: Install Jekyll prerequisites
-        run: sudo apt-get install -y ruby-full build-essential zlib1g-dev
+      # - name: Install Jekyll prerequisites
+      #   run: sudo apt-get install -y ruby-full build-essential zlib1g-dev
 
-      - name: Install Jekyll
-        run: sudo gem install jekyll -v 4
+      # - name: Install Jekyll
+      #   run: sudo gem install jekyll -v 4
 
-      - name: Set up JDK 1.8
-        uses: actions/setup-java@v1
-        with:
-          java-version: 1.8
+      # - name: Set up JDK 1.8
+      #   uses: actions/setup-java@v1
+      #   with:
+      #     java-version: 1.8
 
-      - name: Publish microsite
-        run: sbt "figlet4sMicrosite/publishMicrosite"
-        env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      # - name: Publish microsite
+      #   run: sbt "figlet4sMicrosite/publishMicrosite"
+      #   env:
+      #     GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      #     GEM_HOME: "$HOME/gems"
+      #     PATH: "$HOME/gems/bin:$PATH"
