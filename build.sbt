@@ -46,6 +46,7 @@ ThisBuild / semanticdbEnabled          := true
 ThisBuild / semanticdbVersion          := scalafixSemanticdb.revision
 
 addCommandAlias("styleApply", "; scalafmtAll; scalafixAll \"\"")
+addCommandAlias("styleCheck", "; scalafmtCheckAll; scalafixAll --check")
 
 val commonSettings: Seq[Def.Setting[_]] = Seq(
   // Testing

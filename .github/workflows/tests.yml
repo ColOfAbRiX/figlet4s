@@ -6,12 +6,14 @@ on:
     branches:
       - master
     paths-ignore:
+      - '*'
       - 'figlet4s-microsite/docs/**'
       - 'figlet4s-benchmarks/**'
   pull_request:
     branches:
       - master
     paths-ignore:
+      - '*'
       - 'figlet4s-microsite/docs/**'
       - 'figlet4s-benchmarks/**'
 
@@ -22,22 +24,14 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Set up JDK 1.8
-        uses: actions/setup-java@v1
-        with:
-          java-version: 1.8
-
       - name: Install Figlet
         run: sudo apt-get install -y figlet
 
       - name: Run tests on all versions
         run: sbt +test
 
-      - name: Try generate documentation
+      - name: Test API documentation
         run: sbt unidoc
 
-      - name: Test Scalafmt
-        run: sbt scalafmtCheckAll
-
-      - name: Test Scalafix
-        run: sbt "scalafixAll --check"
+      - name: Test styling
+        run: sbt styleCheck
