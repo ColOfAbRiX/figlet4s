@@ -3,6 +3,7 @@ package com.colofabrix.scala.figlet4s.either
 import scala.util._
 import com.colofabrix.scala.figlet4s._
 import com.colofabrix.scala.figlet4s.api._
+import com.colofabrix.scala.figlet4s.core._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options._
 

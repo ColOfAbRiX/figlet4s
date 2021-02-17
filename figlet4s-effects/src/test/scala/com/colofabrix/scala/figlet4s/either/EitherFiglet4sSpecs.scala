@@ -11,6 +11,7 @@ import com.colofabrix.scala.figlet4s.testutils.Figlet4sMatchers
 import org.scalatest.flatspec._
 import org.scalatest.matchers.should._
 import scala.concurrent._
+import com.colofabrix.scala.figlet4s.core.Figlet4sClient
 
 class EitherFiglet4sSpecs
     extends AnyFlatSpec

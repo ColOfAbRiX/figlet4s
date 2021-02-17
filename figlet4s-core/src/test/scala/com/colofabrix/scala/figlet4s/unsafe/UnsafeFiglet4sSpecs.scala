@@ -11,6 +11,7 @@ import org.scalatest.flatspec._
 import org.scalatest.matchers.should._
 import scala.concurrent.ExecutionContext
 import scala.util._
+import com.colofabrix.scala.figlet4s.core.Figlet4sClient
 
 class UnsafeFiglet4sSpecs extends AnyFlatSpec with Matchers with Figlet4sMatchers with OriginalFigletTesting {
 

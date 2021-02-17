@@ -1,16 +1,18 @@
-package com.colofabrix.scala.figlet4s
+package com.colofabrix.scala.figlet4s.core
 
+import java.io._
+import java.net._
+import java.nio.file.Paths
+import scala.io._
 import cats._
 import cats.effect._
 import cats.implicits._
+import com.colofabrix.scala.figlet4s.core.Resource._
+import com.colofabrix.scala.figlet4s.core.ZipFiles._
 import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options._
 import com.colofabrix.scala.figlet4s.rendering._
-import java.io._
-import java.net._
-import scala.io._
-import java.nio.file.Paths
 
 /**
  * Layer of API internal to figlet4s, used to have uniform and generic access to resources when implementing client APIs
@@ -109,17 +111,13 @@ private[figlet4s] object Figlet4sClient {
     }
 
   private def internalFontsFromJar[F[_]: Sync](resources: URI): F[List[String]] =
-    withResource(new java.util.zip.ZipInputStream(resources.toURL.openStream)) { zip =>
-      Sync[F].delay {
-        Iterator
-          .continually(zip.getNextEntry)
-          .takeWhile(Option(_).isDefined)
-          .map(zipEntry => new File(zipEntry.getName))
+    zipEntries(new java.util.zip.ZipInputStream(resources.toURL.openStream))
+      .map {
+        _.map(zipEntry => new File(zipEntry.getName))
           .withFilter(path => path.getPath.startsWith("fonts") && path.getName.endsWith(".flf"))
           .map(_.getName.replace(".flf", ""))
           .toList
       }
-    }
 
   private def fileDecoder[F[_]: Applicative](codec: Codec): F[Codec] =
     Applicative[F].pure {
@@ -137,30 +135,5 @@ private[figlet4s] object Figlet4sClient {
 
   private def sourceFromResource(fileName: String, codec: Codec): BufferedSource =
     Source.fromInputStream(this.getClass.getClassLoader.getResourceAsStream(fileName))(codec)
-
-  @SuppressWarnings(Array("org.wartremover.warts.All"))
-  private def withResource[F[_]: MonadThrowable, R <: AutoCloseable, A](resource: => R)(f: R => F[A]): F[A] = {
-    // I want to support Id as an effect for this library so that non-FP users can avoid dealing with monads. It's not
-    // possible to create a real Sync[Id] instance for Id because Id doesn't support a true suspension of effects.
-    // Here I implement a version of opening a resource with a built-in suspension for the acquisition with exception
-    // reporting in MonadError. See also: https://medium.com/@dkomanov/scala-try-with-resources-735baad0fd7d
-    var exception: Throwable = null
-    try {
-      f(resource)
-    } catch {
-      case e: Throwable =>
-        exception = e
-        MonadThrowable[F].raiseError[A](FigletLoadingError(e.getMessage, e))
-    } finally {
-      if (exception == null) resource.close()
-      else
-        try {
-          resource.close()
-        } catch {
-          case suppressed: Throwable =>
-            exception.addSuppressed(suppressed)
-        }
-    }
-  }
 
 }

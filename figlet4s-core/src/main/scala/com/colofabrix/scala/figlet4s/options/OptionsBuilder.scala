@@ -1,14 +1,14 @@
 package com.colofabrix.scala.figlet4s.options
 
+import cats.Applicative
 import cats.effect.Sync
 import cats.implicits._
-import com.colofabrix.scala.figlet4s.Figlet4sClient
+import com.colofabrix.scala.figlet4s.core._
 import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options.BuilderAction._
 import com.colofabrix.scala.figlet4s.options.OptionsBuilder._
 import scala.io.Codec
-import cats.Applicative
 
 /**
  * Builder of rendering options.
