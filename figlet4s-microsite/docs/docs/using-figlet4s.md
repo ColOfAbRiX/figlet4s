@@ -114,6 +114,8 @@ object Main extends App {
 
 ## Examples of Horizontal Layouts
 
+The horizontal layout is how figlet lays out each individual character.
+
 ### Full width layout
 
 The full width layout displays all FIGcharacters at their full width, which may be fixed or
