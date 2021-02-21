@@ -4,7 +4,7 @@ title: Advanced usage
 ---
 # Advanced usage
 
-## Using the Figlet4s client
+## Using the Figlet4s client directly
 
 If you need to have more fine-grained control on the operations, or you prefer to not use the option
 builder, you can call the API primitives yourself to fill the `RenderOptions` case class that is
@@ -96,7 +96,8 @@ object Main extends App {
       .builder("Error handling")
       .withInternalFont("does-not-exist") // This is safe and doesn't throw exceptions
 
-  val options = builder.options           // The builder is ran and exception thrown
+  // The builder is ran here and an exception is thrown
+  val options = builder.options
 
   // Exception: com.colofabrix.scala.figlet4s.errors$FigletLoadingError
 
@@ -142,12 +143,12 @@ object Main extends App {
 
   val result =
     for {
-      builder <- Figlet4s.builderF()             // 1. Obtain an options builder
-      figure  <- builder.render("Hello, World!") // 3. Render a text into a FIGure
-      lines   <- figure.asSeq()                  // Store the FIGure as lines in a variable
+      builder <- Figlet4s.builderF()
+      figure  <- builder.render("Hello, World!")
+      lines   <- figure.asSeq()
     } yield lines
 
-  // Interpreting the result
+  // Handle errors and display result
   result match {
     case Left(error)  => println(s"Error while working with FIGlet: $error")
     case Right(value) => value.foreach(println)
@@ -174,14 +175,15 @@ object Main extends IOApp {
   def run(args: List[String]): IO[ExitCode] = {
     val result =
       for {
-        builder <- Figlet4s.builderF()             // 1. Obtain an options builder
-        figure  <- builder.render("Hello, World!") // 3. Render a text into a FIGure
-        _       <- figure.print()                  // Do something with the FIGure
+        builder <- Figlet4s.builderF()
+        figure  <- builder.render("Hello, World!")
+        _       <- figure.print()
       } yield ExitCode.Success
 
       result.recover(handleError)
   }
 
+  // Handle errors
   def handleError: PartialFunction[Throwable, ExitCode] = {
     case error: Throwable =>
       println(s"Error while working with FIGlet: $error")

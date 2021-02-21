@@ -1,14 +1,11 @@
 package com.colofabrix.scala.figlet4s.core
 
 import java.io._
-import java.net._
 import java.nio.file.Paths
 import scala.io._
 import cats._
 import cats.effect._
 import cats.implicits._
-import com.colofabrix.scala.figlet4s.core.Resource._
-import com.colofabrix.scala.figlet4s.core.ZipFiles._
 import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options._
@@ -20,30 +17,51 @@ import com.colofabrix.scala.figlet4s.rendering._
 private[figlet4s] object Figlet4sClient {
 
   /**
+   * The name of the default internal font. This font is always guaranteed to be present.
+   */
+  val defaultFont: String = "standard"
+
+  /**
+   * The default value of the Max Width option
+   */
+  val defaultMaxWidth: Int = 80
+
+  /**
    * The list of available internal fonts
    *
    * @tparam F A higher-kinded type for which there is a [[cats.effect.Sync]] instance
    * @return The collection of names of FIGfonts shipped with this library
    */
-  def internalFonts[F[_]: Sync]: F[Seq[String]] = {
-    val resources =
-      getClass
-        .getProtectionDomain
-        .getCodeSource
-        .getLocation
-        .toURI
+  def internalFonts[F[_]: Sync]: F[Seq[String]] =
+    FontListing.listInternalFonts
 
-    val file = new File(resources)
+  /**
+   * Loads one of the internal FIGfont
+   *
+   * @tparam F A higher-kinded type for which there is a [[cats.effect.Sync]] instance
+   * @param name The name of the internal font to load, defaults to "standard"
+   * @return The FIGfont of the requested internal font
+   */
+  def loadFontInternal[F[_]: Sync](name: String): F[FigletResult[FIGfont]] =
+    for {
+      path    <- Sync[F].pure(Paths.get("fonts", s"$name.flf").toString)
+      decoder <- fileDecoder[F](Codec.ISO8859)
+      font    <- FontFileReader.readInternal(path, decoder)(interpretFigletFile[F](path))
+    } yield font
 
-    if (file.isDirectory)
-      internalFontsFromDirectory(resources).map(_.toSeq)
-    else if (file.getName.toLowerCase.endsWith(".jar"))
-      internalFontsFromJar(resources).map(_.toSeq)
-    else
-      Sync[F].raiseError {
-        FigletError("Could not determine the type of artifacts to open to find the fonts")
-      }
-  }
+  /**
+   * Loads a FIGfont from file
+   *
+   * @tparam F A higher-kinded type for which there is a [[cats.effect.Sync]] instance
+   * @param path  The path of the font file to load. It can be a .flf file or a zipped file.
+   * @param codec The encoding of the file if textual
+   * @return The FIGfont loaded from the specified path
+   */
+  def loadFont[F[_]: Sync](path: String, codec: Codec): F[FigletResult[FIGfont]] =
+    for {
+      decoder <- fileDecoder[F](codec)
+      font    <- FontFileReader.read(path, decoder)(interpretFigletFile[F](path))
+    } yield font
 
   /**
    * Renders a given text as a FIGure
@@ -58,66 +76,7 @@ private[figlet4s] object Figlet4sClient {
       Rendering.render(text, options)
     }
 
-  /**
-   * Loads one of the internal FIGfont
-   *
-   * @tparam F A higher-kinded type for which there is a [[cats.effect.Sync]] instance
-   * @param name The name of the internal font to load, defaults to "standard"
-   * @return The FIGfont of the requested internal font
-   */
-  def loadFontInternal[F[_]: Sync](name: String): F[FigletResult[FIGfont]] =
-    for {
-      path    <- Sync[F].pure(Paths.get("fonts", s"$name.flf").toString)
-      decoder <- fileDecoder[F](Codec.ISO8859)
-      font    <- withResource(sourceFromResource(path, decoder))(interpretFigletFile[F](path))
-    } yield font
-
-  /**
-   * Loads a FIGfont from file
-   *
-   * @tparam F A higher-kinded type for which there is a [[cats.effect.Sync]] instance
-   * @param path  The path of the font file to load. It can be a .flf file or a zipped file.
-   * @param codec The encoding of the file if textual
-   * @return The FIGfont loaded from the specified path
-   */
-  def loadFont[F[_]: Sync](path: String, codec: Codec): F[FigletResult[FIGfont]] =
-    for {
-      decoder <- fileDecoder[F](codec)
-      font    <- withResource(Source.fromFile(path)(decoder))(interpretFigletFile[F](path))
-    } yield font
-
-  /**
-   * The name of the default internal font. This font is always guaranteed to be present.
-   */
-  val defaultFont: String = "standard"
-
-  /**
-   * The default value of the Max Width option
-   */
-  val defaultMaxWidth: Int = 80
-
   //  Support  //
-
-  private def internalFontsFromDirectory[F[_]: Sync](resources: URI): F[List[String]] =
-    withResource(new BufferedReader(new InputStreamReader(resources.resolve("fonts").toURL.openStream()))) { reader =>
-      Sync[F].delay {
-        Iterator
-          .continually(reader.readLine)
-          .takeWhile(Option(_).isDefined)
-          .withFilter(path => path.endsWith(".flf"))
-          .map(_.replace(".flf", ""))
-          .toList
-      }
-    }
-
-  private def internalFontsFromJar[F[_]: Sync](resources: URI): F[List[String]] =
-    zipEntries(new java.util.zip.ZipInputStream(resources.toURL.openStream))
-      .map {
-        _.map(zipEntry => new File(zipEntry.getName))
-          .withFilter(path => path.getPath.startsWith("fonts") && path.getName.endsWith(".flf"))
-          .map(_.getName.replace(".flf", ""))
-          .toList
-      }
 
   private def fileDecoder[F[_]: Applicative](codec: Codec): F[Codec] =
     Applicative[F].pure {
@@ -127,13 +86,10 @@ private[figlet4s] object Figlet4sClient {
     }
 
   private def interpretFigletFile[F[_]: Sync](path: String)(source: BufferedSource): F[FigletResult[FIGfont]] =
-    Sync[F].pure {
+    Sync[F].delay {
       val name  = new File(path).getName.split('.').init.mkString("")
       val lines = source.getLines()
       FIGfont(name, lines)
     }
-
-  private def sourceFromResource(fileName: String, codec: Codec): BufferedSource =
-    Source.fromInputStream(this.getClass.getClassLoader.getResourceAsStream(fileName))(codec)
 
 }

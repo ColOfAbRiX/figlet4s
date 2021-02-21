@@ -1,6 +1,7 @@
 package com.colofabrix.scala.figlet4s
 
 import cats.data._
+import cats.effect._
 import cats.implicits._
 import cats.MonadError
 import scala.util._
@@ -15,8 +16,7 @@ object errors {
    *
    * @tparam F A higher-kinded type for which there is MonadError instance
    */
-  type MonadThrowable[F[_]] = MonadError[F, Throwable]
-  def MonadThrowable[F[_]: MonadThrowable]: MonadThrowable[F] = MonadError.apply[F, Throwable]
+  def MonadThrow[F[_]: MonadThrow]: MonadThrow[F] = MonadError.apply[F, Throwable]
 
   /**
    * The outcome of an operation that might result in one or more errors
