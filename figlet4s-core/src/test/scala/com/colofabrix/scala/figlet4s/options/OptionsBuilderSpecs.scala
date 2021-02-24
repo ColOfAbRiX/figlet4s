@@ -1,6 +1,5 @@
 package com.colofabrix.scala.figlet4s.options
 
-import com.colofabrix.scala.figlet4s._
 import com.colofabrix.scala.figlet4s.core.Figlet4sClient
 import com.colofabrix.scala.figlet4s.testutils._
 import com.colofabrix.scala.figlet4s.unsafe._
