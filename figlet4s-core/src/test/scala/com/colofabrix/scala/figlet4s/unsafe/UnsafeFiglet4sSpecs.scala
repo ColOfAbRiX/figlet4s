@@ -61,8 +61,8 @@ class UnsafeFiglet4sSpecs extends AnyFlatSpec with Matchers with Figlet4sMatcher
     val data = Figlet4s
       .internalFonts
       .toList
-      .take(10)
-      .flatMap(Seq.fill(10)(_))
+      .take(20)
+      .flatMap(Seq.fill(20)(_))
 
     val test = data.parTraverse { fontName =>
       IO(Figlet4s.loadFontInternal(fontName))
@@ -75,6 +75,30 @@ class UnsafeFiglet4sSpecs extends AnyFlatSpec with Matchers with Figlet4sMatcher
     assertThrows[FigletLoadingError] {
       Figlet4s.loadFontInternal("non_existent")
     }
+  }
+
+  it should "load a font file" in {
+    val fontPath = getClass.getResource("/raw.flf").getPath()
+    Figlet4s.loadFont(fontPath)
+  }
+
+  it should "load a zipped font file" in {
+    val fontPath = getClass.getResource("/compressed.flf").getPath()
+    Figlet4s.loadFont(fontPath)
+  }
+
+  it should "use the first added file in a zipped font file" in {
+    val fontPath = getClass.getResource("/multiple.flf").getPath()
+    val font = Figlet4s.loadFont(fontPath)
+    font.comment should include ("Standard by Glenn Chappell & Ian Chai")
+  }
+
+  it should "error on an empty zipped font file" in {
+    val fontPath = getClass.getResource("/empty.flf").getPath()
+    val caught = intercept[FigletLoadingError] {
+      Figlet4s.loadFont(fontPath)
+    }
+    caught.getMessage() shouldBe "Cannot read font file from ZIP"
   }
 
   //  Fonts  //

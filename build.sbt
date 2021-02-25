@@ -50,7 +50,7 @@ addCommandAlias("styleCheck", "; scalafmtCheckAll; scalafixAll --check")
 
 val commonSettings: Seq[Def.Setting[_]] = Seq(
   // Testing
-  // Test / testOptions += Tests.Argument("-oFD"),
+  Test / testOptions += Tests.Argument("-oFD"),
   // Compiler options
   scalacOptions := versioned(scalaVersion.value)(
     Compiler.Options_2_12 ++ Compiler.StrictOptions,
