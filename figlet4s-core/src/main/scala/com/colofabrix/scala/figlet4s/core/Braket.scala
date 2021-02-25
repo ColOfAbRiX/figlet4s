@@ -13,31 +13,32 @@ import com.colofabrix.scala.figlet4s.errors._
  * See: https://medium.com/@dkomanov/scala-try-with-resources-735baad0fd7d
  * See: https://stackoverflow.com/a/56089521/1215156
  */
-@SuppressWarnings(Array("org.wartremover.warts.All"))
 object Braket {
-
+  @SuppressWarnings(Array("org.wartremover.warts.Var"))
   def withResource[F[_]: MonadThrow, R <: AutoCloseable, A](resource: => R)(f: R => F[A]): F[A] = {
-    var e: Option[Throwable] = None
-    try {
-      f(resource)
-    }
-    catch {
-      case t: Throwable =>
-        val f = FigletLoadingError(t.getMessage, t)
-        e = Some(f)
-        MonadThrow[F].raiseError[A](f)
-    }
-    finally {
-      e.fold(resource.close()) { te =>
+    var exception: Option[Throwable] = None
+
+    val result =
+      try {
+        f(resource)
+      } catch {
+        case t: Throwable =>
+          val fle = FigletLoadingError(t.getMessage, t)
+          exception = Some(fle)
+          MonadThrow[F].raiseError[A](fle) // Discarded
+      } finally {
         try {
           resource.close()
-        }
-        catch {
+        } catch {
           case t: Throwable =>
-            te.addSuppressed(t)
+            exception match {
+              case Some(te) => te.addSuppressed(t)
+              case None     => exception = Some(t)
+            }
         }
       }
-    }
+
+    exception.fold(result)(MonadThrow[F].raiseError[A](_))
   }
 
 }

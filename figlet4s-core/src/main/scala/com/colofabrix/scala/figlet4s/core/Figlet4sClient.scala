@@ -88,8 +88,7 @@ private[figlet4s] object Figlet4sClient {
   private def interpretFigletFile[F[_]: Sync](path: String)(source: BufferedSource): F[FigletResult[FIGfont]] =
     Sync[F].delay {
       val name  = new File(path).getName.split('.').init.mkString("")
-      val lines = source.getLines()
-      FIGfont(name, lines)
+      FIGfont(name, source.getLines())
     }
 
 }
