@@ -14,7 +14,7 @@ private[figlet4s] object FontFileReader {
 
   def readInternal[F[_]: Sync, A](path: String, codec: Codec)(f: BufferedSource => F[A]): F[A] = {
     def is = Source.fromInputStream(this.getClass.getClassLoader.getResourceAsStream(path))(codec)
-    Braket.withResource(is)(f)
+    Braket.withResource(tapSource(is))(f)
   }
 
   //  Support  //
@@ -27,6 +27,13 @@ private[figlet4s] object FontFileReader {
         result <- f(Source.fromInputStream(stream)(codec))
       } yield result
     }
+
+  private def tapSource(bs: BufferedSource): BufferedSource = {
+    // This forces the BufferedSource to evaluate and to raise errors early on
+    val tester = bs.bufferedReader()
+    tester.mark(1)
+    bs
+  }
 
   private def readText[F[_]: Sync, R <: BufferedInputStream, A](is: BufferedInputStream): F[BufferedInputStream] =
     Sync[F].delay(is)

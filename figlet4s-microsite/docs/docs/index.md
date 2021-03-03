@@ -48,7 +48,6 @@ are the missing features:
 * Print direction
 * Justification
 * Vertical alignment
-* Loading of zipped fonts
 * Control files
 
 ## License

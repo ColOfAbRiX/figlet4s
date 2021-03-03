@@ -1,4 +1,4 @@
-name: Build and tests the library
+name: Build and test the library
 
 on:
   workflow_dispatch:

@@ -3,16 +3,19 @@ package com.colofabrix.scala.figlet4s.core
 import cats._
 import cats.effect._
 import cats.implicits._
+import cats.scalatest._
 import com.colofabrix.scala.figlet4s.errors._
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
+import org.scalatest.matchers.should._
 
-class BraketSpecs extends AnyFlatSpec with Matchers with MockFactory {
+class BraketSpecs extends AnyFlatSpec with Matchers with MockFactory with EitherMatchers with EitherValues {
 
   val expected: Int = 123
 
-  "Unsafe withResource" should "apply the function, close the resource and return the value" in {
+  //  Unsafe  //
+
+  "Unsafe withResource" should "apply the user function, close the resource and return the value" in {
     val mockResource = mock[AutoCloseable]
     (mockResource.close _)
       .expects()
@@ -27,7 +30,7 @@ class BraketSpecs extends AnyFlatSpec with Matchers with MockFactory {
     actual shouldBe expected
   }
 
-  it should "throw a FigletLoadingError when the function fails" in {
+  it should "throw a FigletLoadingError when the user function fails" in {
     val mockResource = mock[AutoCloseable]
     (mockResource.close _)
       .expects()
@@ -64,7 +67,7 @@ class BraketSpecs extends AnyFlatSpec with Matchers with MockFactory {
     actual.getMessage() shouldBe "close failure"
   }
 
-  it should "throw a FigletLoadingError when the function and the close() fail" in {
+  it should "throw a FigletLoadingError when the user function and the close() fail" in {
     val mockResource = mock[AutoCloseable]
     (mockResource.close _)
       .expects()
@@ -83,7 +86,83 @@ class BraketSpecs extends AnyFlatSpec with Matchers with MockFactory {
     actual.getSuppressed.map(_.getMessage()).mkString shouldBe "close failure"
   }
 
-  "Effectful withResource" should "apply the function, close the resource and return the value" in {
+  //  Either  //
+
+  "Either withResource" should "apply the user function, close the resource and return the value" in {
+    val mockResource = mock[AutoCloseable]
+    (mockResource.close _)
+      .expects()
+
+    val mockUserFunction = mockFunction[AutoCloseable, Either[Throwable, Int]]
+    mockUserFunction
+      .expects(mockResource)
+      .returning(Right(expected))
+
+    val actual = Braket.withResource(mockResource)(mockUserFunction)
+
+    actual should be(right)
+    actual.value shouldBe expected
+  }
+
+  it should "return a FigletLoadingError when the user function fails" in {
+    val mockResource = mock[AutoCloseable]
+    (mockResource.close _)
+      .expects()
+
+    val mockUserFunction = mockFunction[AutoCloseable, Either[Throwable, Int]]
+    mockUserFunction
+      .expects(mockResource)
+      .onCall { _: AutoCloseable =>
+        throw new RuntimeException("failure")
+      }
+
+    val actual = Braket.withResource(mockResource)(mockUserFunction)
+
+    actual should be(left)
+    actual.leftValue shouldBe a[FigletLoadingError]
+    actual.leftValue.getMessage() shouldBe "failure"
+  }
+
+  it should "return a RuntimeException when close() fails" in {
+    val mockResource = mock[AutoCloseable]
+    (mockResource.close _)
+      .expects()
+      .onCall(_ => throw new RuntimeException("close failure"))
+
+    val mockUserFunction = mockFunction[AutoCloseable, Either[Throwable, Int]]
+    mockUserFunction
+      .expects(mockResource)
+      .returning(Right(expected))
+
+    val actual = Braket.withResource(mockResource)(mockUserFunction)
+
+    actual should be(left)
+    actual.leftValue shouldBe a[RuntimeException]
+    actual.leftValue.getMessage() shouldBe "close failure"
+  }
+
+  it should "return a FigletLoadingError when the user function and the close() fail" in {
+    val mockResource = mock[AutoCloseable]
+    (mockResource.close _)
+      .expects()
+      .onCall(_ => throw new RuntimeException("close failure"))
+
+    val mockUserFunction = mockFunction[AutoCloseable, Either[Throwable, Int]]
+    mockUserFunction
+      .expects(mockResource)
+      .onCall { _: AutoCloseable => throw new RuntimeException("failure") }
+
+    val actual = Braket.withResource(mockResource)(mockUserFunction)
+
+    actual should be(left)
+    actual.leftValue shouldBe a[FigletLoadingError]
+    actual.leftValue.getMessage() shouldBe "failure"
+    actual.leftValue.getSuppressed.map(_.getMessage()).mkString shouldBe "close failure"
+  }
+
+  //  Cats IO  //
+
+  "IO withResource" should "apply the user function, close the resource and return the value" in {
     val mockResource = mock[AutoCloseable]
     (mockResource.close _)
       .expects()
@@ -101,7 +180,7 @@ class BraketSpecs extends AnyFlatSpec with Matchers with MockFactory {
     actual shouldBe expected
   }
 
-  it should "return a FigletLoadingError when the function fails" in {
+  it should "return a FigletLoadingError when the user function fails" in {
     val mockResource = mock[AutoCloseable]
     (mockResource.close _)
       .expects()
@@ -144,7 +223,7 @@ class BraketSpecs extends AnyFlatSpec with Matchers with MockFactory {
     actual.getMessage() shouldBe "close failure"
   }
 
-  it should "return a FigletLoadingError when the function and the close() fail" in {
+  it should "return a FigletLoadingError when the user function and the close() fail" in {
     val mockResource = mock[AutoCloseable]
     (mockResource.close _)
       .expects()

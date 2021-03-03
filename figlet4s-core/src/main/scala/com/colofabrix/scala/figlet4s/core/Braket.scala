@@ -14,13 +14,15 @@ import com.colofabrix.scala.figlet4s.errors._
  * See: https://stackoverflow.com/a/56089521/1215156
  */
 object Braket {
+
   @SuppressWarnings(Array("org.wartremover.warts.Var"))
   def withResource[F[_]: MonadThrow, R <: AutoCloseable, A](resource: => R)(f: R => F[A]): F[A] = {
     var exception: Option[Throwable] = None
 
     val result =
       try {
-        f(resource)
+        val r = resource
+        f(r)
       } catch {
         case t: Throwable =>
           val fle = FigletLoadingError(t.getMessage, t)

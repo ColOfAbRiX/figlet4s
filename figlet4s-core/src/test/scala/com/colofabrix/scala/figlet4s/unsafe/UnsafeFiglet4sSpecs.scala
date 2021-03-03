@@ -89,8 +89,8 @@ class UnsafeFiglet4sSpecs extends AnyFlatSpec with Matchers with Figlet4sMatcher
 
   it should "use the first added file in a zipped font file" in {
     val fontPath = getClass.getResource("/multiple.flf").getPath()
-    val font = Figlet4s.loadFont(fontPath)
-    font.comment should include ("Standard by Glenn Chappell & Ian Chai")
+    val font     = Figlet4s.loadFont(fontPath)
+    font.comment should include("Standard by Glenn Chappell & Ian Chai")
   }
 
   it should "error on an empty zipped font file" in {

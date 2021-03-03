@@ -14,7 +14,7 @@ package object core {
     def flatMap[A, B](fa: Id[A])(f: A => Id[B]): Id[B] =
       M.flatMap(fa)(f)
 
-    def tailRecM[A, B](a: A)(f: A => Id[Either[A,B]]): Id[B] =
+    def tailRecM[A, B](a: A)(f: A => Id[Either[A, B]]): Id[B] =
       M.tailRecM(a)(f)
 
     def raiseError[A](e: Throwable): Id[A] =
