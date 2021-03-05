@@ -15,6 +15,7 @@
 
 * Fixed path issues on different platforms
 * Fixed handling of resources (reading files)
+* Fixed inconsistent error reporting on file opening
 
 ## v0.2.0 - 2020/12/14
 
