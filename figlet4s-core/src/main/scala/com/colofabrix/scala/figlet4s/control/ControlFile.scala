@@ -1,7 +1,6 @@
 package com.colofabrix.scala.figlet4s.control
 
 import cats.implicits._
-import com.colofabrix.scala.figlet4s.control._
 import com.colofabrix.scala.figlet4s.control.ControlFileCommand._
 import com.colofabrix.scala.figlet4s.errors._
 
@@ -14,7 +13,6 @@ final case class ControlFile(
   extended: Seq[ControlFileCommand] = Vector.empty
 )
 
-@SuppressWarnings(Array("org.wartremover.warts.All"))
 object ControlFile {
 
   /**
@@ -55,10 +53,15 @@ object ControlFile {
   private def parseUnknownLine(line: String): FigletResult[Seq[ControlFileCommand]] =
     ???
 
-  private def appendCommands(state: ControlFile)(commands: Seq[ControlFileCommand]): FigletResult[ControlFile] = {
-    val updatedLast = state.sections.last ++ commands
-    state.copy(sections = state.sections.init :+ updatedLast).validNec
-  }
+  private def appendCommands(state: ControlFile)(commands: Seq[ControlFileCommand]): FigletResult[ControlFile] =
+    state
+      .sections
+      .lastOption
+      .map(_ ++ commands)
+      .map { updatedLast =>
+        state.copy(sections = state.sections.dropRight(1) :+ updatedLast).validNec
+      }
+      .getOrElse(state.validNec)
 
   private def addSection(state: ControlFile): FigletResult[ControlFile] =
     state.copy(sections = state.sections ++ Seq.empty).validNec
