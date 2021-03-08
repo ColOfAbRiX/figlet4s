@@ -6,6 +6,7 @@ import cats.implicits._
 import java.math.BigInteger
 import java.security.MessageDigest
 import scala.collection.immutable.BitSet
+import scala.util.matching.Regex
 
 private[figlet4s] object utils {
 
@@ -67,5 +68,12 @@ private[figlet4s] object utils {
       val bigInt = new BigInteger(1, digest)
       bigInt.toString(16)
     }
+  }
+
+  /**
+   * Enrichment methods for StringContext
+   */
+  implicit class RegexContext(sc: StringContext) {
+    def r = new Regex(sc.parts.mkString, sc.parts.drop(1).map(_ => "x"): _*)
   }
 }
