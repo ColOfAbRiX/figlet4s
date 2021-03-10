@@ -9,8 +9,8 @@ import com.colofabrix.scala.figlet4s.errors._
  * input characters into FIGfont character codes.
  */
 final case class ControlFile(
-  sections: Seq[Seq[ControlFileCommand]] = Vector.empty,
-  extended: Seq[ControlFileCommand] = Vector.empty
+    sections: Seq[Seq[ControlFileCommand]] = Vector.empty,
+    extended: Seq[ControlFileCommand] = Vector.empty,
 )
 
 object ControlFile {
@@ -66,7 +66,9 @@ object ControlFile {
   private def addSection(state: ControlFile): FigletResult[ControlFile] =
     state.copy(sections = state.sections ++ Seq.empty).validNec
 
-  private def appendExtendedCommand(state: ControlFile)(command: ExtendedControlFileCommand): FigletResult[ControlFile] =
+  private def appendExtendedCommand(state: ControlFile)(
+      command: ExtendedControlFileCommand,
+  ): FigletResult[ControlFile] =
     state.copy(extended = state.extended :+ command).validNec
 
 }
