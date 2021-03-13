@@ -9,12 +9,16 @@ import scala.io._
 
 private[figlet4s] object FontFileReader {
 
-  def read[F[_]: Sync, A](path: String, codec: Codec)(f: BufferedSource => F[A]): F[A] =
-    read(new BufferedInputStream(new FileInputStream(path)), codec)(f)
+  def read[F[_]: Sync, A](path: String, codec: Codec)(f: (File, BufferedSource) => F[A]): F[A] = {
+    def bs = new BufferedInputStream(new FileInputStream(path))
+    val file = new File(path)
+    read(bs, codec)(f(file, _))
+  }
 
-  def readInternal[F[_]: Sync, A](path: String, codec: Codec)(f: BufferedSource => F[A]): F[A] = {
+  def readInternal[F[_]: Sync, A](path: String, codec: Codec)(f: (File, BufferedSource) => F[A]): F[A] = {
     def is = Source.fromInputStream(this.getClass.getClassLoader.getResourceAsStream(path))(codec)
-    Braket.withResource(tapSource(is))(f)
+    val file = new File(this.getClass.getClassLoader.getResource(path).toURI())
+    Braket.withResource(tapSource(is))(f(file, _))
   }
 
   //  Support  //

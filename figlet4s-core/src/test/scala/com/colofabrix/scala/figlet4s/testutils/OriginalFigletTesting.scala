@@ -135,15 +135,8 @@ trait OriginalFigletTesting extends Notifying {
   private def figletWidth(options: RenderOptions, text: String): List[String] =
     List("-w", (options.font.header.maxLength * text.length()).toString)
 
-  private def figletFont(options: RenderOptions): List[String] = {
-    val fontFile =
-      Paths.get(
-        options.getClass.getProtectionDomain.getCodeSource.getLocation.getPath,
-        "fonts",
-        options.font.name + ".flf",
-      )
-    List("-f", fontFile.toAbsolutePath.toString)
-  }
+  private def figletFont(options: RenderOptions): List[String] =
+    List("-f", options.font.file.getAbsolutePath())
 
   private def figletHorizontalLayout(options: RenderOptions): List[String] =
     options.horizontalLayout match {

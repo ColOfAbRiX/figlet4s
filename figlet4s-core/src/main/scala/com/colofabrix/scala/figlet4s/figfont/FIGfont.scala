@@ -6,6 +6,7 @@ import com.colofabrix.scala.figlet4s.compat._
 import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
 import com.colofabrix.scala.figlet4s.utils._
+import java.io.File
 
 /**
  * A FIGlet Font is a map of characters to their FIGrepresentation and the typographic settings used to display them
@@ -23,6 +24,7 @@ import com.colofabrix.scala.figlet4s.utils._
 final case class FIGfont private[figlet4s] (
     id: String,
     name: String,
+    file: File,
     header: FIGheader,
     comment: String,
     settings: FIGfontSettings,
@@ -61,7 +63,7 @@ final case class FIGfont private[figlet4s] (
 object FIGfont {
   /** State to build a font that is filled while scanning input lines */
   final private case class FontBuilderState(
-      name: String,
+      file: File,
       header: Option[FIGheader] = None,
       commentLines: Vector[String] = Vector.empty,
       loadedNames: Set[Char] = Set.empty,
@@ -82,15 +84,15 @@ object FIGfont {
   /**
    * Creates a new FIGfont by parsing an input collection of lines representing an FLF file
    *
-   * @param name  The name of the FIGfont
+   * @param file  The file that contains the FIGfont
    * @param lines An Iterable that contains all the lines representing an FLF file that defines the FIGfont
    * @return A [[com.colofabrix.scala.figlet4s.errors.FigletResult FigletResult]] containing the new FIGfont or a list
    *         of errors occurred during the creation
    */
-  def apply(name: String, lines: Iterator[String]): FigletResult[FIGfont] =
+  def apply(file: File, lines: Iterator[String]): FigletResult[FIGfont] =
     lines
       .zipWithIndex
-      .foldLeft(FontBuilderState(name).validNec[FigletException]) {
+      .foldLeft(FontBuilderState(file).validNec[FigletException]) {
         case (i @ Invalid(_), _)           => i
         case (Valid(state), (line, index)) => processLine(state, line, index)
       }
@@ -124,7 +126,8 @@ object FIGfont {
 
     } else {
       val header          = fontState.header.get
-      val nameV           = fontState.name.validNec
+      val nameV           = fontState.file.getName.split('.').init.mkString("").validNec
+      val fileV           = fontState.file.validNec
       val hashV           = fontState.hash.validNec
       val commentV        = fontState.commentLines.mkString("\n").validNec
       val hLayoutV        = HorizontalLayout.fromHeader(header)
@@ -152,7 +155,7 @@ object FIGfont {
         }
         .map(_.map(c => c.name -> c).toMap)
 
-      (hashV, nameV, header.validNec, commentV, settingsV, charsV)
+      (hashV, nameV, fileV, header.validNec, commentV, settingsV, charsV)
         .mapN(FIGfont.apply)
     }
 

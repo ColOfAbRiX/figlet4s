@@ -3,11 +3,12 @@ package com.colofabrix.scala.figlet4s.figfont
 import cats.scalatest._
 import org.scalatest.flatspec._
 import org.scalatest.matchers.should._
+import java.io.File
 
 class FIGfontSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers with ValidatedValues {
 
   "FIGfont creation" should "succeed when data is valid" in new FontScope {
-    val computed = adaptError(FIGfont("test", font.allLines().iterator))
+    val computed = adaptError(FIGfont(  new File("test"), font.allLines().iterator))
     computed should be(valid)
   }
 
@@ -22,14 +23,14 @@ class FIGfontSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers with
 
   "The Input Iterator" should "fail if the data ends before the full file is read" in new FontScope {
     val iterator = font.allLines(false).take(150).iterator
-    val computed = adaptError(FIGfont("test", iterator))
+    val computed = adaptError(FIGfont(  new File("test"), iterator))
     computed should be(invalid)
     computed.invalidValue.head should startWith("FIGcharacterError - Missing definition for required FIGlet characters:")
   }
 
   it should "fail if a line of the Iterator is missing" in new FontScope {
     val iterator = font.allLines(false).zipWithIndex.filter { case (_, i) => i != 150 }.map(_._1).iterator
-    val computed = adaptError(FIGfont("test", iterator))
+    val computed = adaptError(FIGfont(  new File("test"), iterator))
     computed should haveInvalid("FIGcharacterError - Incomplete character definition at the end of the file")
   }
 
@@ -37,7 +38,7 @@ class FIGfontSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers with
 
   "Header validation" should "fail when the header is invalid" in new FontScope {
     val iterator = font.allLines(false).patch(0, Seq("adfadsa"), 1).iterator
-    val computed = adaptError(FIGfont("test", iterator))
+    val computed = adaptError(FIGfont(  new File("test"), iterator))
     computed should haveInvalid("FIGheaderError - Wrong number of parameters in FLF header. Found 1 parameters")
   }
 
@@ -45,7 +46,7 @@ class FIGfontSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers with
 
   "Comments validation" should "fail if the lines of comments are incorrect" in new FontScope {
     val iterator = font.copy(comment = "asdfad").allLines(false).iterator
-    val computed = adaptError(FIGfont("test", iterator))
+    val computed = adaptError(FIGfont(  new File("test"), iterator))
     computed should haveInvalid("FIGcharacterError - Incomplete character definition at the end of the file")
   }
 
@@ -56,7 +57,7 @@ class FIGfontSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers with
       .flatMapChars(false) { (char, i) =>
         if (i == 1) Vector.empty else Vector(char)
       }.iterator
-    val computed = adaptError(FIGfont("test", iterator))
+    val computed = adaptError(FIGfont(  new File("test"), iterator))
     computed should be(invalid)
     computed.invalidValue.head should startWith("FIGcharacterError - Missing definition for required FIGlet")
   }
@@ -66,7 +67,7 @@ class FIGfontSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers with
       .flatMapChars(false) { (char, i) =>
         if (i == 1) Vector(char.replace("@@", "")) else Vector(char)
       }.iterator
-    val computed = adaptError(FIGfont("test", iterator))
+    val computed = adaptError(FIGfont(  new File("test"), iterator))
     computed should be(invalid)
     computed.invalidValue.head should startWith("FIGcharacterError - Can't determine endmark.")
   }
@@ -74,7 +75,7 @@ class FIGfontSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers with
   it should "fail if the total number of characters doesn't respect the header" in new FontScope {
     val newHeader = header.copy(codetagCount = "2").toLine
     val iterator  = font.allLines().patch(0, Seq(newHeader), 1).iterator
-    val computed  = adaptError(FIGfont("test", iterator))
+    val computed  = adaptError(FIGfont( new File("test"), iterator))
     computed should haveInvalid(
       "FIGFontError - The number of loaded tagged fonts 4 doesn't correspond to the value indicated in the header 2",
     )
@@ -87,7 +88,7 @@ class FIGfontSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers with
       else
         Vector(char)
     }.iterator
-    val computed = adaptError(FIGfont("test", iterator))
+    val computed = adaptError(FIGfont(  new File("test"), iterator))
     computed should be(invalid)
     computed.invalidValue.head should startWith("FIGcharacterError - Couldn't convert character code ''")
   }
@@ -99,7 +100,7 @@ class FIGfontSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers with
       else
         Vector(char)
     }.iterator
-    val computed = adaptError(FIGfont("test", iterator))
+    val computed = adaptError(FIGfont(  new File("test"), iterator))
     computed should be(invalid)
     computed.invalidValue.head should startWith("FIGcharacterError - Couldn't convert character code 'ABCD'")
   }
@@ -111,7 +112,7 @@ class FIGfontSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers with
       else
         Vector(char)
     }.iterator
-    val computed = adaptError(FIGfont("test", iterator))
+    val computed = adaptError(FIGfont(  new File("test"), iterator))
     computed should be(valid)
   }
 

@@ -46,7 +46,7 @@ private[figlet4s] object Figlet4sClient {
     for {
       path    <- Sync[F].pure(Paths.get("fonts", s"$name.flf").toString)
       decoder <- fileDecoder[F](Codec.ISO8859)
-      font    <- FontFileReader.readInternal(path, decoder)(interpretFigletFile[F](path))
+      font    <- FontFileReader.readInternal(path, decoder)(createFIGfont[F])
     } yield font
 
   /**
@@ -60,7 +60,7 @@ private[figlet4s] object Figlet4sClient {
   def loadFont[F[_]: Sync](path: String, codec: Codec): F[FigletResult[FIGfont]] =
     for {
       decoder <- fileDecoder[F](codec)
-      font    <- FontFileReader.read(path, decoder)(interpretFigletFile[F](path))
+      font    <- FontFileReader.read(path, decoder)(createFIGfont[F])
     } yield font
 
   /**
@@ -85,10 +85,9 @@ private[figlet4s] object Figlet4sClient {
         .onMalformedInput(java.nio.charset.CodingErrorAction.REPORT)
     }
 
-  private def interpretFigletFile[F[_]: Sync](path: String)(source: BufferedSource): F[FigletResult[FIGfont]] =
+  private def createFIGfont[F[_]: Sync](file: File, source: BufferedSource): F[FigletResult[FIGfont]] =
     Sync[F].delay {
-      val name = new File(path).getName.split('.').init.mkString("")
-      FIGfont(name, source.getLines())
+      FIGfont(file, source.getLines())
     }
 
 }
