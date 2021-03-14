@@ -5,11 +5,13 @@
 ### Added
 
 * Support for zipped font files
+* Figlet4s internal fonts can now be organised in directories
+* Added new Commodore64 FIGfonts
 
 ### Changed
 
 * Set the default Max Width to 80, same as original figlet
-* Updated SBT to 1.4.6
+* Updated SBT to 1.4.7
 
 ### Bugfixes
 
