@@ -4,11 +4,11 @@ title: Intro
 ---
 # Introduction
 
-Figlet4s is a pure Scala, open source, library implementation of the ASCII-art program
-[FIGlet](http://www.figlet.org/), with integrated fonts, minimal dependencies, extensive error
-reporting and support for effects including Cats `IO`. It also includes direct support for Java.
+Figlet4s is a library to create ASCII-art banners, in pure Scala, open source, with integrated fonts,
+minimal dependencies, extensive error reporting and support for effects including Cats `IO`. It also
+includes direct support for Java.
 
-But what is Figlet?
+Figlet4s is an implementation of the *nix tool [FIGlet](http://www.figlet.org/):
 
 > FIGlet is a computer program that generates text banners, in a variety of typefaces, composed of
 > letters made up of conglomerations of smaller ASCII characters (see ASCII art). The name derives

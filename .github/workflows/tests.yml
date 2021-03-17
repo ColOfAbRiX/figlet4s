@@ -7,14 +7,12 @@ on:
       - master
     paths-ignore:
       - '*'
-      - 'figlet4s-microsite/docs/**'
       - 'figlet4s-benchmarks/**'
   pull_request:
     branches:
       - master
     paths-ignore:
       - '*'
-      - 'figlet4s-microsite/docs/**'
       - 'figlet4s-benchmarks/**'
 
 jobs:
@@ -30,8 +28,11 @@ jobs:
       - name: Run tests on all versions
         run: sbt +test
 
+      - name: Test styling
+        run: sbt styleCheck
+
       - name: Test API documentation
         run: sbt unidoc
 
-      - name: Test styling
-        run: sbt styleCheck
+      - name: Test build of the microsite
+        run: figlet4sMicrosite/makeMicrosite

@@ -9,15 +9,16 @@ import org.scalatest.matchers.should._
 class DebuggingSpecs extends AnyFlatSpec with Matchers with OriginalFigletTesting with Figlet4sMatchers {
 
   "Debugging" should "help me fixing issues" taggedAs (ManualRunTest) in {
-    Figlet4s.internalFonts
+    // Figlet4s.loadFontInternal("c64/a_zooloo")
+    Figlet4s.loadFontInternal("c64/star_war")
 
-    // val text = "!\"£$ABCD1234abcd[]{}"
+    val text = "!\"£$ABCD1234abcd[]{}"
 
     // val builder =
     //   Figlet4s
     //     .builder(text)
     //     .withMaxWidth(250)
-    //     .withInternalFont("c64/bubble__")
+    //     .withInternalFont("c64/star_war")
     //     .withHorizontalLayout(HorizontalLayout.HorizontalSmushing)
 
     // println("COMPUTED:")

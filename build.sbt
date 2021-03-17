@@ -123,7 +123,7 @@ lazy val figlet4sCore: Project = project
   .settings(commonSettings)
   .settings(
     name        := "figlet4s-core",
-    description := "Scala FIGlet implementation",
+    description := "ASCII-art banners in Scala",
     libraryDependencies ++= Seq(
       CatsCoreDep,
       CatsEffectDep,
@@ -179,7 +179,7 @@ lazy val figlet4sMicrosite = project
     micrositeAnalyticsToken      := "UA-189728436-1",
     micrositeAuthor              := "ColOfAbRiX",
     micrositeBaseUrl             := "figlet4s",
-    micrositeDescription         := "ASCII-art banners, in Scala",
+    micrositeDescription         := "ASCII-art banners in Scala",
     micrositeDocumentationUrl    := "docs/",
     micrositeGithubOwner         := "ColOfAbRiX",
     micrositeGithubRepo          := "figlet4s",

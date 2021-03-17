@@ -63,11 +63,11 @@ object Main extends App {
 ```
 ## Playing with the FIGure
 
-When the FIGure has been rendered you can play with it. We've seen how to print it to screen, but
-you  can also obtain the displayable lines `SubLines`, that compose the FIGure as a collection and
-then you can manipulate it.
+When the FIGure is rendered you can play with it. We've seen how to print it to screen, but you can
+also obtain the displayable lines `SubLines`, that compose the FIGure as a collection and then you
+can manipulate it.
 
-The logo of Figlet4s has been created with this code:
+For example, the logo of Figlet4s was created with this code:
 
 ```scala
 import com.colofabrix.scala.figlet4s.unsafe._
@@ -92,8 +92,8 @@ object Main extends App {
 You can easily list all the fonts that are shipped with Figlet4s with a simple call to
 `Figlet4s.internalFonts`.
 
-The following code displays a text in each available internal font (beware, it will be a pretty long
-output!):
+The following code displays the name of each available internal font using the font itself (beware,
+it will be a pretty long output!):
 
 ```scala
 import com.colofabrix.scala.figlet4s.unsafe._
@@ -101,10 +101,11 @@ import com.colofabrix.scala.figlet4s.options._
 
 object Main extends App {
 
-  for (font <- Figlet4s.internalFonts) {
+  for (fontName <- Figlet4s.internalFonts) {
+    val font = Figlet4s.loadFontInternal(fontName)
     Figlet4s
-      .builder("Hello, World!")
-      .withInternalFont(font)
+      .builder(font.name)
+      .withFont(font)
       .render()
       .print()
   }

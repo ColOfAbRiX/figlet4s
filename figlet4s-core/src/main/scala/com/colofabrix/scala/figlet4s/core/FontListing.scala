@@ -5,7 +5,7 @@ import cats.implicits._
 import com.colofabrix.scala.figlet4s.errors._
 import java.io._
 import java.net._
-import java.nio.file.{ Files, Paths }
+import java.nio.file._
 import java.util.zip._
 
 private[figlet4s] object FontListing {
@@ -26,10 +26,12 @@ private[figlet4s] object FontListing {
 
     val file = new File(resources)
 
-    if (file.isDirectory)
-      internalFontsFromDirectory(resources.resolve("fonts")).map(_.toSeq)
-    else if (file.getName.toLowerCase.endsWith(".jar"))
-      internalFontsFromJar(resources).map(_.toSeq)
+    if (file.isDirectory) {
+      val fontsPath = Paths.get(resources.resolve("fonts"))
+      fromDirectory(fontsPath).map(cleanAbsolutePath(fontsPath))
+
+    } else if (file.getName.toLowerCase.endsWith(".jar"))
+      fromJar(resources).map(_.toSeq)
     else
       Sync[F].raiseError {
         FigletError("Could not determine the type of artifacts to open to find the fonts")
@@ -38,44 +40,48 @@ private[figlet4s] object FontListing {
 
   //  Support  //
 
-  private def uriBufferedReader(resources: URI): BufferedReader =
-    new BufferedReader(new InputStreamReader(resources.toURL.openStream()))
-
-  @SuppressWarnings(Array("org.wartremover.warts.All"))
-  private def internalFontsFromDirectory[F[_]: Sync](resources: URI): F[List[String]] =
-    Braket.withResource(uriBufferedReader(resources)) { reader =>
-      Sync[F].defer {
-        Iterator
-          .continually(reader.readLine)
-          .takeWhile(Option(_).isDefined)
-          .toList
-          .traverse { name =>
-            val path = Paths.get(resources.getRawPath(), name)
-            if (Files.isDirectory(path)) internalFontsFromDirectory(path.toUri())
-            else Sync[F].pure(List(path.toString()))
-          }
-          .map {
-            _.flatten
-              .withFilter(path => path.endsWith(".flf"))
-              .map(_.replace(".flf", ""))
-          }
-      }
+  private def fromDirectory[F[_]: Sync](startPath: Path): F[Vector[Path]] = {
+    def br = new BufferedReader(new InputStreamReader(startPath.toUri.toURL.openStream()))
+    Braket.withResource(br) { reader =>
+      Sync[F].defer(listDirectory(startPath, reader))
     }
+  }
 
-  private def jarReaderStream(resources: URI): ZipInputStream =
-    new ZipInputStream(resources.toURL.openStream)
-
-  private def internalFontsFromJar[F[_]: Sync](resources: URI): F[List[String]] =
-    Braket.withResource(jarReaderStream(resources)) { zip =>
-      Sync[F].delay {
-        Iterator
-          .continually(zip.getNextEntry)
-          .takeWhile(Option(_).isDefined)
-          .map(zipEntry => new File(zipEntry.getName))
-          .withFilter(path => path.getPath.startsWith("fonts") && path.getName.endsWith(".flf"))
-          .map(_.getName.replace(".flf", ""))
-          .toList
+  private def listDirectory[F[_]: Sync](startPath: Path, reader: BufferedReader): F[Vector[Path]] =
+    Iterator
+      .continually(reader.readLine)
+      .takeWhile(Option(_).isDefined)
+      .toVector
+      .flatTraverse[F, Path] { name =>
+        val path = startPath.resolve(name)
+        if (Files.isDirectory(path)) fromDirectory(path) else Sync[F].pure(Vector(path))
       }
+
+  private def cleanAbsolutePath(basePath: Path)(paths: Vector[Path]): Seq[String] = {
+    val pathPrefix = basePath.toString + FileSystems.getDefault().getSeparator()
+    paths
+      .map {
+        _.toString()
+          .replace(pathPrefix, "")
+          .replace(".flf", "")
+      }
+      .filterNot(_.endsWith(".flc"))
+  }
+
+  private def fromJar[F[_]: Sync](resources: URI): F[List[String]] = {
+    def zis = new ZipInputStream(resources.toURL.openStream)
+    Braket.withResource(zis) { zip =>
+      Sync[F].delay(listJar(zip))
     }
+  }
+
+  private def listJar[F[_]: Sync](reader: ZipInputStream): List[String] =
+    Iterator
+      .continually(reader.getNextEntry)
+      .takeWhile(Option(_).isDefined)
+      .map(zipEntry => new File(zipEntry.getName))
+      .withFilter(path => path.getPath.startsWith("fonts") && path.getName.endsWith(".flf"))
+      .map(_.getName.replace(".flf", ""))
+      .toList
 
 }
