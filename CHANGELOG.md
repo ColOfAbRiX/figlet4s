@@ -6,7 +6,7 @@
 
 * Support for zipped font files
 * Figlet4s internal fonts can now be organised in directories
-* Added new Commodore64 FIGfonts
+* Added Commodore64 FIGfonts
 
 ### Changed
 

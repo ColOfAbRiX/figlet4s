@@ -1,0 +1,26 @@
+name: Publish artifacts to Sonatype
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths:
+      - 'figlet4s-core/**'
+      - 'figlet4s-effects/**'
+      - 'figlet4s-java/**'
+      - 'project/**'
+      - 'build.sbt'
+
+jobs:
+  test_library:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Figlet
+        run: sudo apt-get install -y figlet
+
+      # - name: Run tests on all versions
+      #   run: sbt +test

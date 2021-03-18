@@ -6,12 +6,16 @@ on:
     branches:
       - master
     paths:
-      - 'figlet4s-microsite/docs/**'
+      - 'figlet4s-microsite/**'
+      - 'project/**'
+      - 'build.sbt'
   pull_request:
     branches:
       - master
     paths:
-      - 'figlet4s-microsite/docs/**'
+      - 'figlet4s-microsite/**'
+      - 'project/**'
+      - 'build.sbt'
 
 jobs:
   publish_microsite:
@@ -20,6 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
+          # Use this or sbt-dynver won't see the tag
           fetch-depth: 0
 
       - name: Install Jekyll
