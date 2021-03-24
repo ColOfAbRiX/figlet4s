@@ -32,8 +32,8 @@ private[figlet4s] object FontFileReader {
       } yield result
     }
 
+  // This forces the BufferedSource to evaluate and to raise errors early on
   private def tapSource(bs: BufferedSource): BufferedSource = {
-    // This forces the BufferedSource to evaluate and to raise errors early on
     val tester = bs.bufferedReader()
     tester.mark(1)
     bs
