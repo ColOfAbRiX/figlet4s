@@ -29,12 +29,11 @@ private[figlet4s] object FontListing {
     if (file.isDirectory) {
       val fontsPath = Paths.get(resources.resolve("fonts"))
       fromDirectory(fontsPath).map(cleanAbsolutePath(fontsPath))
-
     } else if (file.getName.toLowerCase.endsWith(".jar"))
-      fromJar(resources).map(_.toSeq)
+      fromJar(resources).map(cleanAbsolutePath(Paths.get("fonts")))
     else
       Sync[F].raiseError {
-        FigletError("Could not determine the type of artifacts to open to find the fonts")
+        FigletError("Could not determine the type of artifacts where I can find the fonts")
       }
   }
 
@@ -57,6 +56,21 @@ private[figlet4s] object FontListing {
         if (Files.isDirectory(path)) fromDirectory(path) else Sync[F].pure(Vector(path))
       }
 
+  private def fromJar[F[_]: Sync](resources: URI): F[Vector[Path]] = {
+    def zis = new ZipInputStream(resources.toURL.openStream)
+    Braket.withResource(zis) { zip =>
+      Sync[F].delay(listJar(zip))
+    }
+  }
+
+  private def listJar[F[_]: Sync](reader: ZipInputStream): Vector[Path] =
+    Iterator
+      .continually(reader.getNextEntry)
+      .takeWhile(Option(_).isDefined)
+      .map(zipEntry => Paths.get(zipEntry.getName))
+      .withFilter(path => path.toString.startsWith("fonts") && path.toString.endsWith(".flf"))
+      .toVector
+
   private def cleanAbsolutePath(basePath: Path)(paths: Vector[Path]): Seq[String] = {
     val pathPrefix = basePath.toString + FileSystems.getDefault().getSeparator()
     paths
@@ -67,21 +81,5 @@ private[figlet4s] object FontListing {
       }
       .filterNot(_.endsWith(".flc"))
   }
-
-  private def fromJar[F[_]: Sync](resources: URI): F[List[String]] = {
-    def zis = new ZipInputStream(resources.toURL.openStream)
-    Braket.withResource(zis) { zip =>
-      Sync[F].delay(listJar(zip))
-    }
-  }
-
-  private def listJar[F[_]: Sync](reader: ZipInputStream): List[String] =
-    Iterator
-      .continually(reader.getNextEntry)
-      .takeWhile(Option(_).isDefined)
-      .map(zipEntry => new File(zipEntry.getName))
-      .withFilter(path => path.getPath.startsWith("fonts") && path.getName.endsWith(".flf"))
-      .map(_.getName.replace(".flf", ""))
-      .toList
 
 }

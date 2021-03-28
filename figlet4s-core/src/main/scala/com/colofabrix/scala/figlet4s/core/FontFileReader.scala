@@ -9,14 +9,20 @@ import scala.io._
 
 private[figlet4s] object FontFileReader {
 
+  /**
+   * Reads a font file, even zipped, from file system and passes the reader to a function
+   */
   def read[F[_]: Sync, A](path: String, codec: Codec)(f: (File, BufferedSource) => F[A]): F[A] = {
-    def bs = new BufferedInputStream(new FileInputStream(path))
+    def bs   = new BufferedInputStream(new FileInputStream(path))
     val file = new File(path)
     read(bs, codec)(f(file, _))
   }
 
+  /**
+   * Reads a font file from the internal library resources (files or JAR)
+   */
   def readInternal[F[_]: Sync, A](path: String, codec: Codec)(f: (File, BufferedSource) => F[A]): F[A] = {
-    def is = Source.fromInputStream(this.getClass.getClassLoader.getResourceAsStream(path))(codec)
+    def is   = Source.fromInputStream(this.getClass.getClassLoader.getResourceAsStream(path))(codec)
     val file = new File(this.getClass.getClassLoader.getResource(path).toURI())
     Braket.withResource(tapSource(is))(f(file, _))
   }
