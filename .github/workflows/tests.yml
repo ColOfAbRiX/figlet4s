@@ -33,6 +33,3 @@ jobs:
 
       - name: Test API documentation
         run: sbt unidoc
-
-      - name: Test build of the microsite
-        run: sbt "figlet4sMicrosite/makeMicrosite"
