@@ -23,7 +23,7 @@ private[figlet4s] object FontFileReader {
    */
   def readInternal[F[_]: Sync, A](path: String, codec: Codec)(f: (File, BufferedSource) => F[A]): F[A] = {
     def is   = Source.fromInputStream(this.getClass.getClassLoader.getResourceAsStream(path))(codec)
-    def file = new File(this.getClass.getClassLoader.getResource(path).toString())
+    def file = new File(this.getClass.getClassLoader.getResource(path).getPath)
     Braket.withResource(tapSource(is))(f(file, _))
   }
 

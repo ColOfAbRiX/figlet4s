@@ -9,17 +9,15 @@
 // class DebuggingSpecs extends AnyFlatSpec with Matchers with OriginalFigletTesting with Figlet4sMatchers {
 
 //   "Debugging" should "help me fixing issues" taggedAs (ManualRunTest) in {
-//     Figlet4s.loadFontInternal("c64/a_zooloo")
-//     Figlet4s.loadFontInternal("c64/star_war")
-
-//     val text = "!\"£$ABCD1234abcd[]{}"
+//     val text = "C&F"
 
 //     val builder =
 //       Figlet4s
 //         .builder(text)
 //         .withMaxWidth(250)
-//         .withInternalFont("c64/star_war")
-//         .withHorizontalLayout(HorizontalLayout.HorizontalSmushing)
+//         .withInternalFont("standard")
+//         .withHorizontalLayout(HorizontalLayout.FontDefault)
+//         .withPrintDirection(PrintDirection.LeftToRight)
 
 //     println("COMPUTED:")
 //     val computed = builder.render()
