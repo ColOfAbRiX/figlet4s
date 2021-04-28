@@ -18,7 +18,7 @@ Figlet4s is a library to create ASCII-art banners, in pure Scala, open source, w
 minimal dependencies, extensive error reporting and support for effects including Cats `IO`. It also
 includes direct support for Java.
 
-Try out [Figlet4s on Scastie](https://scastie.scala-lang.org/9YY836k5SHmcrqeiNdL0pw)
+Try out [Figlet4s on Scastie](https://scastie.scala-lang.org/j7zMH0xRQXe39sEVtiSJgQ)
 
 ## Documentation
 
