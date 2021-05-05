@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+* Updated Scala to 2.13.5 and 2.12.14
+
 ## v0.3.2 - 2021/11/05
 
 ### Bugfixes
