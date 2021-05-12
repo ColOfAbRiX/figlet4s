@@ -285,7 +285,7 @@ private[figlet4s] object OptionsBuilder {
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
-  private def foldCompilers[F[_]: Sync](data: List[ActionCompiler[F]]): (BuildData, BuilderAction) => F[BuildData] =
+  private def foldCompilers[F[_]](data: List[ActionCompiler[F]]): (BuildData, BuilderAction) => F[BuildData] =
     Function.untupled(data.reduce(_ orElse _))
 
 }

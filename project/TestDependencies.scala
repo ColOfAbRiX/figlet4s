@@ -9,7 +9,7 @@ object TestDependencies {
   lazy val ScalaCheckVersion    = "1.15.0"
   lazy val ScalameterVersion    = "0.20"
   lazy val ScalaMockVersion     = "5.1.0"
-  lazy val ScalaTestVersion     = "3.2.3"
+  lazy val ScalaTestVersion     = "3.2.8"
 
   lazy val CatsScalaTestDep           = "com.ironcorelabs"  %% "cats-scalatest"           % CatsScalaTestVersion % Test
   lazy val ScalameterDep              = "com.storm-enroute" %% "scalameter"               % ScalameterVersion    % Test

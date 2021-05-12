@@ -63,7 +63,7 @@ private[figlet4s] object FontListing {
     }
   }
 
-  private def listJar[F[_]: Sync](reader: ZipInputStream): Vector[Path] =
+  private def listJar(reader: ZipInputStream): Vector[Path] =
     Iterator
       .continually(reader.getNextEntry)
       .takeWhile(Option(_).isDefined)
