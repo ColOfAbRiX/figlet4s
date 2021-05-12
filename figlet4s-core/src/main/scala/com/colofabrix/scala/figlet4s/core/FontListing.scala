@@ -65,7 +65,7 @@ private[figlet4s] object FontListing {
       Sync[F].delay(listJar(zip))
     }
 
-  private def listJar[F[_]: Sync](reader: ZipInputStream): Vector[String] =
+  private def listJar(reader: ZipInputStream): Vector[String] =
     Iterator
       .continually(reader.getNextEntry)
       .takeWhile(Option(_).isDefined)

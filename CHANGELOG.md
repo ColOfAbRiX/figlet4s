@@ -2,9 +2,17 @@
 
 ## Unreleased
 
-### Changed
+### Dependency Updates
 
 * Updated Scala to 2.13.5 and 2.12.14
+* Updated SBT to 1.5.2
+* Updated Wateremover to 2.4.13
+* Updated ScalaFix to 0.9.27
+* Updated SCoverage to 1.8.0
+* Update ScalaTest to 3.2.8
+* Update sbt-errors-summary to 0.6.5
+* Update sbt-microsite to 1.3.4
+* Update sbt-updates to 1.3.4
 
 ## v0.3.2 - 2021/11/05
 
