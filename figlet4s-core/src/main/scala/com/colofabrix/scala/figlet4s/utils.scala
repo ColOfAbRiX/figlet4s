@@ -7,6 +7,7 @@ import java.math.BigInteger
 import java.security.MessageDigest
 import scala.collection.immutable.BitSet
 import scala.util.matching.Regex
+import java.nio.charset.Charset
 
 private[figlet4s] object utils {
 
@@ -64,7 +65,7 @@ private[figlet4s] object utils {
      */
     def md5: String = {
       val md     = MessageDigest.getInstance("MD5")
-      val digest = md.digest(self.getBytes)
+      val digest = md.digest(self.getBytes(Charset.forName("ISO-8859-1")))
       val bigInt = new BigInteger(1, digest)
       bigInt.toString(16)
     }

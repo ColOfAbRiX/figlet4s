@@ -7,6 +7,7 @@ import java.io._
 import java.net._
 import java.nio.file._
 import java.util.zip._
+import java.util.Locale
 
 private[figlet4s] object FontListing {
 
@@ -29,7 +30,7 @@ private[figlet4s] object FontListing {
     if (file.isDirectory) {
       val fontsPath = Paths.get(resources.resolve("fonts"))
       fromDirectory(fontsPath).map(cleanAbsolutePath(fontsPath))
-    } else if (file.getName.toLowerCase.endsWith(".jar"))
+    } else if (file.getName.toLowerCase(Locale.ROOT).endsWith(".jar"))
       fromJar(resources).map(cleanAbsolutePath(Paths.get("fonts")))
     else
       Sync[F].raiseError {
