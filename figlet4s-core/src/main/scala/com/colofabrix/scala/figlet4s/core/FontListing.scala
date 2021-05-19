@@ -7,6 +7,7 @@ import java.io._
 import java.net._
 import java.nio.file._
 import java.util.zip._
+import java.util.Locale
 
 private[figlet4s] object FontListing {
 
@@ -46,7 +47,7 @@ private[figlet4s] object FontListing {
           .flatTraverse[F, String] {
             case path if new File(path).isDirectory =>
               recurse(path)
-            case path if path.toLowerCase.endsWith(".flf") =>
+            case path if path.toLowerCase(Locale.ROOT).endsWith(".flf") =>
               Sync[F].pure(Vector(path.substring(startPath.length + 1, path.length - 4)))
             case _ =>
               Sync[F].pure(Vector.empty)
@@ -71,7 +72,7 @@ private[figlet4s] object FontListing {
       .takeWhile(Option(_).isDefined)
       .map(_.getName)
       .collect {
-        case path if path.startsWith(fontsDirectoryName) && path.toLowerCase.endsWith(".flf") =>
+        case path if path.startsWith(fontsDirectoryName) && path.toLowerCase(Locale.ROOT).endsWith(".flf") =>
           path.substring(fontsDirectoryName.length, path.length - 4)
       }
       .toVector

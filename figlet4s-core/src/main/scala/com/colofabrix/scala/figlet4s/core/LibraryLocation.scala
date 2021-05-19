@@ -4,6 +4,7 @@ import cats.effect.Sync
 import java.io.File
 import java.net.URI
 import java.nio.file.FileSystems
+import java.util.Locale
 
 /**
  * Position of the current library, if inside a JAR or in the FileSystem
@@ -35,7 +36,7 @@ private[figlet4s] object LibraryLocation {
           val file = new File(resources)
           if (file.isDirectory)
             LibraryLocation.FileSystem(resources, FileSystems.getDefault.getSeparator)
-          else if (file.getName.toLowerCase.endsWith(".jar"))
+          else if (file.getName.toLowerCase(Locale.ROOT).endsWith(".jar"))
             LibraryLocation.Jar(resources)
           else
             LibraryLocation.Unknown

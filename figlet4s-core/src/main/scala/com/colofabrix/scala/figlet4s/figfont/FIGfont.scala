@@ -7,6 +7,7 @@ import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
 import com.colofabrix.scala.figlet4s.utils._
 import java.io.File
+import java.util.Locale
 
 /**
  * A FIGlet Font is a map of characters to their FIGrepresentation and the typographic settings used to display them
@@ -289,7 +290,7 @@ object FIGfont {
   private def parseCharCode(index: Int, code: String): FigletResult[Char] =
     if (code.matches("^-?\\d+$"))
       Integer.parseInt(code, 10).toChar.validNec
-    else if (code.toLowerCase.matches("^-?0x[0-9a-f]+$"))
+    else if (code.toLowerCase(Locale.ROOT).matches("^-?0x[0-9a-f]+$"))
       Integer.parseInt(code.replace("0x", ""), 16).toChar.validNec
     else if (code.matches("^-?0\\d+$"))
       Integer.parseInt(code, 8).toChar.validNec

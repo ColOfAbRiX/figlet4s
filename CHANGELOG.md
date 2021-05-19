@@ -4,7 +4,7 @@
 
 ### Dependency Updates
 
-* Updated Scala to 2.13.5 and 2.12.14
+* Updated Scala to 2.12.14
 * Updated SBT to 1.5.2
 * Updated Wateremover to 2.4.13
 * Updated ScalaFix to 0.9.27
