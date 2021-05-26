@@ -1,7 +1,6 @@
 package com.colofabrix.scala.figlet4s
 
 import cats._
-import cats.effect._
 
 package object core {
 
