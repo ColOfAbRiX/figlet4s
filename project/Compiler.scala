@@ -44,7 +44,8 @@ object Compiler {
     "-Ybackend-parallelism", cores.toString,     // Enable paralellisation
     "-Ycache-plugin-class-loader:last-modified", // Enables caching of classloaders for compiler plugins
     "-Ycache-macro-class-loader:last-modified",  // and macro definitions. This can lead to performance improvements.
-    "-Ypatmat-exhaust-depth", "40"
+    "-Ypatmat-exhaust-depth", "80",              // Limit the patmat exhaustiveness check depth
+    "-Xnon-strict-patmat-analysis"               // Excessive strictness introduced with Scala 2.13.4 creates issues
   )
 
   // Compiler options for Scala 2.12

@@ -4,15 +4,17 @@
 
 ### Dependency Updates
 
-* Updated Scala to 2.12.14
+* Updated cats-core and cats-kernel to 2.6.1
+* Updated cats-effects to 2.5.1
 * Updated SBT to 1.5.2
-* Updated Wateremover to 2.4.13
-* Updated ScalaFix to 0.9.27
+* Updated sbt-errors-summary to 0.6.5
+* Updated sbt-microsite to 1.3.4
+* Updated sbt-updates to 1.3.4
+* Updated Scala to 2.13.6 and 2.12.13
+* Updated ScalaFix to 0.9.28
+* Updated ScalaTest to 3.2.9
 * Updated SCoverage to 1.8.0
-* Update ScalaTest to 3.2.8
-* Update sbt-errors-summary to 0.6.5
-* Update sbt-microsite to 1.3.4
-* Update sbt-updates to 1.3.4
+* Updated Wateremover to 2.4.13
 
 ## v0.3.2 - 2021/11/05
 
