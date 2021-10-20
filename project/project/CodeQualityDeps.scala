@@ -8,7 +8,7 @@ object CodeQualityDependencies {
   lazy val ScalaFixVersion    = "0.9.28"
   lazy val ScalafmtVersion    = "2.4.0"
   lazy val SCoverageVersion   = "1.8.0"
-  lazy val WartremoverVersion = "2.4.13"
+  lazy val WartremoverVersion = "2.4.15"
 
   lazy val ScalaFixDep    = "ch.epfl.scala"   % "sbt-scalafix"    % ScalaFixVersion
   lazy val ScalafmtDep    = "org.scalameta"   % "sbt-scalafmt"    % ScalafmtVersion

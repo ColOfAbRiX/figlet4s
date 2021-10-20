@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+* Added wartremover-contrib
+
 ### Dependency Updates
 
 * Updated cats-core and cats-kernel to 2.6.1
@@ -14,7 +18,7 @@
 * Updated ScalaFix to 0.9.28
 * Updated ScalaTest to 3.2.9
 * Updated SCoverage to 1.8.0
-* Updated Wateremover to 2.4.13
+* Updated Wateremover to 2.4.15
 
 ## v0.3.2 - 2021/11/05
 
