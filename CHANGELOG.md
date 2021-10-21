@@ -9,16 +9,23 @@
 ### Dependency Updates
 
 * Updated cats-core and cats-kernel to 2.6.1
-* Updated cats-effects to 2.5.1
+* Updated cats-effects to 2.5.4
+* Updated enumeratum to 1.7.0
 * Updated SBT to 1.5.2
+* Updated sbt-assembly to 1.1.0
 * Updated sbt-errors-summary to 0.6.5
+* Updated sbt-explicit-dependencies 0.2.16
+* Updated sbt-git to 1.0.2
+* Updated sbt-gpg to 2.1.2
 * Updated sbt-microsite to 1.3.4
+* Updated sbt-sonatype to 3.9.8
 * Updated sbt-updates to 1.3.4
 * Updated Scala to 2.13.6 and 2.12.13
-* Updated ScalaFix to 0.9.28
-* Updated ScalaTest to 3.2.9
-* Updated SCoverage to 1.8.0
-* Updated Wateremover to 2.4.15
+* Updated ScalaFix to 0.9.31
+* Updated Scalafmt to 2.4.3
+* Updated ScalaTest to 3.2.10
+* Updated SCoverage to 1.9.1
+* Updated Wateremover to 2.4.16
 
 ## v0.3.2 - 2021/11/05
 

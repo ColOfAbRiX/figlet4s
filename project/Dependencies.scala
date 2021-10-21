@@ -6,14 +6,14 @@ import sbt._
 object Dependencies {
 
   // Scala language version
-  lazy val SupportedScalaLangVersion = List("2.13.6", "2.12.13")
+  lazy val SupportedScalaLangVersion = List("2.13.6", "2.12.15")
   lazy val ScalaLangVersion          = SupportedScalaLangVersion.head
 
   //  Libraries  //
 
-  lazy val CatsEffectVersion = "2.5.1"
+  lazy val CatsEffectVersion = "2.5.4"
   lazy val CatsVersion       = "2.6.1"
-  lazy val EnumeratumVersion = "1.6.1"
+  lazy val EnumeratumVersion = "1.7.0"
 
   lazy val CatsCoreDep   = "org.typelevel" %% "cats-core"   % CatsVersion
   lazy val CatsEffectDep = "org.typelevel" %% "cats-effect" % CatsEffectVersion
