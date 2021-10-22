@@ -5,7 +5,8 @@ import sbt._
  */
 object CodeQualityDependencies {
 
-  lazy val ScalaFixVersion    = "0.9.31"
+  lazy val ScalaFixVersion    = "0.9.27"
+  //lazy val ScalaFixVersion    = "0.9.31"
   lazy val ScalafmtVersion    = "2.4.3"
   lazy val SCoverageVersion   = "1.9.1"
   lazy val WartremoverVersion = "2.4.16"

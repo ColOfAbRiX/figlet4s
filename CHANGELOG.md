@@ -20,8 +20,7 @@
 * Updated sbt-microsite to 1.3.4
 * Updated sbt-sonatype to 3.9.8
 * Updated sbt-updates to 1.3.4
-* Updated Scala to 2.13.6 and 2.12.13
-* Updated ScalaFix to 0.9.31
+* Updated Scala to 2.13.5 and 2.12.15
 * Updated Scalafmt to 2.4.3
 * Updated ScalaTest to 3.2.10
 * Updated SCoverage to 1.9.1
