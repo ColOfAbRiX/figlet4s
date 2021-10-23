@@ -6,7 +6,7 @@ import sbt._
 object Dependencies {
 
   // Scala language version
-  lazy val SupportedScalaLangVersion = List("2.13.5", "2.12.15")
+  lazy val SupportedScalaLangVersion = List("2.13.5", "2.12.13")
   lazy val ScalaLangVersion          = SupportedScalaLangVersion.head
 
   //  Libraries  //
