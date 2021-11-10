@@ -48,7 +48,7 @@ ThisBuild / semanticdbVersion          := scalafixSemanticdb.revision
 addCommandAlias("styleApply", "; scalafmtAll; scalafixAll")
 addCommandAlias("styleCheck", "; scalafmtCheckAll; scalafixAll --check")
 
-val commonSettings: Seq[Def.Setting[_]] = Seq(
+val commonScalaSettings: Seq[Def.Setting[_]] = Seq(
   // Testing
   Test / testOptions += Tests.Argument("-oFD"),
   // Compiler options
@@ -57,6 +57,10 @@ val commonSettings: Seq[Def.Setting[_]] = Seq(
     Compiler.Options_2_13 ++ Compiler.StrictOptions,
   ),
   Test / scalacOptions := versioned(scalaVersion.value)(
+    Compiler.Options_2_12,
+    Compiler.Options_2_13,
+  ),
+  IntegrationTest / scalacOptions := versioned(scalaVersion.value)(
     Compiler.Options_2_12,
     Compiler.Options_2_13,
   ),
@@ -76,12 +80,9 @@ val commonSettings: Seq[Def.Setting[_]] = Seq(
   // Scaladoc
   Compile / autoAPIMappings := true,
   Compile / doc / scalacOptions ++= Seq(
-    "-doc-title",
-    "Figlet4s API Documentation",
-    "-doc-version",
-    version.value,
-    "-encoding",
-    "UTF-8",
+    "-doc-title", "Figlet4s API Documentation",
+    "-doc-version", version.value,
+    "-encoding", "UTF-8",
   ),
   // Packaging and publishing
   Compile / packageBin / packageOptions ++= Seq(
@@ -120,7 +121,9 @@ lazy val figlet4s: Project = project
 // Figlet4s Core project
 lazy val figlet4sCore: Project = project
   .in(file("figlet4s-core"))
-  .settings(commonSettings)
+  .settings(commonScalaSettings)
+  .configs(IntegrationTest)
+  .settings(Defaults.itSettings)
   .settings(
     name        := "figlet4s-core",
     description := "ASCII-art banners in Scala",
@@ -141,7 +144,9 @@ lazy val figlet4sCore: Project = project
 lazy val figlet4sEffects: Project = project
   .in(file("figlet4s-effects"))
   .dependsOn(figlet4sCore % "compile->compile;test->test")
-  .settings(commonSettings)
+  .settings(commonScalaSettings)
+  .configs(IntegrationTest)
+  .settings(Defaults.itSettings)
   .settings(
     name        := "figlet4s-effects",
     description := "Effects extension for Figlet4s",
