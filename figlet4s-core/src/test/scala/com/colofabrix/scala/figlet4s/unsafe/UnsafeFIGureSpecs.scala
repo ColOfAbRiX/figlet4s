@@ -8,7 +8,7 @@ class UnsafeFIGureSpecs extends AnyFlatSpec with Matchers {
 
   "FIGure" should "return the same data for asSeq() and asString()" in {
     val figure     = standardBuilder.render(standardInput)
-    val fromSeq    = figure.asSeq().mkString("\n")
+    val fromSeq    = figure.asSeq().mkString(System.lineSeparator())
     val fromString = figure.asString()
     fromSeq should equal(fromString)
   }
@@ -21,7 +21,7 @@ class UnsafeFIGureSpecs extends AnyFlatSpec with Matchers {
     }
 
     val computed = stream.toString()
-    val expected = figure.asString() + "\n"
+    val expected = figure.asString() + System.lineSeparator()
 
     computed should equal(expected)
   }
