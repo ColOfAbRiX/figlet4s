@@ -1,7 +1,0 @@
--J-Dfile.encoding=UTF8
--J-Duser.timezone=UTC
--J-XX:+TieredCompilation
--J-XX:+UseG1GC
--J-XX:MaxHeapSize=512M
--J-XX:ReservedCodeCacheSize=64M
--J-Xss1m

@@ -1,7 +1,6 @@
 package com.colofabrix.scala.figlet4s.core
 
 import java.io._
-import java.nio.file.Paths
 import scala.io._
 import cats._
 import cats.effect._
@@ -44,7 +43,7 @@ private[figlet4s] object Figlet4sClient {
    */
   def loadFontInternal[F[_]: Sync](name: String): F[FigletResult[FIGfont]] =
     for {
-      path    <- Sync[F].pure(Paths.get("fonts", s"$name.flf").toString)
+      path    <- Sync[F].pure(s"fonts/$name.flf")
       decoder <- fileDecoder[F](Codec.ISO8859)
       font    <- FontFileReader.readInternal(path, decoder)(createFIGfont[F])
     } yield font
