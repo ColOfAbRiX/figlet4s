@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.3.1 - 2021/11/13
+
+### Bugfixes
+
+* Fixed "Internal font loading fails on Windows (#20)"
+* Fixed line termination issues on Windows
+
 ## v0.3.0 - 2021/04/07
 
 ### Added
