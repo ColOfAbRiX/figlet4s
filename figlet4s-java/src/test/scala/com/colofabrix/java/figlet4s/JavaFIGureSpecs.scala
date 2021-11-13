@@ -9,7 +9,7 @@ class JavaFIGureSpecs extends AnyFlatSpec with Matchers {
 
   "FIGure" should "return the same data for asSeq() and asString()" in {
     val figure     = standardBuilder.render(standardInput)
-    val fromSeq    = figure.asList().stream().collect(Collectors.joining("\n"))
+    val fromSeq    = figure.asList().stream().collect(Collectors.joining(System.lineSeparator()))
     val fromString = figure.asString()
     fromSeq should equal(fromString)
   }
@@ -22,7 +22,7 @@ class JavaFIGureSpecs extends AnyFlatSpec with Matchers {
     }
 
     val computed = stream.toString()
-    val expected = figure.asString() + "\n"
+    val expected = figure.asString() + System.lineSeparator()
 
     computed should equal(expected)
   }

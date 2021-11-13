@@ -16,7 +16,7 @@ class CatsIOFIGureSpecs extends AnyFlatSpec with Matchers {
         fromSeq    <- figure.asSeqF()
         fromString <- figure.asStringF()
       } yield {
-        fromSeq.mkString("\n") should equal(fromString)
+        fromSeq.mkString(System.lineSeparator()) should equal(fromString)
       }
     run(test)
   }
@@ -29,7 +29,7 @@ class CatsIOFIGureSpecs extends AnyFlatSpec with Matchers {
     }
 
     val computed = stream.toString()
-    val expected = run(figure.map(_.asString() + "\n"))
+    val expected = run(figure.map(_.asString() + System.lineSeparator()))
 
     computed should equal(expected)
   }

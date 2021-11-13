@@ -36,7 +36,7 @@ private[either] trait FIGureMixin {
      * @return A single string containing the FIGure including newlines where needed
      */
     def asString(): String =
-      asSeq().mkString("\n")
+      asSeq().mkString(System.lineSeparator())
 
     /**
      * The figure as a collection of String, one String per displayable line

@@ -44,7 +44,7 @@ private[catsio] trait FIGureMixin {
      * @return A collection of strings, each containing a displayable line
      */
     def asSeqF(): IO[Seq[String]] = IO.pure {
-      self.cleanLines.map(_.value.mkString("\n"))
+      self.cleanLines.map(_.value.mkString(System.lineSeparator()))
     }
 
     /**
@@ -53,7 +53,7 @@ private[catsio] trait FIGureMixin {
      * @return A single string containing the FIGure including newlines where needed
      */
     def asStringF(): IO[String] =
-      asSeqF().map(_.mkString("\n"))
+      asSeqF().map(_.mkString(System.lineSeparator()))
   }
 
 }
