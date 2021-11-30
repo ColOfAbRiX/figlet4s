@@ -106,9 +106,16 @@ object errors {
    *
    * @param message The description of the error
    */
-  final class FIGFontError(message: String) extends FLFError(message)
+  final class FIGFontError(message: String) extends FLFError(message) {
+    def this(message: String, cause: Throwable) = {
+      this(message)
+      initCause(cause)
+    }
+  }
   object FIGFontError {
     def apply(message: String): FIGFontError = new FIGFontError(message: String)
+    def apply(message: String, cause: Throwable): FIGFontError =
+      new FIGFontError(message: String, cause: Throwable)
   }
 
   //  Extension Methods  //

@@ -4,6 +4,7 @@
 
 ### Added
 
+* Added BDF Fonts
 * Added wartremover-contrib
 
 ### Dependency Updates

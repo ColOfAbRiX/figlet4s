@@ -180,7 +180,11 @@ object FIGfont {
     fontState
       .header
       .map(
-        FIGcharacter(fontState.hash, _, charState.name, SubLines(charState.lines), charState.comment, charState.position),
+        FIGcharacter(fontState.hash, _, charState.name, SubLines(charState.lines), charState.comment, charState.position)
+          .leftMap(_.map { err =>
+            val msg = s"Error while building a character on position ${charState.position}: ${err.getMessage}"
+            FIGFontError(msg, err)
+          }),
       )
       .get
 

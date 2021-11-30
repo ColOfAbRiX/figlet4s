@@ -21,7 +21,7 @@ class CatsIOFiglet4sSpecs extends AnyFlatSpec with Matchers with OptionValues {
 
   it should "load all internal fonts successfully" in {
     val fonts = run(Figlet4s.internalFonts)
-    val test  = fonts.traverse(Figlet4s.loadFontInternal(_))
+    val test  = fonts.toList.traverse(Figlet4s.loadFontInternal(_))
     run(test)
   }
 

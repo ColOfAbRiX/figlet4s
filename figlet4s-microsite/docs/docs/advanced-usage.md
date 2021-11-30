@@ -96,7 +96,7 @@ object Main extends App {
       .builder("Error handling")
       .withInternalFont("does-not-exist") // This is safe and doesn't throw exceptions
 
-  // The builder is ran here and an exception is thrown
+  // The builder runs here and only here the exception is thrown
   val options = builder.options
 
   // Exception: com.colofabrix.scala.figlet4s.errors$FigletLoadingError

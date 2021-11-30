@@ -69,7 +69,9 @@ class FIGfontSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers with
       }.iterator
     val computed = adaptError(FIGfont(new File("test"), iterator))
     computed should be(invalid)
-    computed.invalidValue.head should startWith("FIGcharacterError - Can't determine endmark.")
+    computed.invalidValue.head should startWith(
+      "FIGFontError - Error while building a character on position 18: Can't determine endmark.",
+    )
   }
 
   it should "fail if the total number of characters doesn't respect the header" in new FontScope {
