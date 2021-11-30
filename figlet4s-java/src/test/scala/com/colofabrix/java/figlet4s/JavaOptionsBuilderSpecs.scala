@@ -5,7 +5,7 @@ import com.colofabrix.scala.figlet4s.testutils._
 import org.scalatest.flatspec._
 import org.scalatest.matchers.should._
 
-class JavaOptionsBuilderSpecs extends AnyFlatSpec with Matchers with Figlet4sMatchers {
+class JavaOptionsBuilderSpecs extends AnyFlatSpec with Matchers {
 
   //  Text  //
 

@@ -143,7 +143,7 @@ lazy val figlet4sCore: Project = project
 // Figlet4s Effects project
 lazy val figlet4sEffects: Project = project
   .in(file("figlet4s-effects"))
-  .dependsOn(figlet4sCore % "compile->compile;test->test")
+  .dependsOn(figlet4sCore % "compile->compile;test->test;it->it")
   .settings(commonScalaSettings)
   .configs(IntegrationTest)
   .settings(Defaults.itSettings)

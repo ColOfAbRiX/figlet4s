@@ -1,12 +1,11 @@
 package com.colofabrix.scala.figlet4s.options
 
 import com.colofabrix.scala.figlet4s.core.Figlet4sClient
-import com.colofabrix.scala.figlet4s.testutils._
 import com.colofabrix.scala.figlet4s.unsafe._
 import org.scalatest.flatspec._
 import org.scalatest.matchers.should._
 
-class OptionsBuilderSpecs extends AnyFlatSpec with Matchers with Figlet4sMatchers {
+class OptionsBuilderSpecs extends AnyFlatSpec with Matchers {
 
   //  Text  //
 
