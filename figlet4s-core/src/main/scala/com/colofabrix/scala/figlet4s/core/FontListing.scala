@@ -16,7 +16,7 @@ private[figlet4s] object FontListing {
    * @tparam F A higher-kinded type for which there is a [[cats.effect.Sync]] instance
    * @return The collection of names of FIGfonts shipped with this library
    */
-  def listInternalFonts[F[_]: Sync]: F[Seq[String]] = {
+  def listInternalFonts[F[_]: Sync]: F[Vector[String]] = {
     val resources =
       getClass
         .getProtectionDomain
@@ -26,11 +26,10 @@ private[figlet4s] object FontListing {
 
     val file = new File(resources)
 
-    if (file.isDirectory) {
-      val fontsPath = Paths.get(resources.resolve("fonts"))
-      fromDirectory(fontsPath).map(cleanAbsolutePath(fontsPath))
-    } else if (file.getName.toLowerCase.endsWith(".jar"))
-      fromJar(resources).map(cleanAbsolutePath(Paths.get("fonts")))
+    if (file.isDirectory)
+      fromDirectory(resources.resolve("fonts").getPath)
+    else if (file.getName.toLowerCase.endsWith(".jar"))
+      fromJar(resources)
     else
       Sync[F].raiseError {
         FigletError("Could not determine the type of artifacts where I can find the fonts")
@@ -39,47 +38,46 @@ private[figlet4s] object FontListing {
 
   //  Support  //
 
-  private def fromDirectory[F[_]: Sync](startPath: Path): F[Vector[Path]] = {
-    def br = new BufferedReader(new InputStreamReader(startPath.toUri.toURL.openStream()))
-    Braket.withResource(br) { reader =>
-      Sync[F].defer(listDirectory(startPath, reader))
-    }
+  @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
+  private def fromDirectory[F[_]: Sync](startPath: String): F[Vector[String]] = {
+    def recurse(currentPath: String): F[Vector[String]] =
+      Braket.withResource(openPath(currentPath)) { reader =>
+        Iterator
+          .continually(reader.readLine)
+          .takeWhile(Option(_).isDefined)
+          .map(Paths.get(currentPath, _).toString)
+          .toVector
+          .flatTraverse[F, String] {
+            case path if new File(path).isDirectory =>
+              recurse(path)
+            case path if path.toLowerCase.endsWith(".flf") =>
+              Sync[F].pure(Vector(path.substring(startPath.length + 1, path.length - 4)))
+            case _ =>
+              Sync[F].pure(Vector.empty)
+          }
+      }
+      recurse(startPath)
   }
 
-  private def listDirectory[F[_]: Sync](startPath: Path, reader: BufferedReader): F[Vector[Path]] =
-    Iterator
-      .continually(reader.readLine)
-      .takeWhile(Option(_).isDefined)
-      .toVector
-      .flatTraverse[F, Path] { name =>
-        val path = startPath.resolve(name)
-        if (Files.isDirectory(path)) fromDirectory(path) else Sync[F].pure(Vector(path))
-      }
+  private def openPath(path: String): BufferedReader = {
+    val stream = Paths.get(path).toUri.toURL.openStream
+    new BufferedReader(new InputStreamReader(stream))
+  }
 
-  private def fromJar[F[_]: Sync](resources: URI): F[Vector[Path]] = {
-    def zis = new ZipInputStream(resources.toURL.openStream)
-    Braket.withResource(zis) { zip =>
+  private def fromJar[F[_]: Sync](resources: URI): F[Vector[String]] =
+    Braket.withResource(new ZipInputStream(resources.toURL.openStream)) { zip =>
       Sync[F].delay(listJar(zip))
     }
-  }
 
-  private def listJar[F[_]: Sync](reader: ZipInputStream): Vector[Path] =
+  private def listJar[F[_]: Sync](reader: ZipInputStream): Vector[String] =
     Iterator
       .continually(reader.getNextEntry)
       .takeWhile(Option(_).isDefined)
-      .map(zipEntry => Paths.get(zipEntry.getName))
-      .withFilter(path => path.toString.startsWith("fonts") && path.toString.endsWith(".flf"))
-      .toVector
-
-  private def cleanAbsolutePath(basePath: Path)(paths: Vector[Path]): Seq[String] = {
-    val pathPrefix = basePath.toString + FileSystems.getDefault().getSeparator()
-    paths
-      .map {
-        _.toString()
-          .replace(pathPrefix, "")
-          .replace(".flf", "")
+      .map(_.getName)
+      .collect {
+        case path if path.startsWith("fonts/") && path.toLowerCase.endsWith(".flf") =>
+          path.substring("fonts/".length + 1, path.length - 4)
       }
-      .filterNot(_.endsWith(".flc"))
-  }
+      .toVector
 
 }
