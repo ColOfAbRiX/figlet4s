@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.3.2 - 2021/11/05
+
+### Bugfixes
+
+* Fixed "Internal font list on Windows still uses "\" path sep (#21)"
+
 ## v0.3.1 - 2021/11/13
 
 ### Bugfixes
@@ -12,7 +18,7 @@
 ### Added
 
 * Support for zipped font files
-* Figlet4s internal fonts can now be organised in directories
+* Figlet4s internal fonts can now be organised in directroies
 * Added Commodore64 FIGfonts
 
 ### Changed
