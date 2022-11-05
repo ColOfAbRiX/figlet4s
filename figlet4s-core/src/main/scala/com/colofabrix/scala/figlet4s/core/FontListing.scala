@@ -10,6 +10,8 @@ import java.util.zip._
 
 private[figlet4s] object FontListing {
 
+  private lazy val fontsDirectoryName: String = "fonts/"
+
   /**
    * The list of available internal fonts
    *
@@ -27,7 +29,7 @@ private[figlet4s] object FontListing {
     val file = new File(resources)
 
     if (file.isDirectory)
-      fromDirectory(resources.resolve("fonts").getPath)
+      fromDirectory(Paths.get(resources.resolve(fontsDirectoryName)).toString)
     else if (file.getName.toLowerCase.endsWith(".jar"))
       fromJar(resources)
     else
@@ -75,8 +77,8 @@ private[figlet4s] object FontListing {
       .takeWhile(Option(_).isDefined)
       .map(_.getName)
       .collect {
-        case path if path.startsWith("fonts/") && path.toLowerCase.endsWith(".flf") =>
-          path.substring("fonts/".length + 1, path.length - 4)
+        case path if path.startsWith(fontsDirectoryName) && path.toLowerCase.endsWith(".flf") =>
+          path.substring(fontsDirectoryName.length + 1, path.length - 4)
       }
       .toVector
 
