@@ -18,25 +18,19 @@ private[figlet4s] object FontListing {
    * @tparam F A higher-kinded type for which there is a [[cats.effect.Sync]] instance
    * @return The collection of names of FIGfonts shipped with this library
    */
-  def listInternalFonts[F[_]: Sync]: F[Vector[String]] = {
-    val resources =
-      getClass
-        .getProtectionDomain
-        .getCodeSource
-        .getLocation
-        .toURI
-
-    val file = new File(resources)
-
-    if (file.isDirectory)
-      fromDirectory(Paths.get(resources.resolve(fontsDirectoryName)).toString)
-    else if (file.getName.toLowerCase.endsWith(".jar"))
-      fromJar(resources)
-    else
-      Sync[F].raiseError {
-        FigletError("Could not determine the type of artifacts where I can find the fonts")
+  def listInternalFonts[F[_]: Sync]: F[Vector[String]] =
+    LibraryLocation
+      .discover
+      .flatMap {
+        case LibraryLocation.FileSystem(location, _) =>
+          fromDirectory(Paths.get(location.resolve(fontsDirectoryName)).toString)
+        case LibraryLocation.Jar(location) =>
+          fromJar(location)
+        case LibraryLocation.Unknown =>
+          Sync[F].raiseError {
+            FigletError("Could not determine the type of artifacts where I can find the fonts")
+          }
       }
-  }
 
   //  Support  //
 
@@ -58,7 +52,7 @@ private[figlet4s] object FontListing {
               Sync[F].pure(Vector.empty)
           }
       }
-      recurse(startPath)
+    recurse(startPath)
   }
 
   private def openPath(path: String): BufferedReader = {
@@ -78,7 +72,7 @@ private[figlet4s] object FontListing {
       .map(_.getName)
       .collect {
         case path if path.startsWith(fontsDirectoryName) && path.toLowerCase.endsWith(".flf") =>
-          path.substring(fontsDirectoryName.length + 1, path.length - 4)
+          path.substring(fontsDirectoryName.length, path.length - 4)
       }
       .toVector
 
