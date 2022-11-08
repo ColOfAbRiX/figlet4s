@@ -58,7 +58,7 @@ class UnsafeFiglet4sSpecs extends AnyFlatSpec with Matchers with Figlet4sMatcher
     val actual =
       Figlet4s
         .internalFonts
-        .filterNot(startPathRegex.matches(_))
+        .filterNot(startPathRegex.findFirstIn(_).isDefined)
 
     actual shouldBe empty
   }
@@ -69,7 +69,7 @@ class UnsafeFiglet4sSpecs extends AnyFlatSpec with Matchers with Figlet4sMatcher
         .keySet
         .map(subdir => s"$subdir$pathSeparator")
         .toSeq
-        .appended("")
+        .:+("")
 
     val actual =
       Figlet4s
@@ -95,7 +95,7 @@ class UnsafeFiglet4sSpecs extends AnyFlatSpec with Matchers with Figlet4sMatcher
             val subdirPathRegex = s"^$subdir\\$pathSeparator.*".r
             Figlet4s
               .internalFonts
-              .filter(subdirPathRegex.matches(_))
+              .filter(subdirPathRegex.findFirstIn(_).isDefined)
               .length
         }
 
