@@ -187,7 +187,7 @@ class UnsafeFiglet4sSpecs extends AnyFlatSpec with Matchers with Figlet4sMatcher
     LibraryLocation.discover[cats.Id] match {
       case LibraryLocation.Jar(_) =>
         // NOTE: I do not know how I can ever test this section if not by publishing locally
-        val regex = "^([^/]+/|)[^/]+$".r
+        val regex     = "^([^/]+/|)[^/]+$".r
         val separator = "/"
         (regex, separator)
       case LibraryLocation.FileSystem(_, separator) =>

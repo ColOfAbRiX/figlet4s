@@ -27,7 +27,7 @@ private[figlet4s] object LibraryLocation {
             .getProtectionDomain
             .getCodeSource
             .getLocation
-            .toURI
+            .toURI,
         )
 
       resources match {
