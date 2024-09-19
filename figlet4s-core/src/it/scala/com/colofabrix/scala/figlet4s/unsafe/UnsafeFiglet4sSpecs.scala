@@ -23,7 +23,7 @@ class UnsafeFiglet4sSpecs extends AnyFlatSpec with Matchers with Figlet4sMatcher
     computed should lookLike(expected)
   }
 
-  it should "render the texts as the original command line FIGlet does" taggedAs (SlowTest) in {
+  it should "render the texts as the original command line FIGlet does" taggedAs SlowTest in {
     figletRenderingTest { testData =>
       val testBuilder =
         Figlet4s
@@ -50,7 +50,7 @@ class UnsafeFiglet4sSpecs extends AnyFlatSpec with Matchers with Figlet4sMatcher
 
   it should "list the correct number of fonts" in {
     val actual   = Figlet4s.internalFonts.length
-    val expected = 380
+    val expected = 380 //It's 453 on macOS Sonoma
     actual shouldBe expected
   }
 
@@ -95,8 +95,7 @@ class UnsafeFiglet4sSpecs extends AnyFlatSpec with Matchers with Figlet4sMatcher
             val subdirPathRegex = s"^$subdir\\$pathSeparator.*".r
             Figlet4s
               .internalFonts
-              .filter(subdirPathRegex.findFirstIn(_).isDefined)
-              .length
+              .count(subdirPathRegex.findFirstIn(_).isDefined)
         }
 
     actual should contain theSameElementsInOrderAs expected
@@ -136,28 +135,28 @@ class UnsafeFiglet4sSpecs extends AnyFlatSpec with Matchers with Figlet4sMatcher
   }
 
   it should "load a font file" in {
-    val fontPath = getClass.getResource("/raw.flf").getPath()
+    val fontPath = getClass.getResource("/raw.flf").getPath
     Figlet4s.loadFont(fontPath)
   }
 
   it should "load a zipped font file" in {
-    val fontPath = getClass.getResource("/compressed.flf").getPath()
+    val fontPath = getClass.getResource("/compressed.flf").getPath
     Figlet4s.loadFont(fontPath)
   }
 
   it should "use the first added file in a zipped font file" in {
-    val fontPath = getClass.getResource("/multiple.flf").getPath()
+    val fontPath = getClass.getResource("/multiple.flf").getPath
     val font     = Figlet4s.loadFont(fontPath)
     font.comment should include("Standard by Glenn Chappell & Ian Chai")
   }
 
   it should "error on an empty zipped font file" in {
-    val fontPath = getClass.getResource("/empty.flf").getPath()
+    val fontPath = getClass.getResource("/empty.flf").getPath
     val caught =
       intercept[FigletLoadingError] {
         Figlet4s.loadFont(fontPath)
       }
-    caught.getMessage() shouldBe "Cannot read font file from ZIP"
+    caught.getMessage shouldBe "Cannot read font file from ZIP"
   }
 
   //  Fonts  //
@@ -199,6 +198,7 @@ class UnsafeFiglet4sSpecs extends AnyFlatSpec with Matchers with Figlet4sMatcher
 
   private lazy val fontsSubdirectories: Map[String, Int] =
     Map(
+      //"bdffonts" -> 73, //This is required on macOS Sonoma
       "c64" -> 186,
     )
 

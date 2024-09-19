@@ -1,6 +1,6 @@
-import sbt._
 import Dependencies._
 import TestDependencies._
+import sbt._
 import utils._
 import xerial.sbt.Sonatype._
 
@@ -53,15 +53,15 @@ val commonScalaSettings: Seq[Def.Setting[_]] = Seq(
   Test / testOptions += Tests.Argument("-oFD"),
   // Compiler options
   scalacOptions := versioned(scalaVersion.value)(
-    Compiler.Options_2_12 ++ Compiler.StrictOptions,
-    Compiler.Options_2_13 ++ Compiler.StrictOptions,
+    Seq.empty,
+    Compiler.Options_2_13,
   ),
   Test / scalacOptions := versioned(scalaVersion.value)(
-    Compiler.Options_2_12,
+    Seq.empty,
     Compiler.Options_2_13,
   ),
   IntegrationTest / scalacOptions := versioned(scalaVersion.value)(
-    Compiler.Options_2_12,
+    Seq.empty,
     Compiler.Options_2_13,
   ),
   // Cross Scala Versions
@@ -80,9 +80,12 @@ val commonScalaSettings: Seq[Def.Setting[_]] = Seq(
   // Scaladoc
   Compile / autoAPIMappings := true,
   Compile / doc / scalacOptions ++= Seq(
-    "-doc-title", "Figlet4s API Documentation",
-    "-doc-version", version.value,
-    "-encoding", "UTF-8",
+    "-doc-title",
+    "Figlet4s API Documentation",
+    "-doc-version",
+    version.value,
+    "-encoding",
+    "UTF-8",
   ),
   // Packaging and publishing
   Compile / packageBin / packageOptions ++= Seq(

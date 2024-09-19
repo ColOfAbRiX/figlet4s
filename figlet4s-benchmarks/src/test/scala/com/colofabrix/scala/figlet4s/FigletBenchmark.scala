@@ -25,12 +25,12 @@ abstract class FigletBenchmark extends Bench[Double] {
   def persistor: Persistor =
     new persistence.GZIPJSONSerializationPersistor
 
-  override def reporter: Reporter[Double] =
-    LoggingReporter()
+  private def historian: RegressionReporter.Historian =
+    RegressionReporter.Historian.ExponentialBackoff()
 
   private def tester: RegressionReporter.Tester =
     RegressionReporter.Tester.Accepter()
 
-  private def historian: RegressionReporter.Historian =
-    RegressionReporter.Historian.ExponentialBackoff()
+  override def reporter: Reporter[Double] =
+    RegressionReporter(tester, historian)
 }
