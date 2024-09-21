@@ -3,6 +3,7 @@ package com.colofabrix.scala.figlet4s.figfont
 import cats.data.Validated
 import cats.implicits._
 import com.colofabrix.scala.figlet4s.errors._
+
 import scala.util.matching.Regex
 
 /**
@@ -55,25 +56,35 @@ object FIGcharacter {
       comment: Option[String],
       position: Int,
   ): FigletResult[FIGcharacter] = {
-    val maxWidthV = Validated.condNec(
-      maxWidth > 0,
-      maxWidth,
-      FIGheaderError(s"Value of 'maxLength' must be positive: $maxWidth"),
-    )
+    val commentV: FigletResult[Option[String]] = comment.validNec
+
+    val fontIdV: FigletResult[String] = fontId.validNec
+
+    val nameV: FigletResult[Char] =
+      if (name =!= '\uffff') name.validNec
+      else FIGcharacterError(s"Name '-1' is illegal").invalidNec
+
+    val endmarkV: FigletResult[Char]        = validateEndmark(name, position, lines)
+    val cleanLinesV: FigletResult[SubLines] = endmarkV andThen cleanLines(lines)
+
     val argHeightV = Validated.condNec(
       height > 0,
       height,
       FIGheaderError(s"Value of 'height' must be positive: $height"),
     )
-    val nameV       = if (name =!= '\uffff') name.validNec else FIGcharacterError(s"Name '-1' is illegal").invalidNec
-    val endmarkV    = validateEndmark(name, position, lines)
-    val cleanLinesV = endmarkV andThen cleanLines(lines)
-    val widthV      = maxWidthV.andThen { cleanLinesV andThen validateWidth(name, _, position) }
-    val heightV     = argHeightV.andThen { cleanLinesV andThen validateHeight(name, position, _) }
+    val heightV: FigletResult[Int] = argHeightV andThen { cleanLinesV andThen validateHeight(name, position, _) }
+
+    val maxWidthV = Validated.condNec(
+      maxWidth > 0,
+      maxWidth,
+      FIGheaderError(s"Value of 'maxLength' must be positive: $maxWidth"),
+    )
+    val widthV: FigletResult[Int] = maxWidthV andThen { cleanLinesV andThen validateWidth(name, _, position) }
+
+    val positionV: FigletResult[Int] = position.validNec
 
     heightV andThen { _ =>
-      (fontId.validNec, nameV, cleanLinesV, endmarkV, widthV, comment.validNec, position.validNec)
-        .mapN(FIGcharacter.apply)
+      (fontIdV, nameV, cleanLinesV, endmarkV, widthV, commentV, positionV).mapN(FIGcharacter.apply)
     }
   }
 

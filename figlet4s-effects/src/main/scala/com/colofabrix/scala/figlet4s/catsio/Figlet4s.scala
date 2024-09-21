@@ -1,10 +1,12 @@
 package com.colofabrix.scala.figlet4s.catsio
 
 import cats.effect._
+import cats.effect.unsafe.IORuntime
 import com.colofabrix.scala.figlet4s.api._
 import com.colofabrix.scala.figlet4s.core._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options._
+
 import scala.io.Codec
 
 /**
@@ -12,7 +14,7 @@ import scala.io.Codec
  *
  * This Figlet client returns results wrapped in cats' IO
  */
-object Figlet4s extends Figlet4sAPI[IO] with Figlet4sEffectfulAPI[IO] {
+class Figlet4s(implicit ioRuntime: IORuntime) extends Figlet4sAPI[IO] with Figlet4sEffectfulAPI[IO] {
 
   /**
    * The list of available internal fonts

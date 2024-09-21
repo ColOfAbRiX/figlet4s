@@ -2,7 +2,10 @@ package com.colofabrix.scala.figlet4s
 
 import cats._
 import cats.effect._
+import cats.effect.kernel.CancelScope
 import com.colofabrix.scala.figlet4s.errors._
+
+import scala.concurrent.duration.FiniteDuration
 import scala.util._
 
 /**
@@ -73,37 +76,54 @@ package object either extends FIGureMixin with OptionsBuilderMixin {
 
     private val M: Monad[FigletEither] = Monad[FigletEither](catsStdInstancesForEither)
 
-    def pure[A](x: A): FigletEither[A] =
+    override def pure[A](x: A): FigletEither[A] =
       M.pure(x)
 
-    def flatMap[A, B](fa: FigletEither[A])(f: A => FigletEither[B]): FigletEither[B] =
+    override def flatMap[A, B](fa: FigletEither[A])(f: A => FigletEither[B]): FigletEither[B] =
       M.flatMap(fa)(f)
 
-    def tailRecM[A, B](a: A)(f: A => FigletEither[Either[A, B]]): FigletEither[B] =
+    override def tailRecM[A, B](a: A)(f: A => FigletEither[Either[A, B]]): FigletEither[B] =
       M.tailRecM(a)(f)
 
-    def suspend[A](thunk: => FigletEither[A]): FigletEither[A] =
-      Try(thunk)
-        .toEither
-        .flatMap(identity)
-        .leftFlatMap(raiseError)
-
-    def raiseError[A](t: Throwable): FigletEither[A] =
+    override def raiseError[A](t: Throwable): FigletEither[A] =
       t match {
         case fe: FigletException => Left(fe)
         case t: Throwable        => Left(FigletError(t.getMessage, t))
       }
 
-    // format: off
-    def bracketCase[A, B](acquire: FigletEither[A])(use: A => FigletEither[B])(release: (A, ExitCase[Throwable]) => FigletEither[Unit]): FigletEither[B] =
-      throw new NotImplementedError("Sync[FigletEither] does not support Bracket.bracketCase")
-    // format: on
-
-    def handleErrorWith[A](fa: FigletEither[A])(f: Throwable => FigletEither[A]): FigletEither[A] =
+    override def handleErrorWith[A](fa: FigletEither[A])(f: Throwable => FigletEither[A]): FigletEither[A] =
       fa match {
         case Left(value) => f(value)
         case Right(_)    => fa
       }
+
+    override def suspend[A](hint: Sync.Type)(thunk: => A): FigletEither[A] =
+      M.pure(thunk)
+
+    override def monotonic: FigletEither[FiniteDuration] =
+      M.pure(FiniteDuration(System.nanoTime(), "nanos"))
+
+    override def realTime: FigletEither[FiniteDuration] =
+      M.pure(FiniteDuration(System.currentTimeMillis(), "millis"))
+
+    override def rootCancelScope: CancelScope =
+      CancelScope.Cancelable
+
+    override def forceR[A, B](fa: FigletEither[A])(fb: FigletEither[B]): FigletEither[B] =
+      M.flatMap(
+        handleError(fa.asInstanceOf[FigletEither[Unit]])(_ => M.pure(()))
+      )(_ => fb)
+
+    override def uncancelable[A](body: Poll[FigletEither] => FigletEither[A]): FigletEither[A] =
+      body.apply(new Poll[FigletEither] {
+        override def apply[B](fb: FigletEither[B]): FigletEither[B] = fb
+      })
+
+    override def canceled: FigletEither[Unit] =
+      M.pure(())
+
+    override def onCancel[A](fa: FigletEither[A], fin: FigletEither[Unit]): FigletEither[A] =
+      M.flatMap(fin)(_ => fa)
   }
 
   /**

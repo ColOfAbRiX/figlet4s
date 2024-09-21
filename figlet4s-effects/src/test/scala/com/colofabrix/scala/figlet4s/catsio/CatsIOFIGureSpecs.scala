@@ -4,6 +4,7 @@ import cats.effect.IO
 import com.colofabrix.scala.figlet4s.StandardTestData._
 import org.scalatest.flatspec._
 import org.scalatest.matchers.should._
+import cats.effect.unsafe.implicits.global
 
 class CatsIOFIGureSpecs extends AnyFlatSpec with Matchers {
 

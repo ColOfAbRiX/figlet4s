@@ -3,7 +3,6 @@ package com.colofabrix.scala.figlet4s
 import cats._
 import cats.effect._
 import cats.effect.kernel.CancelScope
-import cats.effect.kernel.Resource.ExitCase
 import com.colofabrix.scala.figlet4s.errors._
 
 import scala.concurrent.duration.FiniteDuration
@@ -64,29 +63,48 @@ package object unsafe extends OptionsBuilderMixin with FIGureMixin {
    */
   @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   implicit private[unsafe] val syncId: Sync[Id] = new Sync[Id] {
-    private val M: Monad[Id] = Monad[Id](catsInstancesForId)
+    implicit private val M: Monad[Id] = Monad[Id](catsInstancesForId)
 
-    def pure[A](x: A): Id[A] =
+    override def pure[A](x: A): Id[A] =
       M.pure(x)
 
-    def flatMap[A, B](fa: Id[A])(f: A => Id[B]): Id[B] =
+    override def flatMap[A, B](fa: Id[A])(f: A => Id[B]): Id[B] =
       M.flatMap(fa)(f)
 
-    def tailRecM[A, B](a: A)(f: A => Id[Either[A, B]]): Id[B] =
+    override def tailRecM[A, B](a: A)(f: A => Id[Either[A, B]]): Id[B] =
       M.tailRecM(a)(f)
 
-    // NOTE: This is not a suspension as Id cannot suspend evaluation
-    def suspend[A](thunk: => Id[A]): Id[A] =
-      thunk
-
-    def raiseError[A](e: Throwable): Id[A] =
+    override def raiseError[A](e: Throwable): Id[A] =
       throw e
 
-    def bracketCase[A, B](resource: Id[A])(use: A => Id[B])(release: (A, ExitCase[Throwable]) => Id[Unit]): Id[B] =
-      throw new NotImplementedError("Sync[Id] does not support Bracket.bracketCase")
-
-    def handleErrorWith[A](fa: Id[A])(f: Throwable => Id[A]): Id[A] =
+    override def handleErrorWith[A](fa: Id[A])(f: Throwable => Id[A]): Id[A] =
       throw new NotImplementedError("Sync[Id] does not support ApplicativeError.handleErrorWith")
+
+    override def suspend[A](hint: Sync.Type)(thunk: => A): Id[A] =
+      M.pure(thunk)
+
+    override def monotonic: Id[FiniteDuration] =
+      M.pure(FiniteDuration(System.nanoTime(), "nanos"))
+
+    override def realTime: Id[FiniteDuration] =
+      M.pure(FiniteDuration(System.currentTimeMillis(), "millis"))
+
+    override def rootCancelScope: CancelScope =
+      CancelScope.Cancelable
+
+    override def forceR[A, B](fa: Id[A])(fb: Id[B]): Id[B] =
+      M.flatMap(fa)(_ => fb)
+
+    override def uncancelable[A](body: Poll[Id] => Id[A]): Id[A] =
+      body.apply(new Poll[Id] {
+        override def apply[B](fb: Id[B]): Id[B] = fb
+      })
+
+    override def canceled: Id[Unit] =
+      M.pure(())
+
+    override def onCancel[A](fa: Id[A], fin: Id[Unit]): Id[A] =
+      M.flatMap(fin)(_ => fa)
   }
 
   /**

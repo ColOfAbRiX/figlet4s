@@ -2,6 +2,7 @@ package com.colofabrix.scala.figlet4s.core
 
 import cats._
 import cats.effect._
+import cats.effect.unsafe.implicits.global
 import cats.implicits._
 import cats.scalatest._
 import com.colofabrix.scala.figlet4s.errors._
@@ -11,7 +12,7 @@ import org.scalatest.matchers.should._
 
 class BraketSpecs extends AnyFlatSpec with Matchers with MockFactory with EitherMatchers with EitherValues {
 
-  val expected: Int = 123
+  private val expected: Int = 123
 
   //  Unsafe  //
 
@@ -46,7 +47,7 @@ class BraketSpecs extends AnyFlatSpec with Matchers with MockFactory with Either
       Braket.withResource(mockResource)(mockUserFunction)
     }
 
-    actual.getMessage() shouldBe "failure"
+    actual.getMessage shouldBe "failure"
   }
 
   it should "throw a RuntimeException when close() fails" in {
@@ -64,7 +65,7 @@ class BraketSpecs extends AnyFlatSpec with Matchers with MockFactory with Either
       Braket.withResource(mockResource)(mockUserFunction)
     }
 
-    actual.getMessage() shouldBe "close failure"
+    actual.getMessage shouldBe "close failure"
   }
 
   it should "throw a FigletLoadingError when the user function and the close() fail" in {
@@ -82,7 +83,7 @@ class BraketSpecs extends AnyFlatSpec with Matchers with MockFactory with Either
       Braket.withResource(mockResource)(mockUserFunction)
     }
 
-    actual.getMessage() shouldBe "failure"
+    actual.getMessage shouldBe "failure"
     actual.getSuppressed.map(_.getMessage()).mkString shouldBe "close failure"
   }
 
@@ -120,7 +121,7 @@ class BraketSpecs extends AnyFlatSpec with Matchers with MockFactory with Either
 
     actual should be(left)
     actual.leftValue shouldBe a[FigletLoadingError]
-    actual.leftValue.getMessage() shouldBe "failure"
+    actual.leftValue.getMessage shouldBe "failure"
   }
 
   it should "return a RuntimeException when close() fails" in {
@@ -138,7 +139,7 @@ class BraketSpecs extends AnyFlatSpec with Matchers with MockFactory with Either
 
     actual should be(left)
     actual.leftValue shouldBe a[RuntimeException]
-    actual.leftValue.getMessage() shouldBe "close failure"
+    actual.leftValue.getMessage shouldBe "close failure"
   }
 
   it should "return a FigletLoadingError when the user function and the close() fail" in {
@@ -156,7 +157,7 @@ class BraketSpecs extends AnyFlatSpec with Matchers with MockFactory with Either
 
     actual should be(left)
     actual.leftValue shouldBe a[FigletLoadingError]
-    actual.leftValue.getMessage() shouldBe "failure"
+    actual.leftValue.getMessage shouldBe "failure"
     actual.leftValue.getSuppressed.map(_.getMessage()).mkString shouldBe "close failure"
   }
 
@@ -199,7 +200,7 @@ class BraketSpecs extends AnyFlatSpec with Matchers with MockFactory with Either
         .unsafeRunSync()
 
     actual shouldBe a[FigletLoadingError]
-    actual.getMessage() shouldBe "failure"
+    actual.getMessage shouldBe "failure"
   }
 
   it should "return a RuntimeException when close() fails" in {
@@ -220,7 +221,7 @@ class BraketSpecs extends AnyFlatSpec with Matchers with MockFactory with Either
         .unsafeRunSync()
 
     actual shouldBe a[RuntimeException]
-    actual.getMessage() shouldBe "close failure"
+    actual.getMessage shouldBe "close failure"
   }
 
   it should "return a FigletLoadingError when the user function and the close() fail" in {
@@ -241,7 +242,7 @@ class BraketSpecs extends AnyFlatSpec with Matchers with MockFactory with Either
         .unsafeRunSync()
 
     actual shouldBe a[FigletLoadingError]
-    actual.getMessage() shouldBe "failure"
+    actual.getMessage shouldBe "failure"
     actual.getSuppressed.map(_.getMessage()).mkString shouldBe "close failure"
   }
 

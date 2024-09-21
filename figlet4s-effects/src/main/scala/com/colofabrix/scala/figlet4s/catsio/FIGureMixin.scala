@@ -1,12 +1,14 @@
 package com.colofabrix.scala.figlet4s.catsio
 
 import cats.effect.IO
+import cats.effect.unsafe.IORuntime
 import com.colofabrix.scala.figlet4s.api._
 import com.colofabrix.scala.figlet4s.figfont._
 
 private[catsio] trait FIGureMixin {
 
-  implicit class FIGureOps(val self: FIGure) extends FIGureAPI[IO] with FIGureEffectfulAPI[IO] {
+  implicit class FIGureOps(val self: FIGure)(implicit ioRuntime: IORuntime)
+    extends FIGureAPI[IO] with FIGureEffectfulAPI[IO] {
     /**
      * Apply a function to each line of the FIGure
      *

@@ -1,13 +1,13 @@
 package com.colofabrix.scala.figlet4s.either
 
 import cats.effect._
+import cats.effect.unsafe.implicits.global
 import cats.implicits._
 import cats.scalatest._
 import com.colofabrix.scala.figlet4s.core.Figlet4sClient
 import com.colofabrix.scala.figlet4s.errors._
 import org.scalatest.flatspec._
 import org.scalatest.matchers.should._
-import scala.concurrent._
 
 class EitherFiglet4sSpecs extends AnyFlatSpec with Matchers with EitherMatchers with EitherValues {
 
@@ -26,8 +26,6 @@ class EitherFiglet4sSpecs extends AnyFlatSpec with Matchers with EitherMatchers 
   }
 
   it should "support loading of internal fonts in parallel" in {
-    implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
-
     val data = Figlet4s
       .internalFonts
       .value

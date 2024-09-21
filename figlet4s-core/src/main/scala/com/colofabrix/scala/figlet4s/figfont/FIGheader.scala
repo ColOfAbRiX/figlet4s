@@ -153,18 +153,23 @@ object FIGheader {
       }
 
   private def validatePrintDirection(printDirection: Option[String]): FigletResult[Option[PrintDirection]] =
-    printDirection.traverse { value =>
-      value
-        .toIntOption
-        .toValidNec(FIGheaderError(s"Couldn't parse header field 'printDirection': $printDirection"))
-        .andThen {
-          PrintDirection(_).leftMap(_.map(FIGheaderError(s"Invalid value for field 'printDirection': $value", _)))
-        }
+    printDirection match {
+      case Some(value) =>
+        value
+          .toIntOption
+          .toValidNec(FIGheaderError(s"Couldn't parse header field 'printDirection': $printDirection"))
+          .andThen {
+            PrintDirection(_).leftMap(_.map(FIGheaderError(s"Invalid value for field 'printDirection': $value", _)))
+          }
+          .map(Some(_))
+      case None =>
+        none[PrintDirection].validNec
     }
 
   private def validateFullLayout(fullLayout: Option[String]): FigletResult[Option[Vector[FullLayout]]] =
-    fullLayout.traverse { value =>
-      value
+    fullLayout match {
+      case Some(value) =>
+        value
         .toIntOption
         .toValidNec(FIGheaderError(s"Couldn't parse header field 'fullLayout': $fullLayout"))
         .andThen { value =>
@@ -173,18 +178,26 @@ object FIGheader {
           Validated.condNec(valid, value, error)
         }
         .andThen(FullLayout(_))
+        .map(Some(_))
+      case None =>
+        none[Vector[FullLayout]].validNec
     }
 
-  private def validateCodetagCount(codetagCount: Option[String]): FigletResult[Option[Int]] =
-    codetagCount.traverse { value =>
-      value
-        .toIntOption
-        .toValidNec(FIGheaderError(s"Couldn't parse header field 'codetagCount': $codetagCount"))
-        .andThen { value =>
-          lazy val error = FIGheaderError(s"Field 'codetagCount' must be non-negative: $codetagCount")
-          Validated.condNec(value >= 0, value, error)
-        }
+  private def validateCodetagCount(codetagCount: Option[String]): FigletResult[Option[Int]] = {
+    codetagCount match {
+      case Some(value) =>
+        value
+          .toIntOption
+          .toValidNec(FIGheaderError(s"Couldn't parse header field 'codetagCount': $codetagCount"))
+          .andThen { value =>
+            lazy val error = FIGheaderError(s"Field 'codetagCount' must be non-negative: $codetagCount")
+            Validated.condNec(value >= 0, value, error)
+          }
+          .map(Some(_))
+      case None =>
+        none[Int].validNec
     }
+  }
 
   ->()
 }
