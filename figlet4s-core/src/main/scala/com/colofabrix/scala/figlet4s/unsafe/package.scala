@@ -2,7 +2,11 @@ package com.colofabrix.scala.figlet4s
 
 import cats._
 import cats.effect._
+import cats.effect.kernel.CancelScope
+import cats.effect.kernel.Resource.ExitCase
 import com.colofabrix.scala.figlet4s.errors._
+
+import scala.concurrent.duration.FiniteDuration
 
 /**
  * Figlet4s user interfaces that do not use effects

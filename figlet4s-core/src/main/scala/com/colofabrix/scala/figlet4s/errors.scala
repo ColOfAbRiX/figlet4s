@@ -1,9 +1,9 @@
 package com.colofabrix.scala.figlet4s
 
 import cats.data._
-import cats.effect._
 import cats.implicits._
-import cats.MonadError
+import cats.{MonadError, MonadThrow}
+
 import scala.util._
 
 @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
