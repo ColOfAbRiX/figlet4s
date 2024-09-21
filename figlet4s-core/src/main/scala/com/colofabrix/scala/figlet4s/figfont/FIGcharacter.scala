@@ -113,7 +113,7 @@ object FIGcharacter {
 
     val extractedEndmarksV =
       Validated.condNec(
-        linesTerminations.forall(l => l.length > 0 && l.length <= 2),
+        linesTerminations.forall(l => l.nonEmpty && l.length <= 2),
         linesTerminations.flatMap(_.toList).toSet,
         FIGcharacterError(
           s"Can't determine endmark. There are lines with no termination or more than 2-characters termination on " +

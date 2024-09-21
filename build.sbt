@@ -1,14 +1,14 @@
-import Dependencies._
-import TestDependencies._
-import sbt._
-import utils._
-import xerial.sbt.Sonatype._
+import Dependencies.*
+import TestDependencies.*
+import sbt.*
+import utils.*
+//import xerial.sbt.Sonatype.*
 
 // General
 Global / onChangedBuildSource := ReloadOnSourceChanges
 Global / lintUnusedKeysOnLoad := false
-ThisBuild / turbo             := true
 ThisBuild / scalaVersion      := ScalaLangVersion
+ThisBuild / turbo             := true
 
 // Project information
 ThisBuild / name                 := "figlet4s"
@@ -28,81 +28,79 @@ ThisBuild / developers := List(
 // Publishing
 ThisBuild / pomIncludeRepository := { _ => false }
 ThisBuild / publishMavenStyle    := true
-ThisBuild / sonatypeProjectHosting := Some(
-  GitHubHosting("ColOfAbRiX", "figlet4s", "colofabrix@tin.it"),
-)
+//ThisBuild / sonatypeProjectHosting := Some(
+//  GitHubHosting("ColOfAbRiX", "figlet4s", "colofabrix@tin.it"),
+//)
 ThisBuild / publishTo := Some(
   if (isSnapshot.value) Opts.resolver.sonatypeSnapshots
   else Opts.resolver.sonatypeStaging,
 )
 
 // GIT version information
-ThisBuild / dynverSonatypeSnapshots := true
+//ThisBuild / dynverSonatypeSnapshots := true
 
 // Scalafix
-ThisBuild / scalafixDependencies       += "com.github.liancheng" %% "organize-imports" % "0.4.4"
-ThisBuild / scalafixScalaBinaryVersion := CrossVersion.binaryScalaVersion(scalaVersion.value)
-ThisBuild / semanticdbEnabled          := true
-ThisBuild / semanticdbVersion          := scalafixSemanticdb.revision
+//ThisBuild / scalafixDependencies       += "com.github.liancheng" %% "organize-imports" % "0.6.0"
+//ThisBuild / scalafixScalaBinaryVersion := CrossVersion.binaryScalaVersion(scalaVersion.value)
+//ThisBuild / semanticdbEnabled          := true
+//ThisBuild / semanticdbVersion          := scalafixSemanticdb.revision
 
 addCommandAlias("styleApply", "; scalafmtAll; scalafixAll")
 addCommandAlias("styleCheck", "; scalafmtCheckAll; scalafixAll --check")
 
-val commonScalaSettings: Seq[Def.Setting[_]] = Seq(
-  // Testing
-  Test / testOptions += Tests.Argument("-oFD"),
+val commonScalaSettings: Seq[Def.Setting[?]] = Seq(
   // Compiler options
   scalacOptions := versioned(scalaVersion.value)(
     Seq.empty,
     Compiler.Options_2_13,
   ),
+  // Testing
   Test / scalacOptions := versioned(scalaVersion.value)(
     Seq.empty,
     Compiler.Options_2_13,
   ),
-  IntegrationTest / scalacOptions := versioned(scalaVersion.value)(
-    Seq.empty,
-    Compiler.Options_2_13,
-  ),
+  Test / testOptions += Tests.Argument("-oFD"),
   // Cross Scala Versions
   crossScalaVersions := SupportedScalaLangVersion,
   // Wartremover
-  Compile / wartremoverErrors := Warts.allBut(
-    Wart.Any,
-    Wart.DefaultArguments,
-    Wart.Nothing,
-    Wart.Overloading,
-    Wart.StringPlusAny,
-    Wart.ToString,
-    // Covered by ScalaFix
-    Wart.PublicInference,
-  ),
+//  Compile / wartremoverErrors := Warts.allBut(
+//    Wart.Any,
+//    Wart.DefaultArguments,
+//    Wart.Nothing,
+//    Wart.Overloading,
+//    Wart.StringPlusAny,
+//    Wart.ToString,
+//     Covered by ScalaFix
+//    Wart.PublicInference,
+//  ),
   // Scaladoc
   Compile / autoAPIMappings := true,
   Compile / doc / scalacOptions ++= Seq(
-    "-doc-title",
-    "Figlet4s API Documentation",
-    "-doc-version",
-    version.value,
-    "-encoding",
-    "UTF-8",
+    "-doc-title", "Figlet4s API Documentation",
+    "-doc-version", version.value,
+    "-encoding", "UTF-8",
   ),
   // Packaging and publishing
-  Compile / packageBin / packageOptions ++= Seq(
-    Package.ManifestAttributes(
-      ("Git-Build-Branch", git.gitCurrentBranch.value),
-      ("Git-Head-Commit-Date", git.gitHeadCommitDate.value.getOrElse("")),
-      ("Git-Head-Commit", git.gitHeadCommit.value.getOrElse("")),
-      ("Git-Uncommitted-Changes", git.gitUncommittedChanges.value.toString),
-    ),
-  ),
+//  Compile / packageBin / packageOptions ++= Seq(
+//    Package.ManifestAttributes(
+//      ("Git-Build-Branch", git.gitCurrentBranch.value),
+//      ("Git-Head-Commit-Date", git.gitHeadCommitDate.value.getOrElse("")),
+//      ("Git-Head-Commit", git.gitHeadCommit.value.getOrElse("")),
+//      ("Git-Uncommitted-Changes", git.gitUncommittedChanges.value.toString),
+//    ),
+//  ),
 )
+
 
 // Figlet4s
 lazy val figlet4s: Project = project
   .in(file("."))
-  .aggregate(figlet4sCore, figlet4sEffects, figlet4sJava)
-  .enablePlugins(ScalaUnidocPlugin)
+  .aggregate(
+    figlet4sCore,
+    figlet4sEffects,
+    figlet4sJava
+  )
+//  .enablePlugins(ScalaUnidocPlugin)
   .settings(
     name               := "figlet4s",
     crossScalaVersions := Nil,
@@ -118,15 +116,13 @@ lazy val figlet4s: Project = project
         |     Welcome to the build for Figlet4s
         |
         |""".stripMargin,
-    ScalaUnidoc / unidoc / unidocProjectFilter := inAnyProject -- inProjects(figlet4sJava),
+//    ScalaUnidoc / unidoc / unidocProjectFilter := inAnyProject -- inProjects(figlet4sJava),
   )
 
 // Figlet4s Core project
 lazy val figlet4sCore: Project = project
   .in(file("figlet4s-core"))
   .settings(commonScalaSettings)
-  .configs(IntegrationTest)
-  .settings(Defaults.itSettings)
   .settings(
     name        := "figlet4s-core",
     description := "ASCII-art banners in Scala",
@@ -146,10 +142,8 @@ lazy val figlet4sCore: Project = project
 // Figlet4s Effects project
 lazy val figlet4sEffects: Project = project
   .in(file("figlet4s-effects"))
-  .dependsOn(figlet4sCore % "compile->compile;test->test;it->it")
+  .dependsOn(figlet4sCore % "compile->compile;test->test")
   .settings(commonScalaSettings)
-  .configs(IntegrationTest)
-  .settings(Defaults.itSettings)
   .settings(
     name        := "figlet4s-effects",
     description := "Effects extension for Figlet4s",
@@ -178,7 +172,7 @@ lazy val figlet4sJava: Project = project
       ScalaTestShouldMatchersDep,
     ),
   )
-
+/*
 lazy val figlet4sMicrosite = project
   .in(file("figlet4s-microsite"))
   .enablePlugins(MicrositesPlugin)
@@ -206,7 +200,7 @@ lazy val figlet4sMicrosite = project
       "SCALA_VERSION" -> """\d+\.\d+""".r.findFirstIn(scalaVersion.value).getOrElse(""),
     ),
   )
-
+*/
 // Figlet4s Benchmarks project
 lazy val figlet4sBenchmarks: Project = project
   .in(file("figlet4s-benchmarks"))

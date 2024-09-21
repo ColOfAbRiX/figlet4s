@@ -1,6 +1,5 @@
 package com.colofabrix.scala.figlet4s
 
-import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options._
 import com.colofabrix.scala.figlet4s.unsafe._
 import org.scalameter.api._
