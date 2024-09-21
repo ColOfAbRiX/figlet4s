@@ -130,7 +130,8 @@ lazy val figlet4sCore: Project = project
       CatsCoreDep,
       CatsEffectDep,
       CatsKernelDep,
-      CatsScalaTestDep,
+      ScalaTestCatsDep,
+      ScalatestCatsEffectDep,
       EnumeratumDep,
       ScalaMockDep,
       ScalaTestFlatSpecDep,
@@ -151,7 +152,8 @@ lazy val figlet4sEffects: Project = project
       CatsCoreDep,
       CatsEffectDep,
       CatsKernelDep % Runtime,
-      CatsScalaTestDep,
+      ScalaTestCatsDep,
+      ScalatestCatsEffectDep,
       ScalaTestFlatSpecDep,
       ScalaTestShouldMatchersDep,
     ),
@@ -217,6 +219,6 @@ lazy val figlet4sBenchmarks: Project = project
     testFrameworks           += new TestFramework("org.scalameter.ScalaMeterFramework"),
     libraryDependencies ++= Seq(
       CatsCoreDep,
-      ScalameterDep,
+      ScalaMeterDep,
     ),
   )

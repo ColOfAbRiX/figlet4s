@@ -1,7 +1,6 @@
 package com.colofabrix.scala.figlet4s.catsio
 
 import cats.effect.IO
-import cats.effect.std.Console
 import cats.effect.unsafe.IORuntime
 import cats.implicits.toTraverseOps
 import com.colofabrix.scala.figlet4s.api._
@@ -25,7 +24,7 @@ private[catsio] trait FIGureMixin {
      * Print the FIGure to standard output
      */
     def print(): IO[Unit] =
-      self.foreachLine(println)
+      self.cleanLines.flatTraverse(_.value.traverse(IO.println)) >> IO.unit
 
     /**
      * The figure as a collection of String, one String per displayable line

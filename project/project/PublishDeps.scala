@@ -1,4 +1,4 @@
-import sbt._
+import sbt.*
 
 /**
  * SBT plugins dependencies for Publishing

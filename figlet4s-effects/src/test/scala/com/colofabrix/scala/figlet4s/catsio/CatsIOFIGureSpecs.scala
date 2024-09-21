@@ -1,38 +1,33 @@
 package com.colofabrix.scala.figlet4s.catsio
 
 import cats.effect.IO
+import cats.effect.testing.scalatest.AsyncIOSpec
 import com.colofabrix.scala.figlet4s.StandardTestData._
 import org.scalatest.flatspec._
 import org.scalatest.matchers.should._
-import cats.effect.unsafe.implicits.global
 
-class CatsIOFIGureSpecs extends AnyFlatSpec with Matchers {
-
-  private def run[A](a: IO[A]): A = a.unsafeRunSync()
+class CatsIOFIGureSpecs extends AsyncFlatSpec with AsyncIOSpec with Matchers {
 
   "FIGure" should "return the same data for asSeq() and asString()" in {
-    val test =
-      for {
-        figure     <- standardBuilder.render(standardInput)
-        fromSeq    <- figure.asSeqF()
-        fromString <- figure.asStringF()
-      } yield {
-        fromSeq.mkString(System.lineSeparator()) should equal(fromString)
-      }
-    run(test)
+    for {
+      figure     <- standardBuilder.render(standardInput)
+      fromSeq    <- figure.asSeqF()
+      fromString <- figure.asStringF()
+    } yield {
+      fromSeq.mkString(System.lineSeparator()) should equal(fromString)
+    }
   }
 
   it should "print the same data as asString()" ignore {
-    val figure = standardBuilder.render(standardInput)
-    val stream = new java.io.ByteArrayOutputStream()
-    Console.withOut(stream) {
-      figure.flatMap(_.print()).unsafeRunSync()
+    for {
+      figure <- standardBuilder.render(standardInput)
+      stream   = new java.io.ByteArrayOutputStream()
+      _        = Console.withOut(stream)(figure.print().unsafeRunSync())
+      computed = stream.toString()
+      expected = figure.asString() + System.lineSeparator()
+    } yield {
+      computed shouldBe expected
     }
-
-    val computed = stream.toString()
-    val expected = run(figure.map(_.asString() + System.lineSeparator()))
-
-    computed should equal(expected)
   }
 
 }
