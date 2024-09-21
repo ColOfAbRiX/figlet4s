@@ -3,7 +3,6 @@ package com.colofabrix.scala.figlet4s.core
 import cats._
 import cats.effect._
 import cats.effect.unsafe.implicits.global
-import cats.implicits._
 import cats.scalatest._
 import com.colofabrix.scala.figlet4s.errors._
 import org.scalamock.scalatest.MockFactory
@@ -99,7 +98,8 @@ class BraketSpecs extends AnyFlatSpec with Matchers with MockFactory with Either
       .expects(mockResource)
       .returning(Right(expected))
 
-    val actual = Braket.withResource[Id, AutoCloseable, Either[Throwable, Int]](mockResource)(mockUserFunction)
+    type ET[A] = Either[Throwable, A]
+    val actual: ET[Int] = Braket.withResource[ET, AutoCloseable, Int](mockResource)(mockUserFunction)
 
     actual should be(right)
     actual.value shouldBe expected
@@ -117,7 +117,8 @@ class BraketSpecs extends AnyFlatSpec with Matchers with MockFactory with Either
         throw new RuntimeException("failure")
       }
 
-    val actual = Braket.withResource[Id, AutoCloseable, Either[Throwable, Int]](mockResource)(mockUserFunction)
+    type ET[A] = Either[Throwable, A]
+    val actual: ET[Int] = Braket.withResource[ET, AutoCloseable, Int](mockResource)(mockUserFunction)
 
     actual should be(left)
     actual.leftValue shouldBe a[FigletLoadingError]
@@ -135,7 +136,8 @@ class BraketSpecs extends AnyFlatSpec with Matchers with MockFactory with Either
       .expects(mockResource)
       .returning(Right(expected))
 
-    val actual = Braket.withResource[Id, AutoCloseable, Either[Throwable, Int]](mockResource)(mockUserFunction)
+    type ET[A] = Either[Throwable, A]
+    val actual: ET[Int] = Braket.withResource[ET, AutoCloseable, Int](mockResource)(mockUserFunction)
 
     actual should be(left)
     actual.leftValue shouldBe a[RuntimeException]
@@ -153,7 +155,8 @@ class BraketSpecs extends AnyFlatSpec with Matchers with MockFactory with Either
       .expects(mockResource)
       .onCall { _: AutoCloseable => throw new RuntimeException("failure") }
 
-    val actual = Braket.withResource[Id, AutoCloseable, Either[Throwable, Int]](mockResource)(mockUserFunction)
+    type ET[A] = Either[Throwable, A]
+    val actual: ET[Int] = Braket.withResource[ET, AutoCloseable, Int](mockResource)(mockUserFunction)
 
     actual should be(left)
     actual.leftValue shouldBe a[FigletLoadingError]
@@ -175,7 +178,7 @@ class BraketSpecs extends AnyFlatSpec with Matchers with MockFactory with Either
 
     val actual =
       Braket
-        .withResource[Id, AutoCloseable, IO[Int]](mockResource)(mockUserFunction)
+        .withResource[IO, AutoCloseable, Int](mockResource)(mockUserFunction)
         .unsafeRunSync()
 
     actual shouldBe expected
@@ -195,7 +198,7 @@ class BraketSpecs extends AnyFlatSpec with Matchers with MockFactory with Either
 
     val actual =
       Braket
-        .withResource[Id, AutoCloseable, IO[Int]](mockResource)(mockUserFunction)
+        .withResource[IO, AutoCloseable, Int](mockResource)(mockUserFunction)
         .redeem(identity, _ => fail("Call to withResource didn't return an Exception"))
         .unsafeRunSync()
 
@@ -216,7 +219,7 @@ class BraketSpecs extends AnyFlatSpec with Matchers with MockFactory with Either
 
     val actual =
       Braket
-        .withResource[Id, AutoCloseable, IO[Int]](mockResource)(mockUserFunction)
+        .withResource[IO, AutoCloseable, Int](mockResource)(mockUserFunction)
         .redeem(identity, _ => fail("Call to withResource didn't return an Exception"))
         .unsafeRunSync()
 
@@ -237,7 +240,7 @@ class BraketSpecs extends AnyFlatSpec with Matchers with MockFactory with Either
 
     val actual =
       Braket
-        .withResource[Id, AutoCloseable, IO[Int]](mockResource)(mockUserFunction)
+        .withResource[IO, AutoCloseable, Int](mockResource)(mockUserFunction)
         .redeem(identity, _ => fail("Call to withResource didn't return an Exception"))
         .unsafeRunSync()
 
