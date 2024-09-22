@@ -8,7 +8,7 @@ object TestDependencies {
   lazy val ScalaTestCatsV       = "3.1.1"
   lazy val ScalaTestCatsEffectV = "1.5.0"
   lazy val ScalaCheckV          = "1.18.0"
-  lazy val ScalaMeterV          = "0.21"
+  lazy val ScalaMeterV          = "0.19"
   lazy val ScalaMockV           = "6.0.0"
   lazy val ScalaTestV           = "3.2.19"
 

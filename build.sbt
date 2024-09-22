@@ -213,12 +213,13 @@ lazy val figlet4sBenchmarks: Project = project
     publishArtifact          := false,
     logBuffered              := false,
     publish / skip           := true,
-    Test / parallelExecution := false,
-    Test / logBuffered       := false,
     resolvers               ++= SonatypeRepos,
-    testFrameworks           += new TestFramework("org.scalameter.ScalaMeterFramework"),
     libraryDependencies ++= Seq(
       CatsCoreDep,
       ScalaMeterDep,
     ),
+    testFrameworks           += new TestFramework("org.scalameter.ScalaMeterFramework"),
+    Test / classLoaderLayeringStrategy := ClassLoaderLayeringStrategy.Flat,
+    Test / logBuffered       := false,
+    Test / parallelExecution := false,
   )

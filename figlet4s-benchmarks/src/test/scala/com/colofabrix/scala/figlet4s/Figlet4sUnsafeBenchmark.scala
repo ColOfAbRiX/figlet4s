@@ -11,14 +11,6 @@ final class Figlet4sUnsafeBenchmark extends FigletBenchmark {
   private val textLengthGen = Gen.range("text_length")(1, maxLength, 10)
   private val standardFont  = Figlet4s.loadFontInternal("standard")
 
-  private val opts = Context(
-    exec.maxWarmupRuns      -> 1,
-    exec.benchRuns          -> 1,
-    exec.jvmflags           -> List("-Xms1G", "-Xmx1G"),
-    exec.independentSamples -> 1,
-    verbose                 -> true,
-  )
-
   private val charSet = standardFont.characters.keySet.toVector
   private val rnd     = new scala.util.Random(System.currentTimeMillis())
 
@@ -32,7 +24,7 @@ final class Figlet4sUnsafeBenchmark extends FigletBenchmark {
       }
 
     // I'm interested in comparing Vector vs List for the rendering of text
-    measure method "renderString" config opts in {
+    measure method "renderString" in {
       performance of "full_line_width" in {
         val options = Figlet4s
           .builder()
