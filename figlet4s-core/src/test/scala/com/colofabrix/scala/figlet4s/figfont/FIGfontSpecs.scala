@@ -3,32 +3,33 @@ package com.colofabrix.scala.figlet4s.figfont
 import cats.scalatest._
 import org.scalatest.flatspec._
 import org.scalatest.matchers.should._
+
 import java.io.File
 
-class FIGfontSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers with ValidatedValues {
+class FIGfontSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers with ValidatedValues with SpecOps {
 
-  "FIGfont creation" should "succeed when data is valid" in new FontScope {
+  "FIGfont creation" should "succeed when data is valid" in {
     val computed = adaptError(FIGfont(new File("test"), font.allLines().iterator))
     computed should be(valid)
   }
 
   // Required chars
 
-  "FIGfont required chars" should "follow the FIGfont standard" in new FontScope {
+  "FIGfont required chars" should "follow the FIGfont standard" in {
     val requiredChars = ((32 to 126) ++ Seq(196, 214, 220, 223, 228, 246, 252)).map(_.toChar)
     FIGfont.requiredChars should equal(requiredChars)
   }
 
   // Input Iterator
 
-  "The Input Iterator" should "fail if the data ends before the full file is read" in new FontScope {
+  "The Input Iterator" should "fail if the data ends before the full file is read" in {
     val iterator = font.allLines(false).take(150).iterator
     val computed = adaptError(FIGfont(new File("test"), iterator))
     computed should be(invalid)
     computed.invalidValue.head should startWith("FIGcharacterError - Missing definition for required FIGlet characters:")
   }
 
-  it should "fail if a line of the Iterator is missing" in new FontScope {
+  it should "fail if a line of the Iterator is missing" in {
     val iterator = font.allLines(false).zipWithIndex.filter { case (_, i) => i != 150 }.map(_._1).iterator
     val computed = adaptError(FIGfont(new File("test"), iterator))
     computed should haveInvalid("FIGcharacterError - Incomplete character definition at the end of the file")
@@ -36,7 +37,7 @@ class FIGfontSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers with
 
   // Header
 
-  "Header validation" should "fail when the header is invalid" in new FontScope {
+  "Header validation" should "fail when the header is invalid" in {
     val iterator = font.allLines(false).patch(0, Seq("adfadsa"), 1).iterator
     val computed = adaptError(FIGfont(new File("test"), iterator))
     computed should haveInvalid("FIGheaderError - Wrong number of parameters in FLF header. Found 1 parameters")
@@ -44,7 +45,7 @@ class FIGfontSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers with
 
   // Comments
 
-  "Comments validation" should "fail if the lines of comments are incorrect" in new FontScope {
+  "Comments validation" should "fail if the lines of comments are incorrect" in {
     val iterator = font.copy(comment = "asdfad").allLines(false).iterator
     val computed = adaptError(FIGfont(new File("test"), iterator))
     computed should haveInvalid("FIGcharacterError - Incomplete character definition at the end of the file")
@@ -52,21 +53,23 @@ class FIGfontSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers with
 
   // FIGcharacters
 
-  "FIGcharacters validation" should "fail if required characters are missing" in new FontScope {
-    val iterator = font
-      .flatMapChars(false) { (char, i) =>
-        if (i == 1) Vector.empty else Vector(char)
-      }.iterator
+  "FIGcharacters validation" should "fail if required characters are missing" in {
+    val iterator =
+      font
+        .flatMapChars(includeTags = false) { (char, i) =>
+          if (i == 1) Vector.empty else Vector(char)
+        }.iterator
     val computed = adaptError(FIGfont(new File("test"), iterator))
     computed should be(invalid)
     computed.invalidValue.head should startWith("FIGcharacterError - Missing definition for required FIGlet")
   }
 
-  it should "fail if a FIGcharacter is not valid" in new FontScope {
-    val iterator = font
-      .flatMapChars(false) { (char, i) =>
-        if (i == 1) Vector(char.replace("@@", "")) else Vector(char)
-      }.iterator
+  it should "fail if a FIGcharacter is not valid" in {
+    val iterator =
+      font
+        .flatMapChars(includeTags = false) { (char, i) =>
+          if (i == 1) Vector(char.replace("@@", "")) else Vector(char)
+        }.iterator
     val computed = adaptError(FIGfont(new File("test"), iterator))
     computed should be(invalid)
     computed.invalidValue.head should startWith(
@@ -74,7 +77,7 @@ class FIGfontSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers with
     )
   }
 
-  it should "fail if the total number of characters doesn't respect the header" in new FontScope {
+  it should "fail if the total number of characters doesn't respect the header" in {
     val newHeader = header.copy(codetagCount = "2").toLine
     val iterator  = font.allLines().patch(0, Seq(newHeader), 1).iterator
     val computed  = adaptError(FIGfont(new File("test"), iterator))
@@ -83,7 +86,7 @@ class FIGfontSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers with
     )
   }
 
-  it should "fail if the name of a tag is missing" in new FontScope {
+  it should "fail if the name of a tag is missing" in {
     val iterator = font.flatMapTagged { (char, i) =>
       if (i == 0)
         Vector(("  NO-BREAK SPACE" +: char.split("\n").tail).mkString("\n"))
@@ -95,7 +98,7 @@ class FIGfontSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers with
     computed.invalidValue.head should startWith("FIGcharacterError - Couldn't convert character code ''")
   }
 
-  it should "fail if the name of a tag is an invalid value" in new FontScope {
+  it should "fail if the name of a tag is an invalid value" in {
     val iterator = font.flatMapTagged { (char, i) =>
       if (i == 0)
         Vector(("ABCD  NO-BREAK SPACE" +: char.split("\n").tail).mkString("\n"))
@@ -107,7 +110,7 @@ class FIGfontSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers with
     computed.invalidValue.head should startWith("FIGcharacterError - Couldn't convert character code 'ABCD'")
   }
 
-  it should "not fail if the comment of a tag is missing" in new FontScope {
+  it should "not fail if the comment of a tag is missing" in {
     val iterator = font.flatMapTagged { (char, i) =>
       if (i == 0)
         Vector(("160" +: char.split("\n").tail).mkString("\n"))

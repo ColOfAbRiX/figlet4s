@@ -31,7 +31,7 @@ object Figlet4s extends Figlet4sAPI[Id] {
    * @return The FIGfont of the requested internal font
    */
   @throws(classOf[FigletException])
-  def loadFontInternal(name: String = "standard"): FIGfont =
+  def loadFontInternal(name: String): FIGfont =
     Figlet4sClient
       .loadFontInternal[Id](name)
       .unsafeGet

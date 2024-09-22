@@ -5,159 +5,159 @@ import com.colofabrix.scala.figlet4s.figfont.FIGheaderParameters._
 import org.scalatest.flatspec._
 import org.scalatest.matchers.should._
 
-class FIGheaderSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers with ValidatedValues {
+class FIGheaderSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers with ValidatedValues with SpecOps {
 
   //  Signature  //
 
-  "Signature validation" should "fail with wrong signature" in new HeaderScope {
+  "Signature validation" should "fail with wrong signature" in {
     val mistake  = header.copy(signature = "abcde").toLine
     val computed = adaptError(FIGheader(mistake))
     computed should haveInvalid("FIGheaderError - Wrong FLF signature: abcde")
   }
 
-  it should "return the correct signature" in new HeaderScope {
+  it should "return the correct signature" in {
     val computed = header.toFIGheader.map(_.signature)
     computed should beValid(header.signature)
   }
 
   //  Hardblank  //
 
-  "Hardblank validation" should "fail with wrong hardblank" in new HeaderScope {
+  "Hardblank validation" should "fail with wrong hardblank" in {
     val mistake  = header.copy(hardblank = "$$").toLine
     val computed = adaptError(FIGheader(mistake))
     computed should haveInvalid("FIGheaderError - The hardblank '$$' is not composed of only one character")
   }
 
-  it should "return the correct hardblank" in new HeaderScope {
+  it should "return the correct hardblank" in {
     val computed = header.toFIGheader.map(_.hardblank)
     computed should beValid(header.hardblank.charAt(0))
   }
 
   //  Height  //
 
-  "Height validation" should "fail with a non-numeric height" in new HeaderScope {
+  "Height validation" should "fail with a non-numeric height" in {
     val mistake  = header.copy(height = "abcd").toLine
     val computed = adaptError(FIGheader(mistake))
     computed should haveInvalid("FIGheaderError - Couldn't parse header field 'height': Some(abcd)")
   }
 
-  it should "fail with a negative height" in new HeaderScope {
+  it should "fail with a negative height" in {
     val mistake  = header.copy(height = "-1").toLine
     val computed = adaptError(FIGheader(mistake))
     computed should haveInvalid("FIGheaderError - Field 'height' must be positive: -1")
   }
 
-  it should "return the correct height" in new HeaderScope {
+  it should "return the correct height" in {
     val computed = header.toFIGheader.map(_.height)
     computed should beValid(header.height.toInt)
   }
 
   //  Baseline  //
 
-  "Baseline validation" should "fail with a non-numeric baseline" in new HeaderScope {
+  "Baseline validation" should "fail with a non-numeric baseline" in {
     val mistake  = header.copy(baseline = "abcd").toLine
     val computed = adaptError(FIGheader(mistake))
     computed should haveInvalid("FIGheaderError - Couldn't parse header field 'baseline': Some(abcd)")
   }
 
-  it should "fail with a negative baseline" in new HeaderScope {
+  it should "fail with a negative baseline" in {
     val mistake  = header.copy(baseline = "-1").toLine
     val computed = adaptError(FIGheader(mistake))
     computed should haveInvalid("FIGheaderError - Field 'baseline' must be positive: -1")
   }
 
-  it should "return the correct baseline" in new HeaderScope {
+  it should "return the correct baseline" in {
     val computed = header.toFIGheader.map(_.baseline)
     computed should beValid(header.baseline.toInt)
   }
 
   //  Max Length  //
 
-  "Max Length validation" should "fail with a non-numeric maxLength" in new HeaderScope {
+  "Max Length validation" should "fail with a non-numeric maxLength" in {
     val mistake  = header.copy(maxLength = "abcd").toLine
     val computed = adaptError(FIGheader(mistake))
     computed should haveInvalid("FIGheaderError - Couldn't parse header field 'maxLength': Some(abcd)")
   }
 
-  it should "fail with a negative maxLength" in new HeaderScope {
+  it should "fail with a negative maxLength" in {
     val mistake  = header.copy(maxLength = "-1").toLine
     val computed = adaptError(FIGheader(mistake))
     computed should haveInvalid("FIGheaderError - Field 'maxLength' must be positive: -1")
   }
 
-  it should "return the correct maxLength" in new HeaderScope {
+  it should "return the correct maxLength" in {
     val computed = header.toFIGheader.map(_.maxLength)
     computed should beValid(header.maxLength.toInt)
   }
 
   //  Old Layout  //
 
-  "Old Layout validation" should "fail with a non-numeric oldLayout" in new HeaderScope {
+  "Old Layout validation" should "fail with a non-numeric oldLayout" in {
     val mistake  = header.copy(oldLayout = "abcd").toLine
     val computed = adaptError(FIGheader(mistake))
     computed should haveInvalid("FIGheaderError - Couldn't parse header field 'oldLayout': Some(abcd)")
   }
 
-  it should "fail with an oldLayout greater than 63" in new HeaderScope {
+  it should "fail with an oldLayout greater than 63" in {
     val mistake  = header.copy(oldLayout = "64").toLine
     val computed = adaptError(FIGheader(mistake))
     computed should haveInvalid("FIGheaderError - Field 'oldLayout' must be between -1 and 63, both included: 64")
   }
 
-  it should "fail with an oldLayout less than -1" in new HeaderScope {
+  it should "fail with an oldLayout less than -1" in {
     val mistake  = header.copy(oldLayout = "-2").toLine
     val computed = adaptError(FIGheader(mistake))
     computed should haveInvalid("FIGheaderError - Field 'oldLayout' must be between -1 and 63, both included: -2")
   }
 
-  it should "return the correct oldLayout" in new HeaderScope {
+  it should "return the correct oldLayout" in {
     val expected = FIGheaderParameters.OldLayout(header.oldLayout.toInt)
     val computed = FIGheader(header.toLine).map(_.oldLayout)
     computed should be(valid)
-    computed.value should contain theSameElementsAs (expected.value)
+    computed.value should contain theSameElementsAs expected.value
   }
 
   //  Comment Lines  //
 
-  "Comment Lines validation" should "fail with a non-numeric commentLines" in new HeaderScope {
+  "Comment Lines validation" should "fail with a non-numeric commentLines" in {
     val mistake  = header.copy(commentLines = "abcd").toLine
     val computed = adaptError(FIGheader(mistake))
     computed should haveInvalid("FIGheaderError - Couldn't parse header field 'commentLines': Some(abcd)")
   }
 
-  it should "fail with a negative commentLines" in new HeaderScope {
+  it should "fail with a negative commentLines" in {
     val mistake  = header.copy(commentLines = "-1").toLine
     val computed = adaptError(FIGheader(mistake))
     computed should haveInvalid("FIGheaderError - Field 'commentLines' must be non-negative: -1")
   }
 
-  it should "return the correct commentLines" in new HeaderScope {
+  it should "return the correct commentLines" in {
     val computed = header.toFIGheader.map(_.commentLines)
     computed should beValid(header.commentLines.toInt)
   }
 
   //  Print Direction  //
 
-  "Print Direction validation" should "fail with a non-numeric printDirection" in new HeaderScope {
+  "Print Direction validation" should "fail with a non-numeric printDirection" in {
     val mistake  = header.copy(printDirection = "abcd").toLine
     val computed = adaptError(FIGheader(mistake))
     computed should haveInvalid("FIGheaderError - Couldn't parse header field 'printDirection': Some(abcd)")
   }
 
-  it should "fail with a negative printDirection" in new HeaderScope {
+  it should "fail with a negative printDirection" in {
     val mistake  = header.copy(printDirection = "-1").toLine
     val computed = adaptError(FIGheader(mistake))
     computed should haveInvalid("FIGheaderError - Invalid value for field 'printDirection': -1")
   }
 
-  it should "return the correct printDirection" in new HeaderScope {
+  it should "return the correct printDirection" in {
     val expected = PrintDirection(header.printDirection.toInt).map(Some(_))
     val computed = FIGheader(header.toLine).map(_.printDirection)
     computed should be(valid)
     computed shouldBe expected
   }
 
-  it should "return None when printDirection is not specified" in new HeaderScope {
+  it should "return None when printDirection is not specified" in {
     val lineHeader = header.noPrintDirection
     val computed   = FIGheader(lineHeader).map(_.printDirection)
     computed should be(valid)
@@ -166,32 +166,32 @@ class FIGheaderSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers wi
 
   //  Full Layout  //
 
-  "Full Layout validation" should "fail with a non-numeric fullLayout" in new HeaderScope {
+  "Full Layout validation" should "fail with a non-numeric fullLayout" in {
     val mistake  = header.copy(fullLayout = "abcd").toLine
     val computed = adaptError(FIGheader(mistake))
     computed should haveInvalid("FIGheaderError - Couldn't parse header field 'fullLayout': Some(abcd)")
   }
 
-  it should "fail with an fullLayout greater than 32767" in new HeaderScope {
+  it should "fail with an fullLayout greater than 32767" in {
     val mistake  = header.copy(fullLayout = "32768").toLine
     val computed = adaptError(FIGheader(mistake))
     computed should haveInvalid("FIGheaderError - Field 'fullLayout' must be between 0 and 32767, both included: 32768")
   }
 
-  it should "fail with an fullLayout less than 0" in new HeaderScope {
+  it should "fail with an fullLayout less than 0" in {
     val mistake  = header.copy(fullLayout = "-1").toLine
     val computed = adaptError(FIGheader(mistake))
     computed should haveInvalid("FIGheaderError - Field 'fullLayout' must be between 0 and 32767, both included: -1")
   }
 
-  it should "return the correct fullLayout when it's specified" in new HeaderScope {
+  it should "return the correct fullLayout when it's specified" in {
     val expected = FIGheaderParameters.FullLayout(header.fullLayout.toInt)
     val computed = header.toFIGheader.map(_.fullLayout)
     computed should be(valid)
-    computed.value.getOrElse(Vector.empty) should contain theSameElementsAs (expected.value)
+    computed.value.getOrElse(Vector.empty) should contain theSameElementsAs expected.value
   }
 
-  it should "return None when fullLayout is not specified" in new HeaderScope {
+  it should "return None when fullLayout is not specified" in {
     val lineHeader = header.noFullLayout
     val computed   = FIGheader(lineHeader).map(_.fullLayout)
     computed should be(valid)
@@ -200,25 +200,25 @@ class FIGheaderSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers wi
 
   //  Codetag Count  //
 
-  "Codetag Count validation" should "fail with a non-numeric codetagCount" in new HeaderScope {
+  "Codetag Count validation" should "fail with a non-numeric codetagCount" in {
     val mistake  = header.copy(codetagCount = "abcd").toLine
     val computed = adaptError(FIGheader(mistake))
     computed should haveInvalid("FIGheaderError - Couldn't parse header field 'codetagCount': Some(abcd)")
   }
 
-  it should "fail with a negative codetagCount" in new HeaderScope {
+  it should "fail with a negative codetagCount" in {
     val mistake  = header.copy(codetagCount = "-1").toLine
     val computed = adaptError(FIGheader(mistake))
     computed should haveInvalid("FIGheaderError - Field 'codetagCount' must be non-negative: Some(-1)")
   }
 
-  it should "return the correct codetagCount when it's specified" in new HeaderScope {
+  it should "return the correct codetagCount when it's specified" in {
     val computed = header.toFIGheader.map(_.codetagCount)
     computed should be(valid)
     computed.value shouldBe Some(header.codetagCount.toInt)
   }
 
-  it should "return None when codetagCount is not specified" in new HeaderScope {
+  it should "return None when codetagCount is not specified" in {
     val lineHeader = header.noCodetagCount
     val computed   = FIGheader(lineHeader).map(_.codetagCount)
     computed should be(valid)
@@ -227,7 +227,7 @@ class FIGheaderSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers wi
 
   //  Other  //
 
-  "FIGheader.singleLine()" should "return the same header that constructed it" in new HeaderScope {
+  "FIGheader.singleLine()" should "return the same header that constructed it" in {
     val expected = header.toLine
     val computed = FIGheader(expected).value.singleLine()
     expected should equal(computed)

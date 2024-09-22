@@ -12,62 +12,58 @@ class FIGheaderParametersSpecs extends AnyFlatSpec with Matchers with ValidatedM
 
   //  PrintDirection  //
 
-  trait PrintDirection {
-    val goodValues: List[Int] = List(0, 1)
-    val badValues: List[Int]  = List(-2, -1, 2, 3)
-  }
+   private val goodPrintDirection: List[Int] = List(0, 1)
+   private val badPrintDirection: List[Int]  = List(-2, -1, 2, 3)
 
-  "PrintDirection" should "create a valid PrintDirection" in new PrintDirection {
-    val computed = goodValues.traverse(PrintDirection(_))
+  "PrintDirection" should "create a valid PrintDirection" in {
+    val computed = goodPrintDirection.traverse(PrintDirection(_))
     computed should be(valid)
-    computed.value should have length (goodValues.length.toLong)
+    computed.value should have length goodPrintDirection.length.toLong
     computed.value.toSet should contain theSameElementsAs computed.value
   }
 
-  it should "return an error when providing a wrong value" in new PrintDirection {
-    val computed = adaptError(badValues.traverse(PrintDirection(_)))
+  it should "return an error when providing a wrong value" in {
+    val computed = adaptError(badPrintDirection.traverse(PrintDirection(_)))
     computed should be(invalid)
-    computed.invalidValue should have length (badValues.length.toLong)
+    computed.invalidValue should have length badPrintDirection.length.toLong
   }
 
-  it should "have its primitive values in the FLF header range" in new PrintDirection {
-    PrintDirection.values.map(_.value) should contain theSameElementsAs goodValues
+  it should "have its primitive values in the FLF header range" in {
+    PrintDirection.values.map(_.value) should contain theSameElementsAs goodPrintDirection
   }
 
   //  OldLayout  //
 
-  trait OldLayoutScope {
-    val goodValues: List[Int] = List(-1, 0, 1, 2, 4, 8, 16, 32)
-    val badValues: List[Int]  = List(-3, -2, 128, 192)
-    val allValues: Int        = goodValues.filter(_ > 0).sum
-  }
+  private val goodOldLayout: List[Int] = List(-1, 0, 1, 2, 4, 8, 16, 32)
+  private val badOldLayout: List[Int]  = List(-3, -2, 128, 192)
+  private val allOldLayout: Int        = goodOldLayout.filter(_ > 0).sum
 
-  "OldLayout" should "create a valid OldLayout" in new OldLayoutScope {
-    val computed = goodValues.traverse(OldLayout(_)).map(_.flatten)
+  "OldLayout" should "create a valid OldLayout" in {
+    val computed = goodOldLayout.traverse(OldLayout(_)).map(_.flatten)
     computed should be(valid)
-    computed.value should have length (goodValues.length.toLong)
+    computed.value should have length goodOldLayout.length.toLong
     computed.value.toSet should contain theSameElementsAs computed.value
   }
 
-  it should "return an error when providing at least one wrong value" in new OldLayoutScope {
-    val computed = adaptError(badValues.traverse(OldLayout(_)))
+  it should "return an error when providing at least one wrong value" in {
+    val computed = adaptError(badOldLayout.traverse(OldLayout(_)))
     computed should be(invalid)
-    computed.invalidValue should have length (badValues.length.toLong)
+    computed.invalidValue should have length badOldLayout.length.toLong
   }
 
-  it should "have its primitive values in the FLF header range" in new OldLayoutScope {
-    OldLayout.values.map(_.value) should contain theSameElementsAs goodValues
+  it should "have its primitive values in the FLF header range" in {
+    OldLayout.values.map(_.value) should contain theSameElementsAs goodOldLayout
   }
 
-  it should "factor out binary digits and create multiple valid OldLayout" in new OldLayoutScope {
+  it should "factor out binary digits and create multiple valid OldLayout" in {
     val computed = OldLayout(3)
     val expected = List(OldLayout.EqualCharacterSmushing, OldLayout.UnderscoreSmushing)
     computed should be(valid)
     computed.value should contain theSameElementsAs expected
   }
 
-  it should "return all values (with FullWidth and HorizontalFitting being separate values)" in new OldLayoutScope {
-    val computed = (OldLayout(-1), OldLayout(0), OldLayout(allValues)).mapN(_ ++ _ ++ _)
+  it should "return all values (with FullWidth and HorizontalFitting being separate values)" in {
+    val computed = (OldLayout(-1), OldLayout(0), OldLayout(allOldLayout)).mapN(_ ++ _ ++ _)
     val expected = OldLayout.values
     computed should be(valid)
     computed.value should contain theSameElementsAs expected
@@ -75,52 +71,50 @@ class FIGheaderParametersSpecs extends AnyFlatSpec with Matchers with ValidatedM
 
   //  FullLayout  //
 
-  trait FullLayoutScope {
-    val goodValues: List[Int] = List(1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384)
-    val badValues: List[Int]  = List(-2, -1, 32768, 32769)
-    val allValues: Int        = goodValues.filter(_ > 0).sum
-  }
+  private  val goodFullLayout: List[Int] = List(1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384)
+  private  val badFullLayout: List[Int]  = List(-2, -1, 32768, 32769)
+  private  val allFullLayout: Int        = goodFullLayout.filter(_ > 0).sum
 
-  "FullLayout" should "create a valid FullLayout" in new FullLayoutScope {
-    val computed = goodValues.traverse(FullLayout(_)).map(_.flatten)
+  "FullLayout" should "create a valid FullLayout" in{
+    val computed = goodFullLayout.traverse(FullLayout(_)).map(_.flatten)
     computed should be(valid)
-    computed.value should have length (goodValues.length.toLong)
+    computed.value should have length goodFullLayout.length.toLong
     computed.value.toSet should contain theSameElementsAs computed.value
   }
 
-  it should "return an error when providing at least one wrong value" in new FullLayoutScope {
-    val computed = adaptError(badValues.traverse(FullLayout(_)))
+  it should "return an error when providing at least one wrong value" in{
+    val computed = adaptError(badFullLayout.traverse(FullLayout(_)))
     computed should be(invalid)
-    computed.invalidValue should have length (badValues.length.toLong)
+    computed.invalidValue should have length badFullLayout.length.toLong
   }
 
-  it should "have its primitive values in the FLF header range" in new FullLayoutScope {
-    FullLayout.values.map(_.value) should contain theSameElementsAs goodValues
+  it should "have its primitive values in the FLF header range" in{
+    FullLayout.values.map(_.value) should contain theSameElementsAs goodFullLayout
   }
 
   it should "return the list of all horizontal layouts" in {
-    FullLayout.horizontalSmushingRules should have length (6)
+    FullLayout.horizontalSmushingRules should have length 6
   }
 
   it should "return the list of all vertical layouts" in {
-    FullLayout.verticalSmushingRules should have length (5)
+    FullLayout.verticalSmushingRules should have length 5
   }
 
-  it should "factor out binary digits and create multiple valid FullLayout" in new FullLayoutScope {
+  it should "factor out binary digits and create multiple valid FullLayout" in{
     val computed = FullLayout(3)
     val expected = List(FullLayout.EqualCharacterHorizontalSmushing, FullLayout.UnderscoreHorizontalSmushing)
     computed should be(valid)
     computed.value should contain theSameElementsAs expected
   }
 
-  it should "return all values" in new FullLayoutScope {
-    val computed = FullLayout(allValues)
+  it should "return all values" in{
+    val computed = FullLayout(allFullLayout)
     val expected = FullLayout.values
     computed should be(valid)
     computed.value should contain theSameElementsAs expected
   }
 
-  it should "return an empty result for the input 0" in new FullLayoutScope {
+  it should "return an empty result for the input 0" in{
     val computed = FullLayout(0)
     computed should be(valid)
     computed.value should be(empty)
