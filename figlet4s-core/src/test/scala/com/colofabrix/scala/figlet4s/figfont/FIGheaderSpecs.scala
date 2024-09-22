@@ -38,7 +38,7 @@ class FIGheaderSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers wi
   "Height validation" should "fail with a non-numeric height" in new HeaderScope {
     val mistake  = header.copy(height = "abcd").toLine
     val computed = adaptError(FIGheader(mistake))
-    computed should haveInvalid("FIGheaderError - Couldn't parse header field 'height': abcd")
+    computed should haveInvalid("FIGheaderError - Couldn't parse header field 'height': Some(abcd)")
   }
 
   it should "fail with a negative height" in new HeaderScope {
@@ -57,7 +57,7 @@ class FIGheaderSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers wi
   "Baseline validation" should "fail with a non-numeric baseline" in new HeaderScope {
     val mistake  = header.copy(baseline = "abcd").toLine
     val computed = adaptError(FIGheader(mistake))
-    computed should haveInvalid("FIGheaderError - Couldn't parse header field 'baseline': abcd")
+    computed should haveInvalid("FIGheaderError - Couldn't parse header field 'baseline': Some(abcd)")
   }
 
   it should "fail with a negative baseline" in new HeaderScope {
@@ -76,7 +76,7 @@ class FIGheaderSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers wi
   "Max Length validation" should "fail with a non-numeric maxLength" in new HeaderScope {
     val mistake  = header.copy(maxLength = "abcd").toLine
     val computed = adaptError(FIGheader(mistake))
-    computed should haveInvalid("FIGheaderError - Couldn't parse header field 'maxLength': abcd")
+    computed should haveInvalid("FIGheaderError - Couldn't parse header field 'maxLength': Some(abcd)")
   }
 
   it should "fail with a negative maxLength" in new HeaderScope {
@@ -95,7 +95,7 @@ class FIGheaderSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers wi
   "Old Layout validation" should "fail with a non-numeric oldLayout" in new HeaderScope {
     val mistake  = header.copy(oldLayout = "abcd").toLine
     val computed = adaptError(FIGheader(mistake))
-    computed should haveInvalid("FIGheaderError - Couldn't parse header field 'oldLayout': abcd")
+    computed should haveInvalid("FIGheaderError - Couldn't parse header field 'oldLayout': Some(abcd)")
   }
 
   it should "fail with an oldLayout greater than 63" in new HeaderScope {
@@ -122,7 +122,7 @@ class FIGheaderSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers wi
   "Comment Lines validation" should "fail with a non-numeric commentLines" in new HeaderScope {
     val mistake  = header.copy(commentLines = "abcd").toLine
     val computed = adaptError(FIGheader(mistake))
-    computed should haveInvalid("FIGheaderError - Couldn't parse header field 'commentLines': abcd")
+    computed should haveInvalid("FIGheaderError - Couldn't parse header field 'commentLines': Some(abcd)")
   }
 
   it should "fail with a negative commentLines" in new HeaderScope {

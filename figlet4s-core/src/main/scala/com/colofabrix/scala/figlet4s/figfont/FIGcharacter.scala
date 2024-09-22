@@ -77,7 +77,7 @@ object FIGcharacter {
     val maxWidthV = Validated.condNec(
       maxWidth > 0,
       maxWidth,
-      FIGheaderError(s"Value of 'maxLength' must be positive: $maxWidth"),
+      FIGheaderError(s"Value of 'maxWidth' must be positive: $maxWidth"),
     )
     val widthV: FigletResult[Int] = maxWidthV andThen { cleanLinesV andThen validateWidth(name, _, position) }
 

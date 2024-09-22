@@ -16,15 +16,15 @@ private[catsio] trait FIGureMixin {
      *
      * @param f The function to applied to each displayable line
      */
-    def foreachLine[A](f: String => A): IO[Unit] = IO {
-      self.cleanLines.foreach(_.foreach(f))
-    }
+    def foreachLine[A](f: String => A): IO[Unit] =
+      self.cleanLines.toList.flatTraverse(_.value.toList.traverse(line => IO(f(line)))) >>
+      IO.unit
 
     /**
      * Print the FIGure to standard output
      */
     def print(): IO[Unit] =
-      self.cleanLines.flatTraverse(_.value.traverse(IO.println)) >> IO.unit
+      self.foreachLine(println)
 
     /**
      * The figure as a collection of String, one String per displayable line
