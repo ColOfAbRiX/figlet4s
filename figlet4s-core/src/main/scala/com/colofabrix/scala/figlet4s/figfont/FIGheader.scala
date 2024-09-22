@@ -78,7 +78,7 @@ object FIGheader {
         s"Wrong number of parameters in FLF header. Found ${splitLine.length} parameters",
       ).invalidNec
     else {
-      val (signatureText, hardblankText) = splitLine(SIGNATURE_INDEX).splitAt(5)
+      val (signatureText, hardblankText) = splitLine.get(SIGNATURE_INDEX).map(_.splitAt(5)).getOrElse("", "")
 
       val signatureV      = validateSignature(signatureText)
       val hardblankV      = validateHardblank(hardblankText)
