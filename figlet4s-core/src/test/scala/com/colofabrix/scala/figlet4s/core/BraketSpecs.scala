@@ -2,7 +2,6 @@ package com.colofabrix.scala.figlet4s.core
 
 import cats._
 import cats.effect._
-import cats.implicits._
 import cats.scalatest._
 import com.colofabrix.scala.figlet4s.errors._
 import org.scalamock.scalatest.MockFactory
@@ -11,7 +10,7 @@ import org.scalatest.matchers.should._
 
 class BraketSpecs extends AnyFlatSpec with Matchers with MockFactory with EitherMatchers with EitherValues {
 
-  val expected: Int = 123
+  private val expected: Int = 123
 
   //  Unsafe  //
 
@@ -25,7 +24,7 @@ class BraketSpecs extends AnyFlatSpec with Matchers with MockFactory with Either
       .expects(mockResource)
       .returning(expected)
 
-    val actual = Braket.withResource(mockResource)(mockUserFunction)
+    val actual = Braket.withResource[Id, AutoCloseable, Int](mockResource)(mockUserFunction)
 
     actual shouldBe expected
   }
@@ -43,10 +42,10 @@ class BraketSpecs extends AnyFlatSpec with Matchers with MockFactory with Either
       }
 
     val actual = intercept[FigletLoadingError] {
-      Braket.withResource(mockResource)(mockUserFunction)
+      Braket.withResource[Id, AutoCloseable, Int](mockResource)(mockUserFunction)
     }
 
-    actual.getMessage() shouldBe "failure"
+    actual.getMessage shouldBe "failure"
   }
 
   it should "throw a RuntimeException when close() fails" in {
@@ -61,10 +60,10 @@ class BraketSpecs extends AnyFlatSpec with Matchers with MockFactory with Either
       .returning(expected)
 
     val actual = intercept[RuntimeException] {
-      Braket.withResource(mockResource)(mockUserFunction)
+      Braket.withResource[Id, AutoCloseable, Int](mockResource)(mockUserFunction)
     }
 
-    actual.getMessage() shouldBe "close failure"
+    actual.getMessage shouldBe "close failure"
   }
 
   it should "throw a FigletLoadingError when the user function and the close() fail" in {
@@ -79,10 +78,10 @@ class BraketSpecs extends AnyFlatSpec with Matchers with MockFactory with Either
       .onCall { _: AutoCloseable => throw new RuntimeException("failure") }
 
     val actual = intercept[FigletLoadingError] {
-      Braket.withResource(mockResource)(mockUserFunction)
+      Braket.withResource[Id, AutoCloseable, Int](mockResource)(mockUserFunction)
     }
 
-    actual.getMessage() shouldBe "failure"
+    actual.getMessage shouldBe "failure"
     actual.getSuppressed.map(_.getMessage()).mkString shouldBe "close failure"
   }
 
@@ -98,7 +97,8 @@ class BraketSpecs extends AnyFlatSpec with Matchers with MockFactory with Either
       .expects(mockResource)
       .returning(Right(expected))
 
-    val actual = Braket.withResource(mockResource)(mockUserFunction)
+    type ET[A] = Either[Throwable, A]
+    val actual: ET[Int] = Braket.withResource[ET, AutoCloseable, Int](mockResource)(mockUserFunction)
 
     actual should be(right)
     actual.value shouldBe expected
@@ -116,11 +116,12 @@ class BraketSpecs extends AnyFlatSpec with Matchers with MockFactory with Either
         throw new RuntimeException("failure")
       }
 
-    val actual = Braket.withResource(mockResource)(mockUserFunction)
+    type ET[A] = Either[Throwable, A]
+    val actual: ET[Int] = Braket.withResource[ET, AutoCloseable, Int](mockResource)(mockUserFunction)
 
     actual should be(left)
     actual.leftValue shouldBe a[FigletLoadingError]
-    actual.leftValue.getMessage() shouldBe "failure"
+    actual.leftValue.getMessage shouldBe "failure"
   }
 
   it should "return a RuntimeException when close() fails" in {
@@ -134,11 +135,12 @@ class BraketSpecs extends AnyFlatSpec with Matchers with MockFactory with Either
       .expects(mockResource)
       .returning(Right(expected))
 
-    val actual = Braket.withResource(mockResource)(mockUserFunction)
+    type ET[A] = Either[Throwable, A]
+    val actual: ET[Int] = Braket.withResource[ET, AutoCloseable, Int](mockResource)(mockUserFunction)
 
     actual should be(left)
     actual.leftValue shouldBe a[RuntimeException]
-    actual.leftValue.getMessage() shouldBe "close failure"
+    actual.leftValue.getMessage shouldBe "close failure"
   }
 
   it should "return a FigletLoadingError when the user function and the close() fail" in {
@@ -152,11 +154,12 @@ class BraketSpecs extends AnyFlatSpec with Matchers with MockFactory with Either
       .expects(mockResource)
       .onCall { _: AutoCloseable => throw new RuntimeException("failure") }
 
-    val actual = Braket.withResource(mockResource)(mockUserFunction)
+    type ET[A] = Either[Throwable, A]
+    val actual: ET[Int] = Braket.withResource[ET, AutoCloseable, Int](mockResource)(mockUserFunction)
 
     actual should be(left)
     actual.leftValue shouldBe a[FigletLoadingError]
-    actual.leftValue.getMessage() shouldBe "failure"
+    actual.leftValue.getMessage shouldBe "failure"
     actual.leftValue.getSuppressed.map(_.getMessage()).mkString shouldBe "close failure"
   }
 
@@ -174,7 +177,7 @@ class BraketSpecs extends AnyFlatSpec with Matchers with MockFactory with Either
 
     val actual =
       Braket
-        .withResource(mockResource)(mockUserFunction)
+        .withResource[IO, AutoCloseable, Int](mockResource)(mockUserFunction)
         .unsafeRunSync()
 
     actual shouldBe expected
@@ -194,12 +197,12 @@ class BraketSpecs extends AnyFlatSpec with Matchers with MockFactory with Either
 
     val actual =
       Braket
-        .withResource(mockResource)(mockUserFunction)
+        .withResource[IO, AutoCloseable, Int](mockResource)(mockUserFunction)
         .redeem(identity, _ => fail("Call to withResource didn't return an Exception"))
         .unsafeRunSync()
 
     actual shouldBe a[FigletLoadingError]
-    actual.getMessage() shouldBe "failure"
+    actual.getMessage shouldBe "failure"
   }
 
   it should "return a RuntimeException when close() fails" in {
@@ -215,12 +218,12 @@ class BraketSpecs extends AnyFlatSpec with Matchers with MockFactory with Either
 
     val actual =
       Braket
-        .withResource(mockResource)(mockUserFunction)
+        .withResource[IO, AutoCloseable, Int](mockResource)(mockUserFunction)
         .redeem(identity, _ => fail("Call to withResource didn't return an Exception"))
         .unsafeRunSync()
 
     actual shouldBe a[RuntimeException]
-    actual.getMessage() shouldBe "close failure"
+    actual.getMessage shouldBe "close failure"
   }
 
   it should "return a FigletLoadingError when the user function and the close() fail" in {
@@ -236,12 +239,12 @@ class BraketSpecs extends AnyFlatSpec with Matchers with MockFactory with Either
 
     val actual =
       Braket
-        .withResource(mockResource)(mockUserFunction)
+        .withResource[IO, AutoCloseable, Int](mockResource)(mockUserFunction)
         .redeem(identity, _ => fail("Call to withResource didn't return an Exception"))
         .unsafeRunSync()
 
     actual shouldBe a[FigletLoadingError]
-    actual.getMessage() shouldBe "failure"
+    actual.getMessage shouldBe "failure"
     actual.getSuppressed.map(_.getMessage()).mkString shouldBe "close failure"
   }
 

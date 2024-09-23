@@ -6,6 +6,7 @@ import com.colofabrix.scala.figlet4s.compat._
 import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
 import com.colofabrix.scala.figlet4s.utils._
+
 import java.io.File
 import java.util.Locale
 
@@ -124,40 +125,40 @@ object FIGfont {
     if (fontState.loadedCharLines.size =!= 0) {
       // Check we didn't stop in the middle of a character
       FIGcharacterError("Incomplete character definition at the end of the file").invalidNec
-
     } else {
-      val header          = fontState.header.get
-      val nameV           = fontState.file.getName.split('.').init.mkString("").validNec
-      val fileV           = fontState.file.validNec
-      val hashV           = fontState.hash.validNec
-      val commentV        = fontState.commentLines.mkString("\n").validNec
-      val hLayoutV        = HorizontalLayout.fromHeader(header)
-      val vLayoutV        = VerticalLayout.fromHeader(header)
-      val printDirectionV = PrintDirection.fromHeader(header)
-      val settingsV = (hLayoutV, vLayoutV, printDirectionV).mapN {
-        FIGfontSettings.apply _
-      }
+      val header                                        = fontState.header.get
+      val headerV: FigletResult[FIGheader]              = header.validNec
+      val nameV: FigletResult[String]                   = fontState.file.getName.split('.').init.mkString("").validNec
+      val fileV: FigletResult[File]                     = fontState.file.validNec
+      val hashV: FigletResult[String]                   = fontState.hash.validNec
+      val commentV: FigletResult[String]                = fontState.commentLines.mkString("\n").validNec
+      val hLayoutV: FigletResult[HorizontalLayout]      = headerV andThen HorizontalLayout.fromHeader
+      val vLayoutV: FigletResult[VerticalLayout]        = headerV andThen VerticalLayout.fromHeader
+      val printDirectionV: FigletResult[PrintDirection] = headerV andThen PrintDirection.fromHeader
 
-      val charsV = fontState
-        .loadedChars
-        .traverse(buildChar(fontState, _))
-        .andThen(validatedRequiredChars)
-        .andThen { chars =>
-          val loadedTaggedCount = chars.size - requiredChars.size
-          val codetagCount      = header.codetagCount.getOrElse(loadedTaggedCount)
+      val settingsV: FigletResult[FIGfontSettings] =
+        (hLayoutV, vLayoutV, printDirectionV).mapN(FIGfontSettings.apply)
 
-          if (loadedTaggedCount === codetagCount)
-            chars.validNec
-          else
-            FIGFontError(
-              s"The number of loaded tagged fonts $loadedTaggedCount doesn't correspond to the value " +
-              s"indicated in the header $codetagCount",
-            ).invalidNec
-        }
-        .map(_.map(c => c.name -> c).toMap)
+      val charsV: FigletResult[Map[Char, FIGcharacter]] =
+        fontState
+          .loadedChars
+          .traverse(buildChar(fontState, _))
+          .andThen(validatedRequiredChars)
+          .andThen { chars =>
+            val loadedTaggedCount = chars.size - requiredChars.size
+            val codetagCount      = header.codetagCount.getOrElse(loadedTaggedCount)
 
-      (hashV, nameV, fileV, header.validNec, commentV, settingsV, charsV)
-        .mapN(FIGfont.apply)
+            if (loadedTaggedCount === codetagCount)
+              chars.validNec
+            else
+              FIGFontError(
+                s"The number of loaded tagged fonts $loadedTaggedCount doesn't correspond to the value " +
+                s"indicated in the header $codetagCount",
+              ).invalidNec
+          }
+          .map(_.map(c => c.name -> c).toMap)
+
+      (hashV, nameV, fileV, headerV, commentV, settingsV, charsV).mapN(FIGfont.apply)
     }
 
   /**

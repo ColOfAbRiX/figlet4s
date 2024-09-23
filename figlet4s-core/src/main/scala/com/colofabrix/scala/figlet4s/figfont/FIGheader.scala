@@ -1,7 +1,7 @@
 package com.colofabrix.scala.figlet4s.figfont
 
-import cats.data._
 import cats.data.Validated._
+import cats.data._
 import cats.implicits._
 import com.colofabrix.scala.figlet4s.compat._
 import com.colofabrix.scala.figlet4s.errors._
@@ -78,15 +78,15 @@ object FIGheader {
         s"Wrong number of parameters in FLF header. Found ${splitLine.length} parameters",
       ).invalidNec
     else {
-      val (signatureText, hardblankText) = splitLine(SIGNATURE_INDEX).splitAt(5)
+      val (signatureText, hardblankText) = splitLine.get(SIGNATURE_INDEX).map(_.splitAt(5)).getOrElse("", "")
 
       val signatureV      = validateSignature(signatureText)
       val hardblankV      = validateHardblank(hardblankText)
-      val heightV         = validateHeight(splitLine(HEIGHT_INDEX))
-      val baselineV       = validateBaseline(splitLine(BASELINE_INDEX))
-      val maxLengthV      = validateMaxLength(splitLine(MAXLENGTH_INDEX))
-      val oldLayoutV      = validateOldLayout(splitLine(OLDLAYOUT_INDEX))
-      val commentLinesV   = validateCommentLines(splitLine(COMMENTLINES_INDEX))
+      val heightV         = validateHeight(splitLine.get(HEIGHT_INDEX))
+      val baselineV       = validateBaseline(splitLine.get(BASELINE_INDEX))
+      val maxLengthV      = validateMaxLength(splitLine.get(MAXLENGTH_INDEX))
+      val oldLayoutV      = validateOldLayout(splitLine.get(OLDLAYOUT_INDEX))
+      val commentLinesV   = validateCommentLines(splitLine.get(COMMENTLINES_INDEX))
       val printDirectionV = validatePrintDirection(splitLine.get(PRINTDIRECTION_INDEX.toLong))
       val fullLayoutV     = validateFullLayout(splitLine.get(FULLLAYOUT_INDEX.toLong))
       val codetagCountV   = validateCodetagCount(splitLine.get(CODETAGCOUNT_INDEX.toLong))
@@ -109,33 +109,33 @@ object FIGheader {
       .toValidNec(FIGheaderError(s"The hardblank '$hardblank' is not composed of only one character"))
       .map(_.charAt(0))
 
-  private def validateHeight(height: String): FigletResult[Int] =
+  private def validateHeight(height: Option[String]): FigletResult[Int] =
     height
-      .toIntOption
+      .flatMap(_.toIntOption)
       .toValidNec(FIGheaderError(s"Couldn't parse header field 'height': $height"))
       .andThen { value =>
-        Validated.condNec(value > 0, value, FIGheaderError(s"Field 'height' must be positive: $height"))
+        Validated.condNec(value > 0, value, FIGheaderError(s"Field 'height' must be positive: $value"))
       }
 
-  private def validateBaseline(baseline: String): FigletResult[Int] =
+  private def validateBaseline(baseline: Option[String]): FigletResult[Int] =
     baseline
-      .toIntOption
+      .flatMap(_.toIntOption)
       .toValidNec(FIGheaderError(s"Couldn't parse header field 'baseline': $baseline"))
       .andThen { value =>
-        Validated.condNec(value > 0, value, FIGheaderError(s"Field 'baseline' must be positive: $baseline"))
+        Validated.condNec(value > 0, value, FIGheaderError(s"Field 'baseline' must be positive: $value"))
       }
 
-  private def validateMaxLength(maxLength: String): FigletResult[Int] =
+  private def validateMaxLength(maxLength: Option[String]): FigletResult[Int] =
     maxLength
-      .toIntOption
+      .flatMap(_.toIntOption)
       .toValidNec(FIGheaderError(s"Couldn't parse header field 'maxLength': $maxLength"))
       .andThen { value =>
-        Validated.condNec(value > 0, value, FIGheaderError(s"Field 'maxLength' must be positive: $maxLength"))
+        Validated.condNec(value > 0, value, FIGheaderError(s"Field 'maxLength' must be positive: $value"))
       }
 
-  private def validateOldLayout(oldLayout: String): FigletResult[Vector[OldLayout]] =
+  private def validateOldLayout(oldLayout: Option[String]): FigletResult[Vector[OldLayout]] =
     oldLayout
-      .toIntOption
+      .flatMap(_.toIntOption)
       .toValidNec(FIGheaderError(s"Couldn't parse header field 'oldLayout': $oldLayout"))
       .andThen { value =>
         val valid      = value >= -1 && value <= 63
@@ -144,47 +144,60 @@ object FIGheader {
       }
       .andThen(OldLayout(_))
 
-  private def validateCommentLines(commentLines: String): FigletResult[Int] =
+  private def validateCommentLines(commentLines: Option[String]): FigletResult[Int] =
     commentLines
-      .toIntOption
+      .flatMap(_.toIntOption)
       .toValidNec(FIGheaderError(s"Couldn't parse header field 'commentLines': $commentLines"))
       .andThen { value =>
-        Validated.condNec(value >= 0, value, FIGheaderError(s"Field 'commentLines' must be non-negative: $commentLines"))
+        Validated.condNec(value >= 0, value, FIGheaderError(s"Field 'commentLines' must be non-negative: $value"))
       }
 
   private def validatePrintDirection(printDirection: Option[String]): FigletResult[Option[PrintDirection]] =
-    printDirection.traverse { value =>
-      value
-        .toIntOption
-        .toValidNec(FIGheaderError(s"Couldn't parse header field 'printDirection': $printDirection"))
-        .andThen {
-          PrintDirection(_).leftMap(_.map(FIGheaderError(s"Invalid value for field 'printDirection': $value", _)))
-        }
+    printDirection match {
+      case Some(value) =>
+        value
+          .toIntOption
+          .toValidNec(FIGheaderError(s"Couldn't parse header field 'printDirection': $printDirection"))
+          .andThen {
+            PrintDirection(_).leftMap(_.map(FIGheaderError(s"Invalid value for field 'printDirection': $value", _)))
+          }
+          .map(Some(_))
+      case None =>
+        none[PrintDirection].validNec
     }
 
   private def validateFullLayout(fullLayout: Option[String]): FigletResult[Option[Vector[FullLayout]]] =
-    fullLayout.traverse { value =>
-      value
-        .toIntOption
-        .toValidNec(FIGheaderError(s"Couldn't parse header field 'fullLayout': $fullLayout"))
-        .andThen { value =>
-          val valid      = value >= 0 && value <= 32767
-          lazy val error = FIGheaderError(s"Field 'fullLayout' must be between 0 and 32767, both included: $value")
-          Validated.condNec(valid, value, error)
-        }
-        .andThen(FullLayout(_))
+    fullLayout match {
+      case Some(value) =>
+        value
+          .toIntOption
+          .toValidNec(FIGheaderError(s"Couldn't parse header field 'fullLayout': $fullLayout"))
+          .andThen { value =>
+            val valid      = value >= 0 && value <= 32767
+            lazy val error = FIGheaderError(s"Field 'fullLayout' must be between 0 and 32767, both included: $value")
+            Validated.condNec(valid, value, error)
+          }
+          .andThen(FullLayout(_))
+          .map(Some(_))
+      case None =>
+        none[Vector[FullLayout]].validNec
     }
 
-  private def validateCodetagCount(codetagCount: Option[String]): FigletResult[Option[Int]] =
-    codetagCount.traverse { value =>
-      value
-        .toIntOption
-        .toValidNec(FIGheaderError(s"Couldn't parse header field 'codetagCount': $codetagCount"))
-        .andThen { value =>
-          lazy val error = FIGheaderError(s"Field 'codetagCount' must be non-negative: $codetagCount")
-          Validated.condNec(value >= 0, value, error)
-        }
+  private def validateCodetagCount(codetagCount: Option[String]): FigletResult[Option[Int]] = {
+    codetagCount match {
+      case Some(value) =>
+        value
+          .toIntOption
+          .toValidNec(FIGheaderError(s"Couldn't parse header field 'codetagCount': $codetagCount"))
+          .andThen { value =>
+            lazy val error = FIGheaderError(s"Field 'codetagCount' must be non-negative: $codetagCount")
+            Validated.condNec(value >= 0, value, error)
+          }
+          .map(Some(_))
+      case None =>
+        none[Int].validNec
     }
+  }
 
   ->()
 }

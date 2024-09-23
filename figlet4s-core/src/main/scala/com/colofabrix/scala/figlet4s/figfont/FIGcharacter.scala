@@ -3,6 +3,7 @@ package com.colofabrix.scala.figlet4s.figfont
 import cats.data.Validated
 import cats.implicits._
 import com.colofabrix.scala.figlet4s.errors._
+
 import scala.util.matching.Regex
 
 /**
@@ -20,14 +21,14 @@ import scala.util.matching.Regex
  * @param position The line in the file where the FIGcharacter is defines
  */
 final case class FIGcharacter private[figlet4s] (
-    fontId: String,
-    name: Char,
-    lines: SubLines,
-    endmark: Char,
-    width: Int,
-    comment: Option[String],
-    position: Int,
-) {
+                                                  fontId: String,
+                                                  name: Char,
+                                                  lines: SubLines,
+                                                  endmark: Char,
+                                                  width: Int,
+                                                  comment: Option[String],
+                                                  position: Int,
+                                                ) {
   /** The strings composing the column of the FIGcharacter */
   lazy val columns: SubColumns = lines.toSubcolumns
 }
@@ -47,33 +48,43 @@ object FIGcharacter {
    *         list of errors occurred during the creation
    */
   def apply(
-      fontId: String,
-      maxWidth: Int,
-      height: Int,
-      name: Char,
-      lines: SubLines,
-      comment: Option[String],
-      position: Int,
-  ): FigletResult[FIGcharacter] = {
-    val maxWidthV = Validated.condNec(
-      maxWidth > 0,
-      maxWidth,
-      FIGheaderError(s"Value of 'maxLength' must be positive: $maxWidth"),
-    )
+             fontId: String,
+             maxWidth: Int,
+             height: Int,
+             name: Char,
+             lines: SubLines,
+             comment: Option[String],
+             position: Int,
+           ): FigletResult[FIGcharacter] = {
+    val commentV: FigletResult[Option[String]] = comment.validNec
+
+    val fontIdV: FigletResult[String] = fontId.validNec
+
+    val nameV: FigletResult[Char] =
+      if (name =!= '\uffff') name.validNec
+      else FIGcharacterError(s"Name '-1' is illegal").invalidNec
+
+    val endmarkV: FigletResult[Char]        = validateEndmark(name, position, lines)
+    val cleanLinesV: FigletResult[SubLines] = endmarkV andThen cleanLines(lines)
+
     val argHeightV = Validated.condNec(
       height > 0,
       height,
       FIGheaderError(s"Value of 'height' must be positive: $height"),
     )
-    val nameV       = if (name =!= '\uffff') name.validNec else FIGcharacterError(s"Name '-1' is illegal").invalidNec
-    val endmarkV    = validateEndmark(name, position, lines)
-    val cleanLinesV = endmarkV andThen cleanLines(lines)
-    val widthV      = maxWidthV.andThen { cleanLinesV andThen validateWidth(name, _, position) }
-    val heightV     = argHeightV.andThen { cleanLinesV andThen validateHeight(name, position, _) }
+    val heightV: FigletResult[Int] = argHeightV andThen { cleanLinesV andThen validateHeight(name, position, _) }
+
+    val maxWidthV = Validated.condNec(
+      maxWidth > 0,
+      maxWidth,
+      FIGheaderError(s"Value of 'maxWidth' must be positive: $maxWidth"),
+    )
+    val widthV: FigletResult[Int] = maxWidthV andThen { cleanLinesV andThen validateWidth(name, _, position) }
+
+    val positionV: FigletResult[Int] = position.validNec
 
     heightV andThen { _ =>
-      (fontId.validNec, nameV, cleanLinesV, endmarkV, widthV, comment.validNec, position.validNec)
-        .mapN(FIGcharacter.apply)
+      (fontIdV, nameV, cleanLinesV, endmarkV, widthV, commentV, positionV).mapN(FIGcharacter.apply)
     }
   }
 
@@ -90,13 +101,13 @@ object FIGcharacter {
    *         list of errors occurred during the creation
    */
   def apply(
-      fontId: String,
-      header: FIGheader,
-      name: Char,
-      lines: SubLines,
-      comment: Option[String],
-      position: Int,
-  ): FigletResult[FIGcharacter] =
+             fontId: String,
+             header: FIGheader,
+             name: Char,
+             lines: SubLines,
+             comment: Option[String],
+             position: Int,
+           ): FigletResult[FIGcharacter] =
     apply(fontId, header.maxLength, header.height, name, lines, comment, position)
 
   /**
@@ -113,11 +124,11 @@ object FIGcharacter {
 
     val extractedEndmarksV =
       Validated.condNec(
-        linesTerminations.forall(l => l.length > 0 && l.length <= 2),
+        linesTerminations.forall(l => l.nonEmpty && l.length <= 2),
         linesTerminations.flatMap(_.toList).toSet,
         FIGcharacterError(
           s"Can't determine endmark. There are lines with no termination or more than 2-characters termination on " +
-          s"character '$name' defined at line ${position + 1}: ${linesTerminations.mkString("(", ", ", ")")}",
+            s"character '$name' defined at line ${position + 1}: ${linesTerminations.mkString("(", ", ", ")")}",
         ),
       )
 
@@ -127,7 +138,7 @@ object FIGcharacter {
         extractedEndmarks.headOption,
         FIGcharacterError(
           s"Multiple endmarks found for character '$name' defined at line ${position + 1}, " +
-          s"only one endmark character is allowed: ${linesTerminations.mkString("(", ", ", ")")}",
+            s"only one endmark character is allowed: ${linesTerminations.mkString("(", ", ", ")")}",
         ),
       )
     }
@@ -159,7 +170,7 @@ object FIGcharacter {
         .toValidNec(
           FIGcharacterError(
             s"Lines for character '$name' defined at line ${position + 1} are of different " +
-            s"width: $cleanLines",
+              s"width: $cleanLines",
           ),
         )
         .andThen { width =>
@@ -179,6 +190,6 @@ object FIGcharacter {
     else
       FIGcharacterError(
         s"The character '$name' defined at line ${position + 1} doesn't respect the specified " +
-        s"height of $height",
+          s"height of $height",
       ).invalidNec
 }
