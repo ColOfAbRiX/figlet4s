@@ -44,14 +44,14 @@ private[either] trait OptionsBuilderMixin {
 
     private def builtFont: FigletEither[FIGfont] =
       for {
-        optionFont <- buildOptions.map(_.font.map(_.asEither))
+        optionFont <- buildOptions.map(_.font.map(toEither))
         font       <- optionFont.getOrElse(builtDefaultFont)
       } yield font
 
     private def builtDefaultFont: FigletEither[FIGfont] =
       Figlet4sClient
         .loadFontInternal[FigletEither](Figlet4sClient.defaultFont)
-        .flatMap(_.asEither)
+        .flatMap(toEither)
 
     private def builtMaxWidth: FigletEither[Int] =
       for {

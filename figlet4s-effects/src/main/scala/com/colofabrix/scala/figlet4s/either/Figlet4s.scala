@@ -30,7 +30,7 @@ object Figlet4s extends Figlet4sAPI[FigletEither] with Figlet4sEffectfulAPI[Figl
   def loadFontInternal(name: String = "standard"): FigletEither[FIGfont] =
     Figlet4sClient
       .loadFontInternal[FigletEither](name)
-      .flatMap(_.asEither)
+      .flatMap(toEither)
 
   /**
    * Loads a FIGfont from file
@@ -42,7 +42,7 @@ object Figlet4s extends Figlet4sAPI[FigletEither] with Figlet4sEffectfulAPI[Figl
   def loadFont(path: String, encoding: Codec = Codec.ISO8859): FigletEither[FIGfont] =
     Figlet4sClient
       .loadFont[FigletEither](path, encoding)
-      .flatMap(_.asEither)
+      .flatMap(toEither)
 
   /**
    * Renders a given text as a FIGure
@@ -52,7 +52,7 @@ object Figlet4s extends Figlet4sAPI[FigletEither] with Figlet4sEffectfulAPI[Figl
    * @return A FIGure representing the rendered text
    */
   def renderString(text: String, options: RenderOptions): FIGure =
-    renderStringF(text, options).unsafeGet
+    unsafeGet(renderStringF(text, options))
 
   /**
    * Returns a new options builder with default settings
@@ -60,7 +60,7 @@ object Figlet4s extends Figlet4sAPI[FigletEither] with Figlet4sEffectfulAPI[Figl
    * @return An OptionBuilder to build the rendering options
    */
   def builder(): OptionsBuilder =
-    builderF().unsafeGet
+    unsafeGet(builderF())
 
   /**
    * Returns a new options builder with default settings and containing the specified text to render
@@ -69,7 +69,7 @@ object Figlet4s extends Figlet4sAPI[FigletEither] with Figlet4sEffectfulAPI[Figl
    * @return An OptionBuilder to build the rendering options
    */
   def builder(text: String): OptionsBuilder =
-    builderF(text).unsafeGet
+    unsafeGet(builderF(text))
 
   /**
    * Renders a given text as a FIGure
