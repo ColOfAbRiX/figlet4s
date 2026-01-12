@@ -1,6 +1,7 @@
 package com.colofabrix.scala.figlet4s.catsio
 
 import cats.effect.IO
+import cats.effect.unsafe.implicits.global
 import com.colofabrix.scala.figlet4s.StandardTestData._
 import org.scalatest.flatspec._
 import org.scalatest.matchers.should._
@@ -24,8 +25,15 @@ class CatsIOFIGureSpecs extends AnyFlatSpec with Matchers {
   it should "print the same data as asString()" in {
     val figure = standardBuilder.render(standardInput)
     val stream = new java.io.ByteArrayOutputStream()
-    Console.withOut(stream) {
+    val printStream = new java.io.PrintStream(stream)
+
+    val oldOut = System.out
+    try {
+      System.setOut(printStream)
       figure.flatMap(_.print()).unsafeRunSync()
+    }
+    finally {
+      System.setOut(oldOut)
     }
 
     val computed = stream.toString()

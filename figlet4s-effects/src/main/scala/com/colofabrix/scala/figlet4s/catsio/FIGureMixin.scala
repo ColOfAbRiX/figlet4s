@@ -1,6 +1,7 @@
 package com.colofabrix.scala.figlet4s.catsio
 
 import cats.effect.IO
+import cats.effect.unsafe.implicits.global
 import com.colofabrix.scala.figlet4s.api._
 import com.colofabrix.scala.figlet4s.figfont._
 
@@ -19,8 +20,9 @@ private[catsio] trait FIGureMixin {
     /**
      * Print the FIGure to standard output
      */
-    def print(): IO[Unit] =
-      self.foreachLine(println)
+    def print(): IO[Unit] = IO {
+      self.cleanLines.foreach(_.foreach(System.out.println))
+    }
 
     /**
      * The figure as a collection of String, one String per displayable line

@@ -1,6 +1,7 @@
 package com.colofabrix.scala.figlet4s.catsio
 
 import cats.effect._
+import cats.effect.unsafe.implicits.global
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.StandardTestData._
 import com.colofabrix.scala.figlet4s.testutils.Figlet4sMatchers

@@ -1,6 +1,7 @@
 package com.colofabrix.scala.figlet4s.catsio
 
 import cats.effect._
+import cats.effect.unsafe.implicits.global
 import com.colofabrix.scala.figlet4s.api._
 import com.colofabrix.scala.figlet4s.core._
 import com.colofabrix.scala.figlet4s.figfont._
@@ -31,7 +32,7 @@ object Figlet4s extends Figlet4sAPI[IO] with Figlet4sEffectfulAPI[IO] {
   def loadFontInternal(name: String = "standard"): IO[FIGfont] =
     Figlet4sClient
       .loadFontInternal[IO](name)
-      .flatMap(_.asIO)
+      .flatMap(toIO)
 
   /**
    * Loads a FIGfont from file
@@ -43,7 +44,7 @@ object Figlet4s extends Figlet4sAPI[IO] with Figlet4sEffectfulAPI[IO] {
   def loadFont(path: String, codec: Codec = Codec.ISO8859): IO[FIGfont] =
     Figlet4sClient
       .loadFont[IO](path, codec)
-      .flatMap(_.asIO)
+      .flatMap(toIO)
 
   /**
    * Renders a given text as a FIGure

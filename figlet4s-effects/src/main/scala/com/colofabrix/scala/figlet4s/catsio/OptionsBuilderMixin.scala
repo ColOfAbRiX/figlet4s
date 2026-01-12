@@ -60,14 +60,14 @@ private[catsio] trait OptionsBuilderMixin {
 
     private def builtFont: IO[FIGfont] =
       for {
-        optionFont <- buildOptions.map(_.font.map(_.asIO))
+        optionFont <- buildOptions.map(_.font.map(toIO))
         font       <- optionFont.getOrElse(builtDefaultFont)
       } yield font
 
     private def builtDefaultFont: IO[FIGfont] =
       Figlet4sClient
         .loadFontInternal[IO](Figlet4sClient.defaultFont)
-        .flatMap(_.asIO)
+        .flatMap(toIO)
 
     private def builtMaxWidth: IO[Int] =
       for {
