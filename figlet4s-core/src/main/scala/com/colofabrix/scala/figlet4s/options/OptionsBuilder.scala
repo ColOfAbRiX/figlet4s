@@ -284,8 +284,8 @@ private[figlet4s] object OptionsBuilder {
       Applicative[F].pure(buildData.copy(justification = justification))
   }
 
-  @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
+  @SuppressWarnings(Array("org.wartremover.warts.TraversableOps", "org.wartremover.warts.OptionPartial"))
   private def foldCompilers[F[_]](data: List[ActionCompiler[F]]): (BuildData, BuilderAction) => F[BuildData] =
-    Function.untupled(data.reduce(_ orElse _))
+    Function.untupled(data.reduceOption(_ orElse _).get)
 
 }

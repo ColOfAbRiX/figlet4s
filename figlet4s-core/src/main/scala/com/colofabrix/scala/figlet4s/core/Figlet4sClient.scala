@@ -32,7 +32,7 @@ private[figlet4s] object Figlet4sClient {
    * @return The collection of names of FIGfonts shipped with this library
    */
   def internalFonts[F[_]: Sync]: F[Seq[String]] =
-    FontListing.listInternalFonts.map(_.toSeq)
+    FontListing.listInternalFonts.map(x => x: Seq[String])
 
   /**
    * Loads one of the internal FIGfont

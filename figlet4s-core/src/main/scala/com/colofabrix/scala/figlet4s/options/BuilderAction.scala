@@ -15,11 +15,11 @@ private[figlet4s] object BuilderAction {
 
   //  Default Build Actions  //
 
-  final case object DefaultFontAction       extends BuilderAction with FontTag
-  final case object DefaultHorizontalLayout extends BuilderAction with HorizontalLayoutTag
-  final case object DefaultJustification    extends BuilderAction with JustificationTag
-  final case object DefaultMaxWidthAction   extends BuilderAction with MaxWidthActionTag
-  final case object DefaultPrintDirection   extends BuilderAction with PrintDirectionTag
+  case object DefaultFontAction       extends BuilderAction with FontTag
+  case object DefaultHorizontalLayout extends BuilderAction with HorizontalLayoutTag
+  case object DefaultJustification    extends BuilderAction with JustificationTag
+  case object DefaultMaxWidthAction   extends BuilderAction with MaxWidthActionTag
+  case object DefaultPrintDirection   extends BuilderAction with PrintDirectionTag
 
   //  Builder Actions  //
 

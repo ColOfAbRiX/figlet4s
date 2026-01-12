@@ -10,6 +10,7 @@ target
 
 # Files
 metals.sbt
+.clinerules
 
 # File types
 *.class

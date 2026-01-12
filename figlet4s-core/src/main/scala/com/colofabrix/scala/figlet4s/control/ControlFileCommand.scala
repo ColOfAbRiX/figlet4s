@@ -35,30 +35,30 @@ object ControlFileCommand {
    * Multiple transformation stages can be encoded in a single control file by using "f" commands to separate the
    * stages.
    */
-  final case object FCommand extends ControlFileCommand
+  case object FCommand extends ControlFileCommand
 
   /**
    * The "h" command forces the input to be interpreted in HZ mode, which is used for the HZ character encoding of
    * Chinese text.
    */
-  final case object HCommand extends ExtendedControlFileCommand
+  case object HCommand extends ExtendedControlFileCommand
 
   /**
    * The "j" command forces the input to be interpreted in Shift-JIS mode (also called "MS-Kanji mode")
    */
-  final case object JCommand extends ExtendedControlFileCommand
+  case object JCommand extends ExtendedControlFileCommand
 
   /**
    * The "b" command forces the input to be interpreted in DBCS mode, which is suitable for processing HZ or Shift-GB
    * Chinese text or Korean text.
    */
-  final case object BCommand extends ExtendedControlFileCommand
+  case object BCommand extends ExtendedControlFileCommand
 
   /**
    * The "u" command forces the input to be interpreted in UTF-8 mode, which causes any input byte in the range 0x80 to
    * 0xFF to be interpreted as the first byte of a multi-byte Unicode (ISO 10646) character.
    */
-  final case object UCommand extends ExtendedControlFileCommand
+  case object UCommand extends ExtendedControlFileCommand
 
   /**
    * The "g" command provides information for the ISO 2022 interpreter

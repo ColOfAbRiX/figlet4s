@@ -23,6 +23,7 @@ package object figfont {
   implicit val subColumnsEq: Eq[SubColumns] =
     (x: SubColumns, y: SubColumns) => x.value === y.value
 
+  @SuppressWarnings(Array("org.wartremover.warts.ImplicitConversion"))
   implicit def seqEq[A: Eq]: Eq[Seq[A]] =
     (x: Seq[A], y: Seq[A]) => (x zip y).forall { case (a, b) => a === b }
 

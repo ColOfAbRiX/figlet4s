@@ -19,11 +19,11 @@ private[figlet4s] object FIGfontParameters {
 
   object HorizontalLayout {
     /** Use full width horizontal layout */
-    final case object FullWidth extends HorizontalLayout
+    case object FullWidth extends HorizontalLayout
     /** Use horizontal fitting (kerning) layout */
-    final case object HorizontalFitting extends HorizontalLayout
+    case object HorizontalFitting extends HorizontalLayout
     /** Use universal horizontal smushing */
-    final case object UniversalSmushing extends HorizontalLayout
+    case object UniversalSmushing extends HorizontalLayout
     /** Use controlled horizontal smushing */
     final case class ControlledSmushing(rules: Seq[HorizontalSmushingRule]) extends HorizontalLayout
 
@@ -60,7 +60,7 @@ private[figlet4s] object FIGfontParameters {
           else if (settings.contains(FullLayout.HorizontalFitting) && !settings.contains(FullLayout.HorizontalSmushing))
             HorizontalFitting.validNec
           else if (settings.contains(FullLayout.HorizontalSmushing) && selectedSmushingRules.size =!= 0)
-            HorizontalSmushingRule.fromFullLayout(header).map(ControlledSmushing)
+            HorizontalSmushingRule.fromFullLayout(header).map(ControlledSmushing.apply)
           else
             UniversalSmushing.validNec
         }
@@ -80,7 +80,7 @@ private[figlet4s] object FIGfontParameters {
       else if (settings === Vector(OldLayout.HorizontalFitting))
         HorizontalFitting.validNec
       else if (!settings.contains(OldLayout.FullWidth) && !settings.contains(OldLayout.HorizontalFitting))
-        HorizontalSmushingRule.fromOldLayout(header).map(ControlledSmushing)
+        HorizontalSmushingRule.fromOldLayout(header).map(ControlledSmushing.apply)
       else
         FIGFontError(s"Couldn't convert layout settings found in header: ${settings.mkString(", ")}").invalidNec
     }
@@ -93,17 +93,17 @@ private[figlet4s] object FIGfontParameters {
 
   object HorizontalSmushingRule {
     /** Apply "equal" character horizontal smushing */
-    final case object EqualCharacter extends HorizontalSmushingRule
+    case object EqualCharacter extends HorizontalSmushingRule
     /** Apply "underscore" horizontal smushing */
-    final case object Underscore extends HorizontalSmushingRule
+    case object Underscore extends HorizontalSmushingRule
     /** Apply "hierarchy" horizontal smushing */
-    final case object Hierarchy extends HorizontalSmushingRule
+    case object Hierarchy extends HorizontalSmushingRule
     /** Apply "opposite pair" horizontal smushing rule 4 */
-    final case object OppositePair extends HorizontalSmushingRule
+    case object OppositePair extends HorizontalSmushingRule
     /** Apply "big X" horizontal smushing rule 5 */
-    final case object BigX extends HorizontalSmushingRule
+    case object BigX extends HorizontalSmushingRule
     /** Apply "hardblank" horizontal smushing rule 6 */
-    final case object Hardblank extends HorizontalSmushingRule
+    case object Hardblank extends HorizontalSmushingRule
 
     /**
      * Interprets the "fullLayout" header settings and returns the selected Horizontal Smushing Rules
@@ -159,11 +159,11 @@ private[figlet4s] object FIGfontParameters {
 
   object VerticalLayout {
     /** Use full height vertical layout */
-    final case object FullHeight extends VerticalLayout
+    case object FullHeight extends VerticalLayout
     /** Use vertical fitting layout */
-    final case object VerticalFitting extends VerticalLayout
+    case object VerticalFitting extends VerticalLayout
     /** Use universal vertical smushing */
-    final case object UniversalSmushing extends VerticalLayout
+    case object UniversalSmushing extends VerticalLayout
     /** Use controlled vertical smushing */
     final case class ControlledSmushing(rules: Seq[VerticalSmushingRules]) extends VerticalLayout
 
@@ -185,7 +185,7 @@ private[figlet4s] object FIGfontParameters {
           else if (settings.contains(FullLayout.VerticalFitting) && !settings.contains(FullLayout.VerticalSmushing))
             VerticalFitting.validNec
           else if (settings.contains(FullLayout.VerticalSmushing) && selectedSmushingRules.size =!= 0)
-            VerticalSmushingRules.fromHeader(header).map(ControlledSmushing)
+            VerticalSmushingRules.fromHeader(header).map(ControlledSmushing.apply)
           else
             UniversalSmushing.validNec
         }
@@ -199,15 +199,15 @@ private[figlet4s] object FIGfontParameters {
 
   object VerticalSmushingRules {
     /** Apply "equal" character vertical smushing */
-    final case object EqualCharacter extends VerticalSmushingRules
+    case object EqualCharacter extends VerticalSmushingRules
     /** Apply "underscore" vertical smushing */
-    final case object Underscore extends VerticalSmushingRules
+    case object Underscore extends VerticalSmushingRules
     /** Apply "hierarchy" vertical smushing */
-    final case object Hierarchy extends VerticalSmushingRules
+    case object Hierarchy extends VerticalSmushingRules
     /** Apply "horizontal line" vertical smushing */
-    final case object HorizontalLine extends VerticalSmushingRules
+    case object HorizontalLine extends VerticalSmushingRules
     /** Apply "vertical line" vertical smushing */
-    final case object VerticalLineSupersmushing extends VerticalSmushingRules
+    case object VerticalLineSupersmushing extends VerticalSmushingRules
 
     /**
      * Interprets the header settings and returns the selected Vertical Smushing Rules
@@ -240,9 +240,9 @@ private[figlet4s] object FIGfontParameters {
   object PrintDirection {
 
     /** Render left-to-right */
-    final case object LeftToRight extends PrintDirection
+    case object LeftToRight extends PrintDirection
     /** Render right-to-left */
-    final case object RightToLeft extends PrintDirection
+    case object RightToLeft extends PrintDirection
 
     /**
      * Interprets the header settings and returns the selected PrintDirection

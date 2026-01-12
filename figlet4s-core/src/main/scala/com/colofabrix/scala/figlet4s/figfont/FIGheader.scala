@@ -70,33 +70,41 @@ object FIGheader {
    * @return A [[com.colofabrix.scala.figlet4s.errors.FigletResult FigletResult]] containing the new FIGheader or a list
    *         of errors occurred during the creation
    */
+  // format: off
   def apply(line: String): FigletResult[FIGheader] = {
     val splitLine = line.split(" ").toVector
 
-    if (splitLine.length < 6)
-      FIGheaderError(
-        s"Wrong number of parameters in FLF header. Found ${splitLine.length} parameters",
-      ).invalidNec
+    if (splitLine.lengthIs < 6)
+      FIGheaderError(s"Wrong number of parameters in FLF header. Found ${splitLine.length} parameters").invalidNec
     else {
-      val (signatureText, hardblankText) = splitLine(SIGNATURE_INDEX).splitAt(5)
+      val signatureFieldV    = splitLine.lift(SIGNATURE_INDEX).toValidNec(FIGheaderError("Missing signature field in header"))
+      val heightFieldV       = splitLine.lift(HEIGHT_INDEX).toValidNec(FIGheaderError("Missing height field in header"))
+      val baselineFieldV     = splitLine.lift(BASELINE_INDEX).toValidNec(FIGheaderError("Missing baseline field in header"))
+      val maxLengthFieldV    = splitLine.lift(MAXLENGTH_INDEX).toValidNec(FIGheaderError("Missing maxLength field in header"))
+      val oldLayoutFieldV    = splitLine.lift(OLDLAYOUT_INDEX).toValidNec(FIGheaderError("Missing oldLayout field in header"))
+      val commentLinesFieldV = splitLine.lift(COMMENTLINES_INDEX).toValidNec(FIGheaderError("Missing commentLines field in header"))
 
-      val signatureV      = validateSignature(signatureText)
-      val hardblankV      = validateHardblank(hardblankText)
-      val heightV         = validateHeight(splitLine(HEIGHT_INDEX))
-      val baselineV       = validateBaseline(splitLine(BASELINE_INDEX))
-      val maxLengthV      = validateMaxLength(splitLine(MAXLENGTH_INDEX))
-      val oldLayoutV      = validateOldLayout(splitLine(OLDLAYOUT_INDEX))
-      val commentLinesV   = validateCommentLines(splitLine(COMMENTLINES_INDEX))
-      val printDirectionV = validatePrintDirection(splitLine.get(PRINTDIRECTION_INDEX.toLong))
-      val fullLayoutV     = validateFullLayout(splitLine.get(FULLLAYOUT_INDEX.toLong))
-      val codetagCountV   = validateCodetagCount(splitLine.get(CODETAGCOUNT_INDEX.toLong))
+      (signatureFieldV, heightFieldV, baselineFieldV, maxLengthFieldV, oldLayoutFieldV, commentLinesFieldV).tupled.andThen {
+        case (signatureField, heightField, baselineField, maxLengthField, oldLayoutField, commentLinesField) =>
+          val (signatureText, hardblankText) = signatureField.splitAt(5)
 
-      // format: off
-      (signatureV, hardblankV, heightV, baselineV, maxLengthV, oldLayoutV, commentLinesV, printDirectionV, fullLayoutV, codetagCountV)
-        .mapN(FIGheader.apply)
-      // format: on
+          val signatureV      = validateSignature(signatureText)
+          val hardblankV      = validateHardblank(hardblankText)
+          val heightV         = validateHeight(heightField)
+          val baselineV       = validateBaseline(baselineField)
+          val maxLengthV      = validateMaxLength(maxLengthField)
+          val oldLayoutV      = validateOldLayout(oldLayoutField)
+          val commentLinesV   = validateCommentLines(commentLinesField)
+          val printDirectionV = validatePrintDirection(splitLine.get(PRINTDIRECTION_INDEX.toLong))
+          val fullLayoutV     = validateFullLayout(splitLine.get(FULLLAYOUT_INDEX.toLong))
+          val codetagCountV   = validateCodetagCount(splitLine.get(CODETAGCOUNT_INDEX.toLong))
+
+          (signatureV, hardblankV, heightV, baselineV, maxLengthV, oldLayoutV, commentLinesV, printDirectionV, fullLayoutV, codetagCountV)
+            .mapN(FIGheader.apply)
+      }
     }
   }
+  // format: on
 
   private def validateSignature(signature: String): FigletResult[String] =
     Option

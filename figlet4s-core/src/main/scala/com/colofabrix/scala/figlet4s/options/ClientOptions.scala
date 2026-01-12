@@ -20,20 +20,20 @@ object HorizontalLayout extends Enum[HorizontalLayout] {
   /**
    * Full width. Display all FIGcharacters at their full width, which may be fixed or variable, depending on the font
    */
-  final case object FullWidth extends HorizontalLayout
+  case object FullWidth extends HorizontalLayout
 
   /**
    * Kerning. As many blanks as possible are removed between FIGcharacters, so that they touch, but the FIGcharacters
    * are not smushed.
    */
-  final case object HorizontalFitting extends HorizontalLayout
+  case object HorizontalFitting extends HorizontalLayout
 
   /**
    * Smushing. The FIGcharacters are displayed as close together as possible, and overlapping sub-characters are
    * removed. Exactly which sub-characters count as overlapping depends on the font's layout mode, which is defined by
    * the font's author. It will not smush a font whose author specified kerning or full width as the default layout mode
    */
-  final case object HorizontalSmushing extends HorizontalLayout
+  case object HorizontalSmushing extends HorizontalLayout
 
   /**
    * Forced smushing. The FIGcharacters are displayed as close together as possible, and overlapping sub-characters are
@@ -41,12 +41,12 @@ object HorizontalLayout extends Enum[HorizontalLayout] {
    * the font's author. It will attempt to smush the character even if the font author specified kerning or full width
    * as the default layout mode.
    */
-  final case object ForceHorizontalSmushing extends HorizontalLayout
+  case object ForceHorizontalSmushing extends HorizontalLayout
 
   /**
    * Use the default value specified in the FIGfont
    */
-  final case object FontDefault extends HorizontalLayout
+  case object FontDefault extends HorizontalLayout
 
   /**
    * Converts the option HorizontalLayout into the FIGfont parameter HorizontalLayout
@@ -77,11 +77,11 @@ object PrintDirection extends Enum[PrintDirection] {
   val values: IndexedSeq[PrintDirection] = findValues
 
   /** Render the text left-to-right */
-  final case object LeftToRight extends PrintDirection
+  case object LeftToRight extends PrintDirection
   /** Render the text right-to-left */
-  final case object RightToLeft extends PrintDirection
+  case object RightToLeft extends PrintDirection
   /** Use the default value specified in the FIGfont */
-  final case object FontDefault extends PrintDirection
+  case object FontDefault extends PrintDirection
 
   /**
    * Converts the option PrintDirection into the FIGfont parameter PrintDirection
@@ -106,12 +106,12 @@ object Justification extends Enum[Justification] {
   val values: IndexedSeq[Justification] = findValues
 
   /** Centers the output horizontally */
-  final case object Center extends Justification
+  case object Center extends Justification
   /** Makes the output flush-left */
-  final case object FlushLeft extends Justification
+  case object FlushLeft extends Justification
   /** Makes it flush-right */
-  final case object FlushRight extends Justification
+  case object FlushRight extends Justification
   /** Use the default value specified in the FIGfont */
-  final case object FontDefault extends Justification
+  case object FontDefault extends Justification
 
 }

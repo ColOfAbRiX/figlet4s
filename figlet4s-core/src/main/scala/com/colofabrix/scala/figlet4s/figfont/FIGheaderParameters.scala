@@ -2,8 +2,10 @@ package com.colofabrix.scala.figlet4s.figfont
 
 import cats.implicits._
 import cats.kernel.Eq
+import com.colofabrix.scala.figlet4s.compat._
 import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.utils._
+import com.colofabrix.scala.figlet4s.validatedCompat._
 import enumeratum.values._
 import scala.util._
 
@@ -23,9 +25,9 @@ private[figfont] object FIGheaderParameters {
 
   object PrintDirection extends IntEnum[PrintDirection] {
     /** Print direction left-to-right */
-    final case object LeftToRight extends PrintDirection(value = 0)
+    case object LeftToRight extends PrintDirection(value = 0)
     /** Print direction right-to-left */
-    final case object RightToLeft extends PrintDirection(value = 1)
+    case object RightToLeft extends PrintDirection(value = 1)
 
     /**
      * Obtains the printing direction starting from the Integer provided
@@ -50,21 +52,21 @@ private[figfont] object FIGheaderParameters {
 
   object FullLayout extends IntEnum[FullLayout] {
 
-    final case object EqualCharacterHorizontalSmushing extends FullLayout(value = 1)
-    final case object UnderscoreHorizontalSmushing     extends FullLayout(value = 2)
-    final case object HierarchyHorizontalSmushing      extends FullLayout(value = 4)
-    final case object OppositePairHorizontalSmushing   extends FullLayout(value = 8)
-    final case object BigXHorizontalSmushing           extends FullLayout(value = 16)
-    final case object HardblankHorizontalSmushing      extends FullLayout(value = 32)
-    final case object HorizontalFitting                extends FullLayout(value = 64)
-    final case object HorizontalSmushing               extends FullLayout(value = 128)
-    final case object EqualCharacterVerticalSmushing   extends FullLayout(value = 256)
-    final case object UnderscoreVerticalSmushing       extends FullLayout(value = 512)
-    final case object HierarchyVerticalSmushing        extends FullLayout(value = 1024)
-    final case object HorizontalLineVerticalSmushing   extends FullLayout(value = 2048)
-    final case object VerticalLineSupersmushing        extends FullLayout(value = 4096)
-    final case object VerticalFitting                  extends FullLayout(value = 8192)
-    final case object VerticalSmushing                 extends FullLayout(value = 16384)
+    case object EqualCharacterHorizontalSmushing extends FullLayout(value = 1)
+    case object UnderscoreHorizontalSmushing     extends FullLayout(value = 2)
+    case object HierarchyHorizontalSmushing      extends FullLayout(value = 4)
+    case object OppositePairHorizontalSmushing   extends FullLayout(value = 8)
+    case object BigXHorizontalSmushing           extends FullLayout(value = 16)
+    case object HardblankHorizontalSmushing      extends FullLayout(value = 32)
+    case object HorizontalFitting                extends FullLayout(value = 64)
+    case object HorizontalSmushing               extends FullLayout(value = 128)
+    case object EqualCharacterVerticalSmushing   extends FullLayout(value = 256)
+    case object UnderscoreVerticalSmushing       extends FullLayout(value = 512)
+    case object HierarchyVerticalSmushing        extends FullLayout(value = 1024)
+    case object HorizontalLineVerticalSmushing   extends FullLayout(value = 2048)
+    case object VerticalLineSupersmushing        extends FullLayout(value = 4096)
+    case object VerticalFitting                  extends FullLayout(value = 8192)
+    case object VerticalSmushing                 extends FullLayout(value = 16384)
 
     implicit val oldLayoutEq: Eq[FullLayout] = Eq.fromUniversalEquals
 
@@ -124,14 +126,14 @@ private[figfont] object FIGheaderParameters {
 
   object OldLayout extends IntEnum[OldLayout] {
 
-    final case object FullWidth              extends OldLayout(value = -1)
-    final case object HorizontalFitting      extends OldLayout(value = 0)
-    final case object EqualCharacterSmushing extends OldLayout(value = 1)
-    final case object UnderscoreSmushing     extends OldLayout(value = 2)
-    final case object HierarchySmushing      extends OldLayout(value = 4)
-    final case object OppositePairSmushing   extends OldLayout(value = 8)
-    final case object BigXSmushing           extends OldLayout(value = 16)
-    final case object HardblankSmushing      extends OldLayout(value = 32)
+    case object FullWidth              extends OldLayout(value = -1)
+    case object HorizontalFitting      extends OldLayout(value = 0)
+    case object EqualCharacterSmushing extends OldLayout(value = 1)
+    case object UnderscoreSmushing     extends OldLayout(value = 2)
+    case object HierarchySmushing      extends OldLayout(value = 4)
+    case object OppositePairSmushing   extends OldLayout(value = 8)
+    case object BigXSmushing           extends OldLayout(value = 16)
+    case object HardblankSmushing      extends OldLayout(value = 32)
 
     implicit val oldLayoutEq: Eq[OldLayout] = Eq.fromUniversalEquals
 
