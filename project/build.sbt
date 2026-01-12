@@ -1,6 +1,5 @@
-import sbt.{Plugins => _, _}
 import CodeQualityDependencies._
-import Plugins._
+import SbtPluginsDeps._
 import PublishDependencies._
 
 // Resolve version conflicts

@@ -26,16 +26,13 @@ ThisBuild / developers := List(
   Developer("ColOfAbRiX", "Fabrizio Colonna", "colofabrix@tin.it", url("http://github.com/ColOfAbRiX")),
 )
 
-// Publishing
+// Publishing - using Sonatype Central (new API)
 ThisBuild / pomIncludeRepository := { _ => false }
 ThisBuild / publishMavenStyle    := true
 ThisBuild / sonatypeProjectHosting := Some(
   GitHubHosting("ColOfAbRiX", "figlet4s", "colofabrix@tin.it"),
 )
-ThisBuild / publishTo := Some(
-  if (isSnapshot.value) Opts.resolver.sonatypeSnapshots
-  else Opts.resolver.sonatypeStaging,
-)
+ThisBuild / publishTo := sonatypePublishToBundle.value
 
 // GIT version information
 ThisBuild / dynverSonatypeSnapshots := true
@@ -116,12 +113,9 @@ lazy val figlet4s: Project = project
 lazy val figlet4sCore: Project = project
   .in(file("figlet4s-core"))
   .settings(commonScalaSettings)
-  .configs(IntegrationTest)
-  .settings(Defaults.itSettings)
   .settings(
     name        := "figlet4s-core",
     description := "ASCII-art banners in Scala",
-    IntegrationTest / tpolecatExcludeOptions ++= ScalacOptions.warnUnusedOptions,
     libraryDependencies ++= Seq(
       CatsCoreDep,
       CatsEffectDep,
@@ -138,14 +132,11 @@ lazy val figlet4sCore: Project = project
 // Figlet4s Effects project
 lazy val figlet4sEffects: Project = project
   .in(file("figlet4s-effects"))
-  .dependsOn(figlet4sCore % "compile->compile;test->test;it->it")
+  .dependsOn(figlet4sCore % "compile->compile;test->test")
   .settings(commonScalaSettings)
-  .configs(IntegrationTest)
-  .settings(Defaults.itSettings)
   .settings(
     name        := "figlet4s-effects",
     description := "Effects extension for Figlet4s",
-    IntegrationTest / tpolecatExcludeOptions ++= ScalacOptions.warnUnusedOptions,
     libraryDependencies ++= Seq(
       CatsCoreDep,
       CatsEffectDep,

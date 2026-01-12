@@ -3,7 +3,7 @@ import sbt._
 /**
  * SBT plugins dependencies
  */
-object Plugins {
+object SbtPluginsDeps {
 
   lazy val ErrorsSummaryVersion = "0.6.5"
   lazy val MicrositesVersion    = "1.4.4"
