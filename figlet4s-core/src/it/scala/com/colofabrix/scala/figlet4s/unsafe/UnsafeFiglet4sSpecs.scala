@@ -1,6 +1,7 @@
 package com.colofabrix.scala.figlet4s.unsafe
 
 import cats.effect._
+import cats.effect.unsafe.implicits.global
 import cats.implicits._
 import com.colofabrix.scala.figlet4s.core._
 import com.colofabrix.scala.figlet4s.errors._
@@ -9,7 +10,6 @@ import com.colofabrix.scala.figlet4s.StandardTestData._
 import com.colofabrix.scala.figlet4s.testutils._
 import org.scalatest.flatspec._
 import org.scalatest.matchers.should._
-import scala.concurrent.ExecutionContext
 import scala.util._
 import scala.util.matching.Regex
 
@@ -50,7 +50,7 @@ class UnsafeFiglet4sSpecs extends AnyFlatSpec with Matchers with Figlet4sMatcher
 
   it should "list the correct number of fonts" in {
     val actual   = Figlet4s.internalFonts.length
-    val expected = 380
+    val expected = 453
     actual shouldBe expected
   }
 
@@ -113,8 +113,6 @@ class UnsafeFiglet4sSpecs extends AnyFlatSpec with Matchers with Figlet4sMatcher
   }
 
   it should "support loading of internal fonts in parallel" in {
-    implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
-
     val data =
       Figlet4s
         .internalFonts
@@ -199,7 +197,8 @@ class UnsafeFiglet4sSpecs extends AnyFlatSpec with Matchers with Figlet4sMatcher
 
   private lazy val fontsSubdirectories: Map[String, Int] =
     Map(
-      "c64" -> 186,
+      "bdffonts" -> 73,
+      "c64"      -> 186,
     )
 
   private def interpretResult(font: String): PartialFunction[Try[_], Option[String]] = {

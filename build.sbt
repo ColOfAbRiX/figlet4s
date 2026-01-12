@@ -11,6 +11,12 @@ Global / lintUnusedKeysOnLoad := false
 ThisBuild / turbo             := true
 ThisBuild / scalaVersion      := ScalaLangVersion
 
+// Use separate target directories for Windows and WSL to avoid cache conflicts
+ThisBuild / target := {
+  val envSuffix = if (sys.env.get("WSL_DISTRO_NAME").isDefined) "-wsl" else ""
+  baseDirectory.value / s"target$envSuffix"
+}
+
 // Project information
 ThisBuild / name                 := "figlet4s"
 ThisBuild / startYear            := Some(2020)
@@ -137,7 +143,9 @@ lazy val figlet4s: Project = project
 // Figlet4s Core project
 lazy val figlet4sCore: Project = project
   .in(file("figlet4s-core"))
+  .configs(IntegrationTest)
   .settings(commonScalaSettings)
+  .settings(Defaults.itSettings)
   .settings(
     name        := "figlet4s-core",
     description := "ASCII-art banners in Scala",
@@ -152,13 +160,31 @@ lazy val figlet4sCore: Project = project
       ScalaTestPlusCheckDep,
       ScalaTestShouldMatchersDep,
     ),
+    // Integration test settings
+    IntegrationTest / testOptions += Tests.Argument("-oFD"),
+    IntegrationTest / tpolecatExcludeOptions ++= ScalacOptions.warnUnusedOptions,
+    IntegrationTest / scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((3, _)) => Seq("-source:3.0-migration", "-Wconf:any:s")
+      case _ => Nil
+    }),
+    IntegrationTest / scalacOptions ~= { opts =>
+      opts.filterNot(o =>
+        o == "-Werror" ||
+        o == "-Xfatal-warnings" ||
+        o.startsWith("-P:wartremover")
+      )
+    },
+    IntegrationTest / wartremoverErrors := Nil,
+    IntegrationTest / wartremoverWarnings := Nil,
   )
 
 // Figlet4s Effects project
 lazy val figlet4sEffects: Project = project
   .in(file("figlet4s-effects"))
-  .dependsOn(figlet4sCore % "compile->compile;test->test")
+  .configs(IntegrationTest)
+  .dependsOn(figlet4sCore % "compile->compile;test->test;it->it")
   .settings(commonScalaSettings)
+  .settings(Defaults.itSettings)
   .settings(
     name        := "figlet4s-effects",
     description := "Effects extension for Figlet4s",
@@ -170,6 +196,22 @@ lazy val figlet4sEffects: Project = project
       ScalaTestFlatSpecDep,
       ScalaTestShouldMatchersDep,
     ),
+    // Integration test settings
+    IntegrationTest / testOptions += Tests.Argument("-oFD"),
+    IntegrationTest / tpolecatExcludeOptions ++= ScalacOptions.warnUnusedOptions,
+    IntegrationTest / scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((3, _)) => Seq("-source:3.0-migration", "-Wconf:any:s")
+      case _ => Nil
+    }),
+    IntegrationTest / scalacOptions ~= { opts =>
+      opts.filterNot(o =>
+        o == "-Werror" ||
+        o == "-Xfatal-warnings" ||
+        o.startsWith("-P:wartremover")
+      )
+    },
+    IntegrationTest / wartremoverErrors := Nil,
+    IntegrationTest / wartremoverWarnings := Nil,
   )
 
 // Figlet4s Java integration project
