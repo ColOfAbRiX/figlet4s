@@ -131,7 +131,6 @@ package object unsafe extends OptionsBuilderMixin with FIGureMixin {
 
       def start[A](fa: Id[A]): Id[Fiber[Id, Throwable, A]] =
         throw new NotImplementedError("Sync[Id] does not support GenSpawn.start")
-        throw new NotImplementedError("Sync[Id] does not support GenSpawn.racePair")
     }
 
 }

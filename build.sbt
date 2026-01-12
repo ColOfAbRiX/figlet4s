@@ -51,6 +51,22 @@ val commonScalaSettings: Seq[Def.Setting[_]] = Seq(
   crossScalaVersions := SupportedScalaLangVersion,
   // sbt-tpolecat: Use CI mode for strict checks, relax for tests
   Test / tpolecatExcludeOptions ++= ScalacOptions.warnUnusedOptions,
+  // Relax Scala 3 syntax warnings for test code (tests use Scala 2 style)
+  Test / scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((3, _)) => Seq(
+      "-source:3.0-migration",  // Enable migration mode for Scala 2 -> 3 syntax
+      "-Wconf:any:s",           // Silence all warnings for tests
+    )
+    case _ => Nil
+  }),
+  // Disable fatal warnings and wartremover for tests (they use Scala 2 style syntax)
+  Test / scalacOptions ~= { opts =>
+    opts.filterNot(o =>
+      o == "-Werror" ||
+      o == "-Xfatal-warnings" ||
+      o.startsWith("-P:wartremover")
+    )
+  },
   // Required for Enumeratum's findValues macro in Scala 3
   scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((3, _)) => Seq("-Yretain-trees")
@@ -68,6 +84,9 @@ val commonScalaSettings: Seq[Def.Setting[_]] = Seq(
     // Covered by ScalaFix
     Wart.PublicInference,
   ),
+  // Disable Wartremover for tests
+  Test / wartremoverErrors := Nil,
+  Test / wartremoverWarnings := Nil,
   // Scaladoc
   Compile / autoAPIMappings := true,
   Compile / doc / scalacOptions ++= versioned(scalaVersion.value)(
@@ -126,7 +145,7 @@ lazy val figlet4sCore: Project = project
       CatsCoreDep,
       CatsEffectDep,
       CatsKernelDep,
-      CatsScalaTestDep,
+      catsScalaTestDep(scalaVersion.value),
       EnumeratumDep,
       ScalaMockDep,
       ScalaTestFlatSpecDep,
@@ -147,7 +166,7 @@ lazy val figlet4sEffects: Project = project
       CatsCoreDep,
       CatsEffectDep,
       CatsKernelDep % Runtime,
-      CatsScalaTestDep,
+      catsScalaTestDep(scalaVersion.value),
       ScalaTestFlatSpecDep,
       ScalaTestShouldMatchersDep,
     ),

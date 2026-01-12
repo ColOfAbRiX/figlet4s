@@ -2,6 +2,7 @@ package com.colofabrix.scala.figlet4s.core
 
 import cats._
 import cats.effect._
+import cats.effect.unsafe.implicits.global
 import cats.implicits._
 import cats.scalatest._
 import com.colofabrix.scala.figlet4s.errors._

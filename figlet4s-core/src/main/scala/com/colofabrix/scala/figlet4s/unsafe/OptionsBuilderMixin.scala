@@ -53,10 +53,10 @@ private[unsafe] trait OptionsBuilderMixin {
     def options: RenderOptions = {
       lazy val defaultFont = Figlet4sClient.defaultFont
 
-      val font =
+      val font: FIGfont =
         buildOptions
           .font
-          .getOrElse(Figlet4s.loadFontInternal(defaultFont).validNec)
+          .getOrElse[FigletResult[FIGfont]](Figlet4s.loadFontInternal(defaultFont).validNec)
           .unsafeGet
 
       val maxWidth =
