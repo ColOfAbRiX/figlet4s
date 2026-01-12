@@ -5,7 +5,6 @@ import cats.implicits._
 import com.colofabrix.scala.figlet4s.compat._
 import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
-import com.colofabrix.scala.figlet4s.utils._
 import java.io.File
 import java.util.Locale
 
@@ -135,7 +134,7 @@ object FIGfont {
       val vLayoutV        = VerticalLayout.fromHeader(header)
       val printDirectionV = PrintDirection.fromHeader(header)
       val settingsV = (hLayoutV, vLayoutV, printDirectionV).mapN {
-        FIGfontSettings.apply _
+        FIGfontSettings.apply
       }
 
       val charsV = fontState
@@ -214,18 +213,22 @@ object FIGfont {
       state.copy(loadedCharLines = loadedCharLines, hash = hash).validNec
 
     } else {
-      val startLine   = index - state.loadedCharLines.size
-      val charNum     = (startLine - header.commentLines - 1) / header.height
-      val charBuilder = CharBuilderState(requiredChars(charNum), state.loadedCharLines :+ line, None, startLine)
+      val startLine = index - state.loadedCharLines.size
+      val charNum   = (startLine - header.commentLines - 1) / header.height
 
-      state
-        .copy(
-          hash = hash,
-          loadedCharLines = Vector.empty,
-          loadedNames = state.loadedNames + charBuilder.name,
-          loadedChars = state.loadedChars :+ charBuilder,
-          processTaggedFonts = state.loadedChars.size + 1 >= requiredChars.size,
-        ).validNec
+      requiredChars
+        .lift(charNum)
+        .toValidNec(FIGcharacterError(s"Character index $charNum out of bounds"))
+        .map { charName =>
+          val charBuilder = CharBuilderState(charName, state.loadedCharLines :+ line, None, startLine)
+          state.copy(
+            hash = hash,
+            loadedCharLines = Vector.empty,
+            loadedNames = state.loadedNames + charBuilder.name,
+            loadedChars = state.loadedChars :+ charBuilder,
+            processTaggedFonts = state.loadedChars.size + 1 >= requiredChars.size,
+          )
+        }
     }
   }
 
@@ -246,20 +249,27 @@ object FIGfont {
 
     } else {
       val tagLineIndex    = index - state.loadedCharLines.size
-      val nameV           = parseTagName(state.loadedCharLines.head, tagLineIndex)
-      val commentV        = parseTagComment(state.loadedCharLines.head)
+      val firstLineV =
+        state.loadedCharLines.headOption.toValidNec(
+          FIGcharacterError(s"Empty character lines at index $tagLineIndex"),
+        )
       val loadedCharLines = state.loadedCharLines.drop(1) :+ line
 
-      (nameV, commentV)
-        .mapN(CharBuilderState(_, loadedCharLines, _, tagLineIndex))
-        .map { charBuilder =>
-          state.copy(
-            hash = hash,
-            loadedCharLines = Vector.empty,
-            loadedNames = state.loadedNames + charBuilder.name,
-            loadedChars = state.loadedChars :+ charBuilder,
-          )
-        }
+      firstLineV.andThen { firstLine =>
+        val nameV    = parseTagName(firstLine, tagLineIndex)
+        val commentV = parseTagComment(firstLine)
+
+        (nameV, commentV)
+          .mapN(CharBuilderState(_, loadedCharLines, _, tagLineIndex))
+          .map { charBuilder =>
+            state.copy(
+              hash = hash,
+              loadedCharLines = Vector.empty,
+              loadedNames = state.loadedNames + charBuilder.name,
+              loadedChars = state.loadedChars :+ charBuilder,
+            )
+          }
+      }
     }
   }
 
@@ -268,8 +278,8 @@ object FIGfont {
    */
   private def parseTagName(tagLine: String, tagLineIndex: Int): FigletResult[Char] = {
     val splitFontTag = tagLine.replaceFirst(" +", "###").split("###").toVector
-    Option
-      .when(splitFontTag.nonEmpty)(splitFontTag(0))
+    splitFontTag
+      .headOption
       .toValidNec(
         FIGcharacterError(s"Missing character code in the tag at line ${tagLineIndex + 1}: $tagLine"),
       )
@@ -281,8 +291,8 @@ object FIGfont {
    */
   private def parseTagComment(tagLine: String): FigletResult[Option[String]] = {
     val splitFontTag = tagLine.replaceFirst(" +", "###").split("###").toVector
-    Option
-      .when(splitFontTag.size > 1)(splitFontTag(1))
+    splitFontTag
+      .lift(1)
       .getOrElse("")
       .validNec[FigletException]
       .map(Option(_))
@@ -300,6 +310,4 @@ object FIGfont {
       Integer.parseInt(code, 8).toChar.validNec
     else
       FIGcharacterError(s"Couldn't convert character code '$code' defined at line ${index + 1}").invalidNec
-
-  ->()
 }

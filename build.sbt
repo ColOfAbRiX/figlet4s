@@ -51,6 +51,11 @@ val commonScalaSettings: Seq[Def.Setting[_]] = Seq(
   crossScalaVersions := SupportedScalaLangVersion,
   // sbt-tpolecat: Use CI mode for strict checks, relax for tests
   Test / tpolecatExcludeOptions ++= ScalacOptions.warnUnusedOptions,
+  // Required for Enumeratum's findValues macro in Scala 3
+  scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((3, _)) => Seq("-Yretain-trees")
+    case _            => Nil
+  }),
   // Wartremover - only enabled for Compile scope
   Compile / wartremoverErrors := Warts.allBut(
     Wart.Any,
@@ -59,6 +64,7 @@ val commonScalaSettings: Seq[Def.Setting[_]] = Seq(
     Wart.Overloading,
     Wart.StringPlusAny,
     Wart.ToString,
+    Wart.TripleQuestionMark,
     // Covered by ScalaFix
     Wart.PublicInference,
   ),

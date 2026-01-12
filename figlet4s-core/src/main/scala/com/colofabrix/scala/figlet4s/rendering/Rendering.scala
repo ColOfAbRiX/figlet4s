@@ -128,9 +128,10 @@ final private[rendering] class Rendering(options: RenderOptions) {
       case (figChar +: remainingChars, upperLines :+ lastLine) =>
         val merged    = merge(MergeLoopState(lastLine, figChar, appendLoopState = state))
         def onBorder  = merge(MergeLoopState(b = figChar))
-        val result    = if (merged.length <= options.maxWidth) upperLines :+ merged else partial :+ onBorder
+        val result    = if (merged.lengthIs <= options.maxWidth) upperLines :+ merged else partial :+ onBorder
         val nextState = state.copy(lastCharWidth = figChar.length)
         appendLoop(remainingChars, result, nextState)
+      case _ => partial // Fallback case (should never happen as partial is never empty)
     }
 
   //  ----  //

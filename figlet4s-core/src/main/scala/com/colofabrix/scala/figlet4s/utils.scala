@@ -3,11 +3,6 @@ package com.colofabrix.scala.figlet4s
 import cats._
 import cats.arrow.FunctionK
 import cats.implicits._
-import java.math.BigInteger
-import java.security.MessageDigest
-import scala.collection.immutable.BitSet
-import scala.util.matching.Regex
-import java.nio.charset.Charset
 
 private[figlet4s] object utils {
 
@@ -43,38 +38,7 @@ private[figlet4s] object utils {
         zt.foldRight(forward(fa), lb)(f)
 
       def traverse[G[_], A, B](fa: F[A])(f: A => G[B])(implicit appG: Applicative[G]): G[F[B]] =
-        zt.traverse(forward(fa))(f)(appG).map(zb => inverse(zb))
+        zt.traverse(forward(fa))(f)(using appG).map(zb => inverse(zb))
     }
 
-  //  Enrichment methods  //
-
-  /**
-   * Enrichment methods for Int for binary conversion
-   */
-  implicit final class BinaryInt(private val self: Int) extends AnyVal {
-    /** Converts the Int to a BitSet */
-    def toBitSet: BitSet = BitSet.fromBitMask(Array(self.toLong))
-  }
-
-  /**
-   * Enrichment methods for String to calculate the MD5 hash
-   */
-  implicit final class MD5String(private val self: String) extends AnyVal {
-    /**
-     * MD5 hash of the string
-     */
-    def md5: String = {
-      val md     = MessageDigest.getInstance("MD5")
-      val digest = md.digest(self.getBytes(Charset.forName("ISO-8859-1")))
-      val bigInt = new BigInteger(1, digest)
-      bigInt.toString(16)
-    }
-  }
-
-  /**
-   * Enrichment methods for StringContext
-   */
-  implicit class RegexContext(sc: StringContext) {
-    def r = new Regex(sc.parts.mkString, sc.parts.drop(1).map(_ => "x"): _*)
-  }
 }

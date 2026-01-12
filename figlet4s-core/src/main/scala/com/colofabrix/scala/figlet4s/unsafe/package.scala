@@ -2,7 +2,9 @@ package com.colofabrix.scala.figlet4s
 
 import cats._
 import cats.effect._
-import com.colofabrix.scala.figlet4s.errors._
+import cats.effect.kernel.CancelScope
+import scala.annotation.nowarn
+import scala.concurrent.duration.FiniteDuration
 
 /**
  * Figlet4s user interfaces that do not use effects
@@ -56,42 +58,80 @@ import com.colofabrix.scala.figlet4s.errors._
 package object unsafe extends OptionsBuilderMixin with FIGureMixin {
 
   /**
-   * Sync instance for Id for impure calculations
+   * Sync instance for Id for impure calculations.
+   *
+   * This provides a minimal Sync[Id] implementation that allows the unsafe package
+   * to work with the CE3-based Figlet4sClient. Since Id cannot truly suspend effects,
+   * this implementation executes everything immediately and throws exceptions on errors.
    */
-  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
-  implicit private[unsafe] val syncId: Sync[Id] = new Sync[Id] {
-    private val M: Monad[Id] = Monad[Id](catsInstancesForId)
+  @nowarn("msg=private .* is never used|side-effecting nullary methods are discouraged")
+  @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements", "org.wartremover.warts.Throw"))
+  implicit private[unsafe] val syncId: Sync[Id] =
+    new Sync[Id] {
+      private val M: Monad[Id] = Monad[Id](using catsInstancesForId)
 
-    def pure[A](x: A): Id[A] =
-      M.pure(x)
+      // Monad methods
+      def pure[A](x: A): Id[A] =
+        M.pure(x)
 
-    def flatMap[A, B](fa: Id[A])(f: A => Id[B]): Id[B] =
-      M.flatMap(fa)(f)
+      def flatMap[A, B](fa: Id[A])(f: A => Id[B]): Id[B] =
+        M.flatMap(fa)(f)
 
-    def tailRecM[A, B](a: A)(f: A => Id[Either[A, B]]): Id[B] =
-      M.tailRecM(a)(f)
+      def tailRecM[A, B](a: A)(f: A => Id[Either[A, B]]): Id[B] =
+        M.tailRecM(a)(f)
 
-    // NOTE: This is not a suspension as Id cannot suspend evaluation
-    def suspend[A](thunk: => Id[A]): Id[A] =
-      thunk
+      // MonadError methods
+      def raiseError[A](e: Throwable): Id[A] =
+        throw e
 
-    def raiseError[A](e: Throwable): Id[A] =
-      throw e
+      def handleErrorWith[A](fa: Id[A])(f: Throwable => Id[A]): Id[A] =
+        try fa catch { case e: Throwable => f(e) }
 
-    def bracketCase[A, B](resource: Id[A])(use: A => Id[B])(release: (A, ExitCase[Throwable]) => Id[Unit]): Id[B] =
-      throw new NotImplementedError("Sync[Id] does not support Bracket.bracketCase")
+      // Clock methods
+      def monotonic: Id[FiniteDuration] =
+        FiniteDuration(System.nanoTime(), scala.concurrent.duration.NANOSECONDS)
 
-    def handleErrorWith[A](fa: Id[A])(f: Throwable => Id[A]): Id[A] =
-      throw new NotImplementedError("Sync[Id] does not support ApplicativeError.handleErrorWith")
-  }
+      def realTime: Id[FiniteDuration] =
+        FiniteDuration(System.currentTimeMillis(), scala.concurrent.duration.MILLISECONDS)
 
-  /**
-   * Unsafely returns the value inside the FigletResult or throws an exception with the first error
-   */
-  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
-  implicit private[unsafe] class FigletResultOps[E, A](private val self: FigletResult[A]) extends AnyVal {
-    @throws(classOf[FigletException])
-    def unsafeGet: A = self.fold(e => throw e.head, identity)
-  }
+      // Unique methods
+      override def unique: Id[Unique.Token] =
+        new Unique.Token
+
+      // Sync-specific methods
+      def suspend[A](hint: Sync.Type)(thunk: => A): Id[A] =
+        thunk
+
+      // MonadCancel methods
+      def canceled: Id[Unit] =
+        ()
+
+      def forceR[A, B](fa: Id[A])(fb: Id[B]): Id[B] = {
+        try fa catch { case _: Throwable => () }
+        fb
+      }
+
+      def onCancel[A](fa: Id[A], fin: Id[Unit]): Id[A] =
+        fa
+
+      def uncancelable[A](body: Poll[Id] => Id[A]): Id[A] = {
+        val poll = new Poll[Id] { def apply[B](fa: Id[B]): Id[B] = fa }
+        body(poll)
+      }
+
+      def rootCancelScope: CancelScope =
+        CancelScope.Uncancelable
+
+      // GenSpawn methods - not truly implementable for Id
+      def never[A]: Id[A] =
+        throw new NotImplementedError("Sync[Id] does not support GenSpawn.never")
+
+      def cede: Id[Unit] =
+        ()
+
+      def start[A](fa: Id[A]): Id[Fiber[Id, Throwable, A]] =
+        throw new NotImplementedError("Sync[Id] does not support GenSpawn.start")
+        throw new NotImplementedError("Sync[Id] does not support GenSpawn.racePair")
+    }
 
 }

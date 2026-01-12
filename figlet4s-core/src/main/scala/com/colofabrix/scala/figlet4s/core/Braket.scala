@@ -1,6 +1,6 @@
 package com.colofabrix.scala.figlet4s.core
 
-import cats.effect._
+import cats.MonadThrow
 import com.colofabrix.scala.figlet4s.errors._
 
 /**

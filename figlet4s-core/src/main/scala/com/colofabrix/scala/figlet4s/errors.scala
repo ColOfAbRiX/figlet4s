@@ -1,10 +1,7 @@
 package com.colofabrix.scala.figlet4s
 
+import cats._
 import cats.data._
-import cats.effect._
-import cats.implicits._
-import cats.MonadError
-import scala.util._
 
 @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
 object errors {
@@ -116,16 +113,6 @@ object errors {
     def apply(message: String): FIGFontError = new FIGFontError(message: String)
     def apply(message: String, cause: Throwable): FIGFontError =
       new FIGFontError(message: String, cause: Throwable)
-  }
-
-  //  Extension Methods  //
-
-  implicit private[figlet4s] class FigletTry[A](private val self: Try[A]) extends AnyVal {
-    def toFigletResult: FigletResult[A] =
-      self match {
-        case Failure(exception) => FigletError(exception).invalidNec
-        case Success(value)     => value.validNec
-      }
   }
 
 }
