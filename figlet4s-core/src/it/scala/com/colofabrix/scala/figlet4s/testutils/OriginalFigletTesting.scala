@@ -2,6 +2,7 @@ package com.colofabrix.scala.figlet4s.testutils
 
 import cats.effect._
 import cats.effect.implicits._
+import cats.effect.unsafe.implicits.global
 import cats.implicits._
 import com.colofabrix.scala.figlet4s.compat._
 import com.colofabrix.scala.figlet4s.figfont._
@@ -14,7 +15,6 @@ import org.scalacheck._
 import org.scalactic.anyvals._
 import org.scalatest._
 import org.scalatestplus.scalacheck._
-import scala.concurrent.ExecutionContext
 
 /**
  * Support for testing using the command line, original figlet executable
@@ -31,9 +31,6 @@ trait OriginalFigletTesting extends Notifying {
   )
 
   //  Implicits  //
-
-  implicit private val cs: ContextShift[IO] =
-    IO.contextShift(ExecutionContext.global)
 
   implicit val generatorDrivenConfig: PropertyCheckConfiguration =
     PropertyCheckConfiguration(minSuccessful = PosInt(50))
@@ -61,7 +58,7 @@ trait OriginalFigletTesting extends Notifying {
    * Runs property testing on a given function to test Figlet4s
    */
   def figletRenderingTest[A](f: TestRenderOptions => A): Unit = {
-    val parallelism = Runtime.getRuntime.availableProcessors.toLong
+    val parallelism = Runtime.getRuntime.availableProcessors
 
     val parallelTests = for {
       _              <- Vector(assumeExecutableInPath("figlet"))
