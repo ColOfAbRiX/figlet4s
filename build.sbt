@@ -3,6 +3,7 @@ import Dependencies._
 import TestDependencies._
 import utils._
 import xerial.sbt.Sonatype._
+import org.typelevel.scalacoptions.ScalacOptions
 
 // General
 Global / onChangedBuildSource := ReloadOnSourceChanges
@@ -40,33 +41,20 @@ ThisBuild / publishTo := Some(
 ThisBuild / dynverSonatypeSnapshots := true
 
 // Scalafix
-ThisBuild / scalafixDependencies       += "com.github.liancheng" %% "organize-imports" % "0.4.4"
-ThisBuild / scalafixScalaBinaryVersion := CrossVersion.binaryScalaVersion(scalaVersion.value)
-ThisBuild / semanticdbEnabled          := true
-ThisBuild / semanticdbVersion          := scalafixSemanticdb.revision
+ThisBuild / semanticdbEnabled := true
+ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
 
-addCommandAlias("styleApply", "; scalafmtAll; scalafixAll")
-addCommandAlias("styleCheck", "; scalafmtCheckAll; scalafixAll --check")
+addCommandAlias("styleApply", "; scalafmtAll; Compile / scalafixAll")
+addCommandAlias("styleCheck", "; scalafmtCheckAll; Compile / scalafixAll --check")
 
 val commonScalaSettings: Seq[Def.Setting[_]] = Seq(
   // Testing
   Test / testOptions += Tests.Argument("-oFD"),
-  // Compiler options
-  scalacOptions := versioned(scalaVersion.value)(
-    Compiler.Options_2_12 ++ Compiler.StrictOptions,
-    Compiler.Options_2_13 ++ Compiler.StrictOptions,
-  ),
-  Test / scalacOptions := versioned(scalaVersion.value)(
-    Compiler.Options_2_12,
-    Compiler.Options_2_13,
-  ),
-  IntegrationTest / scalacOptions := versioned(scalaVersion.value)(
-    Compiler.Options_2_12,
-    Compiler.Options_2_13,
-  ),
   // Cross Scala Versions
   crossScalaVersions := SupportedScalaLangVersion,
-  // Wartremover
+  // sbt-tpolecat: Use CI mode for strict checks, relax for tests
+  Test / tpolecatExcludeOptions ++= ScalacOptions.warnUnusedOptions,
+  // Wartremover - only enabled for Compile scope
   Compile / wartremoverErrors := Warts.allBut(
     Wart.Any,
     Wart.DefaultArguments,
@@ -79,10 +67,16 @@ val commonScalaSettings: Seq[Def.Setting[_]] = Seq(
   ),
   // Scaladoc
   Compile / autoAPIMappings := true,
-  Compile / doc / scalacOptions ++= Seq(
-    "-doc-title", "Figlet4s API Documentation",
-    "-doc-version", version.value,
-    "-encoding", "UTF-8",
+  Compile / doc / scalacOptions ++= versioned(scalaVersion.value)(
+    Seq(
+      "-doc-title", "Figlet4s API Documentation",
+      "-doc-version", version.value,
+      "-encoding", "UTF-8",
+    ),
+    Seq(
+      "-project", "Figlet4s API Documentation",
+      "-project-version", version.value,
+    ),
   ),
   // Packaging and publishing
   Compile / packageBin / packageOptions ++= Seq(
@@ -127,6 +121,7 @@ lazy val figlet4sCore: Project = project
   .settings(
     name        := "figlet4s-core",
     description := "ASCII-art banners in Scala",
+    IntegrationTest / tpolecatExcludeOptions ++= ScalacOptions.warnUnusedOptions,
     libraryDependencies ++= Seq(
       CatsCoreDep,
       CatsEffectDep,
@@ -150,6 +145,7 @@ lazy val figlet4sEffects: Project = project
   .settings(
     name        := "figlet4s-effects",
     description := "Effects extension for Figlet4s",
+    IntegrationTest / tpolecatExcludeOptions ++= ScalacOptions.warnUnusedOptions,
     libraryDependencies ++= Seq(
       CatsCoreDep,
       CatsEffectDep,
@@ -201,25 +197,5 @@ lazy val figlet4sMicrosite = project
     mdocVariables := Map(
       "VERSION"       -> """\d+\.\d+\.\d""".r.findFirstIn(version.value).getOrElse(""),
       "SCALA_VERSION" -> """\d+\.\d+""".r.findFirstIn(scalaVersion.value).getOrElse(""),
-    ),
-  )
-
-// Figlet4s Benchmarks project
-lazy val figlet4sBenchmarks: Project = project
-  .in(file("figlet4s-benchmarks"))
-  .dependsOn(figlet4sCore)
-  .settings(
-    name                     := "figlet4s-benchmarks",
-    description              := "Benchmarks for Figlet4s",
-    publishArtifact          := false,
-    logBuffered              := false,
-    publish / skip           := true,
-    Test / parallelExecution := false,
-    Test / logBuffered       := false,
-    resolvers               ++= SonatypeRepos,
-    testFrameworks           += new TestFramework("org.scalameter.ScalaMeterFramework"),
-    libraryDependencies ++= Seq(
-      CatsCoreDep,
-      ScalameterDep,
     ),
   )
