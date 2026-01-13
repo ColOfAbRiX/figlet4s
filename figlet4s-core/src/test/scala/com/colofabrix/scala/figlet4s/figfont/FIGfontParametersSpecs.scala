@@ -4,7 +4,7 @@ import cats.scalatest._
 import org.scalatest.flatspec._
 import org.scalatest.matchers.should._
 import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters.{
-  HorizontalLayout => HL, VerticalLayout => VL, HorizontalSmushingRule => HSR, VerticalSmushingRules => VSR, _,
+  HorizontalLayout => HL, HorizontalSmushingRule => HSR, VerticalLayout => VL, VerticalSmushingRules => VSR, _,
 }
 import com.colofabrix.scala.figlet4s.figfont.FIGheaderParameters.{
   FullLayout => FL, OldLayout => OL, PrintDirection => HPD,

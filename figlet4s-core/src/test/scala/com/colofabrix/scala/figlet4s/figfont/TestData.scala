@@ -36,9 +36,11 @@ final case class TestHeader(
 
   def noCodetagCount: String =
     toList.dropRight(1).mkString(" ").replaceFirst(" ", "")
+
 }
 
 object TestCharacter {
+
   def flatMap(f: (String, Int) => Vector[String]): SubLines =
     getFlatMap("036")(f)
 
@@ -57,6 +59,7 @@ object TestCharacter {
       .andThen { h =>
         FIGcharacter("", h, charName, lines, None, 123)
       }
+
 }
 
 case class TestFont(
@@ -65,6 +68,7 @@ case class TestFont(
     characters: ListMap[String, String] = StandardFont.characters,
     codeTag: ListMap[String, String] = StandardFont.codeTag,
 ) {
+
   def allLines(includeTags: Boolean = true): Vector[String] = {
     val updatedHeader =
       if (!includeTags) header.copy(codetagCount = "0")
@@ -113,4 +117,5 @@ case class TestFont(
     characters.values.flatMap(_.split("\n")).toVector ++:
     newTagged
   }
+
 }

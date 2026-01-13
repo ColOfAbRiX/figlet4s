@@ -11,8 +11,10 @@ private[figlet4s] object MergeAction {
 
   /** Represents a "keep the value and continue" condition */
   final case class Continue[@specialized(Char) A](value: A) extends MergeAction[A]
+
   /** Represents a "stop processing, keep use the value of the current iteration" condition */
   final case class CurrentLast[@specialized(Char) A](value: A) extends MergeAction[A]
+
   /** Represents a "stop processing, use value of last iteration" condition */
   case object Stop extends MergeAction[Nothing]
 
@@ -30,4 +32,5 @@ private[figlet4s] object MergeAction {
         case (CurrentLast(f), CurrentLast(value)) => CurrentLast(f(value))
       }
   }
+
 }

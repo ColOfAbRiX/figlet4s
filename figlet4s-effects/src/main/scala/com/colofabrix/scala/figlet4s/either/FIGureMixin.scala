@@ -7,6 +7,7 @@ import com.colofabrix.scala.figlet4s.figfont._
 private[either] trait FIGureMixin {
 
   implicit class FIGureOps(val self: FIGure) extends FIGureAPI[FigletEither] with FIGureEffectfulAPI[FigletEither] {
+
     /**
      * Apply a function to each line of the FIGure
      *
@@ -53,6 +54,7 @@ private[either] trait FIGureMixin {
      */
     def asStringF(): FigletEither[String] =
       Right(asString())
+
   }
 
 }

@@ -20,6 +20,7 @@ import org.scalatestplus.scalacheck._
  * Support for testing using the command line, original figlet executable
  */
 trait OriginalFigletTesting extends Notifying {
+
   import ScalaCheckDrivenPropertyChecks._
 
   case class TestRenderOptions(

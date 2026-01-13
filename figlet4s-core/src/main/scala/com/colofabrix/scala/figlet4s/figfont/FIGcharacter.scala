@@ -28,11 +28,14 @@ final case class FIGcharacter private[figlet4s] (
     comment: Option[String],
     position: Int,
 ) {
+
   /** The strings composing the column of the FIGcharacter */
   lazy val columns: SubColumns = lines.toSubcolumns
+
 }
 
 object FIGcharacter {
+
   /**
    * Creates a validated FIGcharacter checking for height and width of the given lines
    *
@@ -181,4 +184,5 @@ object FIGcharacter {
         s"The character '$name' defined at line ${position + 1} doesn't respect the specified " +
         s"height of $height",
       ).invalidNec
+
 }

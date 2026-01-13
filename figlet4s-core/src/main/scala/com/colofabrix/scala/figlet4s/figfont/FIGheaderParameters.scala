@@ -16,6 +16,7 @@ import scala.util._
  * such they shouldn't be used internally and they're here only to represent the FLF header.
  */
 private[figfont] object FIGheaderParameters {
+
   /**
    * Print direction parameter
    *
@@ -24,8 +25,10 @@ private[figfont] object FIGheaderParameters {
   sealed abstract class PrintDirection(val value: Int) extends IntEnumEntry with ADT
 
   object PrintDirection extends IntEnum[PrintDirection] {
+
     /** Print direction left-to-right */
     case object LeftToRight extends PrintDirection(value = 0)
+
     /** Print direction right-to-left */
     case object RightToLeft extends PrintDirection(value = 1)
 
@@ -41,6 +44,7 @@ private[figfont] object FIGheaderParameters {
         .leftMap(_.map(x => FIGheaderError(x.getMessage)))
 
     val values: Vector[PrintDirection] = findValues.toVector
+
   }
 
   /**
@@ -115,6 +119,7 @@ private[figfont] object FIGheaderParameters {
       HorizontalLineVerticalSmushing,
       VerticalLineSupersmushing,
     )
+
   }
 
   /**
@@ -164,5 +169,7 @@ private[figfont] object FIGheaderParameters {
       }
 
     val values: Vector[OldLayout] = findValues.toVector
+
   }
+
 }

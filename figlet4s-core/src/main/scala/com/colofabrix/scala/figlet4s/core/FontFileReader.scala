@@ -69,7 +69,7 @@ private[figlet4s] object FontFileReader {
       val zipInputStream = new ZipInputStream(is)
       Option(zipInputStream.getNextEntry) match {
         case Some(_) => Sync[F].pure(new BufferedInputStream(zipInputStream))
-        case None    => Sync[F].raiseError[BufferedInputStream](new FigletLoadingError("Cannot read font file from ZIP"))
+        case None => Sync[F].raiseError[BufferedInputStream](new FigletLoadingError("Cannot read font file from ZIP"))
       }
     }.flatten
 
@@ -79,4 +79,5 @@ private[figlet4s] object FontFileReader {
     List(0x50, 0x4b, 0x05, 0x06), // Empty archive
     List(0x50, 0x4b, 0x07, 0x08), // Spanned archive
   )
+
 }

@@ -85,7 +85,8 @@ package object unsafe extends OptionsBuilderMixin with FIGureMixin {
         throw e
 
       def handleErrorWith[A](fa: Id[A])(f: Throwable => Id[A]): Id[A] =
-        try fa catch { case e: Throwable => f(e) }
+        try fa
+        catch { case e: Throwable => f(e) }
 
       // Clock methods
       def monotonic: Id[FiniteDuration] =
@@ -107,7 +108,8 @@ package object unsafe extends OptionsBuilderMixin with FIGureMixin {
         ()
 
       def forceR[A, B](fa: Id[A])(fb: Id[B]): Id[B] = {
-        try fa catch { case _: Throwable => () }
+        try fa
+        catch { case _: Throwable => () }
         fb
       }
 

@@ -9,6 +9,7 @@ import com.colofabrix.scala.figlet4s.options._
 private[either] trait OptionsBuilderMixin {
 
   implicit class OptionsBuilderOps(val self: OptionsBuilder) extends OptionsBuilderAPI[FigletEither] {
+
     private lazy val buildOptions = self.compile[FigletEither]
 
     /** @inheritdoc */
@@ -58,6 +59,7 @@ private[either] trait OptionsBuilderMixin {
         optionMaxWidth <- buildOptions.map(_.maxWidth)
         maxWidth       <- Right(optionMaxWidth.getOrElse(Int.MaxValue))
       } yield maxWidth
+
   }
 
 }
