@@ -17,6 +17,7 @@ final case class FIGure private[figlet4s] (
     value: String,
     columns: Seq[SubColumns],
 ) {
+
   private val hardblank =
     font.header.hardblank.toString
 
@@ -46,9 +47,11 @@ final case class FIGure private[figlet4s] (
       .flatMap(_.value.map(_.length))
       .maxOption
       .getOrElse(0)
+
 }
 
 object FIGure {
+
   /**
    * Creates an empty FIGure (set to [[com.colofabrix.scala.figlet4s.figfont.FIGfont.zero FIGfont.zero]]) that uses the
    * given FIGfont.
@@ -80,4 +83,5 @@ object FIGure {
     FIGure(font, char.toString, Seq(font(char).columns))
 
   ->()
+
 }

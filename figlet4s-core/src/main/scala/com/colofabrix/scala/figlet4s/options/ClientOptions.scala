@@ -78,8 +78,10 @@ object PrintDirection extends Enum[PrintDirection] {
 
   /** Render the text left-to-right */
   case object LeftToRight extends PrintDirection
+
   /** Render the text right-to-left */
   case object RightToLeft extends PrintDirection
+
   /** Use the default value specified in the FIGfont */
   case object FontDefault extends PrintDirection
 
@@ -107,10 +109,13 @@ object Justification extends Enum[Justification] {
 
   /** Centers the output horizontally */
   case object Center extends Justification
+
   /** Makes the output flush-left */
   case object FlushLeft extends Justification
+
   /** Makes it flush-right */
   case object FlushRight extends Justification
+
   /** Use the default value specified in the FIGfont */
   case object FontDefault extends Justification
 

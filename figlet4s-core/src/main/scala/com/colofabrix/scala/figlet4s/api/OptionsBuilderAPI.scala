@@ -9,6 +9,7 @@ import com.colofabrix.scala.figlet4s.options._
  * @tparam F The effect that wraps the results of the functions
  */
 trait OptionsBuilderAPI[F[_]] {
+
   /**
    * Builds and returns the render options
    *
@@ -37,4 +38,5 @@ trait OptionsBuilderAPI[F[_]] {
    * @return A FIGure representing the rendered text
    */
   def render(text: String): F[FIGure]
+
 }

@@ -23,16 +23,15 @@ class CatsIOFIGureSpecs extends AnyFlatSpec with Matchers {
   }
 
   it should "print the same data as asString()" in {
-    val figure = standardBuilder.render(standardInput)
-    val stream = new java.io.ByteArrayOutputStream()
+    val figure      = standardBuilder.render(standardInput)
+    val stream      = new java.io.ByteArrayOutputStream()
     val printStream = new java.io.PrintStream(stream)
 
     val oldOut = System.out
     try {
       System.setOut(printStream)
       figure.flatMap(_.print()).unsafeRunSync()
-    }
-    finally {
+    } finally {
       System.setOut(oldOut)
     }
 

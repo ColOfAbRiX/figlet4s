@@ -30,6 +30,7 @@ final case class FIGfont private[figlet4s] (
     settings: FIGfontSettings,
     characters: Map[Char, FIGcharacter],
 ) {
+
   /**
    * Returns a FIGcharacter representation of the given Char. If the requested character is not present the FIGcharacter
    * '0' (as in Unicode '\u0000') will be returned instead.
@@ -57,10 +58,12 @@ final case class FIGfont private[figlet4s] (
       .lines
       .replace(header.hardblank.toString, " ")
       .value
+
 }
 
 @SuppressWarnings(Array("org.wartremover.warts.OptionPartial", "org.wartremover.warts.TraversableOps"))
 object FIGfont {
+
   /** State to build a font that is filled while scanning input lines */
   final private case class FontBuilderState(
       file: File,
@@ -248,11 +251,12 @@ object FIGfont {
       state.copy(loadedCharLines = loadedCharLines, hash = hash).validNec
 
     } else {
-      val tagLineIndex    = index - state.loadedCharLines.size
+      val tagLineIndex = index - state.loadedCharLines.size
       val firstLineV =
-        state.loadedCharLines.headOption.toValidNec(
-          FIGcharacterError(s"Empty character lines at index $tagLineIndex"),
-        )
+        state
+          .loadedCharLines
+          .headOption
+          .toValidNec(FIGcharacterError(s"Empty character lines at index $tagLineIndex"))
       val loadedCharLines = state.loadedCharLines.drop(1) :+ line
 
       firstLineV.andThen { firstLine =>
@@ -310,4 +314,5 @@ object FIGfont {
       Integer.parseInt(code, 8).toChar.validNec
     else
       FIGcharacterError(s"Couldn't convert character code '$code' defined at line ${index + 1}").invalidNec
+
 }

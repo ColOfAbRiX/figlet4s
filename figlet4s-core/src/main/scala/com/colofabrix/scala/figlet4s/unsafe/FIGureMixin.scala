@@ -7,6 +7,7 @@ import com.colofabrix.scala.figlet4s.figfont._
 private[unsafe] trait FIGureMixin {
 
   implicit class FIGureOps(val self: FIGure) extends FIGureAPI[Id] {
+
     /**
      * Apply a function to each line of the FIGure
      *
@@ -36,6 +37,7 @@ private[unsafe] trait FIGureMixin {
      */
     def asString(): String =
       asSeq().mkString(System.lineSeparator())
+
   }
 
 }

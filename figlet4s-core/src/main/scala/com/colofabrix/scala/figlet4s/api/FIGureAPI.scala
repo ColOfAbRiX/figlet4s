@@ -6,6 +6,7 @@ package com.colofabrix.scala.figlet4s.api
  * @tparam F The effect that wraps the results of the functions
  */
 trait FIGureAPI[F[_]] {
+
   /**
    * Apply a function to each line of the FIGure
    *
@@ -31,6 +32,7 @@ trait FIGureAPI[F[_]] {
    * @return A single string containing the FIGure including newlines where needed
    */
   def asString(): String
+
 }
 
 /**
@@ -39,6 +41,7 @@ trait FIGureAPI[F[_]] {
  * @tparam F The effect that wraps the results of the functions
  */
 trait FIGureEffectfulAPI[F[_]] {
+
   /**
    * Apply a function to each line of the FIGure
    *
@@ -64,4 +67,5 @@ trait FIGureEffectfulAPI[F[_]] {
    * @return A single string containing the FIGure including newlines where needed
    */
   def asStringF(): F[String]
+
 }

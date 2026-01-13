@@ -10,6 +10,7 @@ import scala.io.Codec
  * @tparam F The effect that wraps the results of the functions
  */
 trait Figlet4sAPI[F[_]] {
+
   /**
    * The list of available internal fonts
    *
@@ -57,6 +58,7 @@ trait Figlet4sAPI[F[_]] {
    * @return An OptionBuilder to build the rendering options
    */
   def builder(text: String): OptionsBuilder
+
 }
 
 /**
@@ -65,6 +67,7 @@ trait Figlet4sAPI[F[_]] {
  * @tparam F The effect that wraps the results of the functions
  */
 trait Figlet4sEffectfulAPI[F[_]] {
+
   /**
    * The list of available internal fonts
    *
@@ -112,4 +115,5 @@ trait Figlet4sEffectfulAPI[F[_]] {
    * @return An OptionBuilder to build the rendering options
    */
   def builderF(text: String): F[OptionsBuilder]
+
 }

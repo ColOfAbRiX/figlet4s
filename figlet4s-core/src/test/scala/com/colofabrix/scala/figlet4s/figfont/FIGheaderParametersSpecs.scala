@@ -13,8 +13,10 @@ class FIGheaderParametersSpecs extends AnyFlatSpec with Matchers with ValidatedM
   //  PrintDirection  //
 
   trait PrintDirection {
+
     val goodValues: List[Int] = List(0, 1)
     val badValues: List[Int]  = List(-2, -1, 2, 3)
+
   }
 
   "PrintDirection" should "create a valid PrintDirection" in new PrintDirection {
@@ -37,9 +39,11 @@ class FIGheaderParametersSpecs extends AnyFlatSpec with Matchers with ValidatedM
   //  OldLayout  //
 
   trait OldLayoutScope {
+
     val goodValues: List[Int] = List(-1, 0, 1, 2, 4, 8, 16, 32)
     val badValues: List[Int]  = List(-3, -2, 128, 192)
     val allValues: Int        = goodValues.filter(_ > 0).sum
+
   }
 
   "OldLayout" should "create a valid OldLayout" in new OldLayoutScope {
@@ -76,9 +80,11 @@ class FIGheaderParametersSpecs extends AnyFlatSpec with Matchers with ValidatedM
   //  FullLayout  //
 
   trait FullLayoutScope {
+
     val goodValues: List[Int] = List(1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384)
     val badValues: List[Int]  = List(-2, -1, 32768, 32769)
     val allValues: Int        = goodValues.filter(_ > 0).sum
+
   }
 
   "FullLayout" should "create a valid FullLayout" in new FullLayoutScope {

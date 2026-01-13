@@ -3,6 +3,7 @@ package com.colofabrix.scala.figlet4s.figfont
 import scala.collection.immutable.ListMap
 
 object StandardFont {
+
   val signature: String = "flf2a"
 
   val hardblank: String = "$"
@@ -683,4 +684,5 @@ object StandardFont {
                   | (_,____|@
                   |         @@""".stripMargin,
     )
+
 }

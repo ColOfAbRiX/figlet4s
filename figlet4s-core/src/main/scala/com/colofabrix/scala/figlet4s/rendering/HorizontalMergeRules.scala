@@ -10,6 +10,7 @@ import com.colofabrix.scala.figlet4s.rendering.Rendering._
  * Merging rules for horizontal appending of characters
  */
 private[figlet4s] object HorizontalMergeRules {
+
   /**
    * Creates a merge strategy to perform horizontal merging, based on the given RenderOptions.
    *
@@ -169,4 +170,5 @@ private[figlet4s] object HorizontalMergeRules {
   private def hardblankSmushingRule(hardblank: Char): SmushingStrategy = { (a, b) =>
     if (a === hardblank && a === b) Some(a) else None
   }
+
 }

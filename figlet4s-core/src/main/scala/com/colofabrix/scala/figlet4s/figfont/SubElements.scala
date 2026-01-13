@@ -6,6 +6,7 @@ package com.colofabrix.scala.figlet4s.figfont
  * @param value The collection of lines that compose the SubLines
  */
 final case class SubLines(value: Seq[String]) extends SubElementOps[SubLines] {
+
   protected def pure(value: Seq[String]): SubLines =
     SubLines(value)
 
@@ -19,9 +20,11 @@ final case class SubLines(value: Seq[String]) extends SubElementOps[SubLines] {
 
   override def toString: String =
     value.map("|" + _ + "|").mkString("\n")
+
 }
 
 object SubLines {
+
   /**
    * A zero-height SubLines object of the specified height
    *
@@ -29,6 +32,7 @@ object SubLines {
    */
   def zero(height: Int): SubLines =
     SubLines(Vector.fill(height)(""))
+
 }
 
 /**
@@ -37,6 +41,7 @@ object SubLines {
  * @param value The collection of columns that compose the SubColumns
  */
 final case class SubColumns(value: Seq[String]) extends SubElementOps[SubColumns] {
+
   protected def pure(value: Seq[String]): SubColumns =
     SubColumns(value)
 
@@ -50,9 +55,11 @@ final case class SubColumns(value: Seq[String]) extends SubElementOps[SubColumns
 
   override def toString: String =
     value.map(_.toVector).transpose.map(_.mkString("|", "", "|")).mkString("\n")
+
 }
 
 object SubColumns {
+
   /**
    * A one-column SubColumns object of the specified height
    *
@@ -60,12 +67,14 @@ object SubColumns {
    */
   def zero(height: Int): SubColumns =
     SubColumns(Vector(" " * height))
+
 }
 
 /**
  * Operations for SubElements
  */
 trait SubElementOps[+A <: SubElementOps[A]] {
+
   protected def pure(value: Seq[String]): A
 
   def value: Seq[String]
@@ -85,4 +94,5 @@ trait SubElementOps[+A <: SubElementOps[A]] {
   /** Replaces a String value looking inside each element of the SubElement */
   def replace(oldValue: String, newValue: String): A =
     pure(value.map(_.replace(oldValue, newValue)))
+
 }

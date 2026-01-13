@@ -39,8 +39,9 @@ class BraketSpecs extends AnyFlatSpec with Matchers with MockFactory with Either
     val mockUserFunction = mockFunction[AutoCloseable, Id[Int]]
     mockUserFunction
       .expects(mockResource)
-      .onCall { _: AutoCloseable =>
-        throw new RuntimeException("failure")
+      .onCall {
+        _: AutoCloseable =>
+          throw new RuntimeException("failure")
       }
 
     val actual = intercept[FigletLoadingError] {
@@ -113,8 +114,9 @@ class BraketSpecs extends AnyFlatSpec with Matchers with MockFactory with Either
     val mockUserFunction = mockFunction[AutoCloseable, Either[Throwable, Int]]
     mockUserFunction
       .expects(mockResource)
-      .onCall { _: AutoCloseable =>
-        throw new RuntimeException("failure")
+      .onCall {
+        _: AutoCloseable =>
+          throw new RuntimeException("failure")
       }
 
     val actual = Braket.withResource(mockResource)(mockUserFunction)
@@ -189,8 +191,9 @@ class BraketSpecs extends AnyFlatSpec with Matchers with MockFactory with Either
     val mockUserFunction = mockFunction[AutoCloseable, IO[Int]]
     mockUserFunction
       .expects(mockResource)
-      .onCall { _: AutoCloseable =>
-        throw new RuntimeException("failure")
+      .onCall {
+        _: AutoCloseable =>
+          throw new RuntimeException("failure")
       }
 
     val actual =

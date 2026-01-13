@@ -2,7 +2,7 @@ package com.colofabrix.scala.figlet4s
 
 import cats._
 import cats.effect._
-import cats.effect.kernel.{CancelScope, Unique}
+import cats.effect.kernel.{ CancelScope, Unique }
 import com.colofabrix.scala.figlet4s.errors._
 import scala.concurrent.duration.FiniteDuration
 import scala.util._

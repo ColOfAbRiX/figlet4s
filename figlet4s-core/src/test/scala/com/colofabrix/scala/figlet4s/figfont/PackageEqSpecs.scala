@@ -10,9 +10,11 @@ class PackageEqSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers wi
   //  FIGfont  //
 
   trait FIGfontScope {
+
     val fontA1: FIGfont = Figlet4s.loadFontInternal("standard")
     val fontA2: FIGfont = Figlet4s.loadFontInternal("standard")
     val fontB: FIGfont  = Figlet4s.loadFontInternal("alligator")
+
   }
 
   "FIGfont Equality" should "return true when given the same instance" in new FIGfontScope {
@@ -32,10 +34,12 @@ class PackageEqSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers wi
   //  FIGcharacter  //
 
   trait FIGcharacterScope {
+
     private val font         = Figlet4s.loadFontInternal("standard")
     val charA1: FIGcharacter = font('A')
     val charA2: FIGcharacter = font('A')
     val charB: FIGcharacter  = font('B')
+
   }
 
   "FIGcharacter Equality" should "return true when given the same instance" in new FIGcharacterScope {
@@ -55,9 +59,11 @@ class PackageEqSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers wi
   //  FIGheader  //
 
   trait FIGheaderScope {
+
     val headerA1: FIGheader = Figlet4s.loadFontInternal("standard").header
     val headerA2: FIGheader = Figlet4s.loadFontInternal("standard").header
     val headerB: FIGheader  = Figlet4s.loadFontInternal("alligator").header
+
   }
 
   "FIGheader Equality" should "return true when given the same instance" in new FIGheaderScope {
@@ -77,9 +83,11 @@ class PackageEqSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers wi
   //  FIGfontSettings  //
 
   trait FIGfontSettingsScope {
+
     val settingsA1: FIGfontSettings = Figlet4s.loadFontInternal("standard").settings
     val settingsA2: FIGfontSettings = Figlet4s.loadFontInternal("standard").settings
     val settingsB: FIGfontSettings  = Figlet4s.loadFontInternal("alligator").settings
+
   }
 
   "FIGfontSettings Equality" should "return true when given the same instance" in new FIGfontSettingsScope {
@@ -99,9 +107,11 @@ class PackageEqSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers wi
   //  SubColumns  //
 
   trait SubColumnsScope {
+
     val itemA1: SubColumns = SubColumns(Seq("A", "B", "C"))
     val itemA2: SubColumns = SubColumns(Seq("A", "B", "C"))
     val itemB: SubColumns  = SubColumns(Seq("D", "E", "F"))
+
   }
 
   "SubColumns Equality" should "return true when given the same instance" in new SubColumnsScope {
@@ -117,4 +127,5 @@ class PackageEqSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers wi
     (itemA1 === itemB) should equal(false)
     (itemB === itemA1) should equal(false)
   }
+
 }

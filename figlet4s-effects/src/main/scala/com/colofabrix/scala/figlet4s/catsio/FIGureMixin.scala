@@ -8,6 +8,7 @@ import com.colofabrix.scala.figlet4s.figfont._
 private[catsio] trait FIGureMixin {
 
   implicit class FIGureOps(val self: FIGure) extends FIGureAPI[IO] with FIGureEffectfulAPI[IO] {
+
     /**
      * Apply a function to each line of the FIGure
      *
@@ -56,6 +57,7 @@ private[catsio] trait FIGureMixin {
      */
     def asStringF(): IO[String] =
       asSeqF().map(_.mkString(System.lineSeparator()))
+
   }
 
 }

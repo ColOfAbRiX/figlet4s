@@ -12,18 +12,23 @@ import com.colofabrix.scala.figlet4s.utils._
  * discouraged for the end-user.
  */
 private[figlet4s] object FIGfontParameters {
+
   /**
    * Horizontal Layout
    */
   sealed trait HorizontalLayout extends ADT
 
   object HorizontalLayout {
+
     /** Use full width horizontal layout */
     case object FullWidth extends HorizontalLayout
+
     /** Use horizontal fitting (kerning) layout */
     case object HorizontalFitting extends HorizontalLayout
+
     /** Use universal horizontal smushing */
     case object UniversalSmushing extends HorizontalLayout
+
     /** Use controlled horizontal smushing */
     final case class ControlledSmushing(rules: Seq[HorizontalSmushingRule]) extends HorizontalLayout
 
@@ -84,6 +89,7 @@ private[figlet4s] object FIGfontParameters {
       else
         FIGFontError(s"Couldn't convert layout settings found in header: ${settings.mkString(", ")}").invalidNec
     }
+
   }
 
   /**
@@ -92,16 +98,22 @@ private[figlet4s] object FIGfontParameters {
   sealed trait HorizontalSmushingRule extends ADT
 
   object HorizontalSmushingRule {
+
     /** Apply "equal" character horizontal smushing */
     case object EqualCharacter extends HorizontalSmushingRule
+
     /** Apply "underscore" horizontal smushing */
     case object Underscore extends HorizontalSmushingRule
+
     /** Apply "hierarchy" horizontal smushing */
     case object Hierarchy extends HorizontalSmushingRule
+
     /** Apply "opposite pair" horizontal smushing rule 4 */
     case object OppositePair extends HorizontalSmushingRule
+
     /** Apply "big X" horizontal smushing rule 5 */
     case object BigX extends HorizontalSmushingRule
+
     /** Apply "hardblank" horizontal smushing rule 6 */
     case object Hardblank extends HorizontalSmushingRule
 
@@ -150,6 +162,7 @@ private[figlet4s] object FIGfontParameters {
         .withFilter(_.nonEmpty)
         .map(_.validNec)
         .getOrElse(FIGFontError(s"The oldLayout setting doesn't include any horizontal smushing rule").invalidNec)
+
   }
 
   /**
@@ -158,12 +171,16 @@ private[figlet4s] object FIGfontParameters {
   sealed trait VerticalLayout extends ADT
 
   object VerticalLayout {
+
     /** Use full height vertical layout */
     case object FullHeight extends VerticalLayout
+
     /** Use vertical fitting layout */
     case object VerticalFitting extends VerticalLayout
+
     /** Use universal vertical smushing */
     case object UniversalSmushing extends VerticalLayout
+
     /** Use controlled vertical smushing */
     final case class ControlledSmushing(rules: Seq[VerticalSmushingRules]) extends VerticalLayout
 
@@ -190,6 +207,7 @@ private[figlet4s] object FIGfontParameters {
             UniversalSmushing.validNec
         }
         .getOrElse(FullHeight.validNec)
+
   }
 
   /**
@@ -198,14 +216,19 @@ private[figlet4s] object FIGfontParameters {
   sealed trait VerticalSmushingRules extends ADT
 
   object VerticalSmushingRules {
+
     /** Apply "equal" character vertical smushing */
     case object EqualCharacter extends VerticalSmushingRules
+
     /** Apply "underscore" vertical smushing */
     case object Underscore extends VerticalSmushingRules
+
     /** Apply "hierarchy" vertical smushing */
     case object Hierarchy extends VerticalSmushingRules
+
     /** Apply "horizontal line" vertical smushing */
     case object HorizontalLine extends VerticalSmushingRules
+
     /** Apply "vertical line" vertical smushing */
     case object VerticalLineSupersmushing extends VerticalSmushingRules
 
@@ -230,6 +253,7 @@ private[figlet4s] object FIGfontParameters {
         }
         .getOrElse(Vector.empty)
         .validNec
+
   }
 
   /**
@@ -241,6 +265,7 @@ private[figlet4s] object FIGfontParameters {
 
     /** Render left-to-right */
     case object LeftToRight extends PrintDirection
+
     /** Render right-to-left */
     case object RightToLeft extends PrintDirection
 
@@ -253,5 +278,7 @@ private[figlet4s] object FIGfontParameters {
         case Some(FIGheaderParameters.PrintDirection.RightToLeft) => RightToLeft.validNec
         case None                                                 => LeftToRight.validNec
       }
+
   }
+
 }

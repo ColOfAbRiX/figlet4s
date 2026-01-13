@@ -37,6 +37,7 @@ final case class FIGheader private[figlet4s] (
     fullLayout: Option[Seq[FullLayout]],
     codetagCount: Option[Int],
 ) {
+
   /**
    * Returns the the single-line representation of the FIGheader as defined in the FLF standard
    *
@@ -50,9 +51,11 @@ final case class FIGheader private[figlet4s] (
 
     s"$signature$hardblank $height $baseline $maxLength $oldLayoutNum $commentLines$printDirectionNum$fullLayoutNum$codetagCountNum"
   }
+
 }
 
 object FIGheader {
+
   private val SIGNATURE_INDEX: Int      = 0
   private val HEIGHT_INDEX: Int         = 1
   private val BASELINE_INDEX: Int       = 2
@@ -195,4 +198,5 @@ object FIGheader {
     }
 
   ->()
+
 }

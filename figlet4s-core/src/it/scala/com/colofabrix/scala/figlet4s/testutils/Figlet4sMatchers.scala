@@ -12,6 +12,7 @@ import org.scalatest.matchers._
 trait Figlet4sMatchers {
 
   class FIGureMatchers(expected: FIGure) extends Matcher[FIGure] {
+
     def apply(computed: FIGure): MatchResult =
       compareFigures(computed, expected) match {
         case Right(_)    => MatchResult(true, "", s"The computed FIGure looks like the expected FIGure.")
@@ -120,6 +121,7 @@ trait Figlet4sMatchers {
     }
 
     private val consoleWidth = Option(System.getenv("COLUMNS")).map(_.toInt).getOrElse(120)
+
   }
 
   private def padToLen(self: String)(len: Int, elem: String): String =
@@ -132,6 +134,7 @@ trait Figlet4sMatchers {
     new FIGureMatchers(expected)
 
   ->()
+
 }
 
 object Figlet4sMatchers extends Figlet4sMatchers

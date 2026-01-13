@@ -16,19 +16,25 @@ import sys.process.*
  */
 @SuppressWarnings(Array("org.wartremover.warts.Throw"))
 private[figlet4s] object compat {
+
   /** Dummy method to prevent "unused import" errors */
   def ->(): Unit = ()
 
   extension (self: List[String]) {
+
     def runStream: LazyList[String] = self.lazyLines
+
   }
 
   extension (self: Int) {
+
     /** Converts the Int to a BitSet */
     def toBitSet: BitSet = BitSet.fromBitMask(Array(self.toLong))
+
   }
 
   extension (self: String) {
+
     /**
      * MD5 hash of the string
      */
@@ -38,12 +44,15 @@ private[figlet4s] object compat {
       val bigInt = new BigInteger(1, digest)
       bigInt.toString(16)
     }
-  }
 
+  }
 
   extension (sc: StringContext) {
+
     def r: Regex = new Regex(sc.parts.mkString, sc.parts.drop(1).map(_ => "x")*)
+
   }
+
 }
 
 import cats.implicits.*
@@ -54,16 +63,22 @@ import cats.data.*
  */
 @SuppressWarnings(Array("org.wartremover.warts.AsInstanceOf", "org.wartremover.warts.Throw"))
 private[figlet4s] object validatedCompat {
+
   extension (self: FigletResult[?]) {
+
     @throws(classOf[FigletException])
     def unsafeGet[A]: A = self.asInstanceOf[FigletResult[A]].fold(e => throw e.head, identity)
+
   }
 
   extension [A](self: Try[A]) {
+
     def toFigletResult: FigletResult[A] =
       self match {
         case Failure(exception) => FigletError(exception).invalidNec
         case Success(value)     => value.validNec
       }
+
   }
+
 }
