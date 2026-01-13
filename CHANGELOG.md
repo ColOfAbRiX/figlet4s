@@ -7,25 +7,46 @@
 * Added BDF Fonts
 * Added wartremover-contrib
 
-### Dependency Updates
+### Breaking Changes
 
-* Updated cats-core and cats-kernel to 2.6.1
-* Updated cats-effects to 2.5.4
-* Updated enumeratum to 1.7.0
-* Updated SBT to 1.5.2
-* Updated sbt-assembly to 1.1.0
-* Updated sbt-errors-summary to 0.6.5
-* Updated sbt-explicit-dependencies 0.2.16
-* Updated sbt-git to 1.0.2
-* Updated sbt-gpg to 2.1.2
-* Updated sbt-microsite to 1.3.4
-* Updated sbt-sonatype to 3.9.8
-* Updated sbt-updates to 1.3.4
-* Updated Scala to 2.13.5 and 2.12.15
-* Updated Scalafmt to 2.4.3
-* Updated ScalaTest to 3.2.10
-* Updated SCoverage to 1.9.1
-* Updated Wateremover to 2.4.16
+* **Dropped Scala 2.12 support** - Now supports Scala 3.6.3 and 2.13.16 only
+* **Upgraded to Cats Effect 3** - Migrated from Cats Effect 2.x to 3.5.7
+
+### Changed
+
+* Upgraded to Scala 3.6.3 as primary version, cross-compiled with 2.13.16
+* Upgraded to Cats 2.13.0 (from 2.6.1)
+
+### Dependencies Changes
+
+* Added new cats-effect-testing-scalatest: 1.6.0
+* Upgraded to cats-core: 2.13.0
+* Upgraded to cats-effect: 3.5.7
+* Upgraded to cats-kernel: 2.13.0
+* Upgraded to cats-scalatest: 4.0.2 (for Scala 3)
+* Upgraded to enumeratum: 1.7.5
+* Upgraded to scalacheck: 1.18.1
+* Upgraded to scalamock: 6.0.0
+* Upgraded to scalatest: 3.2.19
+
+### Build & Plugin Changes
+
+* Added new sbt-dynver 5.1.0
+* Added new sbt-native 1.10.4
+* Added new sbt-tpolecat 0.5.2
+* Added new sbt-unidoc: 0.5.0
+* Upgraded to sbt: 1.12.0
+* Upgraded to sbt-assembly: 2.3.0
+* Upgraded to sbt-explicit-dependencies: 0.3.1
+* Upgraded to sbt-git: 2.1.0
+* Upgraded to sbt-microsites: 1.4.4
+* Upgraded to sbt-pgp: 2.3.1
+* Upgraded to sbt-scalafix: 0.13.0
+* Upgraded to sbt-scalafmt: 2.5.2 (config version: 3.8.4)
+* Upgraded to sbt-scoverage: 2.3.0
+* Upgraded to sbt-sonatype: 3.12.2
+* Upgraded to sbt-updates: 0.6.4
+* Upgraded to sbt-wartremover: 3.2.5
 
 ## v0.3.2 - 2021/11/05
 

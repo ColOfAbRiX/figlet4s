@@ -6,7 +6,8 @@
 .metals
 .vscode
 out
-target
+target/
+target-*/
 
 # Files
 metals.sbt
