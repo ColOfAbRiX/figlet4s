@@ -1,7 +1,6 @@
 package com.colofabrix.java.figlet4s
 
 import com.colofabrix.java.figlet4s.options._
-import com.colofabrix.scala.figlet4s.testutils._
 import org.scalatest.flatspec._
 import org.scalatest.matchers.should._
 

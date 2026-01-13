@@ -51,7 +51,7 @@ class JavaFiglet4sSpecs extends AnyFlatSpec with Matchers {
 
   //  Support  //
 
-  private def interpretResult(font: String): PartialFunction[Try[_], Option[String]] = {
+  private def interpretResult(font: String): PartialFunction[Try[?], Option[String]] = {
     case Failure(fe @ FigletException(message)) =>
       Some(s"${fe.getClass.getSimpleName} on $font: $message")
     case Failure(exception: Throwable) =>
