@@ -10,7 +10,7 @@
 ### Breaking Changes
 
 * **Dropped Scala 2.12 support** - Now supports Scala 3.6.3 and 2.13.16 only
-* **Upgraded to Cats Effect 3** - Migrated from Cats Effect 2.x to 3.5.7
+* **Upgraded to Cats Effect 3** - Migrated from Cats Effect 2.x to 3.6.3
 
 ### Changed
 
@@ -21,12 +21,12 @@
 
 * Added new cats-effect-testing-scalatest: 1.6.0
 * Upgraded to cats-core: 2.13.0
-* Upgraded to cats-effect: 3.5.7
+* Upgraded to cats-effect: 3.6.3
 * Upgraded to cats-kernel: 2.13.0
 * Upgraded to cats-scalatest: 4.0.2 (for Scala 3)
-* Upgraded to enumeratum: 1.7.5
+* Upgraded to enumeratum: 1.7.6
 * Upgraded to scalacheck: 1.18.1
-* Upgraded to scalamock: 6.0.0
+* Upgraded to scalamock: 6.2.0
 * Upgraded to scalatest: 3.2.19
 
 ### Build & Plugin Changes
