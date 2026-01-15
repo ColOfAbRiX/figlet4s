@@ -8,7 +8,7 @@ object SbtPluginsDeps {
   lazy val ErrorsSummaryVersion = "0.6.5"
   lazy val MicrositesVersion    = "1.4.4"
   lazy val TpolecatVersion      = "0.5.2"
-  lazy val UnidocVersion        = "0.5.0"
+  lazy val UnidocVersion        = "0.6.1"
   lazy val UpdatesVersion       = "0.6.4"
 
   lazy val ErrorsSummaryDep = "com.github.duhemm" % "sbt-errors-summary" % ErrorsSummaryVersion

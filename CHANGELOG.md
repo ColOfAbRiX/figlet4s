@@ -34,7 +34,7 @@
 * Added new sbt-dynver 5.1.0
 * Added new sbt-native 1.10.4
 * Added new sbt-tpolecat 0.5.2
-* Added new sbt-unidoc: 0.5.0
+* Added new sbt-unidoc: 0.6.1
 * Upgraded to sbt: 1.12.0
 * Upgraded to sbt-assembly: 2.3.0
 * Upgraded to sbt-explicit-dependencies: 0.3.1
