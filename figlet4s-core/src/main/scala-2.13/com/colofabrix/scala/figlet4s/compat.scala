@@ -1,5 +1,6 @@
 package com.colofabrix.scala.figlet4s
 
+import cats.implicits._
 import com.colofabrix.scala.figlet4s.errors._
 import java.math.BigInteger
 import java.nio.charset.Charset
@@ -53,8 +54,6 @@ private[figlet4s] object compat {
     def r = new Regex(sc.parts.mkString, sc.parts.drop(1).map(_ => "x"): _*)
   }
 }
-
-import cats.implicits._
 
 /**
  * Validated extension methods for Scala 2.13
