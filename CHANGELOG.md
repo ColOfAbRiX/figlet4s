@@ -41,8 +41,8 @@
 * Upgraded to sbt-git: 2.1.0
 * Upgraded to sbt-microsites: 1.4.4
 * Upgraded to sbt-pgp: 2.3.1
-* Upgraded to sbt-scalafix: 0.13.0
-* Upgraded to sbt-scalafmt: 2.5.2 (config version: 3.8.4)
+* Upgraded to sbt-scalafix: 0.14.5
+* Upgraded to sbt-scalafmt: 2.5.6 (config version: 3.8.4)
 * Upgraded to sbt-scoverage: 2.3.0
 * Upgraded to sbt-sonatype: 3.12.2
 * Upgraded to sbt-updates: 0.6.4
