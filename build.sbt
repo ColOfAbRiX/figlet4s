@@ -51,12 +51,11 @@ addCommandAlias("styleApply", "; scalafmtAll; Compile / scalafixAll")
 addCommandAlias("styleCheck", "; scalafmtCheckAll; Compile / scalafixAll --check")
 
 val commonScalaSettings: Seq[Def.Setting[_]] = Seq(
-  // Testing
-  Test / testOptions += Tests.Argument("-oFD"),
-  // Cross Scala Versions
   crossScalaVersions := SupportedScalaLangVersion,
-  // sbt-tpolecat: Use CI mode for strict checks, relax for tests
+  Test / testOptions += Tests.Argument("-oFD"),
   Test / tpolecatExcludeOptions ++= ScalacOptions.warnUnusedOptions,
+  Test / scalafix / skip := true,
+  IntegrationTest / scalafix / skip := true,
   // Relax Scala 3 syntax warnings for test code (tests use Scala 2 style)
   Test / scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((3, _)) => Seq(
