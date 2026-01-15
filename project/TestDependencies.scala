@@ -9,7 +9,7 @@ object TestDependencies {
   lazy val CatsScalaTestVersion2    = "3.1.1" // For Scala 2.13
   lazy val CatsScalaTestVersion3    = "4.0.2" // For Scala 3
   lazy val ScalaCheckVersion        = "1.18.1"
-  lazy val ScalaMockVersion         = "6.0.0"
+  lazy val ScalaMockVersion         = "6.2.0"
   lazy val ScalaTestVersion         = "3.2.19"
 
   lazy val CatsEffectTestingDep       = "org.typelevel" %% "cats-effect-testing-scalatest" % CatsEffectTestingVersion % "test,it"
