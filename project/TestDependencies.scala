@@ -26,7 +26,6 @@ object TestDependencies {
     s"scalacheck-$major-$minor"
   }
 
-  // CatsScalaTestDep is defined as a function due to version differences
   def catsScalaTestDep(scalaVersion: String): ModuleID = {
     val version = if (scalaVersion.startsWith("2.")) CatsScalaTestVersion2 else CatsScalaTestVersion3
     "com.ironcorelabs" %% "cats-scalatest" % version % "test,it"

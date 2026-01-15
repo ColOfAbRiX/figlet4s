@@ -1,5 +1,7 @@
 package com.colofabrix.scala.figlet4s
 
+import cats.data.*
+import cats.implicits.*
 import com.colofabrix.scala.figlet4s.errors.*
 import java.math.BigInteger
 import java.nio.charset.Charset
@@ -54,9 +56,6 @@ private[figlet4s] object compat {
   }
 
 }
-
-import cats.implicits.*
-import cats.data.*
 
 /**
  * Validated extension methods for Scala 3
