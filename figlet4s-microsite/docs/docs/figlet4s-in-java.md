@@ -35,6 +35,26 @@ public class Main {
 }
 ```
 
+You can also use justification to align the text within a specified width:
+
+```java
+import com.colofabrix.java.figlet4s.*;
+import com.colofabrix.java.figlet4s.options.*;
+
+public class Main {
+    public static void main(String[] args) {
+        Figlet4s
+            .builder()
+            .withMaxWidth(80)
+            .withJustification(Justification.CENTER)
+            .render("Hello!")
+            .print();
+    }
+}
+```
+
+Available justification options are: `FLUSH_LEFT`, `CENTER`, `FLUSH_RIGHT`, and `FONT_DEFAULT`.
+
 And this one is the one that sets explicitly each option:
 
 ```java

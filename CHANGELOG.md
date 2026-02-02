@@ -6,6 +6,7 @@
 
 * Added BDF Fonts
 * Added wartremover-contrib
+* Added full justification support (#9)
 
 ### Breaking Changes
 

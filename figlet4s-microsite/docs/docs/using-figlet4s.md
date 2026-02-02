@@ -55,6 +55,9 @@ object Main extends App {
     .withHorizontalLayout(
       HorizontalLayout.FullWidth   // 2. Choose a layout
     )
+    .withJustification(
+      Justification.Center         // 2. Choose text alignment
+    )
     .text("Hello, Scala!")         // 2. Change the text to render
     .render()                      // 3. Render the text to a FIGure
     .print()                       // Do something with the FIGure
@@ -216,4 +219,131 @@ Result:
 |  _  |  __/ | | (_) |    \ V  V / (_) | |  | | (_| |_|
 |_| |_|\___|_|_|\___( )    \_/\_/ \___/|_|  |_|\__,_(_)
                     |/
+```
+
+## Examples of Justification
+
+Justification controls the horizontal alignment of the rendered text within the specified max width.
+This is useful when you want to position your ASCII art banner on the left, center, or right side
+of your terminal or output area.
+
+**Note:** Justification only has a visible effect when `maxWidth` is set to a value larger than the
+rendered text width.
+
+### Flush Left (default)
+
+The text is aligned to the left edge. This is the default behavior.
+
+Code:
+
+```scala
+import com.colofabrix.scala.figlet4s.unsafe._
+import com.colofabrix.scala.figlet4s.options._
+
+object Main extends App {
+
+  Figlet4s
+    .builder("Hi!")
+    .withMaxWidth(40)
+    .withJustification(Justification.FlushLeft)
+    .render()
+    .print()
+
+}
+```
+
+Result (within 40 character width):
+
+```plaintext
+ _   _  _  _
+| | | |(_)| |
+| |_| || ||_|
+|  _  || | _
+|_| |_||_|(_)
+```
+
+### Center
+
+The text is centered within the max width.
+
+Code:
+
+```scala
+import com.colofabrix.scala.figlet4s.unsafe._
+import com.colofabrix.scala.figlet4s.options._
+
+object Main extends App {
+
+  Figlet4s
+    .builder("Hi!")
+    .withMaxWidth(40)
+    .withJustification(Justification.Center)
+    .render()
+    .print()
+
+}
+```
+
+Result (centered within 40 character width):
+
+```plaintext
+              _   _  _  _
+             | | | |(_)| |
+             | |_| || ||_|
+             |  _  || | _
+             |_| |_||_|(_)
+```
+
+### Flush Right
+
+The text is aligned to the right edge.
+
+Code:
+
+```scala
+import com.colofabrix.scala.figlet4s.unsafe._
+import com.colofabrix.scala.figlet4s.options._
+
+object Main extends App {
+
+  Figlet4s
+    .builder("Hi!")
+    .withMaxWidth(40)
+    .withJustification(Justification.FlushRight)
+    .render()
+    .print()
+
+}
+```
+
+Result (right-aligned within 40 character width):
+
+```plaintext
+                          _   _  _  _
+                         | | | |(_)| |
+                         | |_| || ||_|
+                         |  _  || | _
+                         |_| |_||_|(_)
+```
+
+### Font Default
+
+Uses the justification setting specified by the font author. Most fonts default to left alignment.
+
+Code:
+
+```scala
+import com.colofabrix.scala.figlet4s.unsafe._
+import com.colofabrix.scala.figlet4s.options._
+
+object Main extends App {
+
+  Figlet4s
+    .builder("Hi!")
+    .withMaxWidth(40)
+    .withJustification(Justification.FontDefault)
+    .render()
+    .print()
+
+}
 ```
