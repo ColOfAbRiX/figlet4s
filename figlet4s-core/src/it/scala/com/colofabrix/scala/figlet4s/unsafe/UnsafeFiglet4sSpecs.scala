@@ -25,12 +25,15 @@ class UnsafeFiglet4sSpecs extends AnyFlatSpec with Matchers with Figlet4sMatcher
 
   it should "render the texts as the original command line FIGlet does" taggedAs (SlowTest) in {
     figletRenderingTest { testData =>
+      val font     = Figlet4s.loadFontInternal(testData.fontName)
+      val maxWidth = font.header.maxLength * testData.renderText.length()
+
       val testBuilder =
         Figlet4s
           .builder()
           .text(testData.renderText)
-          .withMaxWidth(testData.renderText.length * 50)
-          .withInternalFont(testData.fontName)
+          .withMaxWidth(maxWidth)
+          .withFont(font)
           .withHorizontalLayout(testData.horizontalLayout)
           .withPrintDirection(testData.printDirection)
           .withJustification(testData.justification)

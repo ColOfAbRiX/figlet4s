@@ -111,9 +111,10 @@ final private[rendering] class Rendering(options: RenderOptions) {
    * @return A FIGure containing the rendered text following the rendering options
    */
   def render(text: String): FIGure = {
-    val figures = text.map(options.font(_).columns.value.toVector).toVector
-    val zero    = Vector(options.font.zero.lines.toSubcolumns.value.toVector)
-    val result  = appendLoop(figures, zero, AppendLoopState()).map(SubColumns(_))
+    val figures  = text.map(options.font(_).columns.value.toVector).toVector
+    val zero     = Vector(options.font.zero.lines.toSubcolumns.value.toVector)
+    val rendered = appendLoop(figures, zero, AppendLoopState()).map(SubColumns(_))
+    val result   = rendered.map(JustificationRendering(options).applyJustification)
     FIGure(options.font, text, result)
   }
 

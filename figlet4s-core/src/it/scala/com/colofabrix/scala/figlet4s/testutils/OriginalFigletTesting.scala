@@ -66,7 +66,7 @@ trait OriginalFigletTesting extends Notifying {
       fontName       <- Figlet4s.internalFonts.filterNot(dodgyFonts)
       hLayout        <- HorizontalLayout.values.filterNot(_ == HorizontalLayout.ForceHorizontalSmushing)
       printDirection <- Vector(PrintDirection.LeftToRight)
-      justification  <- Vector(Justification.FlushLeft)
+      justification  <- Justification.values
     } yield {
       TestRenderOptions("", fontName, hLayout, printDirection, justification)
     }
