@@ -74,7 +74,7 @@ package object either extends FIGureMixin with OptionsBuilderMixin {
     import cats.implicits._
 
     private val M: Monad[FigletEither] =
-      Monad[FigletEither](catsStdInstancesForEither)
+      catsStdInstancesForEither[FigletException]
 
     // MonadError
     def pure[A](x: A): FigletEither[A] =

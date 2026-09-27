@@ -155,6 +155,7 @@ lazy val figlet4sCore: Project = project
       catsScalaTestDep(scalaVersion.value),
       EnumeratumDep,
       ScalaMockDep,
+      ScalaMockScalaTestDep,
       ScalaTestFlatSpecDep,
       ScalaTestPlusCheckDep,
       ScalaTestShouldMatchersDep,

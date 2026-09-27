@@ -20,7 +20,7 @@ private[unsafe] trait FIGureMixin {
      * Print the FIGure to standard output
      */
     def print(): Unit =
-      self.foreachLine(println)
+      foreachLine(println)
 
     /**
      * The figure as a collection of String, one String per displayable line

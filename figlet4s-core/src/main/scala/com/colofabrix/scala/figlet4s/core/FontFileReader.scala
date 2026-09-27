@@ -22,7 +22,9 @@ private[figlet4s] object FontFileReader {
    * Reads a font file from the internal library resources (files or JAR)
    */
   def readInternal[F[_]: Sync, A](path: String, codec: Codec)(f: (File, BufferedSource) => F[A]): F[A] = {
-    def is   = Source.fromInputStream(this.getClass.getClassLoader.getResourceAsStream(path))(codec)
+    implicit val c: Codec = codec
+
+    def is   = Source.fromInputStream(this.getClass.getClassLoader.getResourceAsStream(path))
     def file = new File(this.getClass.getClassLoader.getResource(path).getPath)
     Braket.withResource(tapSource(is))(f(file, _))
   }
@@ -31,10 +33,11 @@ private[figlet4s] object FontFileReader {
 
   private[core] def read[F[_]: Sync, A](bif: => BufferedInputStream, codec: Codec)(f: BufferedSource => F[A]): F[A] =
     Braket.withResource(bif) { inputStream =>
+      implicit val c: Codec = codec
       for {
         isZip  <- isZipFile(inputStream)
         stream <- if (isZip) readZip(inputStream) else readText(inputStream)
-        result <- f(Source.fromInputStream(stream)(codec))
+        result <- f(Source.fromInputStream(stream))
       } yield result
     }
 

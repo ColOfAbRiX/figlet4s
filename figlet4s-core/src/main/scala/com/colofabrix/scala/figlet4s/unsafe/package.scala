@@ -3,7 +3,6 @@ package com.colofabrix.scala.figlet4s
 import cats._
 import cats.effect._
 import cats.effect.kernel.CancelScope
-import scala.annotation.nowarn
 import scala.concurrent.duration.FiniteDuration
 
 /**
@@ -64,7 +63,6 @@ package object unsafe extends OptionsBuilderMixin with FIGureMixin {
    * to work with the CE3-based Figlet4sClient. Since Id cannot truly suspend effects,
    * this implementation executes everything immediately and throws exceptions on errors.
    */
-  @nowarn("msg=private .* is never used|side-effecting nullary methods are discouraged")
   @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements", "org.wartremover.warts.Throw"))
   implicit private[unsafe] val syncId: Sync[Id] =
     new Sync[Id] {
@@ -123,16 +121,6 @@ package object unsafe extends OptionsBuilderMixin with FIGureMixin {
 
       def rootCancelScope: CancelScope =
         CancelScope.Uncancelable
-
-      // GenSpawn methods - not truly implementable for Id
-      def never[A]: Id[A] =
-        throw new NotImplementedError("Sync[Id] does not support GenSpawn.never")
-
-      def cede: Id[Unit] =
-        ()
-
-      def start[A](fa: Id[A]): Id[Fiber[Id, Throwable, A]] =
-        throw new NotImplementedError("Sync[Id] does not support GenSpawn.start")
     }
 
 }

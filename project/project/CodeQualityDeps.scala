@@ -5,10 +5,10 @@ import sbt._
  */
 object CodeQualityDependencies {
 
-  lazy val ScalaFixVersion    = "0.14.5"
-  lazy val ScalafmtVersion    = "2.5.6"
-  lazy val SCoverageVersion   = "2.3.0"
-  lazy val WartremoverVersion = "3.2.5"
+  lazy val ScalaFixVersion    = "0.14.9"
+  lazy val ScalafmtVersion    = "2.6.2"
+  lazy val SCoverageVersion   = "2.4.4"
+  lazy val WartremoverVersion = "3.6.2"
 
   lazy val ScalaFixDep    = "ch.epfl.scala"   % "sbt-scalafix"    % ScalaFixVersion
   lazy val ScalafmtDep    = "org.scalameta"   % "sbt-scalafmt"    % ScalafmtVersion

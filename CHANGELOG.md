@@ -10,44 +10,45 @@
 
 ### Breaking Changes
 
-* **Dropped Scala 2.12 support** - Now supports Scala 3.6.3 and 2.13.16 only
-* **Upgraded to Cats Effect 3** - Migrated from Cats Effect 2.x to 3.6.3
+* **Dropped Scala 2.12 support** - Now supports Scala 3.9.0 LTS and 2.13.18 only
+* **Upgraded to Cats Effect 3** - Migrated from Cats Effect 2.x to 3.7.1
 
 ### Changed
 
-* Upgraded to Scala 3.6.3 as primary version, cross-compiled with 2.13.16
+* Upgraded to Scala 3.9.0 LTS as primary version, cross-compiled with 2.13.18
 * Upgraded to Cats 2.13.0 (from 2.6.1)
 
 ### Dependencies Changes
 
-* Added new cats-effect-testing-scalatest: 1.6.0
+* Added new cats-effect-testing-scalatest: 1.8.0
+* Added new scalamock-scalatest: 7.6.0
 * Upgraded to cats-core: 2.13.0
-* Upgraded to cats-effect: 3.6.3
+* Upgraded to cats-effect: 3.7.1
 * Upgraded to cats-kernel: 2.13.0
 * Upgraded to cats-scalatest: 4.0.2 (for Scala 3)
-* Upgraded to enumeratum: 1.7.6
-* Upgraded to scalacheck: 1.18.1
-* Upgraded to scalamock: 6.2.0
-* Upgraded to scalatest: 3.2.19
+* Upgraded to enumeratum: 1.9.8
+* Upgraded to scalacheck: 1.20.0
+* Upgraded to scalamock: 7.6.0
+* Upgraded to scalatest: 3.2.20
 
 ### Build & Plugin Changes
 
 * Added new sbt-dynver 5.1.0
 * Added new sbt-native 1.10.4
-* Added new sbt-tpolecat 0.5.2
+* Added new sbt-tpolecat 0.5.7
 * Added new sbt-unidoc: 0.6.1
-* Upgraded to sbt: 1.12.0
+* Upgraded to sbt: 1.13.0
 * Upgraded to sbt-assembly: 2.3.0
 * Upgraded to sbt-explicit-dependencies: 0.3.1
 * Upgraded to sbt-git: 2.1.0
 * Upgraded to sbt-microsites: 1.4.4
 * Upgraded to sbt-pgp: 2.3.1
-* Upgraded to sbt-scalafix: 0.14.5
-* Upgraded to sbt-scalafmt: 2.5.6 (config version: 3.8.4)
-* Upgraded to sbt-scoverage: 2.3.0
+* Upgraded to sbt-scalafix: 0.14.9
+* Upgraded to sbt-scalafmt: 2.6.2 (config version: 3.8.4)
+* Upgraded to sbt-scoverage: 2.4.4
 * Upgraded to sbt-sonatype: 3.12.2
-* Upgraded to sbt-updates: 0.6.4
-* Upgraded to sbt-wartremover: 3.2.5
+* Upgraded to sbt-updates: 0.7.0
+* Upgraded to sbt-wartremover: 3.6.2
 
 ## v0.3.2 - 2021/11/05
 

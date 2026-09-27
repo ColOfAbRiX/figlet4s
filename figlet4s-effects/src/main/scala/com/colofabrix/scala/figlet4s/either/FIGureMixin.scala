@@ -21,7 +21,7 @@ private[either] trait FIGureMixin {
      * Print the FIGure to standard output
      */
     def print(): FigletEither[Unit] =
-      self.foreachLine(println)
+      foreachLine(println)
 
     /**
      * The figure as a collection of String, one String per displayable line

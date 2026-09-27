@@ -23,3 +23,6 @@ metals.sbt
 
 # Temporary files
 TODO*
+
+# Local planning documents
+plans/
