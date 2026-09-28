@@ -35,6 +35,64 @@ object Main extends App {
 }
 ```
 
+The same approach can be used with the effectful APIs of the `figlet4s-effects` library, where the
+effect is managed explicitly. This is the version using Scala `Either`:
+
+```scala
+import cats.implicits._
+import com.colofabrix.scala.figlet4s.either._
+import com.colofabrix.scala.figlet4s.options._
+
+// Load a font and choose some settings
+val fontE           = Figlet4s.loadFontInternal("alligator")
+val maxWidthE       = 120.asRight
+val layoutE         = HorizontalLayout.HorizontalFitting.asRight
+val printDirectionE = PrintDirection.LeftToRight.asRight
+val justificationE  = Justification.FontDefault.asRight
+
+// Build the render options, using cats' .mapN()
+val optionsE =
+  (fontE, maxWidthE, layoutE, printDirectionE, justificationE)
+    .mapN(RenderOptions(_, _, _, _, _))
+
+// Render a string into a FIGure
+val figureE = optionsE.map(options => Figlet4s.renderString("Hello, World!", options))
+
+// Interpreting the result
+figureE match {
+  case Left(error)  => println(s"Error while working with FIGlet: $error")
+  case Right(value) => value.print()
+}
+```
+
+and this is the version using Cats' `IO`:
+
+```scala
+import cats.effect._
+import cats.implicits._
+import com.colofabrix.scala.figlet4s.catsio._
+import com.colofabrix.scala.figlet4s.options._
+
+val result =
+  for {
+    // Load a font, choose the layout and max width
+    font          <- Figlet4s.loadFontInternal("alligator")
+    maxWidth       = 120
+    layout         = HorizontalLayout.HorizontalFitting
+    printDir       = PrintDirection.LeftToRight
+    justification  = Justification.FontDefault
+    // Build the render options
+    options        = RenderOptions(font, maxWidth, layout, printDir, justification)
+    // Render the string into a FIGure
+    figure        <- Figlet4s.renderStringF("Hello, World!", options)
+  } yield figure
+
+// Interpreting the result
+result
+  .map(_.print())
+  .handleError(error => IO(println(s"Error while working with FIGlet: $error")))
+```
+
 ## Handling Errors
 
 In Figlet4s all the calls to methods that load fonts can result in an error because they load from
@@ -144,7 +202,7 @@ object Main extends App {
     for {
       builder <- Figlet4s.builderF()
       figure  <- builder.render("Hello, World!")
-      lines   <- figure.asSeq()
+      lines   <- figure.asSeqF()
     } yield lines
 
   // Handle errors and display result

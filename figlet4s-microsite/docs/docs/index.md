@@ -16,7 +16,7 @@ Figlet4s is an implementation of the *nix tool [FIGlet](http://www.figlet.org/):
 >
 > -- _Wikipedia_
 
-Try out [Figlet4s on Scastie](https://scastie.scala-lang.org/j7zMH0xRQXe39sEVtiSJgQ) or jump to the
+Try out [Figlet4s on Scastie](https://scastie.scala-lang.org/fzrGAYvLQ5uP0xiQ2HTjsw) or jump to the
 [Getting started](../../docs/using-figlet4s/) section.
 
 ## What can I use Figlet4s for?

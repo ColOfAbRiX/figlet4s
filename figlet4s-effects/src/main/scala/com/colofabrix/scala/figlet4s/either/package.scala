@@ -22,7 +22,7 @@ import scala.util._
  *   for {
  *     builder <- Figlet4s.builderF()             // Obtain an options builder
  *     figure  <- builder.render("Hello, World!") // Render a text into a FIGure
- *     lines   <- figure.asSeq()                  // Store the FIGure as lines in a variable
+ *     lines   <- figure.asSeqF()                 // Store the FIGure as lines in a variable
  *   } yield lines
  *
  * // Interpreting the result
@@ -37,6 +37,7 @@ import scala.util._
  *
  * {{{
  * import cats.implicits._
+ * import com.colofabrix.scala.figlet4s.either._
  * import com.colofabrix.scala.figlet4s.options._
  *
  * // Load a font and choose some settings
@@ -44,21 +45,22 @@ import scala.util._
  * val maxWidthE       = 120.asRight
  * val layoutE         = HorizontalLayout.HorizontalFitting.asRight
  * val printDirectionE = PrintDirection.LeftToRight.asRight
+ * val justificationE  = Justification.FontDefault.asRight
  *
- * // Build the render options, using cat's .mapN()
+ * // Build the render options, using cats' .mapN()
  * val optionsE =
- *   (fontE, maxWidthE, layoutE, printDirectionE)
- *     .mapN(RenderOptions(_, _, _, _))
+ *   (fontE, maxWidthE, layoutE, printDirectionE, justificationE)
+ *     .mapN(RenderOptions(_, _, _, _, _))
  *
  * // Render a string into a FIGure
- * val figure = optionsE.map { options =>
+ * val figureE = optionsE.map { options =>
  *   Figlet4s.renderString("Hello, World!", options)
  * }
  *
  * // Interpreting the result
- * result match {
+ * figureE match {
  *   case Left(error)  => println(s"Error while working with FIGlet: $$error")
- *   case Right(value) => value.foreach(println)
+ *   case Right(value) => value.print()
  * }
  * }}}
  */

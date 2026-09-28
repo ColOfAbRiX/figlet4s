@@ -1,7 +1,6 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://choosealicense.com/licenses/mit/)
-[![Maven Central](https://img.shields.io/maven-central/v/com.colofabrix.scala/figlet4s-core_3.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.colofabrix.scala%22%20AND%20a:%22figlet4s-core_3%22)
+[![Maven Central](https://img.shields.io/maven-central/v/com.colofabrix.scala/figlet4s-core_3.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/com.colofabrix.scala/figlet4s-core_3)
 [![Tests Status](https://github.com/ColOfAbRiX/figlet4s/actions/workflows/tests.yml/badge.svg)](https://github.com/ColOfAbRiX/figlet4s/actions/workflows/tests.yml)
-[![Gitter chat](https://badges.gitter.im/ColOfAbRiX/figlet4s.png)](https://gitter.im/figlet4s/community)
 
 ```
  _____ _       _      _   _  _
@@ -18,7 +17,7 @@ Figlet4s is a library to create ASCII-art banners, in pure Scala, open source, w
 minimal dependencies (cats and cats-effects), extensive error reporting and support for effects
 including Cats `IO`. It also includes direct support for Java.
 
-Try out [Figlet4s on Scastie](https://scastie.scala-lang.org/j7zMH0xRQXe39sEVtiSJgQ)
+Try out [Figlet4s on Scastie](https://scastie.scala-lang.org/fzrGAYvLQ5uP0xiQ2HTjsw)
 
 ## Quick Start
 

@@ -23,23 +23,26 @@ import com.colofabrix.scala.figlet4s.errors._
  * }}}
  *
  * or the Figlet4s client can be used directly, without the mediation of the OptionsBuilder, with explicit management of
- * the [[scala.Either]] value:
+ * the [[cats.effect.IO]] value:
  *
  * {{{
+ * import cats.effect._
  * import cats.implicits._
+ * import com.colofabrix.scala.figlet4s.catsio._
  * import com.colofabrix.scala.figlet4s.options._
  *
  * val result =
  *   for {
  *     // Load a font, choose the layout and max width
- *     font     <- Figlet4s.loadFontInternal("alligator")
- *     maxWidth  = 120
- *     layout    = HorizontalLayout.HorizontalFitting
- *     printDir  = PrintDirection.LeftToRight
+ *     font          <- Figlet4s.loadFontInternal("alligator")
+ *     maxWidth       = 120
+ *     layout         = HorizontalLayout.HorizontalFitting
+ *     printDir       = PrintDirection.LeftToRight
+ *     justification  = Justification.FontDefault
  *     // Build the render options
- *     options   = RenderOptions(font, maxWidth, layout, printDir)
+ *     options        = RenderOptions(font, maxWidth, layout, printDir, justification)
  *     // Render the string into a FIGure
- *     figure   <- Figlet4s.renderStringF("Hello, World!", options)
+ *     figure        <- Figlet4s.renderStringF("Hello, World!", options)
  *   } yield figure
  *
  * // Interpreting the result

@@ -233,6 +233,7 @@ lazy val figlet4sJava: Project = project
 lazy val figlet4sMicrosite = project
   .in(file("figlet4s-microsite"))
   .enablePlugins(MicrositesPlugin)
+  .dependsOn(figlet4sEffects)
   .settings(
     crossScalaVersions           := SupportedScalaLangVersion,
     micrositeAnalyticsToken      := "UA-189728436-1",
@@ -253,7 +254,7 @@ lazy val figlet4sMicrosite = project
     mdocExtraArguments           := Seq("--no-link-hygiene"),
     publish / skip               := true,
     mdocVariables := Map(
-      "VERSION"       -> """\d+\.\d+\.\d""".r.findFirstIn(version.value).getOrElse(""),
+      "VERSION"       -> """\d+\.\d+\.\d+""".r.findFirstIn(version.value).getOrElse(""),
       "SCALA_VERSION" -> """\d+\.\d+""".r.findFirstIn(scalaVersion.value).getOrElse(""),
     ),
   )

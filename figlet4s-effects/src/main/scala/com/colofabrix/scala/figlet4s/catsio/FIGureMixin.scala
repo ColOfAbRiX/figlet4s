@@ -1,7 +1,6 @@
 package com.colofabrix.scala.figlet4s.catsio
 
 import cats.effect.IO
-import cats.effect.unsafe.implicits.global
 import com.colofabrix.scala.figlet4s.api._
 import com.colofabrix.scala.figlet4s.figfont._
 
@@ -31,7 +30,7 @@ private[catsio] trait FIGureMixin {
      * @return A collection of strings, each containing a displayable line
      */
     def asSeq(): Seq[String] =
-      asSeqF().unsafeRunSync()
+      self.cleanLines.flatMap(_.value)
 
     /**
      * The figure as single String and newline characters
@@ -39,7 +38,7 @@ private[catsio] trait FIGureMixin {
      * @return A single string containing the FIGure including newlines where needed
      */
     def asString(): String =
-      asStringF().unsafeRunSync()
+      asSeq().mkString(System.lineSeparator())
 
     /**
      * The figure as a collection of String, one String per displayable line
@@ -47,7 +46,7 @@ private[catsio] trait FIGureMixin {
      * @return A collection of strings, each containing a displayable line
      */
     def asSeqF(): IO[Seq[String]] = IO.pure {
-      self.cleanLines.map(_.value.mkString(System.lineSeparator()))
+      self.cleanLines.flatMap(_.value)
     }
 
     /**

@@ -37,6 +37,7 @@
 * Added new sbt-native 1.10.4
 * Added new sbt-tpolecat 0.5.7
 * Added new sbt-unidoc: 0.6.1
+* Added new sbt-mdoc: 2.9.2
 * Upgraded to sbt: 1.13.0
 * Upgraded to sbt-assembly: 2.3.0
 * Upgraded to sbt-explicit-dependencies: 0.3.1
