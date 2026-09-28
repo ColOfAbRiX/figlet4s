@@ -120,7 +120,6 @@ final class OptionsBuilder(private[figlet4s] val actions: List[BuilderAction] = 
   /**
    * Use the default print direction
    *
-   * @todo This feature is not yet implemented
    * @return The option builder with the print direction set to the default one
    */
   def defaultPrintDirection(): OptionsBuilder =
@@ -129,7 +128,6 @@ final class OptionsBuilder(private[figlet4s] val actions: List[BuilderAction] = 
   /**
    * Use the specified print direction to render the text
    *
-   * @todo This feature is not yet implemented
    * @param direction The print direction to use
    * @return The option builder with the print direction set to the specified one
    */
@@ -141,7 +139,6 @@ final class OptionsBuilder(private[figlet4s] val actions: List[BuilderAction] = 
   /**
    * Use the default justification
    *
-   * @todo This feature is not yet implemented
    * @return The option builder with the justification set to the default one
    */
   def defaultJustification(): OptionsBuilder =
@@ -150,7 +147,6 @@ final class OptionsBuilder(private[figlet4s] val actions: List[BuilderAction] = 
   /**
    * Use the specified justification to render the text
    *
-   * @todo This feature is not yet implemented
    * @param justification The justification to use
    * @return The option builder with the justification set to the specified one
    */
@@ -278,7 +274,7 @@ private[figlet4s] object OptionsBuilder {
   /** Compiles the settings for Justification */
   private def compileJustification[F[_]: Applicative]: ActionCompiler[F] = {
     case (buildData, DefaultJustification) =>
-      Applicative[F].pure(buildData.copy(printDirection = PrintDirection.FontDefault))
+      Applicative[F].pure(buildData.copy(justification = Justification.FontDefault))
 
     case (buildData, SetJustification(justification)) =>
       Applicative[F].pure(buildData.copy(justification = justification))

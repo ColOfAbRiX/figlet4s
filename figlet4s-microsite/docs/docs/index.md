@@ -45,8 +45,6 @@ You can find the API documentation at the following links:
 Figlet4s doesn't implement all figlet features yet, although they are in the plan. The following
 are the missing features:
 
-* Print direction
-* Justification
 * Vertical alignment
 * Control files
 

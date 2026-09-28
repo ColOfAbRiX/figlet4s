@@ -20,7 +20,6 @@ object Main extends App {
   val font           = Figlet4s.loadFontInternal("calgphy2")
   val maxWidth       = 120
   val layout         = HorizontalLayout.HorizontalFitting
-  // These settings are present but not working yet, as per release 0.2.0
   val printDirection = PrintDirection.LeftToRight
   val justification  = Justification.FontDefault
 

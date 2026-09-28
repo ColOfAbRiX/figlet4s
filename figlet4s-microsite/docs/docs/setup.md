@@ -4,7 +4,7 @@ title: Setup
 ---
 # Setup
 
-Figlet4s requires at least Java 8 and supports Scala 3 and 2.13.
+Figlet4s requires at least Java 11 and supports Scala 3 and 2.13.
 
 ## SBT
 

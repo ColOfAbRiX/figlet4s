@@ -67,8 +67,6 @@ object HorizontalLayout extends Enum[HorizontalLayout] {
 
 /**
  * Option to choose the rendering direction
- *
- * @todo This feature is not yet implemented
  */
 sealed trait PrintDirection extends ADT with EnumEntry
 
@@ -98,8 +96,6 @@ object PrintDirection extends Enum[PrintDirection] {
 
 /**
  * Option to choose the justification of the text
- *
- * @todo This feature is not yet implemented
  */
 sealed trait Justification extends ADT with EnumEntry
 

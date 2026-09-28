@@ -20,6 +20,27 @@ including Cats `IO`. It also includes direct support for Java.
 
 Try out [Figlet4s on Scastie](https://scastie.scala-lang.org/j7zMH0xRQXe39sEVtiSJgQ)
 
+## Quick Start
+
+Add the core library to your `build.sbt`:
+
+```scala
+libraryDependencies += "com.colofabrix.scala" %% "figlet4s-core" % "0.4.0"
+```
+
+Then render your first banner:
+
+```scala
+import com.colofabrix.scala.figlet4s.unsafe._
+
+val figure = Figlet4s.builder().text("Hello, World!").render()
+
+println(figure.asString)
+```
+
+Full options and effectful APIs (cats `IO`, `Either`) are described in the
+[documentation](https://colofabrix.github.io/figlet4s/docs/using-figlet4s.html).
+
 ## Documentation
 
 Go to [https://colofabrix.github.io/figlet4s/](https://colofabrix.github.io/figlet4s/)

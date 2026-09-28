@@ -57,7 +57,7 @@ private[either] trait OptionsBuilderMixin {
     private def builtMaxWidth: FigletEither[Int] =
       for {
         optionMaxWidth <- buildOptions.map(_.maxWidth)
-        maxWidth       <- Right(optionMaxWidth.getOrElse(Int.MaxValue))
+        maxWidth       <- Right(optionMaxWidth.getOrElse(Figlet4sClient.defaultMaxWidth))
       } yield maxWidth
 
   }

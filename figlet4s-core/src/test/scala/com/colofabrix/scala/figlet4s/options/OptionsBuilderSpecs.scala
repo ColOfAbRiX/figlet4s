@@ -139,6 +139,22 @@ class OptionsBuilderSpecs extends AnyFlatSpec with Matchers {
     computed should equal(expected)
   }
 
+  it should "reset the justification without touching the print direction" in {
+    val builder = Figlet4s
+      .builder()
+      .withJustification(Justification.Center)
+      .withPrintDirection(PrintDirection.LeftToRight)
+      .defaultJustification()
+      .options
+
+    val justification    = builder.justification
+    val printDirection   = builder.printDirection
+    val expectedPrintDir = PrintDirection.LeftToRight
+
+    justification should equal(Justification.FontDefault)
+    printDirection should equal(expectedPrintDir)
+  }
+
   //  Print Direction  //
 
   "defaultPrintDirection/withPrintDirection" should "set the PrintDirection to font default" in {

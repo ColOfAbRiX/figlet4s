@@ -73,7 +73,7 @@ private[catsio] trait OptionsBuilderMixin {
     private def builtMaxWidth: IO[Int] =
       for {
         optionMaxWidth <- buildOptions.map(_.maxWidth)
-        maxWidth       <- IO.pure(optionMaxWidth.getOrElse(Int.MaxValue))
+        maxWidth       <- IO.pure(optionMaxWidth.getOrElse(Figlet4sClient.defaultMaxWidth))
       } yield maxWidth
 
   }
