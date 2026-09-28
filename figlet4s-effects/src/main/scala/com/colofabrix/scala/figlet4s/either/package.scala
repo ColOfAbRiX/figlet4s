@@ -20,7 +20,7 @@ import scala.util._
  *
  * val result =
  *   for {
- *     builder <- Figlet4s.builderF()             // Obtain an options builder
+ *     builder <- Figlet4s.builder()              // Obtain an options builder
  *     figure  <- builder.render("Hello, World!") // Render a text into a FIGure
  *     lines   <- figure.asSeqF()                 // Store the FIGure as lines in a variable
  *   } yield lines
@@ -53,9 +53,7 @@ import scala.util._
  *     .mapN(RenderOptions(_, _, _, _, _))
  *
  * // Render a string into a FIGure
- * val figureE = optionsE.map { options =>
- *   Figlet4s.renderString("Hello, World!", options)
- * }
+ * val figureE = optionsE.flatMap(options => Figlet4s.renderString("Hello, World!", options))
  *
  * // Interpreting the result
  * figureE match {

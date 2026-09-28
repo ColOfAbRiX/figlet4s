@@ -16,7 +16,7 @@ import com.colofabrix.scala.figlet4s.errors._
  * import com.colofabrix.scala.figlet4s.catsio._
  *
  * for {
- *   builder <- Figlet4s.builderF()             // Obtain an options builder
+ *   builder <- Figlet4s.builder()              // Obtain an options builder
  *   figure  <- builder.render("Hello, World!") // Render a text into a FIGure
  *   _       <- figure.print()                  // Print the FIGure
  * } yield ExitCode.Success
@@ -42,7 +42,7 @@ import com.colofabrix.scala.figlet4s.errors._
  *     // Build the render options
  *     options        = RenderOptions(font, maxWidth, layout, printDir, justification)
  *     // Render the string into a FIGure
- *     figure        <- Figlet4s.renderStringF("Hello, World!", options)
+ *     figure        <- Figlet4s.renderString("Hello, World!", options)
  *   } yield figure
  *
  * // Interpreting the result

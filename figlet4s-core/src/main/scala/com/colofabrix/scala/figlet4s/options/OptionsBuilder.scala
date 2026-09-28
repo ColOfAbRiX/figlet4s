@@ -19,8 +19,8 @@ import scala.io.Codec
  * the desire of loading a file. The actual loading, and failure, will happen and handled when calling
  * OptionsBuilder.compile().
  *
- * To create a builder use the [[com.colofabrix.scala.figlet4s.api.Figlet4sAPI.builder()* Figlet4sAPI.builder()]] or
- * [[com.colofabrix.scala.figlet4s.api.Figlet4sEffectfulAPI.builderF()* Figlet4sEffectfulAPI.builderF()]].
+ * To create a builder use the [[com.colofabrix.scala.figlet4s.api.Figlet4sAPI.builder()* Figlet4sAPI.builder()]]. The
+ * effectful implementations of the API return the builder wrapped in their effect.
  *
  * @param actions The list of building actions that will be executed to obtain the final configuration.
  */

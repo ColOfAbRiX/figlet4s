@@ -1,7 +1,6 @@
 package com.colofabrix.scala.figlet4s.catsio
 
 import cats.effect._
-import cats.effect.unsafe.implicits.global
 import com.colofabrix.scala.figlet4s.api._
 import com.colofabrix.scala.figlet4s.core._
 import com.colofabrix.scala.figlet4s.figfont._
@@ -13,7 +12,7 @@ import scala.io.Codec
  *
  * This Figlet client returns results wrapped in cats' IO
  */
-object Figlet4s extends Figlet4sAPI[IO] with Figlet4sEffectfulAPI[IO] {
+object Figlet4s extends Figlet4sAPI[IO] {
 
   /**
    * The list of available internal fonts
@@ -53,42 +52,17 @@ object Figlet4s extends Figlet4sAPI[IO] with Figlet4sEffectfulAPI[IO] {
    * @param options The rendering options used to render the text
    * @return A FIGure representing the rendered text
    */
-  def renderString(text: String, options: RenderOptions): FIGure =
-    renderStringF(text, options).unsafeRunSync()
-
-  /**
-   * Returns a new options builder with default settings
-   *
-   * @return An OptionBuilder to build the rendering options
-   */
-  def builder(): OptionsBuilder =
-    builderF().unsafeRunSync()
-
-  /**
-   * Returns a new options builder with default settings and containing the specified text to render
-   *
-   * @param text The text to render
-   * @return An OptionBuilder to build the rendering options
-   */
-  def builder(text: String): OptionsBuilder =
-    builderF(text).unsafeRunSync()
-
-  /**
-   * Renders a given text as a FIGure
-   *
-   * @param text    The text to render
-   * @param options The rendering options used to render the text
-   * @return A FIGure representing the rendered text
-   */
-  def renderStringF(text: String, options: RenderOptions): IO[FIGure] =
+  def renderString(text: String, options: RenderOptions): IO[FIGure] =
     Figlet4sClient.renderString[IO](text, options)
 
+  //  Builder  //
+
   /**
    * Returns a new options builder with default settings
    *
    * @return An OptionBuilder to build the rendering options
    */
-  def builderF(): IO[OptionsBuilder] =
+  def builder(): IO[OptionsBuilder] =
     IO.pure(OptionsBuilder())
 
   /**
@@ -97,7 +71,7 @@ object Figlet4s extends Figlet4sAPI[IO] with Figlet4sEffectfulAPI[IO] {
    * @param text The text to render
    * @return An OptionBuilder to build the rendering options
    */
-  def builderF(text: String): IO[OptionsBuilder] =
+  def builder(text: String): IO[OptionsBuilder] =
     IO.pure(OptionsBuilder(BuilderAction.SetTextAction(text)))
 
 }

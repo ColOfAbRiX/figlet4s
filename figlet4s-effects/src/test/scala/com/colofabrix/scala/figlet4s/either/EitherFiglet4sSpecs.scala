@@ -63,11 +63,11 @@ class EitherFiglet4sSpecs extends AnyFlatSpec with Matchers with EitherMatchers 
   //  Builder  //
 
   "Builder API" should "create a builder" in {
-    Figlet4s.builder()
+    unsafeGet(Figlet4s.builder())
   }
 
   it should "default the max width to the same value as the unsafe API" in {
-    val computed = unsafeGet(Figlet4s.builder().options).maxWidth
+    val computed = unsafeGet(Figlet4s.builder().flatMap(_.options)).maxWidth
     val expected = Figlet4sClient.defaultMaxWidth
     computed should equal(expected)
   }

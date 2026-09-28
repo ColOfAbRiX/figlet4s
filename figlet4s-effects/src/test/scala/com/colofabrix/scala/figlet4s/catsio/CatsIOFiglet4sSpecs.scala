@@ -62,11 +62,11 @@ class CatsIOFiglet4sSpecs extends AnyFlatSpec with Matchers with OptionValues {
   //  Builder  //
 
   "Builder API" should "create a builder" in {
-    Figlet4s.builder()
+    run(Figlet4s.builder())
   }
 
   it should "default the max width to the same value as the unsafe API" in {
-    val computed = run(Figlet4s.builder().options).maxWidth
+    val computed = run(Figlet4s.builder().flatMap(_.options)).maxWidth
     val expected = Figlet4sClient.defaultMaxWidth
     computed should equal(expected)
   }

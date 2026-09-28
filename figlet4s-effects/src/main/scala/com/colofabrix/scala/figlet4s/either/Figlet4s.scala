@@ -11,7 +11,7 @@ import scala.io.Codec
  *
  * This Figlet client returns results wrapped in Scala's Either
  */
-object Figlet4s extends Figlet4sAPI[FigletEither] with Figlet4sEffectfulAPI[FigletEither] {
+object Figlet4s extends Figlet4sAPI[FigletEither] {
 
   /**
    * The list of available internal fonts
@@ -51,42 +51,17 @@ object Figlet4s extends Figlet4sAPI[FigletEither] with Figlet4sEffectfulAPI[Figl
    * @param options The rendering options used to render the text
    * @return A FIGure representing the rendered text
    */
-  def renderString(text: String, options: RenderOptions): FIGure =
-    unsafeGet(renderStringF(text, options))
-
-  /**
-   * Returns a new options builder with default settings
-   *
-   * @return An OptionBuilder to build the rendering options
-   */
-  def builder(): OptionsBuilder =
-    unsafeGet(builderF())
-
-  /**
-   * Returns a new options builder with default settings and containing the specified text to render
-   *
-   * @param text The text to render
-   * @return An OptionBuilder to build the rendering options
-   */
-  def builder(text: String): OptionsBuilder =
-    unsafeGet(builderF(text))
-
-  /**
-   * Renders a given text as a FIGure
-   *
-   * @param text    The text to render
-   * @param options The rendering options used to render the text
-   * @return A FIGure representing the rendered text
-   */
-  def renderStringF(text: String, options: RenderOptions): FigletEither[FIGure] =
+  def renderString(text: String, options: RenderOptions): FigletEither[FIGure] =
     Figlet4sClient.renderString[FigletEither](text, options)
 
+  //  Builder  //
+
   /**
    * Returns a new options builder with default settings
    *
    * @return An OptionBuilder to build the rendering options
    */
-  def builderF(): FigletEither[OptionsBuilder] =
+  def builder(): FigletEither[OptionsBuilder] =
     Right(OptionsBuilder())
 
   /**
@@ -95,7 +70,7 @@ object Figlet4s extends Figlet4sAPI[FigletEither] with Figlet4sEffectfulAPI[Figl
    * @param text The text to render
    * @return An OptionBuilder to build the rendering options
    */
-  def builderF(text: String): FigletEither[OptionsBuilder] =
+  def builder(text: String): FigletEither[OptionsBuilder] =
     Right(OptionsBuilder(BuilderAction.SetTextAction(text)))
 
 }

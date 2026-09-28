@@ -12,12 +12,10 @@ class EitherFiglet4sSpecs extends AnyFlatSpec with Matchers with Figlet4sMatcher
   "Rendering APIs" should "render a default text using the \"standard\" font" in {
     val computed =
       for {
-        options <- standardBuilder.options
-      } yield {
-        val computed = Figlet4s.renderString(standardInput, options)
-        val expected = FIGure(options.font, standardInput, Vector(standardLines.toSubcolumns))
-        computed should lookLike(expected)
-      }
+        options  <- standardBuilder.options
+        computed <- Figlet4s.renderString(standardInput, options)
+        expected = FIGure(options.font, standardInput, Vector(standardLines.toSubcolumns))
+      } yield computed should lookLike(expected)
 
     computed should be(right)
   }

@@ -56,7 +56,7 @@ val optionsE =
     .mapN(RenderOptions(_, _, _, _, _))
 
 // Render a string into a FIGure
-val figureE = optionsE.map(options => Figlet4s.renderString("Hello, World!", options))
+val figureE = optionsE.flatMap(options => Figlet4s.renderString("Hello, World!", options))
 
 // Interpreting the result
 figureE match {
@@ -84,7 +84,7 @@ val result =
     // Build the render options
     options        = RenderOptions(font, maxWidth, layout, printDir, justification)
     // Render the string into a FIGure
-    figure        <- Figlet4s.renderStringF("Hello, World!", options)
+    figure        <- Figlet4s.renderString("Hello, World!", options)
   } yield figure
 
 // Interpreting the result
@@ -173,19 +173,17 @@ The `figlet4s-effects` package adds support for effects to Figlet4s. In the curr
 * Cats' `IO` where `MonadError` stores the errors and exceptions
 
 that can be used by importing the corresponding package. The effectful API have exactly the same
-signature as their unsafe version, but the result is wrapped inside the effect monad.
+signature as their unsafe version, but the result is wrapped inside the effect monad. The unsafe
+version is the special case where the effect is the identity, so the result is returned directly.
 
-When using the effect library extension, new methods will be available that return a monadic result
-and that are postfixed by a capital `F`. For example you'll be able to use two methods to create
-a builder:
+For example, the method that creates a builder is declared once, generically over the effect:
 
 ```scala
-// Unsafe version
-def builder(text: String): OptionsBuilder
-
-// Monadic version
-def builderF(text: String): F[OptionsBuilder]
+def builder(text: String): F[OptionsBuilder]
 ```
+
+where `F` is `Id` for the unsafe API, so the builder is returned directly, and `Either` or `IO`
+for the effectful APIs.
 
 ### Example using Scala Either
 
@@ -200,7 +198,7 @@ object Main extends App {
 
   val result =
     for {
-      builder <- Figlet4s.builderF()
+      builder <- Figlet4s.builder()
       figure  <- builder.render("Hello, World!")
       lines   <- figure.asSeqF()
     } yield lines
@@ -232,7 +230,7 @@ object Main extends IOApp {
   def run(args: List[String]): IO[ExitCode] = {
     val result =
       for {
-        builder <- Figlet4s.builderF()
+        builder <- Figlet4s.builder()
         figure  <- builder.render("Hello, World!")
         _       <- figure.print()
       } yield ExitCode.Success
