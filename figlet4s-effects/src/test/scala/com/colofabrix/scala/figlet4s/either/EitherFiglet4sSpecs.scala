@@ -6,6 +6,7 @@ import cats.implicits._
 import cats.scalatest._
 import com.colofabrix.scala.figlet4s.core.Figlet4sClient
 import com.colofabrix.scala.figlet4s.errors._
+import com.colofabrix.scala.figlet4s.figfont._
 import org.scalatest.flatspec._
 import org.scalatest.matchers.should._
 
@@ -40,10 +41,11 @@ class EitherFiglet4sSpecs extends AnyFlatSpec with Matchers with EitherMatchers 
     test.unsafeRunSync()
   }
 
-  it should "result in a FigletLoadingError when trying to load a font that doesn't exist" in {
-    assertThrows[FigletLoadingError] {
-      unsafeGet(Figlet4s.loadFontInternal("non_existent"))
-    }
+  it should "return a Left with a FigletLoadingError when trying to load a font that doesn't exist" in {
+    val computed = Figlet4s.loadFontInternal("non_existent")
+
+    computed should be(left)
+    computed.left.toOption.get shouldBe a[FigletLoadingError]
   }
 
   //  Fonts  //
@@ -51,23 +53,26 @@ class EitherFiglet4sSpecs extends AnyFlatSpec with Matchers with EitherMatchers 
   "Fonts API" should "read a font from the file system" in {
     val cwd      = System.getProperty("user.dir")
     val computed = Figlet4s.loadFont(s"$cwd/figlet4s-core/src/main/resources/fonts/standard.flf")
+
     computed should be(right)
+    computed.value.header.signature should not be empty
   }
 
-  it should "throw a FigletLoadingError when trying to load a font that doesn't exist" in {
-    assertThrows[FigletLoadingError] {
-      unsafeGet(Figlet4s.loadFont("non_existent"))
-    }
+  it should "return a Left with a FigletLoadingError when trying to load a font that doesn't exist" in {
+    val computed = Figlet4s.loadFont("non_existent")
+
+    computed should be(left)
+    computed.left.toOption.get shouldBe a[FigletLoadingError]
   }
 
   //  Builder  //
 
   "Builder API" should "create a builder" in {
-    unsafeGet(Figlet4s.builder())
+    Figlet4s.builder() should be(right)
   }
 
   it should "default the max width to the same value as the unsafe API" in {
-    val computed = unsafeGet(Figlet4s.builder().flatMap(_.options)).maxWidth
+    val computed = Figlet4s.builder().flatMap(_.options).value.maxWidth
     val expected = Figlet4sClient.defaultMaxWidth
     computed should equal(expected)
   }

@@ -27,4 +27,14 @@ class JavaFIGureSpecs extends AnyFlatSpec with Matchers {
     computed should equal(expected)
   }
 
+  it should "call foreachLine once per displayable line" in {
+    val figure    = standardBuilder.render(standardInput)
+    val collected = new java.util.ArrayList[String]()
+
+    figure.foreachLine((line: String) => { collected.add(line); () })
+
+    val expected = figure.asList()
+    new java.util.ArrayList[String](expected) should equal(collected)
+  }
+
 }

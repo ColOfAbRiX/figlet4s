@@ -12,9 +12,9 @@ import scala.io.Codec;
  *
  * This builder works by recording what settings a user wants to use instead of applying the setting immediately when
  * calling a method. This allows for a fail-safe behaviour when, for instance, a user wants to load a file but the file
- * is missing. Instead of receiving an exception when calling OptionsBuilder.withFont the builder will simply record
- * the desire of loading a file. The actual loading, and failure, will happen and handled when calling
- * OptionsBuilder.compile().
+ * is missing. Instead of receiving an exception when calling {@code withFont} the builder will simply record the desire
+ * of loading a file. The actual loading, and failure, will happen and be handled when the options are built, e.g. when
+ * calling {@link #getOptions()} or {@link #render()}.
  */
 public class OptionsBuilder implements OptionsBuilderMixin {
 
@@ -55,9 +55,9 @@ public class OptionsBuilder implements OptionsBuilderMixin {
     }
 
     /**
-     * Use a font loaded from file
+     * Use a font loaded from the internal font repository
      *
-     * The loading of the font is performed when the [[RenderOptions]] is built.
+     * The loading of the font is performed when the render options are built, see {@link #getOptions()}.
      *
      * @param fontName Name of the internal font to load
      * @return The option builder with the rendering font set to the loaded font
@@ -69,7 +69,7 @@ public class OptionsBuilder implements OptionsBuilderMixin {
     /**
      * Use a font loaded from file
      *
-     * The loading of the font is performed when the [[RenderOptions]] is built.
+     * The loading of the font is performed when the render options are built, see {@link #getOptions()}.
      *
      * @param fontPath Path of the font, including the extension
      * @return The option builder with the rendering font set to the loaded font
@@ -81,7 +81,7 @@ public class OptionsBuilder implements OptionsBuilderMixin {
     /**
      * Use a font loaded from file
      *
-     * The loading of the font is performed when the [[RenderOptions]] is built.
+     * The loading of the font is performed when the render options are built, see {@link #getOptions()}.
      *
      * @param fontPath Path of the font, including the extension
      * @param codec Encoding of the font. The default is ISO-8859
@@ -94,7 +94,7 @@ public class OptionsBuilder implements OptionsBuilderMixin {
     /**
      * Use a font loaded from file
      *
-     * The loading of the font is performed when the [[RenderOptions]] is built.
+     * The loading of the font is performed when the render options are built, see {@link #getOptions()}.
      *
      * @param fontPath Path of the font, including the extension
      * @param codec Encoding of the font. The default is ISO-8859

@@ -3,18 +3,17 @@ package com.colofabrix.java.figlet4s;
 import com.colofabrix.scala.figlet4s.figfont.FIGfont;
 import com.colofabrix.scala.figlet4s.figfont.SubColumns;
 import com.colofabrix.scala.figlet4s.figfont.SubLines;
-import com.colofabrix.scala.figlet4s.unsafe.FIGureMixin;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.function.Consumer;
 import scala.jdk.CollectionConverters;
 
 /**
- * A FIGure that is a rendered String with a specific FIGfont and built built from multiple FIGcharacters
+ * A FIGure that is a rendered String with a specific FIGfont and built from multiple FIGcharacters
  */
-public class FIGure implements FIGureMixin {
+public class FIGure {
 
     private final com.colofabrix.scala.figlet4s.figfont.FIGure figure;
-    private final FIGureOps fiGureOps;
 
     /**
      * Creates a new FIGure using a Scala FIGure object
@@ -23,7 +22,6 @@ public class FIGure implements FIGureMixin {
      */
     public FIGure(com.colofabrix.scala.figlet4s.figfont.FIGure figure) {
         this.figure = figure;
-        this.fiGureOps = new FIGureOps(figure);
     }
 
     /**
@@ -90,19 +88,19 @@ public class FIGure implements FIGureMixin {
     }
 
     /**
-     * Apply a function to each line of the FIGure
+     * Apply a function to each displayable line of the FIGure
      *
-     * @param f The function to applied to each displayable line
+     * @param f The function to apply to each displayable line
      */
-    public void foreachLine(Consumer<? super List<String>> f) {
-        this.getCleanLines().forEach(f);
+    public void foreachLine(Consumer<? super String> f) {
+        this.getCleanLines().forEach(lines -> lines.forEach(f));
     }
 
     /**
      * Print the FIGure to standard output
      */
     public void print() {
-        this.fiGureOps.print();
+        this.asList().forEach(scala.Console::println);
     }
 
     /**
@@ -111,7 +109,7 @@ public class FIGure implements FIGureMixin {
      * @return A collection of strings, each containing a displayable line
      */
     public List<String> asList() {
-        return CollectionConverters.SeqHasAsJava(this.fiGureOps.asSeq()).asJava();
+        return this.getCleanLines().stream().flatMap(List::stream).collect(Collectors.toList());
     }
 
     /**
@@ -120,6 +118,6 @@ public class FIGure implements FIGureMixin {
      * @return A single string containing the FIGure including newlines where needed
      */
     public String asString() {
-        return this.fiGureOps.asString();
+        return this.asList().stream().collect(Collectors.joining(System.lineSeparator()));
     }
 }
