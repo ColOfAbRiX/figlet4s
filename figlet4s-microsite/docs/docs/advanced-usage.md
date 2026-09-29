@@ -98,12 +98,12 @@ result
 In Figlet4s all the calls to methods that load fonts can result in an error because they load from
 files. This includes calls to load internal fonts too.
 
-In functional programming throwing exception is considered not acceptable because it breaks a
+In functional programming throwing exceptions is considered not acceptable because it breaks a
 property of code called referential transparency, which causes a lot of other issues that FP
 developers want to avoid. The standard way to solve this problem is to use a functional pattern
 called monads. Functions that throw exceptions are said to be *impure* and they are *unsafe* because
 you can't control exceptions in the normal flow of the code (you would need to use try/catch). On
-the other hand, functions tha use monads preserve referential transparency are said to be
+the other hand, functions that use monads and preserve referential transparency are said to be
 *effectful* (where the effect is the particular monad used).
 
 Figlet4s is designed with a purely functional core, not visible to the library user, that exposes a
@@ -121,7 +121,8 @@ The impure interface of Figlet4s is meant for quick prototyping or for developer
 to use the purely FP approach.
 
 When you try to load an internal font that doesn't exist you expect Figlet4s to throw an exception.
-In the following code we try to load a font that doesn't exist and the result is an exception as s
+In the following code we try to load a font that doesn't exist and the result is an exception as
+shown below
 
 ```scala
 import com.colofabrix.scala.figlet4s.unsafe._
@@ -172,7 +173,7 @@ The `figlet4s-effects` package adds support for effects to Figlet4s. In the curr
 * Scala `Either` where the `Left` side stores the errors and exceptions
 * Cats' `IO` where `MonadError` stores the errors and exceptions
 
-that can be used by importing the corresponding package. The effectful API have exactly the same
+that can be used by importing the corresponding package. The effectful APIs have exactly the same
 signature as their unsafe version, but the result is wrapped inside the effect monad. The unsafe
 version is the special case where the effect is the identity, so the result is returned directly.
 
@@ -187,7 +188,7 @@ for the effectful APIs.
 
 ### Example using Scala Either
 
-Scala's `Either` is a wrapper that can contain one of two values at the time called left and right.
+Scala's `Either` is a wrapper that can contain one of two values at a time called left and right.
 By convention the right-side of an `Either` contains the result of your computation while the
 left-side contains any error that occurred.
 
@@ -215,7 +216,7 @@ object Main extends App {
 ### Example using Cats IO
 
 `IO` is a monad from the Cats library and it is used to represent a computation as a pure value.
-When the computation inside `IO` throws or raises and exception, the errors is stored as a value
+When the computation inside `IO` throws or raises an exception, the error is stored as a value
 inside the monad, in a construct that is called `MonadError`. From there you can deal with the error
 as if it was a value.
 

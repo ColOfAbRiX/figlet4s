@@ -2,7 +2,6 @@ import sbt._
 import Dependencies._
 import TestDependencies._
 import utils._
-import xerial.sbt.Sonatype._
 import org.typelevel.scalacoptions.ScalacOptions
 
 // General
@@ -32,13 +31,14 @@ ThisBuild / developers := List(
   Developer("ColOfAbRiX", "Fabrizio Colonna", "colofabrix@tin.it", url("http://github.com/ColOfAbRiX")),
 )
 
-// Publishing - using Sonatype Central (new API)
+// Publishing - sbt built-in Sonatype Central Portal support
 ThisBuild / pomIncludeRepository := { _ => false }
 ThisBuild / publishMavenStyle    := true
-ThisBuild / sonatypeProjectHosting := Some(
-  GitHubHosting("ColOfAbRiX", "figlet4s", "colofabrix@tin.it"),
-)
-ThisBuild / publishTo := sonatypePublishToBundle.value
+ThisBuild / publishTo := {
+  val centralSnapshots = "https://central.sonatype.com/repository/maven-snapshots/"
+  if (isSnapshot.value) Some("central-snapshots" at centralSnapshots)
+  else localStaging.value
+}
 
 // GIT version information
 ThisBuild / dynverSonatypeSnapshots := true
@@ -236,7 +236,6 @@ lazy val figlet4sMicrosite = project
   .dependsOn(figlet4sEffects)
   .settings(
     crossScalaVersions           := SupportedScalaLangVersion,
-    micrositeAnalyticsToken      := "UA-189728436-1",
     micrositeAuthor              := "ColOfAbRiX",
     micrositeBaseUrl             := "figlet4s",
     micrositeDescription         := "ASCII-art banners in Scala",

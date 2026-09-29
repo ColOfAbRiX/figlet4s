@@ -20,8 +20,8 @@
 
 ### Dependencies Changes
 
-* Added new cats-effect-testing-scalatest: 1.8.0
-* Added new scalamock-scalatest: 7.6.0
+* Added cats-effect-testing-scalatest: 1.8.0
+* Added scalamock-scalatest: 7.6.0
 * Upgraded to cats-core: 2.13.0
 * Upgraded to cats-effect: 3.7.1
 * Upgraded to cats-kernel: 2.13.0
@@ -33,11 +33,11 @@
 
 ### Build & Plugin Changes
 
-* Added new sbt-dynver 5.1.0
-* Added new sbt-native 1.10.4
-* Added new sbt-tpolecat 0.5.7
-* Added new sbt-unidoc: 0.6.1
-* Added new sbt-mdoc: 2.9.2
+* Added sbt-dynver: 5.1.0
+* Added sbt-mdoc: 2.9.2
+* Added sbt-native-packager: 1.10.4
+* Added sbt-tpolecat: 0.5.7
+* Added sbt-unidoc: 0.6.1
 * Upgraded to sbt: 1.13.0
 * Upgraded to sbt-assembly: 2.3.0
 * Upgraded to sbt-explicit-dependencies: 0.3.1
@@ -47,9 +47,9 @@
 * Upgraded to sbt-scalafix: 0.14.9
 * Upgraded to sbt-scalafmt: 2.6.2 (config version: 3.8.4)
 * Upgraded to sbt-scoverage: 2.4.4
-* Upgraded to sbt-sonatype: 3.12.2
 * Upgraded to sbt-updates: 0.7.0
 * Upgraded to sbt-wartremover: 3.6.2
+* Removed sbt-sonatype (superseded by sbt's built-in Sonatype Central publishing)
 
 ## v0.3.2 - 2021/11/05
 
@@ -64,12 +64,12 @@
 * Fixed "Internal font loading fails on Windows (#20)"
 * Fixed line termination issues on Windows
 
-## v0.3.0 - 2021/04/07
+## v0.3.0 - 2021/04/21
 
 ### Added
 
 * Support for zipped font files
-* Figlet4s internal fonts can now be organised in directroies
+* Figlet4s internal fonts can now be organised in directories
 * Added Commodore64 FIGfonts
 
 ### Changed

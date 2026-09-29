@@ -12,7 +12,6 @@ object PublishDependencies {
   lazy val GpgVersion               = "2.3.1"
   lazy val NativePackagerVersion    = "1.10.4"
   lazy val RemoveTestFromPomVersion = "0.1.0"
-  lazy val SonatypeVersion          = "3.12.2"
 
   lazy val AssemblyDep          = "com.eed3si9n"         % "sbt-assembly"              % AssemblyVersion
   lazy val DynverDep            = "com.github.sbt"       % "sbt-dynver"                % DynverVersion
@@ -21,7 +20,6 @@ object PublishDependencies {
   lazy val GpgDep               = "com.github.sbt"       % "sbt-pgp"                   % GpgVersion
   lazy val NativePackagerDep    = "com.github.sbt"       % "sbt-native-packager"       % NativePackagerVersion
   lazy val RemoveTestFromPomDep = "com.alejandrohdezma" %% "sbt-remove-test-from-pom"  % RemoveTestFromPomVersion
-  lazy val SonatypeDep          = "org.xerial.sbt"       % "sbt-sonatype"              % SonatypeVersion
 
   lazy val publishSbtPlugins = Seq(
     AssemblyDep,
@@ -31,7 +29,6 @@ object PublishDependencies {
     GpgDep,
     NativePackagerDep,
     RemoveTestFromPomDep,
-    SonatypeDep,
   )
 
 }

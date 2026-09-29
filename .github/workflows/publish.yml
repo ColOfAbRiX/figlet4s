@@ -1,23 +1,20 @@
-name: Publish artifacts to Sonatype
+name: Publish artifacts to Sonatype Central
 
 on:
   workflow_dispatch:
   push:
-    branches:
-      - master
-    paths:
-      - 'figlet4s-core/**'
-      - 'figlet4s-effects/**'
-      - 'figlet4s-java/**'
-      - 'project/**'
-      - 'build.sbt'
+    tags:
+      - 'v*'
 
 jobs:
-  test_library:
+  publish_library:
     runs-on: ubuntu-24.04
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Use this or sbt-dynver won't see the tag
+          fetch-depth: 0
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -32,5 +29,17 @@ jobs:
       - name: Install Figlet
         run: sudo apt-get install -y figlet
 
-      # - name: Run tests on all versions
-      #   run: sbt +test
+      - name: Run tests on all versions
+        run: sbt "+test; +IntegrationTest/test"
+
+      - name: Import the GPG signing key
+        env:
+          PGP_SECRET: ${{ secrets.PGP_SECRET }}
+        run: echo "$PGP_SECRET" | base64 --decode | gpg --batch --import
+
+      - name: Publish to Sonatype Central
+        env:
+          PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+        run: sbt "+publishSigned; sonaRelease"
