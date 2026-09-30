@@ -13,7 +13,7 @@ to call a Scala `object` or using an extension method). `figlet4s-java` does the
 you.
 
 Make sure to include in your project the correct dependencies (see the
-[Setup](setup.html#maven-for-java) for details).
+[Setup](setup.md#maven-for-java) for details).
 
 ## Examples
 
@@ -78,4 +78,4 @@ public class Main {
 ```
 
 For a list of the available methods and a detailed description, see the [API documentation of the
-package](https://oss.sonatype.org/service/local/repositories/releases/archive/com/colofabrix/scala/figlet4s-java/@VERSION@/figlet4s-java-@VERSION@-javadoc.jar/!/overview-summary.html).
+package](https://colofabrix.github.io/figlet4s/api-java/overview-summary.html).

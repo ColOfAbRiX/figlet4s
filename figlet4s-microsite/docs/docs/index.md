@@ -17,7 +17,7 @@ Figlet4s is an implementation of the *nix tool [FIGlet](http://www.figlet.org/):
 > -- _Wikipedia_
 
 Try out [Figlet4s on Scastie](https://scastie.scala-lang.org/fzrGAYvLQ5uP0xiQ2HTjsw) or jump to the
-[Getting started](../../docs/using-figlet4s/) section.
+[Getting started](using-figlet4s.md) section.
 
 ## What can I use Figlet4s for?
 
@@ -36,9 +36,9 @@ Some example applications are:
 
 You can find the API documentation at the following links:
 
-* [Core library](https://oss.sonatype.org/service/local/repositories/releases/archive/com/colofabrix/scala/figlet4s-core_@SCALA_VERSION@/@VERSION@/figlet4s-core_@SCALA_VERSION@-@VERSION@-javadoc.jar/!/com/colofabrix/scala/figlet4s/unsafe/index.html)
-* [Effects support library](https://oss.sonatype.org/service/local/repositories/releases/archive/com/colofabrix/scala/figlet4s-effects_@SCALA_VERSION@/@VERSION@/figlet4s-effects_@SCALA_VERSION@-@VERSION@-javadoc.jar/!/com/colofabrix/scala/figlet4s/index.html)
-* [Java wrapper library](https://oss.sonatype.org/service/local/repositories/releases/archive/com/colofabrix/scala/figlet4s-java/@VERSION@/figlet4s-java-@VERSION@-javadoc.jar/!/overview-summary.html)
+* [Core library](https://colofabrix.github.io/figlet4s/api/com/colofabrix/scala/figlet4s/unsafe.html)
+* [Effects support library](https://colofabrix.github.io/figlet4s/api/com/colofabrix/scala/figlet4s.html)
+* [Java wrapper library](https://colofabrix.github.io/figlet4s/api-java/overview-summary.html)
 
 ## Missing features
 

@@ -113,7 +113,7 @@ use of monads and effects.
 
 The unsafe methods and the effectful methods are defined in two types of Scala traits, one for
 each type. You can find the list and documentation of these traits [on this page
-here](https://oss.sonatype.org/service/local/repositories/releases/archive/com/colofabrix/scala/figlet4s-core_@SCALA_VERSION@/@VERSION@/figlet4s-core_@SCALA_VERSION@-@VERSION@-javadoc.jar/!/com/colofabrix/scala/figlet4s/api/index.html).
+here](https://colofabrix.github.io/figlet4s/api/com/colofabrix/scala/figlet4s/api.html).
 
 ### Unsafe calls
 

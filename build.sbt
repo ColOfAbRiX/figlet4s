@@ -50,6 +50,10 @@ ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
 addCommandAlias("styleApply", "; scalafmtAll; Compile / scalafixAll")
 addCommandAlias("styleCheck", "; scalafmtCheckAll; Compile / scalafixAll --check")
 
+val copyApiDocsToSite = taskKey[Unit](
+  "Copies the unified API documentation into the microsite site directory, under /api"
+)
+
 val commonScalaSettings: Seq[Def.Setting[_]] = Seq(
   crossScalaVersions := SupportedScalaLangVersion,
   Test / testOptions += Tests.Argument("-oFD"),
@@ -250,8 +254,16 @@ lazy val figlet4sMicrosite = project
     micrositeName                := "Figlet4s",
     micrositePushSiteWith        := GitHub4s,
     name                         := "figlet4s-microsite",
-    mdocExtraArguments           := Seq("--no-link-hygiene"),
     publish / skip               := true,
+    // Host the API documentation on GitHub Pages: Scala unidoc under /api, Java javadoc under /api-java
+    copyApiDocsToSite := {
+      val unidocDir  = (figlet4s / ScalaUnidoc / doc).value
+      val javaDocDir = (figlet4sJava / Compile / doc).value
+      val siteDir    = (makeSite / target).value
+      IO.copyDirectory(unidocDir, siteDir / "api", overwrite = true)
+      IO.copyDirectory(javaDocDir, siteDir / "api-java", overwrite = true)
+    },
+    publishMicrosite := Def.sequential(clean, makeMicrosite, copyApiDocsToSite, pushMicrosite).value,
     mdocVariables := Map(
       "VERSION"       -> """\d+\.\d+\.\d+""".r.findFirstIn(version.value).getOrElse(""),
       "SCALA_VERSION" -> """\d+\.\d+""".r.findFirstIn(scalaVersion.value).getOrElse(""),
