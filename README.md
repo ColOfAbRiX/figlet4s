@@ -1,6 +1,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://choosealicense.com/licenses/mit/)
 [![Maven Central](https://img.shields.io/maven-central/v/com.colofabrix.scala/figlet4s-core_3.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/com.colofabrix.scala/figlet4s-core_3)
 [![Tests Status](https://github.com/ColOfAbRiX/figlet4s/actions/workflows/tests.yml/badge.svg)](https://github.com/ColOfAbRiX/figlet4s/actions/workflows/tests.yml)
+[![Code coverage](https://codecov.io/gh/ColOfAbRiX/figlet4s/branch/master/graph/badge.svg)](https://codecov.io/gh/ColOfAbRiX/figlet4s)
 
 ```
  _____ _       _      _   _  _

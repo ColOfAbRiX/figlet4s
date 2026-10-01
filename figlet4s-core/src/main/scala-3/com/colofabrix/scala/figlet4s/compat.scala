@@ -19,9 +19,6 @@ import sys.process.*
 @SuppressWarnings(Array("org.wartremover.warts.Throw"))
 private[figlet4s] object compat {
 
-  /** Dummy method to prevent "unused import" errors */
-  def ->(): Unit = ()
-
   extension (self: List[String]) {
 
     def runStream: LazyList[String] = self.lazyLines

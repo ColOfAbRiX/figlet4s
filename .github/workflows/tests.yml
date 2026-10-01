@@ -43,3 +43,31 @@ jobs:
 
       - name: Test API documentation
         run: sbt unidoc
+
+  coverage:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'sbt'
+
+      - name: Set up sbt
+        uses: sbt/setup-sbt@v1
+
+      - name: Install Figlet
+        run: sudo apt-get install -y figlet
+
+      - name: Run tests with coverage
+        run: sbt "coverage; +test; +IntegrationTest/test; coverageReport; coverageAggregate"
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: target/scala-*/scoverage-report/scoverage.xml
+          fail_ci_if_error: false

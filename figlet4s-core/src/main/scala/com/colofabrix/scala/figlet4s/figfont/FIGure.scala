@@ -1,12 +1,10 @@
 package com.colofabrix.scala.figlet4s.figfont
 
-import com.colofabrix.scala.figlet4s.compat._
-
 /**
- * A FIGure that is a rendered String with a specific FIGfont and built built from multiple FIGcharacters
+ * A FIGure that is a rendered String with a specific FIGfont and built from multiple FIGcharacters
  *
  * A FIGure cannot be instantiated directly as a case class but one must go through the factory methods defined
- * in the companion object [[FIGure$ FIGure]] that perform validation of the defining lines of the character
+ * in the companion object [[FIGure$ FIGure]] that perform validation of the defining lines of the FIGure
  *
  * @param font    The FIGfont used to render the FIGure
  * @param value   The String value rendered in the FIGure
@@ -81,7 +79,5 @@ object FIGure {
    */
   def apply(char: Char, font: FIGfont): FIGure =
     FIGure(font, char.toString, Seq(font(char).columns))
-
-  ->()
 
 }

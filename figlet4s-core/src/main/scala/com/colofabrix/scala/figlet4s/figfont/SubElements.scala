@@ -10,9 +10,9 @@ final case class SubLines(value: Seq[String]) extends SubElementOps[SubLines] {
   protected def pure(value: Seq[String]): SubLines =
     SubLines(value)
 
-  /** The number of columns that compose this SubLines */
+  /** The width of this SubLines, that is the length of its longest line */
   lazy val width: Int =
-    value.map(_.length).headOption.getOrElse(0)
+    value.map(_.length).maxOption.getOrElse(0)
 
   /** Transforms this SubLines representation into a SubColumns */
   lazy val toSubcolumns: SubColumns =
@@ -26,9 +26,9 @@ final case class SubLines(value: Seq[String]) extends SubElementOps[SubLines] {
 object SubLines {
 
   /**
-   * A zero-height SubLines object of the specified height
+   * A SubLines object composed of empty lines
    *
-   * @param height The number of lines that compose this SubLines object
+   * @param height The number of empty lines that compose this SubLines object
    */
   def zero(height: Int): SubLines =
     SubLines(Vector.fill(height)(""))
@@ -45,9 +45,9 @@ final case class SubColumns(value: Seq[String]) extends SubElementOps[SubColumns
   protected def pure(value: Seq[String]): SubColumns =
     SubColumns(value)
 
-  /** The number of lines that compose this SubColumns */
+  /** The height of this SubColumns, that is the length of its longest column */
   lazy val height: Int =
-    value.map(_.length).headOption.getOrElse(0)
+    value.map(_.length).maxOption.getOrElse(0)
 
   /** Transforms this SubColumns representation into a SubLines */
   lazy val toSublines: SubLines =

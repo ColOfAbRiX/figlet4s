@@ -3,7 +3,6 @@ package com.colofabrix.scala.figlet4s.figfont
 import cats.data._
 import cats.data.Validated._
 import cats.implicits._
-import com.colofabrix.scala.figlet4s.compat._
 import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont.FIGheaderParameters._
 
@@ -11,7 +10,7 @@ import com.colofabrix.scala.figlet4s.figfont.FIGheaderParameters._
  * FIGLettering Font file header that contains raw configuration settings for the FIGfont
  *
  * A FIGheader cannot be instantiated directly as a case class but one must go through the factory methods defined
- * in the companion object [[FIGheader$ FIGheader]] that perform validation of the defining lines of the character
+ * in the companion object [[FIGheader$ FIGheader]] that perform validation of the defining lines of the header
  *
  * @param signature      The first five characters of the header, always "flf2a"
  * @param hardblank      Which sub-character is used to represent hardblanks in the FIGcharacter data, usually '$'
@@ -39,7 +38,7 @@ final case class FIGheader private[figlet4s] (
 ) {
 
   /**
-   * Returns the the single-line representation of the FIGheader as defined in the FLF standard
+   * Returns the single-line representation of the FIGheader as defined in the FLF standard
    *
    * @return A String containing the FLF representation of the FIGheader
    */
@@ -196,7 +195,5 @@ object FIGheader {
           Validated.condNec(value >= 0, value, error)
         }
     }
-
-  ->()
 
 }

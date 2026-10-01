@@ -1,7 +1,6 @@
 package com.colofabrix.scala.figlet4s.testutils
 
 import cats.implicits._
-import com.colofabrix.scala.figlet4s.compat._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.unsafe._
 import org.scalatest.matchers._
@@ -132,8 +131,6 @@ trait Figlet4sMatchers {
    */
   def lookLike(expected: FIGure): FIGureMatchers =
     new FIGureMatchers(expected)
-
-  ->()
 
 }
 

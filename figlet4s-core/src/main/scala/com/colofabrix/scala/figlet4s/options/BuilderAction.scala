@@ -6,7 +6,7 @@ import scala.io._
 
 /**
  * The BuilderAction data structure is used to defer the call of the API at rendering time, to avoid dealing with
- * calls that might fail (like loading a font) and the management of effect, while the user is constructing the the
+ * calls that might fail (like loading a font) and the management of effect, while the user is constructing the
  * options.
  */
 private[figlet4s] trait BuilderAction extends ADT

@@ -12,7 +12,7 @@ import java.util.Locale
  * A FIGlet Font is a map of characters to their FIGrepresentation and the typographic settings used to display them
  *
  * A FIGfont cannot be instantiated directly as a case class but one must go through the factory methods defined in the
- * companion object [[FIGfont$ FIGfont]] that perform validation of the defining lines of the character
+ * companion object [[FIGfont$ FIGfont]] that perform validation of the defining lines of the font
  *
  * @param id         A code that uniquely identifies the FIGfont and the FIGcharacters inside it.
  * @param name       The name of the FIGfont
