@@ -11,8 +11,8 @@ class EitherFIGureSpecs extends AnyFlatSpec with Matchers with EitherMatchers wi
     val test =
       for {
         figure     <- standardBuilder.render(standardInput)
-        fromSeq    <- figure.asSeqF()
-        fromString <- figure.asStringF()
+        fromSeq    <- figure.asSeq()
+        fromString <- figure.asString()
       } yield {
         (fromSeq.mkString(System.lineSeparator()), fromString)
       }
@@ -31,7 +31,7 @@ class EitherFIGureSpecs extends AnyFlatSpec with Matchers with EitherMatchers wi
     }
 
     val computed = stream.toString()
-    val expected = figure.map(_.asString() + System.lineSeparator()).value
+    val expected = figure.flatMap(_.asString()).map(s => s"$s${System.lineSeparator()}").value
 
     computed should equal(expected)
   }

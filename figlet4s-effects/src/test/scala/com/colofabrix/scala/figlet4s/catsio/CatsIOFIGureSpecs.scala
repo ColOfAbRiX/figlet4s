@@ -14,8 +14,8 @@ class CatsIOFIGureSpecs extends AnyFlatSpec with Matchers {
     val test =
       for {
         figure     <- standardBuilder.render(standardInput)
-        fromSeq    <- figure.asSeqF()
-        fromString <- figure.asStringF()
+        fromSeq    <- figure.asSeq()
+        fromString <- figure.asString()
       } yield {
         fromSeq.mkString(System.lineSeparator()) should equal(fromString)
       }
@@ -25,7 +25,7 @@ class CatsIOFIGureSpecs extends AnyFlatSpec with Matchers {
   it should "return one String per displayable line, matching the unsafe and either APIs" in {
     val expected = standardLines.value
 
-    val actual = run(standardBuilder.render(standardInput).flatMap(_.asSeqF()))
+    val actual = run(standardBuilder.render(standardInput).flatMap(_.asSeq()))
 
     actual should equal(expected)
   }
@@ -36,22 +36,11 @@ class CatsIOFIGureSpecs extends AnyFlatSpec with Matchers {
         standardBuilder
           .withMaxWidth(10)
           .render(standardInput)
-          .flatMap(figure => figure.asSeqF().map(rows => (figure, rows))),
+          .flatMap(figure => figure.asSeq().map(rows => (figure, rows))),
       )
 
     actual should equal(figure.cleanLines.flatMap(_.value))
     actual.foreach(_ should not include System.lineSeparator())
-  }
-
-  it should "return the same data for the bare asSeq()/asString() as their F-wrapped versions" in {
-    val figure        = run(standardBuilder.render(standardInput))
-    val bareSeq       = figure.asSeq()
-    val bareString    = figure.asString()
-    val wrappedSeq    = run(figure.asSeqF())
-    val wrappedString = run(figure.asStringF())
-
-    bareSeq should equal(wrappedSeq)
-    bareString should equal(wrappedString)
   }
 
   it should "print the same data as asString()" in {
@@ -68,7 +57,7 @@ class CatsIOFIGureSpecs extends AnyFlatSpec with Matchers {
     }
 
     val computed = stream.toString()
-    val expected = run(figure.map(_.asString() + System.lineSeparator()))
+    val expected = run(figure.flatMap(_.asString()).map(s => s"$s${System.lineSeparator()}"))
 
     computed should equal(expected)
   }

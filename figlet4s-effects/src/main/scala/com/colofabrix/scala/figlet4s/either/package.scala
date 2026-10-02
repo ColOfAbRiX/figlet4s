@@ -22,7 +22,7 @@ import scala.util._
  *   for {
  *     builder <- Figlet4s.builder()              // Obtain an options builder
  *     figure  <- builder.render("Hello, World!") // Render a text into a FIGure
- *     lines   <- figure.asSeqF()                 // Store the FIGure as lines in a variable
+ *     lines   <- figure.asSeq()                  // Store the FIGure as lines in a variable
  *   } yield lines
  *
  * // Interpreting the result

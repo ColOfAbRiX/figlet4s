@@ -6,7 +6,7 @@ import com.colofabrix.scala.figlet4s.figfont._
 
 private[catsio] trait FIGureMixin {
 
-  implicit class FIGureOps(val self: FIGure) extends FIGureAPI[IO] with FIGureEffectfulAPI[IO] {
+  implicit class FIGureOps(val self: FIGure) extends FIGureAPI[IO] {
 
     /**
      * Apply a function to each line of the FIGure
@@ -29,23 +29,7 @@ private[catsio] trait FIGureMixin {
      *
      * @return A collection of strings, each containing a displayable line
      */
-    def asSeq(): Seq[String] =
-      self.cleanLines.flatMap(_.value)
-
-    /**
-     * The figure as single String and newline characters
-     *
-     * @return A single string containing the FIGure including newlines where needed
-     */
-    def asString(): String =
-      asSeq().mkString(System.lineSeparator())
-
-    /**
-     * The figure as a collection of String, one String per displayable line
-     *
-     * @return A collection of strings, each containing a displayable line
-     */
-    def asSeqF(): IO[Seq[String]] = IO.pure {
+    def asSeq(): IO[Seq[String]] = IO.pure {
       self.cleanLines.flatMap(_.value)
     }
 
@@ -54,8 +38,8 @@ private[catsio] trait FIGureMixin {
      *
      * @return A single string containing the FIGure including newlines where needed
      */
-    def asStringF(): IO[String] =
-      asSeqF().map(_.mkString(System.lineSeparator()))
+    def asString(): IO[String] =
+      asSeq().map(_.mkString(System.lineSeparator()))
 
   }
 

@@ -201,7 +201,7 @@ object Main extends App {
     for {
       builder <- Figlet4s.builder()
       figure  <- builder.render("Hello, World!")
-      lines   <- figure.asSeqF()
+      lines   <- figure.asSeq()
     } yield lines
 
   // Handle errors and display result

@@ -6,7 +6,7 @@ import com.colofabrix.scala.figlet4s.figfont._
 
 private[either] trait FIGureMixin {
 
-  implicit class FIGureOps(val self: FIGure) extends FIGureAPI[FigletEither] with FIGureEffectfulAPI[FigletEither] {
+  implicit class FIGureOps(val self: FIGure) extends FIGureAPI[FigletEither] {
 
     /**
      * Apply a function to each line of the FIGure
@@ -28,32 +28,16 @@ private[either] trait FIGureMixin {
      *
      * @return A collection of strings, each containing a displayable line
      */
-    def asSeq(): Seq[String] =
-      self.cleanLines.flatMap(_.value)
+    def asSeq(): FigletEither[Seq[String]] =
+      Right(self.cleanLines.flatMap(_.value))
 
     /**
      * The figure as single String and newline characters
      *
      * @return A single string containing the FIGure including newlines where needed
      */
-    def asString(): String =
-      asSeq().mkString(System.lineSeparator())
-
-    /**
-     * The figure as a collection of String, one String per displayable line
-     *
-     * @return A collection of strings, each containing a displayable line
-     */
-    def asSeqF(): FigletEither[Seq[String]] =
-      Right(asSeq())
-
-    /**
-     * The figure as single String and newline characters
-     *
-     * @return A single string containing the FIGure including newlines where needed
-     */
-    def asStringF(): FigletEither[String] =
-      Right(asString())
+    def asString(): FigletEither[String] =
+      asSeq().map(_.mkString(System.lineSeparator()))
 
   }
 
