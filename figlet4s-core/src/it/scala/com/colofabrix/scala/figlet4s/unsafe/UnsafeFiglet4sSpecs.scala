@@ -53,7 +53,7 @@ class UnsafeFiglet4sSpecs extends AnyFlatSpec with Matchers with Figlet4sMatcher
 
   it should "list the correct number of fonts" in {
     val actual   = Figlet4s.internalFonts.length
-    val expected = 453
+    val expected = 627
     actual shouldBe expected
   }
 
@@ -200,8 +200,13 @@ class UnsafeFiglet4sSpecs extends AnyFlatSpec with Matchers with Figlet4sMatcher
 
   private lazy val fontsSubdirectories: Map[String, Int] =
     Map(
-      "bdffonts" -> 73,
-      "c64"      -> 186,
+      "bdffonts"      -> 73,
+      "c64"           -> 186,
+      "contributed"   -> 4,
+      "international" -> 2,
+      "jave"          -> 27,
+      "obanner"       -> 132,
+      "obanner-canon" -> 9,
     )
 
   private def interpretResult(font: String): PartialFunction[Try[_], Option[String]] = {

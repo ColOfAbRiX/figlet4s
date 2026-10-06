@@ -63,7 +63,7 @@ class FIGheaderSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers wi
   it should "fail with a negative baseline" in new HeaderScope {
     val mistake  = header.copy(baseline = "-1").toLine
     val computed = adaptError(FIGheader(mistake))
-    computed should haveInvalid("FIGheaderError - Field 'baseline' must be positive: -1")
+    computed should haveInvalid("FIGheaderError - Field 'baseline' must be non-negative: -1")
   }
 
   it should "return the correct baseline" in new HeaderScope {

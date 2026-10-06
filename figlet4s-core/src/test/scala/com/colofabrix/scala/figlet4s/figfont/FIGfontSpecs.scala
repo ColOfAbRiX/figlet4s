@@ -65,12 +65,12 @@ class FIGfontSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers with
   it should "fail if a FIGcharacter is not valid" in new FontScope {
     val iterator = font
       .flatMapChars(false) { (char, i) =>
-        if (i == 1) Vector(char.replace("@@", "")) else Vector(char)
+        if (i == 1) Vector(char + "x") else Vector(char)
       }.iterator
     val computed = adaptError(FIGfont(new File("test"), iterator))
     computed should be(invalid)
     computed.invalidValue.head should startWith(
-      "FIGFontError - Error while building a character on position 18: Can't determine endmark.",
+      "FIGFontError - Error while building a character on position 18: Multiple endmarks found",
     )
   }
 

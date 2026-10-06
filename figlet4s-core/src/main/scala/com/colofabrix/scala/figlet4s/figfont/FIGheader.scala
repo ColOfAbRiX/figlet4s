@@ -132,7 +132,7 @@ object FIGheader {
       .toIntOption
       .toValidNec(FIGheaderError(s"Couldn't parse header field 'baseline': $baseline"))
       .andThen { value =>
-        Validated.condNec(value > 0, value, FIGheaderError(s"Field 'baseline' must be positive: $baseline"))
+        Validated.condNec(value >= 0, value, FIGheaderError(s"Field 'baseline' must be non-negative: $baseline"))
       }
 
   private def validateMaxLength(maxLength: String): FigletResult[Int] =

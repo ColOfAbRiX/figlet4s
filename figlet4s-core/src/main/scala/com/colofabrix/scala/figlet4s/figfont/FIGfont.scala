@@ -246,7 +246,11 @@ object FIGfont {
     val header = state.header.get
     val hash   = (state.hash + line.md5).md5
 
-    if (state.loadedCharLines.length + 1 < header.height + 1) {
+    // Blank lines between tagged characters are skipped, like the original FIGlet does
+    if (line.trim.isEmpty && state.loadedCharLines.isEmpty) {
+      state.copy(hash = hash).validNec
+
+    } else if (state.loadedCharLines.length + 1 < header.height + 1) {
       val loadedCharLines = state.loadedCharLines :+ line
       state.copy(loadedCharLines = loadedCharLines, hash = hash).validNec
 

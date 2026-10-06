@@ -99,6 +99,9 @@ trait OriginalFigletTesting extends Notifying {
       "univers",
       // NOTE: The original figlet renders this font as all whitespaces, maybe the font is corrupted?
       "dosrebel",
+      // NOTE: This font uses a sub-character with code greater than 127, which the original figlet treats as
+      //       smushable background during smushing. Figlet4s doesn't implement this rule yet and renders it wider
+      "contributed/l4me",
       // NOTE: Doesn't respect spacing (Try "j  k")
       "cricket",
     )

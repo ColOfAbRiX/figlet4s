@@ -113,6 +113,7 @@ object FIGcharacter {
           """(.)\1?$""".r.findFirstIn(_).toList.headOption.toList
         }
         .map(_.trim())
+        .filter(_.nonEmpty) // Whitespace-only lines are treated as empty rows, like the original FIGlet
 
     val extractedEndmarksV =
       Validated.condNec(
@@ -141,10 +142,11 @@ object FIGcharacter {
   }
 
   /**
-   * Removes the endmarks from the lines of the character
+   * Removes all consecutive endmarks from the end of each line, eliminating the whole
+   * terminating block like the original FIGlet does
    */
   private def cleanLines(lines: SubLines)(endmark: Char): FigletResult[SubLines] = {
-    val find = Regex.quote(endmark.toString) + "{1,2}$"
+    val find = Regex.quote(endmark.toString) + "+$"
     lines.map(_.replaceAll(find, "")).validNec
   }
 

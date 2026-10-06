@@ -25,26 +25,20 @@ class FIGcharacterSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers
     computed should equal('@')
   }
 
-  it should "fail when endmarks are missing from the lines" in new CharacterScope {
+  it should "succeed treating whitespace-only lines as empty rows, like the original FIGlet" in new CharacterScope {
     val lines = TestCharacter.flatMap { (line, i) =>
       if (i == 1) Vector(line.replaceAll("@$", "")) else Vector(line)
     }
     val computed = adaptError(TestCharacter.get('a', lines))
-    computed should haveInvalid(
-      "FIGcharacterError - Can't determine endmark. There are lines with no termination or more than 2-characters " +
-      "termination on character 'a' defined at line 124: (@, , @, @, @, @@)",
-    )
+    computed should be(valid)
   }
 
-  it should "fail when lines terminate with more than two characters" in new CharacterScope {
+  it should "succeed when lines terminate with more than two endmarks, like the original FIGlet" in new CharacterScope {
     val lines = TestCharacter.flatMap { (line, i) =>
       if (i == 1) Vector(line.replaceAll("@$", "@@@")) else Vector(line)
     }
     val computed = adaptError(TestCharacter.get('a', lines))
-    computed should be(invalid)
-    computed.invalidValue.head should startWith(
-      "FIGcharacterError - Lines for character 'a' defined at line 124 are of different width:",
-    )
+    computed should be(valid)
   }
 
   it should "fail when there are different types of endmarks" in new CharacterScope {
