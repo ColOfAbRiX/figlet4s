@@ -102,6 +102,9 @@ trait OriginalFigletTesting extends Notifying {
       // NOTE: This font uses a sub-character with code greater than 127, which the original figlet treats as
       //       smushable background during smushing. Figlet4s doesn't implement this rule yet and renders it wider
       "contributed/l4me",
+      // NOTE: This font's smushing rules overlap multi-byte UTF-8 characters: the original figlet smushes them at
+      //       byte level, Figlet4s smushes them at character level and the results differ on the glyph edges
+      "xero/tubessmushed",
       // NOTE: Doesn't respect spacing (Try "j  k")
       "cricket",
     )

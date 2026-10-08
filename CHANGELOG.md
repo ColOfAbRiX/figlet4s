@@ -5,6 +5,7 @@
 ### Added
 
 * Added FIGfonts from the official collections: international, contributed, JavE, Obanner and Obanner-canon, for a total of 174 new fonts (#11)
+* Added FIGfonts from the xero/figlet-fonts collection, for a total of 33 new fonts (#11)
 * Added BDF Fonts
 * Added wartremover-contrib
 * Added full justification support (#9)
@@ -17,6 +18,7 @@
 ### Changed
 
 * Improved FIGfont parsing compatibility with the original figlet: consecutive endmarks are eliminated as a whole block, whitespace-only lines are treated as empty rows, blank lines between characters are skipped and the baseline can be zero (#11)
+* Internal fonts are now decoded as UTF-8 when valid and fall back to ISO-8859-1 otherwise, so fonts using multi-byte characters render correctly (#11)
 * Upgraded to Scala 3.9.0 LTS as primary version, cross-compiled with 2.13.18
 * Upgraded to Cats 2.13.0 (from 2.6.1)
 
