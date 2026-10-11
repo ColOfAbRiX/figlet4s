@@ -82,7 +82,7 @@ private[figlet4s] object FontFileReader {
           .UTF8.decoder
           .onMalformedInput(CodingErrorAction.REPORT)
           .onUnmappableCharacter(CodingErrorAction.REPORT)
-      decoder.decode(ByteBuffer.wrap(bytes))
+      val _ = decoder.decode(ByteBuffer.wrap(bytes))
 
       true
     } catch {

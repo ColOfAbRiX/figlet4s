@@ -2,7 +2,9 @@ package com.colofabrix.scala.figlet4s.rendering
 
 import cats.implicits._
 import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
-import com.colofabrix.scala.figlet4s.options.{ HorizontalLayout => ClientHorizontalLayout, RenderOptions }
+import com.colofabrix.scala.figlet4s.options.{
+  HorizontalLayout => ClientHorizontalLayout, PrintDirection => ClientPrintDirection, RenderOptions,
+}
 import com.colofabrix.scala.figlet4s.rendering.MergeAction._
 import com.colofabrix.scala.figlet4s.rendering.Rendering._
 
@@ -18,8 +20,9 @@ private[figlet4s] object HorizontalMergeRules {
    * @return A MergeStrategy function that performs horizontal merging
    */
   def mergeStrategy(options: RenderOptions): MergeStrategy = {
-    val chosenLayout = ClientHorizontalLayout.toInternalLayout(options.font)(options.horizontalLayout)
-    layout2mergeStrategy(options.font.header.hardblank)(chosenLayout)
+    val chosenLayout    = ClientHorizontalLayout.toInternalLayout(options.font)(options.horizontalLayout)
+    val chosenDirection = ClientPrintDirection.toInternalLayout(options.font)(options.printDirection)
+    layout2mergeStrategy(options.font.header.hardblank, chosenDirection)(chosenLayout)
   }
 
   //  Support  //
@@ -28,12 +31,12 @@ private[figlet4s] object HorizontalMergeRules {
   private type SmushingStrategy = (Char, Char) => Option[Char]
 
   /**
-   * Returns the merge strategy function given a layout
+   * Returns the merge strategy function given a layout and a print direction
    */
-  private def layout2mergeStrategy(hardblank: Char): HorizontalLayout => MergeStrategy = {
+  private def layout2mergeStrategy(hardblank: Char, printDirection: PrintDirection): HorizontalLayout => MergeStrategy = {
     case HorizontalLayout.FullWidth                 => fullWidthStrategy
     case HorizontalLayout.HorizontalFitting         => horizontalFittingStrategy
-    case HorizontalLayout.UniversalSmushing         => universalHorizontalSmushingStrategy(hardblank)
+    case HorizontalLayout.UniversalSmushing         => universalHorizontalSmushingStrategy(hardblank, printDirection)
     case HorizontalLayout.ControlledSmushing(rules) => controlledHorizontalSmushingStrategy(hardblank, rules)
   }
 
@@ -58,14 +61,19 @@ private[figlet4s] object HorizontalMergeRules {
   /**
    * Encodes the Universal Horizontal Smushing horizontal layout
    */
-  private def universalHorizontalSmushingStrategy(hardblank: Char): MergeStrategy =
+  private def universalHorizontalSmushingStrategy(hardblank: Char, printDirection: PrintDirection): MergeStrategy =
     state => {
       case (aChar, ' ')             => Continue(aChar)
       case (' ', bChar)             => Continue(bChar)
       case _ if skipSmushing(state) => Stop
       case (aChar, bChar) if bChar === hardblank =>
         if (aChar === hardblank) Stop else CurrentLast(aChar)
-      case (_, bChar) => CurrentLast(bChar)
+      case (aChar, bChar) if aChar === hardblank => CurrentLast(bChar)
+      case (aChar, bChar) =>
+        printDirection match {
+          case PrintDirection.LeftToRight => CurrentLast(bChar)
+          case PrintDirection.RightToLeft => CurrentLast(aChar)
+        }
     }
 
   /**

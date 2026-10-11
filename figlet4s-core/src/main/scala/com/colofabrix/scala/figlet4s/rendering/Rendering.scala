@@ -2,7 +2,7 @@ package com.colofabrix.scala.figlet4s.rendering
 
 import cats.implicits._
 import com.colofabrix.scala.figlet4s.figfont._
-import com.colofabrix.scala.figlet4s.options._
+import com.colofabrix.scala.figlet4s.options.{ PrintDirection => ClientPrintDirection, _ }
 import com.colofabrix.scala.figlet4s.rendering.MergeAction._
 import com.colofabrix.scala.figlet4s.rendering.Rendering._
 import scala.annotation.tailrec
@@ -120,7 +120,11 @@ final private[rendering] class Rendering(options: RenderOptions) {
 
   //  ----  //
 
-  private val mergeStrategy: MergeStrategy = HorizontalMergeRules.mergeStrategy(options)
+  private val printDirection: FIGfontParameters.PrintDirection =
+    ClientPrintDirection.toInternalLayout(options.font)(options.printDirection)
+
+  private val mergeStrategy: MergeStrategy =
+    HorizontalMergeRules.mergeStrategy(options)
 
   @tailrec
   private def appendLoop(figures: Vector[Columns], partial: Vector[Columns], state: AppendLoopState): Vector[Columns] =
@@ -128,10 +132,17 @@ final private[rendering] class Rendering(options: RenderOptions) {
       case (Vector(), _) =>
         partial
       case (figChar +: remainingChars, upperLines :+ lastLine) =>
-        val merged    = merge(MergeLoopState(lastLine, figChar, appendLoopState = state))
+        val (left, right) =
+          printDirection match {
+            case FIGfontParameters.PrintDirection.LeftToRight => (lastLine, figChar)
+            case FIGfontParameters.PrintDirection.RightToLeft => (figChar, lastLine)
+          }
+
+        val merged    = merge(MergeLoopState(left, right, currentCharWidth = figChar.length, appendLoopState = state))
         def onBorder  = merge(MergeLoopState(b = figChar))
         val result    = if (merged.lengthIs <= options.maxWidth) upperLines :+ merged else partial :+ onBorder
         val nextState = state.copy(lastCharWidth = figChar.length)
+
         appendLoop(remainingChars, result, nextState)
       case _ =>
         partial
@@ -144,11 +155,11 @@ final private[rendering] class Rendering(options: RenderOptions) {
     if (state.overlap === 0) {
       merge(state.copy(overlap = 1, partialResult = state.a ++ state.b))
 
-    } else if (state.overlap > state.b.length) {
+    } else if (state.overlap > state.b.length || state.overlap > state.currentCharWidth) {
       state.partialResult
 
     } else {
-      val mState = MergeState(state.overlap, state.b.length, state.appendLoopState.lastCharWidth)
+      val mState = MergeState(state.overlap, state.currentCharWidth, state.appendLoopState.lastCharWidth)
 
       val aLeftCut  = Math.max(0, state.a.length - state.overlap)
       val aRightCut = Math.min(state.a.length, (state.a.length - state.overlap) + state.b.length)
@@ -239,6 +250,7 @@ private[figlet4s] object Rendering {
       b: Columns = Vector.empty,
       overlap: Int = 0,
       partialResult: Columns = Vector.empty,
+      currentCharWidth: Int = 0,
       appendLoopState: AppendLoopState = AppendLoopState(),
   )
 

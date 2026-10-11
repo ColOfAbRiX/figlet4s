@@ -347,3 +347,96 @@ object Main extends App {
 
 }
 ```
+
+## Examples of Print Direction
+
+The print direction controls the order in which the FIGcharacters are laid out: left-to-right, as
+per usual western writing, or right-to-left, used by fonts designed for right-to-left scripts.
+
+**Note:** When the justification is set to `FontDefault`, a right-to-left rendering is also
+flush-right, mirroring the behaviour of the original figlet.
+
+### Left-to-right
+
+The FIGcharacters are laid out from left to right.
+
+Code:
+
+```scala
+import com.colofabrix.scala.figlet4s.unsafe._
+import com.colofabrix.scala.figlet4s.options._
+
+object Main extends App {
+
+  Figlet4s
+    .builder("Hubert")
+    .withPrintDirection(PrintDirection.LeftToRight)
+    .render()
+    .print()
+
+}
+```
+
+Result:
+
+```plaintext
+_   _       _               _
+| | | |_   _| |__   ___ _ __| |_
+| |_| | | | | '_ \ / _ \ '__| __|
+|  _  | |_| | |_) |  __/ |  | |_
+|_| |_|\__,_|_.__/ \___|_|   \__|
+```
+
+### Right-to-left
+
+The FIGcharacters are laid out from right to left: the first character of the text appears on the
+right edge.
+
+Code:
+
+```scala
+import com.colofabrix.scala.figlet4s.unsafe._
+import com.colofabrix.scala.figlet4s.options._
+
+object Main extends App {
+
+  Figlet4s
+    .builder("Hubert")
+    .withPrintDirection(PrintDirection.RightToLeft)
+    .render()
+    .print()
+
+}
+```
+
+Result:
+
+```plaintext
+_            _           _   _
+| |_ _ __ ___| |__  _   _| | | |
+| __| '__/ _ \ '_ \| | | | |_| |
+| |_| | |  __/ |_) | |_| |  _  |
+\__|_|  \___|_.__/ \__,_|_| |_|
+```
+
+### Font Default
+
+Uses the print direction specified by the font author. Fonts designed for right-to-left scripts,
+like `ivrit`, declare it in their header and are rendered right-to-left by default.
+
+Code:
+
+```scala
+import com.colofabrix.scala.figlet4s.unsafe._
+import com.colofabrix.scala.figlet4s.options._
+
+object Main extends App {
+
+  Figlet4s
+    .builder("Hubert")
+    .withPrintDirection(PrintDirection.FontDefault)
+    .render()
+    .print()
+
+}
+```
