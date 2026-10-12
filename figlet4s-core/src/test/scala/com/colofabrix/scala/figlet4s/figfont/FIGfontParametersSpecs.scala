@@ -42,7 +42,7 @@ class FIGfontParametersSpecs extends AnyFlatSpec with Matchers with ValidatedMat
       Vector(OL.HierarchySmushing)      -> HL.ControlledSmushing(Vector(HSR.Hierarchy)),
       Vector(OL.OppositePairSmushing)   -> HL.ControlledSmushing(Vector(HSR.OppositePair)),
       Vector(OL.BigXSmushing)           -> HL.ControlledSmushing(Vector(HSR.BigX)),
-      Vector(OL.HardblankSmushing)      -> HL.ControlledSmushing(Vector(HSR.Hardblank)),
+      Vector(OL.HardblankSmushing)      -> HL.UniversalSmushing,
     )
 
     // Making sure we are covering all input and all output values

@@ -89,14 +89,6 @@ trait OriginalFigletTesting extends Notifying {
   // NOTE: Some fonts are known to have issues: https://github.com/pwaller/pyfiglet/blob/master/pyfiglet/test.py#L37
   private def dodgyFonts(fontName: String): Boolean = {
     val dodgyList = List(
-      // NOTE: Some fonts seem to treat the hardblanks differently in that they smush together a hardblank and a char
-      //       but I can't find what's wrong in Figlet4s implementation of the algorithm (and where to find this
-      //       behaviour in the reference doc)
-      "alligator",
-      "alligator2",
-      "alligator3",
-      "colossal",
-      "univers",
       // NOTE: The original figlet renders this font as all whitespaces, maybe the font is corrupted?
       "dosrebel",
       // NOTE: This font uses a sub-character with code greater than 127, which the original figlet treats as
@@ -105,8 +97,6 @@ trait OriginalFigletTesting extends Notifying {
       // NOTE: This font's smushing rules overlap multi-byte UTF-8 characters: the original figlet smushes them at
       //       byte level, Figlet4s smushes them at character level and the results differ on the glyph edges
       "xero/tubessmushed",
-      // NOTE: Doesn't respect spacing (Try "j  k")
-      "cricket",
     )
 
     dodgyList.contains(fontName)

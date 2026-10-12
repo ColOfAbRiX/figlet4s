@@ -2,27 +2,31 @@
 
 ## Unreleased
 
-### Added
-
-* Added FIGfonts from the official collections: international, contributed, JavE, Obanner and Obanner-canon, for a total of 174 new fonts (#11)
-* Added FIGfonts from the xero/figlet-fonts collection, for a total of 33 new fonts (#11)
-* Added BDF Fonts
-* Added wartremover-contrib
-* Added full justification support (#9)
-* Added support for print direction: text can be rendered left-to-right, right-to-left or using the direction declared in the FIGfont header (#10)
-
 ### Breaking Changes
 
 * **Dropped Scala 2.12 support** - Now supports Scala 3.9.0 LTS and 2.13.18 only
 * **Upgraded to Cats Effect 3** - Migrated from Cats Effect 2.x to 3.7.1
 
+### Added
+
+* Added FIGfonts from the official collections: international, contributed, JavE, xero/figlet-fonts, BDF Fonts, Obanner and Obanner-canon (#11)
+* Added wartremover-contrib
+* Added full justification support (#9)
+* Added support for print direction: text can be rendered left-to-right, right-to-left or using the direction declared in the FIGfont header (#10)
+
 ### Changed
 
 * The `FontDefault` print direction now follows the direction declared in the FIGfont header (#10)
-* Improved FIGfont parsing compatibility with the original figlet: consecutive endmarks are eliminated as a whole block, whitespace-only lines are treated as empty rows, blank lines between characters are skipped and the baseline can be zero (#11)
-* Internal fonts are now decoded as UTF-8 when valid and fall back to ISO-8859-1 otherwise, so fonts using multi-byte characters render correctly (#11)
-* Upgraded to Scala 3.9.0 LTS as primary version, cross-compiled with 2.13.18
-* Upgraded to Cats 2.13.0 (from 2.6.1)
+* Improved FIGfont parsing compatibility with the original figlet (#11):
+  * Consecutive endmarks are eliminated as a whole block
+  * whitespace-only lines are treated as empty rows
+  * blank lines between characters are skipped and the baseline can be zero
+  * Internal fonts are now decoded as UTF-8 when valid and fall back to ISO-8859-1 otherwise
+
+### Bugfixes
+
+* Fixed parsing of the `oldLayout` universal smushing flag
+* Fixed universal smushing so that two hardblanks are merged into a single hardblank
 
 ### Dependencies Changes
 
@@ -55,7 +59,7 @@
 * Upgraded to sbt-scoverage: 2.4.4
 * Upgraded to sbt-updates: 0.7.0
 * Upgraded to sbt-wartremover: 3.6.2
-* Removed sbt-sonatype (superseded by sbt's built-in Sonatype Central publishing)
+* Removed sbt-sonatype (superseded by sbt's built-in publishing)
 
 ## v0.3.2 - 2021/11/05
 

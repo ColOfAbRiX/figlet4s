@@ -63,11 +63,10 @@ private[figlet4s] object HorizontalMergeRules {
    */
   private def universalHorizontalSmushingStrategy(hardblank: Char, printDirection: PrintDirection): MergeStrategy =
     state => {
-      case (aChar, ' ')             => Continue(aChar)
-      case (' ', bChar)             => Continue(bChar)
-      case _ if skipSmushing(state) => Stop
-      case (aChar, bChar) if bChar === hardblank =>
-        if (aChar === hardblank) Stop else CurrentLast(aChar)
+      case (aChar, ' ')                          => Continue(aChar)
+      case (' ', bChar)                          => Continue(bChar)
+      case _ if skipSmushing(state)              => Stop
+      case (aChar, bChar) if bChar === hardblank => CurrentLast(aChar)
       case (aChar, bChar) if aChar === hardblank => CurrentLast(bChar)
       case (aChar, bChar) =>
         printDirection match {

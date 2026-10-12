@@ -43,10 +43,10 @@ class HorizontalMergeRulesSpecs extends AnyFlatSpec with Matchers {
     rtlStrategy(smushable)('b', hardblank) shouldBe CurrentLast('b')
   }
 
-  it should "never smush two hardblanks" in {
+  it should "smush two hardblanks into a single one" in {
     val computed = strategy(PrintDirection.RightToLeft)(smushable)(hardblank, hardblank)
 
-    computed shouldBe Stop
+    computed shouldBe CurrentLast(hardblank)
   }
 
   it should "smush blanks in both directions" in {

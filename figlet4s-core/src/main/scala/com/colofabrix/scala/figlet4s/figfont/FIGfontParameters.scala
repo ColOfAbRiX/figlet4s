@@ -85,7 +85,12 @@ private[figlet4s] object FIGfontParameters {
       else if (settings === Vector(OldLayout.HorizontalFitting))
         HorizontalFitting.validNec
       else if (!settings.contains(OldLayout.FullWidth) && !settings.contains(OldLayout.HorizontalFitting))
-        HorizontalSmushingRule.fromOldLayout(header).map(ControlledSmushing.apply)
+        HorizontalSmushingRule
+          .fromOldLayout(header)
+          .map {
+            case Seq() => UniversalSmushing
+            case rules => ControlledSmushing(rules)
+          }
       else
         FIGFontError(s"Couldn't convert layout settings found in header: ${settings.mkString(", ")}").invalidNec
     }
@@ -145,7 +150,7 @@ private[figlet4s] object FIGfontParameters {
      *
      * @param header The [[FIGheader]] where the oldLayout is defined
      * @return A [[com.colofabrix.scala.figlet4s.errors.FigletResult FigletResult]] containing a list of
-     *         HorizontalSmushingRule or a list of errors occurred during the creation
+     *         HorizontalSmushingRule, possibly empty, or a list of errors occurred during the creation
      */
     def fromOldLayout(header: FIGheader): FigletResult[Seq[HorizontalSmushingRule]] =
       Some(header.oldLayout.toVector)
@@ -156,11 +161,8 @@ private[figlet4s] object FIGfontParameters {
             case OldLayout.HierarchySmushing      => Hierarchy
             case OldLayout.OppositePairSmushing   => OppositePair
             case OldLayout.BigXSmushing           => BigX
-            case OldLayout.HardblankSmushing      => Hardblank
-          }
+          }.validNec
         }
-        .withFilter(_.nonEmpty)
-        .map(_.validNec)
         .getOrElse(FIGFontError(s"The oldLayout setting doesn't include any horizontal smushing rule").invalidNec)
 
   }
