@@ -1,13 +1,12 @@
 package com.colofabrix.scala.figlet4s.core
 
-import cats.effect._
-import cats.implicits._
 import com.colofabrix.scala.figlet4s.errors._
 import java.io._
 import java.nio._
 import java.nio.charset._
 import java.util.zip._
 import scala.io._
+import scala.util.control.NonFatal
 
 private[figlet4s] object FontFileReader {
 
@@ -20,45 +19,71 @@ private[figlet4s] object FontFileReader {
   /**
    * Reads a font file, even zipped, from file system and passes the reader to a function
    */
-  def read[F[_]: Sync, A](path: String, codec: Codec)(f: (File, BufferedSource) => F[A]): F[A] = {
-    def bs   = new BufferedInputStream(new FileInputStream(path))
-    def file = new File(path)
-    read(bs, codec)(f(file, _))
+  def read[F[_]: FigletSync, A](path: String, codec: Codec)(f: (File, BufferedSource) => F[A]): F[A] = {
+    val fs = FigletSync[F]
+
+    val opened: F[BufferedInputStream] =
+      try {
+        fs.pure(new BufferedInputStream(new FileInputStream(path)))
+      } catch { 
+        case NonFatal(t) => fs.raiseError(new FigletLoadingError(t.getMessage, t)) 
+      }
+
+    fs.flatMap(opened) { inputStream =>
+      val file = new File(path)
+      read(inputStream, codec)(f(file, _))
+    }
   }
 
   /**
    * Reads a font file from the internal library resources (files or JAR).
    */
-  def readInternal[F[_]: Sync, A](path: String, codec: Codec)(f: (File, BufferedSource) => F[A]): F[A] = {
-    Braket.withResource(acquireFontBytes(path)) { h =>
-      for {
-        bytes  <- Sync[F].fromOption(h.bytes, new FigletLoadingError(s"Cannot read the internal font '$path'"))
-        source <- sourceAsInputStream(bytes, codec)
-        file   <- Sync[F].delay(new File(this.getClass.getClassLoader.getResource(path).getPath))
-        result <- f(file, source)
-      } yield result
+  def readInternal[F[_], A](
+    path: String,
+    codec: Codec)(
+    f: (File, BufferedSource) => F[A])(
+    implicit
+    F: FigletSync[F]
+  ): F[A] =
+    F.withResource(acquireFontBytes(path)) { h =>
+      h.bytes match {
+        case None =>
+          F.raiseError(new FigletLoadingError(s"Cannot read the internal font '$path'"))
+        case Some(bytes) =>
+          F.flatMap(sourceAsInputStream(bytes, codec)) { source =>
+            F.flatMap(F.delay(new File(this.getClass.getClassLoader.getResource(path).getPath))) { file =>
+              f(file, source)
+            }
+          }
+      }
     }
-  }
 
   //  Support  //
 
-  private def sourceAsInputStream[F[_]: Sync, A](bytes: Array[Byte], codec: Codec): F[BufferedSource] =
-    Sync[F].delay {
-      implicit val actualCodec: Codec = if (isValidUtf8(bytes)) Codec.UTF8 else codec
+  private def sourceAsInputStream[F[_]](bytes: Array[Byte], codec: Codec)(implicit F: FigletSync[F]): F[BufferedSource] =
+    F.delay {
+      implicit val actualCodec: Codec =  if (isValidUtf8(bytes)) Codec.UTF8 else codec
 
       val byteSource = Source.fromInputStream(new BufferedInputStream(new ByteArrayInputStream(bytes)))
       tapSource(byteSource)
     }
 
-  private[core] def read[F[_]: Sync, A](bif: => BufferedInputStream, codec: Codec)(f: BufferedSource => F[A]): F[A] =
-    Braket.withResource(bif) { inputStream =>
+  private[core] def read[F[_], A](
+      bif: => BufferedInputStream, 
+      codec: Codec)(
+      f: BufferedSource => F[A])(
+      implicit
+      F: FigletSync[F],
+  ): F[A] = {
+    F.withResource(bif) { inputStream =>
       implicit val c: Codec = codec
-      for {
-        isZip  <- isZipFile(inputStream)
-        stream <- if (isZip) readZip(inputStream) else readText(inputStream)
-        result <- f(Source.fromInputStream(stream))
-      } yield result
+      F.flatMap(isZipFile(inputStream)) { isZip =>
+        F.flatMap(if (isZip) readZip(inputStream) else readText(inputStream)) { stream =>
+          f(Source.fromInputStream(stream))
+        }
+      }
     }
+  }
 
   // This forces the BufferedSource to evaluate and to raise errors early on
   private def tapSource(bs: BufferedSource): BufferedSource = {
@@ -89,11 +114,11 @@ private[figlet4s] object FontFileReader {
       case _: CharacterCodingException => false
     }
 
-  private def readText[F[_]: Sync, R <: BufferedInputStream, A](is: BufferedInputStream): F[BufferedInputStream] =
-    Sync[F].delay(is)
+  private def readText[F[_]](is: BufferedInputStream)(implicit F: FigletSync[F]): F[BufferedInputStream] =
+    F.delay(is)
 
-  private def isZipFile[F[_]: Sync](is: BufferedInputStream): F[Boolean] =
-    Sync[F].delay {
+  private def isZipFile[F[_]](is: BufferedInputStream)(implicit F: FigletSync[F]): F[Boolean] =
+    F.delay {
       is.mark(4)
 
       val headerBytes =
@@ -105,17 +130,22 @@ private[figlet4s] object FontFileReader {
           .map(_.toByte)
 
       is.reset()
+      
       zipMagicBytes.contains(headerBytes)
     }
 
-  private def readZip[F[_]: Sync, A](is: BufferedInputStream): F[BufferedInputStream] =
-    Sync[F].delay {
-      val zipInputStream = new ZipInputStream(is)
-      Option(zipInputStream.getNextEntry) match {
-        case Some(_) => Sync[F].pure(new BufferedInputStream(zipInputStream))
-        case None => Sync[F].raiseError[BufferedInputStream](new FigletLoadingError("Cannot read font file from ZIP"))
-      }
-    }.flatten
+  private def readZip[F[_]](is: BufferedInputStream)(implicit F: FigletSync[F]): F[BufferedInputStream] =
+    F.flatMap(
+      F.delay {
+        val zipInputStream = new ZipInputStream(is)
+        Option(zipInputStream.getNextEntry).map(_ => new BufferedInputStream(zipInputStream))
+      },
+    ) {
+      case Some(stream) =>
+        F.pure(stream)
+      case None =>
+        F.raiseError(new FigletLoadingError("Cannot read font file from ZIP"))
+    }
 
   // See: https://www.wikiwand.com/en/List_of_file_signatures
   private val zipMagicBytes: List[List[Byte]] = List(

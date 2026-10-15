@@ -30,7 +30,7 @@ object Figlet4s extends Figlet4sAPI[FigletEither] {
   def loadFontInternal(name: String = "standard"): FigletEither[FIGfont] =
     Figlet4sClient
       .loadFontInternal[FigletEither](name)
-      .flatMap(toEither)
+      .flatMap(_.toEither)
 
   /**
    * Loads a FIGfont from file
@@ -42,7 +42,7 @@ object Figlet4s extends Figlet4sAPI[FigletEither] {
   def loadFont(path: String, encoding: Codec = Codec.ISO8859): FigletEither[FIGfont] =
     Figlet4sClient
       .loadFont[FigletEither](path, encoding)
-      .flatMap(toEither)
+      .flatMap(_.toEither)
 
   /**
    * Renders a given text as a FIGure

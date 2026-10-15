@@ -1,6 +1,5 @@
 package com.colofabrix.scala.figlet4s.unsafe
 
-import cats._
 import com.colofabrix.scala.figlet4s.api._
 import com.colofabrix.scala.figlet4s.figfont._
 

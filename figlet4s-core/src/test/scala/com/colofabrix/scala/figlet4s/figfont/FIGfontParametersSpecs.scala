@@ -1,16 +1,18 @@
 package com.colofabrix.scala.figlet4s.figfont
 
-import cats.scalatest._
-import org.scalatest.flatspec._
-import org.scalatest.matchers.should._
+import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters.{
   HorizontalLayout => HL, HorizontalSmushingRule => HSR, VerticalLayout => VL, VerticalSmushingRules => VSR, _,
 }
 import com.colofabrix.scala.figlet4s.figfont.FIGheaderParameters.{
   FullLayout => FL, OldLayout => OL, PrintDirection => HPD,
 }
+import com.colofabrix.scala.figlet4s.testutils.FigletResultValues._
+import com.colofabrix.scala.figlet4s.testutils.FigletResultValues.FigletResultValuesOps
+import org.scalatest.flatspec._
+import org.scalatest.matchers.should._
 
-class FIGfontParametersSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers with ValidatedValues {
+class FIGfontParametersSpecs extends AnyFlatSpec with Matchers {
 
   "PrintDirection.fromHeader" should "return the correct values for every input value" in new HeaderScope {
     val tests = Seq(

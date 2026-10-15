@@ -1,6 +1,6 @@
 package com.colofabrix.scala.figlet4s.figfont
 
-import cats.data.ValidatedNel
+import com.colofabrix.scala.figlet4s._
 import com.colofabrix.scala.figlet4s.errors._
 
 trait ScopesUtils {
@@ -8,10 +8,8 @@ trait ScopesUtils {
   protected def bindIdentity[A, B]: (A, B) => Vector[A] =
     (x: A, _: B) => Vector(x)
 
-  protected def adaptError[A](value: FigletResult[A]): ValidatedNel[String, A] =
-    value.leftMap { errors =>
-      errors.toNonEmptyList.map(error => s"${error.getClass.getSimpleName} - ${error.getMessage}")
-    }
+  protected def adaptError[A](value: FigletResult[A]): FigletResult[A] =
+    value.mapErrors(error => FigletError(s"${error.getClass.getSimpleName} - ${error.getMessage}"))
 
 }
 

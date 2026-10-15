@@ -1,13 +1,9 @@
 package com.colofabrix.scala.figlet4s
 
-import cats.data.*
-import cats.implicits.*
-import com.colofabrix.scala.figlet4s.errors.*
 import java.math.BigInteger
 import java.nio.charset.Charset
 import java.security.MessageDigest
 import scala.collection.immutable.BitSet
-import scala.util.*
 import scala.util.matching.Regex
 import sys.process.*
 
@@ -49,31 +45,6 @@ private[figlet4s] object compat {
   extension (sc: StringContext) {
 
     def r: Regex = new Regex(sc.parts.mkString, sc.parts.drop(1).map(_ => "x")*)
-
-  }
-
-}
-
-/**
- * Validated extension methods for Scala 3
- */
-@SuppressWarnings(Array("org.wartremover.warts.AsInstanceOf", "org.wartremover.warts.Throw"))
-private[figlet4s] object validatedCompat {
-
-  extension (self: FigletResult[?]) {
-
-    @throws(classOf[FigletException])
-    def unsafeGet[A]: A = self.asInstanceOf[FigletResult[A]].fold(e => throw e.head, identity)
-
-  }
-
-  extension [A](self: Try[A]) {
-
-    def toFigletResult: FigletResult[A] =
-      self match {
-        case Failure(exception) => FigletError(exception).invalidNec
-        case Success(value)     => value.validNec
-      }
 
   }
 

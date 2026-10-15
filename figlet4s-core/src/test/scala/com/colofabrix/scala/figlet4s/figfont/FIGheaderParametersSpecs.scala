@@ -1,14 +1,14 @@
 package com.colofabrix.scala.figlet4s.figfont
 
-import cats.data._
-import cats.implicits._
-import cats.scalatest._
+import com.colofabrix.scala.figlet4s._
 import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont.FIGheaderParameters._
+import com.colofabrix.scala.figlet4s.testutils.FigletResultValues._
+import com.colofabrix.scala.figlet4s.testutils.FigletResultValues.FigletResultValuesOps
 import org.scalatest.flatspec._
 import org.scalatest.matchers.should._
 
-class FIGheaderParametersSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers with ValidatedValues {
+class FIGheaderParametersSpecs extends AnyFlatSpec with Matchers {
 
   //  PrintDirection  //
 
@@ -134,9 +134,7 @@ class FIGheaderParametersSpecs extends AnyFlatSpec with Matchers with ValidatedM
 
   //  Support  //
 
-  private def adaptError[A](value: FigletResult[A]): ValidatedNel[String, A] =
-    value.leftMap { errors =>
-      errors.toNonEmptyList.map(error => s"${error.getClass.getSimpleName} - ${error.getMessage}")
-    }
+  private def adaptError[A](value: FigletResult[A]): FigletResult[A] =
+    value.mapErrors(error => FigletError(s"${error.getClass.getSimpleName} - ${error.getMessage}"))
 
 }

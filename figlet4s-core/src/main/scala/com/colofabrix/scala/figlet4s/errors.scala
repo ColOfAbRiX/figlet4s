@@ -1,26 +1,9 @@
 package com.colofabrix.scala.figlet4s
 
-import cats._
-import cats.data._
-
-@SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
+@SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements", "org.wartremover.warts.ImplicitConversion"))
 object errors {
 
   //  Error management  //
-
-  /**
-   * MonadError specialized for Throwable errors
-   *
-   * @tparam F A higher-kinded type for which there is MonadError instance
-   */
-  def MonadThrow[F[_]: MonadThrow]: MonadThrow[F] = MonadError.apply[F, Throwable]
-
-  /**
-   * The outcome of an operation that might result in one or more errors
-   *
-   * @tparam A The type of the valid value contained in a FigletResult
-   */
-  type FigletResult[+A] = Validated[NonEmptyChain[FigletException], A]
 
   /**
    * Generic exception that can occur in the Figlet4s library

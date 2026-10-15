@@ -1,8 +1,7 @@
 package com.colofabrix.scala.figlet4s.figfont
 
-import cats.data.Validated._
-import cats.implicits._
 import com.colofabrix.scala.figlet4s.compat._
+import com.colofabrix.scala.figlet4s._
 import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont.FIGfontParameters._
 import java.io.File
@@ -16,6 +15,7 @@ import java.util.Locale
  *
  * @param id         A code that uniquely identifies the FIGfont and the FIGcharacters inside it.
  * @param name       The name of the FIGfont
+ * @param file       The file the FIGfont was loaded from
  * @param header     The FIGheader containing the raw definitions and settings of the FIGfont
  * @param comment    A description of the font
  * @param settings   The settings of the FIGfont inferred from the header and more scala-friendly
@@ -84,20 +84,33 @@ object FIGfont {
       position: Int,
   )
 
+  /** Identification part of the font */
+  final private case class FontIdentity(
+      id: String,
+      name: String,
+      file: File,
+  )
+
+  /** Documentation part of the font */
+  final private case class FontDocs(
+      header: FIGheader,
+      comment: String,
+  )
+
   /**
    * Creates a new FIGfont by parsing an input collection of lines representing an FLF file
    *
    * @param file  The file that contains the FIGfont
    * @param lines An Iterable that contains all the lines representing an FLF file that defines the FIGfont
-   * @return A [[com.colofabrix.scala.figlet4s.errors.FigletResult FigletResult]] containing the new FIGfont or a list
+   * @return A [[com.colofabrix.scala.figlet4s.FigletResult FigletResult]] containing the new FIGfont or a list
    *         of errors occurred during the creation
    */
   def apply(file: File, lines: Iterator[String]): FigletResult[FIGfont] =
     lines
       .zipWithIndex
-      .foldLeft(FontBuilderState(file).validNec[FigletException]) {
-        case (i @ Invalid(_), _)           => i
-        case (Valid(state), (line, index)) => processLine(state, line, index)
+      .foldLeft(FontBuilderState(file).valid) { (stateV, lineIndex) =>
+        val (line, index) = lineIndex
+        stateV.andThen(processLine(_, line, index))
       }
       .andThen(buildFont)
 
@@ -125,17 +138,16 @@ object FIGfont {
   private def buildFont(fontState: FontBuilderState): FigletResult[FIGfont] =
     if (fontState.loadedCharLines.size =!= 0) {
       // Check we didn't stop in the middle of a character
-      FIGcharacterError("Incomplete character definition at the end of the file").invalidNec
+      FIGcharacterError("Incomplete character definition at the end of the file").invalid
 
     } else {
-      val header          = fontState.header.get
-      val nameV           = fontState.file.getName.split('.').init.mkString("").validNec
-      val fileV           = fontState.file.validNec
-      val hashV           = fontState.hash.validNec
-      val commentV        = fontState.commentLines.mkString("\n").validNec
-      val hLayoutV        = HorizontalLayout.fromHeader(header)
-      val vLayoutV        = VerticalLayout.fromHeader(header)
+      val header   = fontState.header.get
+      val identity = FontIdentity(fontState.hash, fontState.file.getName.split('.').init.mkString(""), fontState.file)
+      val docs     = FontDocs(header, fontState.commentLines.mkString("\n"))
+      val hLayoutV = HorizontalLayout.fromHeader(header)
+      val vLayoutV = VerticalLayout.fromHeader(header)
       val printDirectionV = PrintDirection.fromHeader(header)
+
       val settingsV = (hLayoutV, vLayoutV, printDirectionV).mapN {
         FIGfontSettings.apply
       }
@@ -149,17 +161,18 @@ object FIGfont {
           val codetagCount      = header.codetagCount.getOrElse(loadedTaggedCount)
 
           if (loadedTaggedCount === codetagCount)
-            chars.validNec
+            chars.valid
           else
             FIGFontError(
               s"The number of loaded tagged fonts $loadedTaggedCount doesn't correspond to the value " +
               s"indicated in the header $codetagCount",
-            ).invalidNec
+            ).invalid
         }
         .map(_.map(c => c.name -> c).toMap)
 
-      (hashV, nameV, fileV, header.validNec, commentV, settingsV, charsV)
-        .mapN(FIGfont.apply)
+      (identity.valid, docs.valid, settingsV, charsV).mapN { (identity, docs, settings, characters) =>
+        FIGfont(identity.id, identity.name, identity.file, docs.header, docs.comment, settings, characters)
+      }
     }
 
   /**
@@ -170,9 +183,9 @@ object FIGfont {
     val missing       = requiredChars.toSet diff loadedCharset mkString ", "
 
     if (missing.nonEmpty)
-      FIGcharacterError(s"Missing definition for required FIGlet characters: $missing").invalidNec
+      FIGcharacterError(s"Missing definition for required FIGlet characters: $missing").invalid
     else
-      chars.validNec
+      chars.valid
   }
 
   /**
@@ -183,10 +196,10 @@ object FIGfont {
       .header
       .map(
         FIGcharacter(fontState.hash, _, charState.name, SubLines(charState.lines), charState.comment, charState.position)
-          .leftMap(_.map { err =>
+          .mapErrors { err =>
             val msg = s"Error while building a character on position ${charState.position}: ${err.getMessage}"
             FIGFontError(msg, err)
-          }),
+          },
       )
       .get
 
@@ -194,15 +207,15 @@ object FIGfont {
    * Parses the FLF header
    */
   private def buildHeader(state: FontBuilderState, line: String): FigletResult[FontBuilderState] =
-    FIGheader(line) andThen { header =>
-      state.copy(header = Some(header)).validNec
+    FIGheader(line).andThen { header =>
+      state.copy(header = Some(header)).valid
     }
 
   /**
    * Builds the comment section
    */
   private def buildComment(state: FontBuilderState, line: String): FigletResult[FontBuilderState] =
-    state.copy(commentLines = state.commentLines :+ line).validNec
+    state.copy(commentLines = state.commentLines :+ line).valid
 
   /**
    * Builds characters using the given state and the current line
@@ -213,7 +226,7 @@ object FIGfont {
     val hash            = (state.hash + line.md5).md5
 
     if (state.loadedCharLines.length + 1 < header.height) {
-      state.copy(loadedCharLines = loadedCharLines, hash = hash).validNec
+      state.copy(loadedCharLines = loadedCharLines, hash = hash).valid
 
     } else {
       val startLine = index - state.loadedCharLines.size
@@ -221,7 +234,7 @@ object FIGfont {
 
       requiredChars
         .lift(charNum)
-        .toValidNec(FIGcharacterError(s"Character index $charNum out of bounds"))
+        .toValid(FIGcharacterError(s"Character index $charNum out of bounds"))
         .map { charName =>
           val charBuilder = CharBuilderState(charName, state.loadedCharLines :+ line, None, startLine)
           state.copy(
@@ -248,11 +261,11 @@ object FIGfont {
 
     // Blank lines between tagged characters are skipped, like the original FIGlet does
     if (line.trim.isEmpty && state.loadedCharLines.isEmpty) {
-      state.copy(hash = hash).validNec
+      state.copy(hash = hash).valid
 
     } else if (state.loadedCharLines.length + 1 < header.height + 1) {
       val loadedCharLines = state.loadedCharLines :+ line
-      state.copy(loadedCharLines = loadedCharLines, hash = hash).validNec
+      state.copy(loadedCharLines = loadedCharLines, hash = hash).valid
 
     } else {
       val tagLineIndex = index - state.loadedCharLines.size
@@ -260,7 +273,7 @@ object FIGfont {
         state
           .loadedCharLines
           .headOption
-          .toValidNec(FIGcharacterError(s"Empty character lines at index $tagLineIndex"))
+          .toValid(FIGcharacterError(s"Empty character lines at index $tagLineIndex"))
       val loadedCharLines = state.loadedCharLines.drop(1) :+ line
 
       firstLineV.andThen { firstLine =>
@@ -288,7 +301,7 @@ object FIGfont {
     val splitFontTag = tagLine.replaceFirst(" +", "###").split("###").toVector
     splitFontTag
       .headOption
-      .toValidNec(
+      .toValid(
         FIGcharacterError(s"Missing character code in the tag at line ${tagLineIndex + 1}: $tagLine"),
       )
       .andThen(parseCharCode(tagLineIndex, _))
@@ -302,7 +315,7 @@ object FIGfont {
     splitFontTag
       .lift(1)
       .getOrElse("")
-      .validNec[FigletException]
+      .valid
       .map(Option(_))
   }
 
@@ -311,12 +324,12 @@ object FIGfont {
    */
   private def parseCharCode(index: Int, code: String): FigletResult[Char] =
     if (code.matches("^-?\\d+$"))
-      Integer.parseInt(code, 10).toChar.validNec
+      Integer.parseInt(code, 10).toChar.valid
     else if (code.toLowerCase(Locale.ROOT).matches("^-?0x[0-9a-f]+$"))
-      Integer.parseInt(code.replace("0x", ""), 16).toChar.validNec
+      Integer.parseInt(code.replace("0x", ""), 16).toChar.valid
     else if (code.matches("^-?0\\d+$"))
-      Integer.parseInt(code, 8).toChar.validNec
+      Integer.parseInt(code, 8).toChar.valid
     else
-      FIGcharacterError(s"Couldn't convert character code '$code' defined at line ${index + 1}").invalidNec
+      FIGcharacterError(s"Couldn't convert character code '$code' defined at line ${index + 1}").invalid
 
 }

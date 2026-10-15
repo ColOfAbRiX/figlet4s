@@ -1,7 +1,6 @@
 package com.colofabrix.scala.figlet4s.figfont
 
-import cats.data.Validated
-import cats.implicits._
+import com.colofabrix.scala.figlet4s._
 import com.colofabrix.scala.figlet4s.errors._
 import scala.util.matching.Regex
 
@@ -46,7 +45,7 @@ object FIGcharacter {
    * @param lines    The strings composing the lines of the FIGcharacter
    * @param comment  The comment of the FIGcharacter present only if it is not part of the required characters
    * @param position The line in the file where the FIGcharacter is defines
-   * @return A [[com.colofabrix.scala.figlet4s.errors.FigletResult FigletResult]] containing the new FIGcharacter or a
+   * @return A [[com.colofabrix.scala.figlet4s.FigletResult FigletResult]] containing the new FIGcharacter or a
    *         list of errors occurred during the creation
    */
   def apply(
@@ -58,25 +57,33 @@ object FIGcharacter {
       comment: Option[String],
       position: Int,
   ): FigletResult[FIGcharacter] = {
-    val maxWidthV = Validated.condNec(
-      maxWidth > 0,
-      maxWidth,
-      FIGheaderError(s"Value of 'maxLength' must be positive: $maxWidth"),
-    )
-    val argHeightV = Validated.condNec(
-      height > 0,
-      height,
-      FIGheaderError(s"Value of 'height' must be positive: $height"),
-    )
-    val nameV       = if (name =!= '\uffff') name.validNec else FIGcharacterError(s"Name '-1' is illegal").invalidNec
+    val maxWidthV = 
+      FigletResult.ensure(
+        maxWidth > 0,
+        maxWidth,
+        FIGheaderError(s"Value of 'maxLength' must be positive: $maxWidth"),
+      )
+
+    val argHeightV = 
+      FigletResult.ensure(
+        height > 0,
+        height,
+        FIGheaderError(s"Value of 'height' must be positive: $height"),
+      )
+      
+    val nameV       = if (name =!= '\uffff') name.valid else FIGcharacterError(s"Name '-1' is illegal").invalid
     val endmarkV    = validateEndmark(name, position, lines)
-    val cleanLinesV = endmarkV andThen cleanLines(lines)
-    val widthV      = maxWidthV.andThen { cleanLinesV andThen validateWidth(name, _, position) }
-    val heightV     = argHeightV.andThen { cleanLinesV andThen validateHeight(name, position, _) }
+    val cleanLinesV = endmarkV.andThen(cleanLines(lines))
+    val widthV      = maxWidthV.andThen(maxLength => cleanLinesV.andThen(validateWidth(name, maxLength, position)))
+    val heightV     = argHeightV.andThen(height => cleanLinesV.andThen(validateHeight(name, position, height)))
+
+    val identityV = (fontId.valid, nameV, cleanLinesV, endmarkV).tupled
+    val sizeV     = (widthV, comment.valid, position.valid).tupled
 
     heightV andThen { _ =>
-      (fontId.validNec, nameV, cleanLinesV, endmarkV, widthV, comment.validNec, position.validNec)
-        .mapN(FIGcharacter.apply)
+      (identityV, sizeV).mapN { case ((fontId, name, cleanLines, endmark), (width, comment, position)) =>
+        FIGcharacter(fontId, name, cleanLines, endmark, width, comment, position)
+      }
     }
   }
 
@@ -89,7 +96,7 @@ object FIGcharacter {
    * @param lines    The strings composing the lines of the FIGcharacter
    * @param comment  The comment of the FIGcharacter present only if it is not part of the required characters
    * @param position The line in the file where the FIGcharacter is defines
-   * @return A [[com.colofabrix.scala.figlet4s.errors.FigletResult FigletResult]] containing the new FIGcharacter or a
+   * @return A [[com.colofabrix.scala.figlet4s.FigletResult FigletResult]] containing the new FIGcharacter or a
    *         list of errors occurred during the creation
    */
   def apply(
@@ -116,7 +123,7 @@ object FIGcharacter {
         .filter(_.nonEmpty) // Whitespace-only lines are treated as empty rows, like the original FIGlet
 
     val extractedEndmarksV =
-      Validated.condNec(
+      FigletResult.ensure(
         linesTerminations.forall(l => l.length > 0 && l.length <= 2),
         linesTerminations.flatMap(_.toList).toSet,
         FIGcharacterError(
@@ -125,8 +132,8 @@ object FIGcharacter {
         ),
       )
 
-    val chosenEndmarkV = extractedEndmarksV andThen { extractedEndmarks =>
-      Validated.condNec(
+    val chosenEndmarkV = extractedEndmarksV.andThen { extractedEndmarks =>
+      FigletResult.ensure(
         extractedEndmarks.size === 1,
         extractedEndmarks.headOption,
         FIGcharacterError(
@@ -136,8 +143,8 @@ object FIGcharacter {
       )
     }
 
-    chosenEndmarkV andThen {
-      _.toValidNec(FIGcharacterError(s"Can't determine endmark for character '$name' defined at line ${position + 1}"))
+    chosenEndmarkV.andThen {
+      _.toValid(FIGcharacterError(s"Can't determine endmark for character '$name' defined at line ${position + 1}"))
     }
   }
 
@@ -147,7 +154,7 @@ object FIGcharacter {
    */
   private def cleanLines(lines: SubLines)(endmark: Char): FigletResult[SubLines] = {
     val find = Regex.quote(endmark.toString) + "+$"
-    lines.map(_.replaceAll(find, "")).validNec
+    lines.map(_.replaceAll(find, "")).valid
   }
 
   /**
@@ -156,20 +163,20 @@ object FIGcharacter {
   private def validateWidth(name: Char, maxLength: Int, position: Int)(cleanLines: SubLines): FigletResult[Int] = {
     val allLinesWidth = cleanLines.value.map(_.length).toSet
     if (maxLength <= 0)
-      FIGcharacterError(s"The argument 'maxLength' must be greater than zero: $maxLength").invalidNec
+      FIGcharacterError(s"The argument 'maxLength' must be greater than zero: $maxLength").invalid
     else
       allLinesWidth
         .headOption
         .filter(_ => allLinesWidth.size === 1)
-        .toValidNec(
+        .toValid(
           FIGcharacterError(
             s"Lines for character '$name' defined at line ${position + 1} are of different " +
             s"width: $cleanLines",
           ),
         )
         .andThen { width =>
-          if (width <= maxLength) width.validNec
-          else FIGcharacterError(s"""Maximum character width exceeded at line ${position + 1}""").invalidNec
+          if (width <= maxLength) width.valid
+          else FIGcharacterError(s"""Maximum character width exceeded at line ${position + 1}""").invalid
         }
   }
 
@@ -178,13 +185,13 @@ object FIGcharacter {
    */
   private def validateHeight(name: Char, position: Int, height: Int)(cleanLines: SubLines): FigletResult[Int] =
     if (height <= 0)
-      FIGcharacterError(s"The argument 'height' must be greater than zero: $height").invalidNec
+      FIGcharacterError(s"The argument 'height' must be greater than zero: $height").invalid
     else if (cleanLines.value.size === height)
-      height.validNec[FigletException]
+      height.valid
     else
       FIGcharacterError(
         s"The character '$name' defined at line ${position + 1} doesn't respect the specified " +
         s"height of $height",
-      ).invalidNec
+      ).invalid
 
 }

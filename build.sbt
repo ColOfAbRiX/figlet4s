@@ -153,16 +153,15 @@ lazy val figlet4sCore: Project = project
     name        := "figlet4s-core",
     description := "ASCII-art banners in Scala",
     libraryDependencies ++= Seq(
-      CatsCoreDep,
-      CatsEffectDep,
-      CatsKernelDep,
-      catsScalaTestDep(scalaVersion.value),
       EnumeratumDep,
       ScalaMockDep,
       ScalaMockScalaTestDep,
       ScalaTestFlatSpecDep,
       ScalaTestPlusCheckDep,
       ScalaTestShouldMatchersDep,
+      CatsCoreDep % "test,it",
+      CatsEffectDep % "test,it",
+      CatsKernelDep % "test,it",
     ),
     // Integration test settings
     IntegrationTest / testOptions += Tests.Argument("-oFD"),
@@ -195,7 +194,6 @@ lazy val figlet4sEffects: Project = project
     libraryDependencies ++= Seq(
       CatsCoreDep,
       CatsEffectDep,
-      CatsKernelDep % Runtime,
       catsScalaTestDep(scalaVersion.value),
       ScalaTestFlatSpecDep,
       ScalaTestShouldMatchersDep,
@@ -222,6 +220,8 @@ lazy val figlet4sEffects: Project = project
 lazy val figlet4sJava: Project = project
   .in(file("figlet4s-java"))
   .dependsOn(figlet4sCore % "compile->compile;test->test")
+  .configs(IntegrationTest)
+  .settings(commonScalaSettings)
   .settings(
     name                         := "figlet4s-java",
     description                  := "Java integration for Figlet4s",

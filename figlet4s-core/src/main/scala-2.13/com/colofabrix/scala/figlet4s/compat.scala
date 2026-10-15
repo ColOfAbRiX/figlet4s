@@ -1,12 +1,9 @@
 package com.colofabrix.scala.figlet4s
 
-import cats.implicits._
-import com.colofabrix.scala.figlet4s.errors._
 import java.math.BigInteger
 import java.nio.charset.Charset
 import java.security.MessageDigest
 import scala.collection.immutable.BitSet
-import scala.util._
 import scala.util.matching.Regex
 import sys.process._
 
@@ -49,25 +46,5 @@ private[figlet4s] object compat {
    */
   implicit class RegexContext(sc: StringContext) {
     def r = new Regex(sc.parts.mkString, sc.parts.drop(1).map(_ => "x"): _*)
-  }
-}
-
-/**
- * Validated extension methods for Scala 2.13
- */
-@SuppressWarnings(Array("org.wartremover.warts.ImplicitConversion"))
-private[figlet4s] object validatedCompat {
-  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
-  implicit class FigletResultOps[A](private val self: FigletResult[A]) extends AnyVal {
-    @throws(classOf[FigletException])
-    def unsafeGet: A = self.fold(e => throw e.head, identity)
-  }
-
-  implicit class FigletTry[A](private val self: Try[A]) extends AnyVal {
-    def toFigletResult: FigletResult[A] =
-      self match {
-        case Failure(exception) => FigletError(exception).invalidNec
-        case Success(value)     => value.validNec
-      }
   }
 }

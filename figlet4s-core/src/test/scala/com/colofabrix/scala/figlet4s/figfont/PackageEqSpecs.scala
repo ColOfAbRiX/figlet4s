@@ -1,11 +1,10 @@
 package com.colofabrix.scala.figlet4s.figfont
 
-import cats.scalatest._
 import com.colofabrix.scala.figlet4s.unsafe._
 import org.scalatest.flatspec._
 import org.scalatest.matchers.should._
 
-class PackageEqSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers with ValidatedValues {
+class PackageEqSpecs extends AnyFlatSpec with Matchers {
 
   //  FIGfont  //
 
@@ -18,17 +17,17 @@ class PackageEqSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers wi
   }
 
   "FIGfont Equality" should "return true when given the same instance" in new FIGfontScope {
-    (fontA1 === fontA1) should equal(true)
+    (fontA1 == fontA1) should equal(true)
   }
 
   it should "return true when given two identical instances" in new FIGfontScope {
-    (fontA1 === fontA2) should equal(true)
-    (fontA2 === fontA1) should equal(true)
+    (fontA1 == fontA2) should equal(true)
+    (fontA2 == fontA1) should equal(true)
   }
 
   it should "return false when given different instances" in new FIGfontScope {
-    (fontA1 === fontB) should equal(false)
-    (fontB === fontA1) should equal(false)
+    (fontA1 == fontB) should equal(false)
+    (fontB == fontA1) should equal(false)
   }
 
   //  FIGcharacter  //
@@ -43,17 +42,17 @@ class PackageEqSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers wi
   }
 
   "FIGcharacter Equality" should "return true when given the same instance" in new FIGcharacterScope {
-    (charA1 === charA1) should equal(true)
+    (charA1 == charA1) should equal(true)
   }
 
   it should "return true when given two identical instances" in new FIGcharacterScope {
-    (charA1 === charA2) should equal(true)
-    (charA2 === charA1) should equal(true)
+    (charA1 == charA2) should equal(true)
+    (charA2 == charA1) should equal(true)
   }
 
   it should "return false when given different instances" in new FIGcharacterScope {
-    (charA1 === charB) should equal(false)
-    (charB === charA1) should equal(false)
+    (charA1 == charB) should equal(false)
+    (charB == charA1) should equal(false)
   }
 
   //  FIGheader  //
@@ -67,17 +66,17 @@ class PackageEqSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers wi
   }
 
   "FIGheader Equality" should "return true when given the same instance" in new FIGheaderScope {
-    (headerA1 === headerA1) should equal(true)
+    (headerA1 == headerA1) should equal(true)
   }
 
   it should "return true when given two identical instances" in new FIGheaderScope {
-    (headerA1 === headerA2) should equal(true)
-    (headerA2 === headerA1) should equal(true)
+    (headerA1 == headerA2) should equal(true)
+    (headerA2 == headerA1) should equal(true)
   }
 
   it should "return false when given different instances" in new FIGheaderScope {
-    (headerA1 === headerB) should equal(false)
-    (headerB === headerA1) should equal(false)
+    (headerA1 == headerB) should equal(false)
+    (headerB == headerA1) should equal(false)
   }
 
   //  FIGfontSettings  //
@@ -91,17 +90,17 @@ class PackageEqSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers wi
   }
 
   "FIGfontSettings Equality" should "return true when given the same instance" in new FIGfontSettingsScope {
-    (settingsA1 === settingsA1) should equal(true)
+    (settingsA1 == settingsA1) should equal(true)
   }
 
   it should "return true when given two identical instances" in new FIGfontSettingsScope {
-    (settingsA1 === settingsA2) should equal(true)
-    (settingsA2 === settingsA1) should equal(true)
+    (settingsA1 == settingsA2) should equal(true)
+    (settingsA2 == settingsA1) should equal(true)
   }
 
   it should "return false when given different instances" in new FIGfontSettingsScope {
-    (settingsA1 === settingsB) should equal(false)
-    (settingsB === settingsA1) should equal(false)
+    (settingsA1 == settingsB) should equal(false)
+    (settingsB == settingsA1) should equal(false)
   }
 
   //  SubColumns  //
@@ -115,17 +114,17 @@ class PackageEqSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers wi
   }
 
   "SubColumns Equality" should "return true when given the same instance" in new SubColumnsScope {
-    (itemA1 === itemA1) should equal(true)
+    (itemA1 == itemA1) should equal(true)
   }
 
   it should "return true when given two identical instances" in new SubColumnsScope {
-    (itemA1 === itemA2) should equal(true)
-    (itemA2 === itemA1) should equal(true)
+    (itemA1 == itemA2) should equal(true)
+    (itemA2 == itemA1) should equal(true)
   }
 
   it should "return false when given different instances" in new SubColumnsScope {
-    (itemA1 === itemB) should equal(false)
-    (itemB === itemA1) should equal(false)
+    (itemA1 == itemB) should equal(false)
+    (itemB == itemA1) should equal(false)
   }
 
 }

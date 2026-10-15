@@ -2,10 +2,7 @@ package com.colofabrix.scala.figlet4s.core
 
 import java.io._
 import scala.io._
-import cats._
-import cats.effect._
-import cats.implicits._
-import com.colofabrix.scala.figlet4s.errors._
+import com.colofabrix.scala.figlet4s._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options._
 import com.colofabrix.scala.figlet4s.rendering._
@@ -28,64 +25,61 @@ private[figlet4s] object Figlet4sClient {
   /**
    * The list of available internal fonts
    *
-   * @tparam F A higher-kinded type for which there is a [[cats.effect.Sync]] instance
+   * @tparam F A higher-kinded type for which there is a [[FigletSync]] instance
    * @return The collection of names of FIGfonts shipped with this library
    */
-  def internalFonts[F[_]: Sync]: F[Seq[String]] =
-    FontListing.listInternalFonts.map(x => x: Seq[String])
+  def internalFonts[F[_]](implicit F: FigletSync[F]): F[Seq[String]] =
+    F.map(FontListing.listInternalFonts)(x => x: Seq[String])
 
   /**
    * Loads one of the internal FIGfont
    *
-   * @tparam F A higher-kinded type for which there is a [[cats.effect.Sync]] instance
+   * @tparam F A higher-kinded type for which there is a [[FigletSync]] instance
    * @param name The name of the internal font to load, defaults to "standard"
    * @return The FIGfont of the requested internal font
    */
-  def loadFontInternal[F[_]: Sync](name: String): F[FigletResult[FIGfont]] =
-    for {
-      path    <- Sync[F].pure(s"fonts/$name.flf")
-      decoder <- fileDecoder[F](Codec.ISO8859)
-      font    <- FontFileReader.readInternal(path, decoder)(createFIGfont[F])
-    } yield font
+  def loadFontInternal[F[_]](name: String)(implicit F: FigletSync[F]): F[FigletResult[FIGfont]] =
+    F.flatMap(fileDecoder(Codec.ISO8859)) { decoder =>
+      FontFileReader.readInternal(s"fonts/$name.flf", decoder)((file, source) => createFIGfont(file, source))
+    }
 
   /**
    * Loads a FIGfont from file
    *
-   * @tparam F A higher-kinded type for which there is a [[cats.effect.Sync]] instance
+   * @tparam F A higher-kinded type for which there is a [[FigletSync]] instance
    * @param path  The path of the font file to load. It can be a .flf file or a zipped file.
    * @param codec The encoding of the file if textual
    * @return The FIGfont loaded from the specified path
    */
-  def loadFont[F[_]: Sync](path: String, codec: Codec): F[FigletResult[FIGfont]] =
-    for {
-      decoder <- fileDecoder[F](codec)
-      font    <- FontFileReader.read(path, decoder)(createFIGfont[F])
-    } yield font
+  def loadFont[F[_]](path: String, codec: Codec)(implicit F: FigletSync[F]): F[FigletResult[FIGfont]] =
+    F.flatMap(fileDecoder(codec)) { decoder =>
+      FontFileReader.read(path, decoder)((file, source) => createFIGfont(file, source))
+    }
 
   /**
    * Renders a given text as a FIGure
    *
-   * @tparam F A higher-kinded type for which there is a [[cats.effect.Sync]] instance
+   * @tparam F A higher-kinded type for which there is a [[FigletSync]] instance
    * @param text    The text to render
    * @param options The rendering options used to render the text
    * @return A FIGure representing the rendered text
    */
-  def renderString[F[_]: Sync](text: String, options: RenderOptions): F[FIGure] =
-    Sync[F].pure {
+  def renderString[F[_]](text: String, options: RenderOptions)(implicit F: FigletSync[F]): F[FIGure] =
+    F.delay {
       Rendering.render(text, options)
     }
 
   //  Support  //
 
-  private def fileDecoder[F[_]: Applicative](codec: Codec): F[Codec] =
-    Applicative[F].pure {
+  private def fileDecoder[F[_]](codec: Codec)(implicit F: FigletSync[F]): F[Codec] =
+    F.pure {
       codec
         .decoder
         .onMalformedInput(java.nio.charset.CodingErrorAction.REPORT)
     }
 
-  private def createFIGfont[F[_]: Sync](file: File, source: BufferedSource): F[FigletResult[FIGfont]] =
-    Sync[F].delay {
+  private def createFIGfont[F[_]](file: File, source: BufferedSource)(implicit F: FigletSync[F]): F[FigletResult[FIGfont]] =
+    F.delay {
       FIGfont(file, source.getLines())
     }
 

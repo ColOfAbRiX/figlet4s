@@ -1,8 +1,7 @@
 package com.colofabrix.scala.figlet4s.control
 
-import cats.implicits._
+import com.colofabrix.scala.figlet4s._
 import com.colofabrix.scala.figlet4s.control.ControlFileCommand._
-import com.colofabrix.scala.figlet4s.errors._
 
 /**
  * A FIGfont control file is a separate text file, associated with one or more FIGfonts, that indicates how to map
@@ -19,14 +18,14 @@ object ControlFile {
    * Creates a new ControlFile by parsing an input collection of lines representing an FLC file
    *
    * @param lines An Iterable that contains all the lines representing an FLC file that defines the ControlFile
-   * @return A [[com.colofabrix.scala.figlet4s.errors.FigletResult FigletResult]] containing the new ControlFile or a
+   * @return A [[com.colofabrix.scala.figlet4s.FigletResult FigletResult]] containing the new ControlFile or a
    *         list of errors occurred during the creation
    */
   def apply(lines: Iterator[String]): FigletResult[ControlFile] =
     lines
       .map(_.trim())
       .filterNot(line => line.isEmpty || line.startsWith("#") || line.startsWith("flc2a"))
-      .foldLeft(ControlFile().validNec[FigletException])(processLine)
+      .foldLeft(ControlFile().valid)(processLine)
 
   //  Support  //
 
@@ -59,16 +58,16 @@ object ControlFile {
       .lastOption
       .map(_ ++ commands)
       .map { updatedLast =>
-        state.copy(sections = state.sections.dropRight(1) :+ updatedLast).validNec
+        state.copy(sections = state.sections.dropRight(1) :+ updatedLast).valid
       }
-      .getOrElse(state.validNec)
+      .getOrElse(state.valid)
 
   private def addSection(state: ControlFile): FigletResult[ControlFile] =
-    state.copy(sections = state.sections ++ Seq.empty).validNec
+    state.copy(sections = state.sections ++ Seq.empty).valid
 
   private def appendExtendedCommand(state: ControlFile)(
       command: ExtendedControlFileCommand,
   ): FigletResult[ControlFile] =
-    state.copy(extended = state.extended :+ command).validNec
+    state.copy(extended = state.extended :+ command).valid
 
 }

@@ -2,14 +2,16 @@ package com.colofabrix.scala.figlet4s.unsafe
 
 import cats.effect._
 import cats.effect.unsafe.implicits.global
-import cats.implicits._
 import com.colofabrix.scala.figlet4s.core._
 import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.StandardTestData._
 import com.colofabrix.scala.figlet4s.testutils._
+import java.util.concurrent.Executors
 import org.scalatest.flatspec._
 import org.scalatest.matchers.should._
+import scala.concurrent.{ Await, ExecutionContext, Future }
+import scala.concurrent.duration.Duration
 import scala.util._
 import scala.util.matching.Regex
 
@@ -25,7 +27,7 @@ class UnsafeFiglet4sSpecs extends AnyFlatSpec with Matchers with Figlet4sMatcher
 
   it should "render the texts as the original command line FIGlet does" taggedAs (SlowTest) in {
     figletRenderingTest { testData =>
-      val font     = Figlet4s.loadFontInternal(testData.fontName)
+      val font     = cachedFont(testData.fontName)
       val maxWidth = font.header.maxLength * testData.renderText.length()
 
       val testBuilder =
@@ -38,10 +40,13 @@ class UnsafeFiglet4sSpecs extends AnyFlatSpec with Matchers with Figlet4sMatcher
           .withPrintDirection(testData.printDirection)
           .withJustification(testData.justification)
 
-      val computed = testBuilder.render()
-      val expected = renderWithFiglet(testBuilder.options, testData.renderText)
+      val (computed, expected) =
+        IO.both(
+          IO.blocking(testBuilder.render()),
+          IO.blocking(renderWithFiglet(testBuilder.options, testData.renderText)),
+        ).unsafeRunSync()
 
-      computed should lookLike(expected)
+      expected.foreach(figure => computed should lookLike(figure))
     }
   }
 
@@ -123,11 +128,17 @@ class UnsafeFiglet4sSpecs extends AnyFlatSpec with Matchers with Figlet4sMatcher
         .take(20)
         .flatMap(Seq.fill(20)(_))
 
-    val test = data.parTraverse { fontName =>
-      IO(Figlet4s.loadFontInternal(fontName))
-    }
+    val pool =
+      Executors.newFixedThreadPool(8)
+    implicit val ec: ExecutionContext =
+      ExecutionContext.fromExecutorService(pool)
 
-    test.unsafeRunSync()
+    try {
+      val tests = data.map(fontName => Future(Figlet4s.loadFontInternal(fontName))(ec))
+      Await.result(Future.sequence(tests), Duration.Inf)
+    } finally {
+      pool.shutdown()
+    }
   }
 
   it should "throw a FigletLoadingError when trying to load a font that doesn't exist" in {
@@ -185,7 +196,7 @@ class UnsafeFiglet4sSpecs extends AnyFlatSpec with Matchers with Figlet4sMatcher
   //  Support  //
 
   private lazy val (startPathRegex: Regex, pathSeparator: String) =
-    LibraryLocation.discover[cats.Id] match {
+    LibraryLocation.discover[Id] match {
       case LibraryLocation.Jar(_) =>
         // NOTE: I do not know how I can ever test this section if not by publishing locally
         val regex     = "^([^/]+/|)[^/]+$".r

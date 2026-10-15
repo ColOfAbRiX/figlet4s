@@ -1,11 +1,9 @@
 package com.colofabrix.scala.figlet4s.figfont
 
-import cats.implicits._
-import cats.kernel.Eq
+import com.colofabrix.scala.figlet4s._
 import com.colofabrix.scala.figlet4s.compat._
 import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.utils._
-import com.colofabrix.scala.figlet4s.validatedCompat._
 import enumeratum.values._
 import scala.util._
 
@@ -40,8 +38,7 @@ private[figfont] object FIGheaderParameters {
      */
     def apply(value: Int): FigletResult[PrintDirection] =
       Try(withValue(value))
-        .toFigletResult
-        .leftMap(_.map(x => FIGheaderError(x.getMessage)))
+        .toValid(t => FIGheaderError(t.getMessage))
 
     val values: Vector[PrintDirection] = findValues.toVector
 
@@ -72,8 +69,6 @@ private[figfont] object FIGheaderParameters {
     case object VerticalFitting                  extends FullLayout(value = 8192)
     case object VerticalSmushing                 extends FullLayout(value = 16384)
 
-    implicit val oldLayoutEq: Eq[FullLayout] = Eq.fromUniversalEquals
-
     /**
      * Obtains the list of requested setting starting from the Integer provided
      *
@@ -82,17 +77,16 @@ private[figfont] object FIGheaderParameters {
      */
     def apply(requestedSettings: Int): FigletResult[Vector[FullLayout]] =
       if (requestedSettings < 0 || requestedSettings > 32767)
-        FIGheaderError(s"OldLayout needs a value between 0 and 32767, both included: $requestedSettings").invalidNec
+        FIGheaderError(s"OldLayout needs a value between 0 and 32767, both included: $requestedSettings").invalid
       else {
-        lazy val result =
+        val result =
           values
             .flatMap { setting =>
               if ((setting.value.toBitSet & requestedSettings.toBitSet).nonEmpty) Vector(setting)
               else Vector()
             }
-        Try(result)
-          .toFigletResult
-          .leftMap(_.map(x => FIGheaderError(x.getMessage)))
+
+        Try(result).toValid(t => FIGheaderError(t.getMessage))
       }
 
     val values: Vector[FullLayout] = findValues.toVector
@@ -140,8 +134,6 @@ private[figfont] object FIGheaderParameters {
     case object BigXSmushing           extends OldLayout(value = 16)
     case object HardblankSmushing      extends OldLayout(value = 32)
 
-    implicit val oldLayoutEq: Eq[OldLayout] = Eq.fromUniversalEquals
-
     /**
      * Obtains the list of requested setting starting from the Integer provided
      *
@@ -150,22 +142,21 @@ private[figfont] object FIGheaderParameters {
      */
     def apply(requestedSettings: Int): FigletResult[Vector[OldLayout]] =
       if (requestedSettings < -1 || requestedSettings > 63)
-        FIGheaderError(s"OldLayout needs a value between -1 and 63, both included: $requestedSettings").invalidNec
+        FIGheaderError(s"OldLayout needs a value between -1 and 63, both included: $requestedSettings").invalid
       else if (requestedSettings === -1)
-        Vector(FullWidth).validNec
+        Vector(FullWidth).valid
       else if (requestedSettings === 0)
-        Vector(HorizontalFitting).validNec
+        Vector(HorizontalFitting).valid
       else {
-        lazy val result =
+        val result =
           values
             .withFilter(_ =!= HorizontalFitting)
             .flatMap { setting =>
               if ((requestedSettings.toBitSet & setting.value.toBitSet) === setting.value.toBitSet) Vector(setting)
               else Vector()
             }
-        Try(result)
-          .toFigletResult
-          .leftMap(_.map(x => FIGheaderError(x.getMessage)))
+
+        Try(result).toValid(t => FIGheaderError(t.getMessage))
       }
 
     val values: Vector[OldLayout] = findValues.toVector

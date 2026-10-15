@@ -1,6 +1,6 @@
 package com.colofabrix.scala.figlet4s.figfont
 
-import cats.implicits._
+import com.colofabrix.scala.figlet4s._
 import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont.FIGheaderParameters._
 import com.colofabrix.scala.figlet4s.utils._
@@ -37,7 +37,7 @@ private[figlet4s] object FIGfontParameters {
      * the header defines "fullLayout" then "oldLayout" is effectively ignored.
      *
      * @param header The [[FIGheader]] where the Horizontal Layout is defined
-     * @return A [[com.colofabrix.scala.figlet4s.errors.FigletResult FigletResult]] containing the new HorizontalLayout
+     * @return A [[com.colofabrix.scala.figlet4s.FigletResult FigletResult]] containing the new HorizontalLayout
      *         or a list of errors occurred during the creation
      */
     def fromHeader(header: FIGheader): FigletResult[HorizontalLayout] =
@@ -51,7 +51,7 @@ private[figlet4s] object FIGfontParameters {
      * Interprets the "fullLayout" part of the header settings and returns the selected Horizontal Layout
      *
      * @param header The [[FIGheader]] where the fullLayout is defined
-     * @return A [[com.colofabrix.scala.figlet4s.errors.FigletResult FigletResult]] containing the new HorizontalLayout
+     * @return A [[com.colofabrix.scala.figlet4s.FigletResult FigletResult]] containing the new HorizontalLayout
      *         or a list of errors occurred during the creation
      */
     def fromFullLayout(header: FIGheader): FigletResult[Option[HorizontalLayout]] =
@@ -61,29 +61,29 @@ private[figlet4s] object FIGfontParameters {
           val selectedSmushingRules = settings intersect FullLayout.horizontalSmushingRules
 
           if (!settings.contains(FullLayout.HorizontalFitting) && !settings.contains(FullLayout.HorizontalSmushing))
-            FullWidth.validNec
+            FullWidth.valid
           else if (settings.contains(FullLayout.HorizontalFitting) && !settings.contains(FullLayout.HorizontalSmushing))
-            HorizontalFitting.validNec
+            HorizontalFitting.valid
           else if (settings.contains(FullLayout.HorizontalSmushing) && selectedSmushingRules.size =!= 0)
             HorizontalSmushingRule.fromFullLayout(header).map(ControlledSmushing.apply)
           else
-            UniversalSmushing.validNec
+            UniversalSmushing.valid
         }
 
     /**
      * Interprets the "oldLayout" part of the header settings and returns the selected Horizontal Layout
      *
      * @param header The [[FIGheader]] where the oldLayout is defined
-     * @return A [[com.colofabrix.scala.figlet4s.errors.FigletResult FigletResult]] containing the new HorizontalLayout
+     * @return A [[com.colofabrix.scala.figlet4s.FigletResult FigletResult]] containing the new HorizontalLayout
      *         or a list of errors occurred during the creation
      */
     def fromOldLayout(header: FIGheader): FigletResult[HorizontalLayout] = {
       val settings = header.oldLayout.toVector
 
       if (settings === Vector(OldLayout.FullWidth))
-        FullWidth.validNec
+        FullWidth.valid
       else if (settings === Vector(OldLayout.HorizontalFitting))
-        HorizontalFitting.validNec
+        HorizontalFitting.valid
       else if (!settings.contains(OldLayout.FullWidth) && !settings.contains(OldLayout.HorizontalFitting))
         HorizontalSmushingRule
           .fromOldLayout(header)
@@ -92,7 +92,7 @@ private[figlet4s] object FIGfontParameters {
             case rules => ControlledSmushing(rules)
           }
       else
-        FIGFontError(s"Couldn't convert layout settings found in header: ${settings.mkString(", ")}").invalidNec
+        FIGFontError(s"Couldn't convert layout settings found in header: ${settings.mkString(", ")}").invalid
     }
 
   }
@@ -126,7 +126,7 @@ private[figlet4s] object FIGfontParameters {
      * Interprets the "fullLayout" header settings and returns the selected Horizontal Smushing Rules
      *
      * @param header The [[FIGheader]] where the fullLayout is defined
-     * @return A [[com.colofabrix.scala.figlet4s.errors.FigletResult FigletResult]] containing a list of
+     * @return A [[com.colofabrix.scala.figlet4s.FigletResult FigletResult]] containing a list of
      *         HorizontalSmushingRule or a list of errors occurred during the creation
      */
     def fromFullLayout(header: FIGheader): FigletResult[Seq[HorizontalSmushingRule]] =
@@ -143,13 +143,13 @@ private[figlet4s] object FIGfontParameters {
           }
         }
         .getOrElse(Vector.empty)
-        .validNec
+        .valid
 
     /**
      * Interprets the "oldLayout" header settings and returns the selected Horizontal Smushing Rules
      *
      * @param header The [[FIGheader]] where the oldLayout is defined
-     * @return A [[com.colofabrix.scala.figlet4s.errors.FigletResult FigletResult]] containing a list of
+     * @return A [[com.colofabrix.scala.figlet4s.FigletResult FigletResult]] containing a list of
      *         HorizontalSmushingRule, possibly empty, or a list of errors occurred during the creation
      */
     def fromOldLayout(header: FIGheader): FigletResult[Seq[HorizontalSmushingRule]] =
@@ -161,9 +161,9 @@ private[figlet4s] object FIGfontParameters {
             case OldLayout.HierarchySmushing      => Hierarchy
             case OldLayout.OppositePairSmushing   => OppositePair
             case OldLayout.BigXSmushing           => BigX
-          }.validNec
+          }.valid
         }
-        .getOrElse(FIGFontError(s"The oldLayout setting doesn't include any horizontal smushing rule").invalidNec)
+        .getOrElse(FIGFontError(s"The oldLayout setting doesn't include any horizontal smushing rule").invalid)
 
   }
 
@@ -190,7 +190,7 @@ private[figlet4s] object FIGfontParameters {
      * Interprets the header settings and returns the selected Vertical Layout
      *
      * @param header The [[FIGheader]] where the Vertical Layout is defined
-     * @return A [[com.colofabrix.scala.figlet4s.errors.FigletResult FigletResult]] containing the new VerticalLayout or
+     * @return A [[com.colofabrix.scala.figlet4s.FigletResult FigletResult]] containing the new Vertical Layout or
      *         a list of errors occurred during the creation
      */
     def fromHeader(header: FIGheader): FigletResult[VerticalLayout] =
@@ -200,15 +200,15 @@ private[figlet4s] object FIGfontParameters {
           val selectedSmushingRules = settings intersect FullLayout.verticalSmushingRules
 
           if (!settings.contains(FullLayout.VerticalFitting) && !settings.contains(FullLayout.VerticalSmushing))
-            FullHeight.validNec
+            FullHeight.valid
           else if (settings.contains(FullLayout.VerticalFitting) && !settings.contains(FullLayout.VerticalSmushing))
-            VerticalFitting.validNec
+            VerticalFitting.valid
           else if (settings.contains(FullLayout.VerticalSmushing) && selectedSmushingRules.size =!= 0)
             VerticalSmushingRules.fromHeader(header).map(ControlledSmushing.apply)
           else
-            UniversalSmushing.validNec
+            UniversalSmushing.valid
         }
-        .getOrElse(FullHeight.validNec)
+        .getOrElse(FullHeight.valid)
 
   }
 
@@ -238,7 +238,7 @@ private[figlet4s] object FIGfontParameters {
      * Interprets the header settings and returns the selected Vertical Smushing Rules
      *
      * @param header The [[FIGheader]] where the Vertical Layout is defined
-     * @return A [[com.colofabrix.scala.figlet4s.errors.FigletResult FigletResult]] containing a list of
+     * @return A [[com.colofabrix.scala.figlet4s.FigletResult FigletResult]] containing a list of
      *         VerticalSmushingRules or a list of errors occurred during the creation
      */
     def fromHeader(header: FIGheader): FigletResult[Seq[VerticalSmushingRules]] =
@@ -254,7 +254,7 @@ private[figlet4s] object FIGfontParameters {
           }
         }
         .getOrElse(Vector.empty)
-        .validNec
+        .valid
 
   }
 
@@ -276,9 +276,9 @@ private[figlet4s] object FIGfontParameters {
      */
     def fromHeader(header: FIGheader): FigletResult[PrintDirection] =
       header.printDirection match {
-        case Some(FIGheaderParameters.PrintDirection.LeftToRight) => LeftToRight.validNec
-        case Some(FIGheaderParameters.PrintDirection.RightToLeft) => RightToLeft.validNec
-        case None                                                 => LeftToRight.validNec
+        case Some(FIGheaderParameters.PrintDirection.LeftToRight) => LeftToRight.valid
+        case Some(FIGheaderParameters.PrintDirection.RightToLeft) => RightToLeft.valid
+        case None                                                 => LeftToRight.valid
       }
 
   }

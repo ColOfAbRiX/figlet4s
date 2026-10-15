@@ -1,7 +1,5 @@
 package com.colofabrix.scala.figlet4s.rendering
 
-import cats._
-
 /**
  * Result of the merge of data like SubColumns
  */
@@ -18,19 +16,65 @@ private[figlet4s] object MergeAction {
   /** Represents a "stop processing, use value of last iteration" condition */
   case object Stop extends MergeAction[Nothing]
 
-  implicit val applicativeMergeAction: Applicative[MergeAction] = new Applicative[MergeAction] {
-    def pure[@specialized(Char) A](x: A): MergeAction[A] =
-      Continue(x)
+  /**
+   * Combines two actions: Stop wins over everything and CurrentLast wins over Continue
+   */
+  def map2[A, B, C](fa: MergeAction[A], fb: MergeAction[B])(f: (A, B) => C): MergeAction[C] =
+    (fa, fb) match {
+      case (Stop, _)                         => Stop
+      case (_, Stop)                         => Stop
+      case (CurrentLast(a), CurrentLast(b))  => CurrentLast(f(a, b))
+      case (CurrentLast(a), Continue(b))     => CurrentLast(f(a, b))
+      case (Continue(a), CurrentLast(b))     => CurrentLast(f(a, b))
+      case (Continue(a), Continue(b))        => Continue(f(a, b))
+    }
 
-    def ap[A, B](ff: MergeAction[A => B])(fa: MergeAction[A]): MergeAction[B] =
-      (ff, fa) match {
-        case (_, Stop)                            => Stop
-        case (Stop, _)                            => Stop
-        case (Continue(f), Continue(value))       => Continue(f(value))
-        case (Continue(f), CurrentLast(value))    => CurrentLast(f(value))
-        case (CurrentLast(f), Continue(value))    => CurrentLast(f(value))
-        case (CurrentLast(f), CurrentLast(value)) => CurrentLast(f(value))
+  /**
+   * Combines a sequence of actions into one action holding all the values, with the same precedence rules of map2
+   */
+  def traverseSeq[A, B](values: Seq[A])(f: A => MergeAction[B]): MergeAction[Vector[B]] =
+    values.foldLeft[MergeAction[Vector[B]]](Continue(Vector.empty)) { (acc, value) =>
+      (acc, f(value)) match {
+        case (Stop, _)                          => Stop
+        case (_, Stop)                          => Stop
+        case (CurrentLast(vs), Continue(v))     => CurrentLast(vs :+ v)
+        case (Continue(vs), CurrentLast(v))     => CurrentLast(vs :+ v)
+        case (CurrentLast(vs), CurrentLast(v))  => CurrentLast(vs :+ v)
+        case (Continue(vs), Continue(v))        => Continue(vs :+ v)
       }
+    }
+
+  /**
+   * Syntax on single actions
+   */
+  implicit class MergeActionOps[A](private val action: MergeAction[A]) extends AnyVal {
+
+    def map[B](f: A => B): MergeAction[B] =
+      action match {
+        case Continue(value)    => Continue(f(value))
+        case CurrentLast(value) => CurrentLast(f(value))
+        case Stop               => Stop
+      }
+
+    def mapN[B, C](other: MergeAction[B])(f: (A, B) => C): MergeAction[C] =
+      MergeAction.map2(action, other)(f)
+
+  }
+
+  /**
+   * Syntax on 3-tuples of actions
+   */
+  implicit class MergeActionTuple3Ops[A, B, C](
+      private val tuple: (MergeAction[A], MergeAction[B], MergeAction[C]),
+  ) extends AnyVal {
+
+    def mapN[D](f: (A, B, C) => D): MergeAction[D] = {
+      val ab = MergeAction.map2(tuple._1, tuple._2)((_, _))
+      MergeAction.map2(ab, tuple._3) { case ((a, b), c) =>
+        f(a, b, c)
+      }
+    }
+
   }
 
 }

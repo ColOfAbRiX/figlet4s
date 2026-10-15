@@ -1,6 +1,7 @@
 package com.colofabrix.scala.figlet4s.testutils
 
-import cats.implicits._
+import com.colofabrix.scala.figlet4s._
+import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.unsafe._
 import org.scalatest.matchers._
@@ -62,7 +63,7 @@ trait Figlet4sMatchers {
         }
 
       lazy val paddedDiffs = {
-        val maxLength = differences.map(_.length).max
+        val maxLength = differences.map(_.length).maxOption.getOrElse(0)
         differences.map(x => x + " " * (maxLength - x.length))
       }
 

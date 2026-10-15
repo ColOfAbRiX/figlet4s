@@ -1,5 +1,6 @@
 package com.colofabrix.scala.figlet4s.figfont
 
+import com.colofabrix.scala.figlet4s._
 import com.colofabrix.scala.figlet4s.errors._
 import scala.collection.immutable.ListMap
 

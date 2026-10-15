@@ -4,7 +4,7 @@ import cats.effect._
 import cats.effect.unsafe.implicits.global
 import cats.implicits._
 import com.colofabrix.scala.figlet4s.core.Figlet4sClient
-import com.colofabrix.scala.figlet4s.errors._
+import com.colofabrix.scala.figlet4s.errors.FigletLoadingError
 import org.scalatest._
 import org.scalatest.flatspec._
 import org.scalatest.matchers.should._

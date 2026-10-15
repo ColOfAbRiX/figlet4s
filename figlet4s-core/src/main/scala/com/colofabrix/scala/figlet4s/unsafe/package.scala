@@ -1,9 +1,7 @@
 package com.colofabrix.scala.figlet4s
 
-import cats._
-import cats.effect._
-import cats.effect.kernel.CancelScope
-import scala.concurrent.duration.FiniteDuration
+import com.colofabrix.scala.figlet4s.core.FigletSync
+import com.colofabrix.scala.figlet4s.errors._
 
 /**
  * Figlet4s user interfaces that do not use effects
@@ -57,28 +55,29 @@ import scala.concurrent.duration.FiniteDuration
 package object unsafe extends OptionsBuilderMixin with FIGureMixin {
 
   /**
-   * Sync instance for Id for impure calculations.
-   *
-   * This provides a minimal Sync[Id] implementation that allows the unsafe package
-   * to work with the CE3-based Figlet4sClient. Since Id cannot truly suspend effects,
-   * this implementation executes everything immediately and throws exceptions on errors.
+   * Identity effect: values are evaluated eagerly and errors are thrown
    */
-  @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements", "org.wartremover.warts.Throw"))
-  implicit private[unsafe] val syncId: Sync[Id] =
-    new Sync[Id] {
-      private val M: Monad[Id] = Monad[Id](using catsInstancesForId)
+  type Id[A] = A
 
-      // Monad methods
-      def pure[A](x: A): Id[A] =
-        M.pure(x)
+  /**
+   * FigletSync instance for Id, for impure calculations.
+   *
+   * Since Id cannot suspend effects, this implementation executes everything immediately and throws exceptions on
+   * errors.
+   */
+  implicit private[figlet4s] val figletSyncId: FigletSync[Id] =
+    new FigletSync[Id] {
+
+      def pure[A](a: A): Id[A] =
+        a
 
       def flatMap[A, B](fa: Id[A])(f: A => Id[B]): Id[B] =
-        M.flatMap(fa)(f)
+        f(fa)
 
-      def tailRecM[A, B](a: A)(f: A => Id[Either[A, B]]): Id[B] =
-        M.tailRecM(a)(f)
+      def delay[A](thunk: => A): Id[A] =
+        thunk
 
-      // MonadError methods
+      @SuppressWarnings(Array("org.wartremover.warts.Throw"))
       def raiseError[A](e: Throwable): Id[A] =
         throw e
 
@@ -86,41 +85,42 @@ package object unsafe extends OptionsBuilderMixin with FIGureMixin {
         try fa
         catch { case e: Throwable => f(e) }
 
-      // Clock methods
-      def monotonic: Id[FiniteDuration] =
-        FiniteDuration(System.nanoTime(), scala.concurrent.duration.NANOSECONDS)
+      @SuppressWarnings(Array("org.wartremover.warts.Throw", "org.wartremover.warts.Var"))
+      def withResource[R <: AutoCloseable, A](acquire: => R)(use: R => Id[A]): Id[A] = {
+        var resource: Option[R]             = None
+        var closeFailure: Option[Throwable] = None
 
-      def realTime: Id[FiniteDuration] =
-        FiniteDuration(System.currentTimeMillis(), scala.concurrent.duration.MILLISECONDS)
+        val outcome: Either[Throwable, A] =
+          try {
+            val r = acquire
+            resource = Some(r)
+            Right(use(r))
+          } catch {
+            case t: Throwable => Left(t)
+          } finally {
+            resource.foreach { r =>
+              try {
+                r.close()
+              } catch {
+                case t: Throwable => closeFailure = Some(t)
+              }
+            }
+          }
 
-      // Unique methods
-      override def unique: Id[Unique.Token] =
-        new Unique.Token
-
-      // Sync-specific methods
-      def suspend[A](hint: Sync.Type)(thunk: => A): Id[A] =
-        thunk
-
-      // MonadCancel methods
-      def canceled: Id[Unit] =
-        ()
-
-      def forceR[A, B](fa: Id[A])(fb: Id[B]): Id[B] = {
-        try fa
-        catch { case _: Throwable => () }
-        fb
+        (outcome, closeFailure) match {
+          case (Left(t), Some(closeError)) =>
+            val error = FigletLoadingError(t.getMessage, t)
+            error.addSuppressed(closeError)
+            throw error
+          case (Left(t), None) =>
+            throw FigletLoadingError(t.getMessage, t)
+          case (Right(value), Some(closeError)) =>
+            throw closeError
+          case (Right(value), None) =>
+            value
+        }
       }
 
-      def onCancel[A](fa: Id[A], fin: Id[Unit]): Id[A] =
-        fa
-
-      def uncancelable[A](body: Poll[Id] => Id[A]): Id[A] = {
-        val poll = new Poll[Id] { def apply[B](fa: Id[B]): Id[B] = fa }
-        body(poll)
-      }
-
-      def rootCancelScope: CancelScope =
-        CancelScope.Uncancelable
     }
 
 }

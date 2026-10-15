@@ -1,8 +1,6 @@
 package com.colofabrix.scala.figlet4s.figfont
 
-import cats.data._
-import cats.data.Validated._
-import cats.implicits._
+import com.colofabrix.scala.figlet4s._
 import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont.FIGheaderParameters._
 
@@ -65,11 +63,27 @@ object FIGheader {
   private val FULLLAYOUT_INDEX: Int     = 7
   private val CODETAGCOUNT_INDEX: Int   = 8
 
+  /** Identification part of the header */
+  final private case class HeaderIdentity(signature: String, hardblank: Char)
+
+  /** Size part of the header */
+  final private case class HeaderDimensions(height: Int, baseline: Int, maxLength: Int)
+
+  /** Layout part of the header */
+  final private case class HeaderLayout(
+      oldLayout: Seq[OldLayout],
+      commentLines: Int,
+      printDirection: Option[PrintDirection],
+  )
+
+  /** Tagged-characters part of the header */
+  final private case class HeaderTags(fullLayout: Option[Seq[FullLayout]], codetagCount: Option[Int])
+
   /**
    * Creates a new FLF Header from a the string representing the header
    *
    * @param line The String containing the full header of the FLF file
-   * @return A [[com.colofabrix.scala.figlet4s.errors.FigletResult FigletResult]] containing the new FIGheader or a list
+   * @return A [[com.colofabrix.scala.figlet4s.FigletResult FigletResult]] containing the new FIGheader or a list
    *         of errors occurred during the creation
    */
   // format: off
@@ -77,32 +91,62 @@ object FIGheader {
     val splitLine = line.split(" ").toVector
 
     if (splitLine.lengthIs < 6)
-      FIGheaderError(s"Wrong number of parameters in FLF header. Found ${splitLine.length} parameters").invalidNec
+      FIGheaderError(s"Wrong number of parameters in FLF header. Found ${splitLine.length} parameters").invalid
     else {
-      val signatureFieldV    = splitLine.lift(SIGNATURE_INDEX).toValidNec(FIGheaderError("Missing signature field in header"))
-      val heightFieldV       = splitLine.lift(HEIGHT_INDEX).toValidNec(FIGheaderError("Missing height field in header"))
-      val baselineFieldV     = splitLine.lift(BASELINE_INDEX).toValidNec(FIGheaderError("Missing baseline field in header"))
-      val maxLengthFieldV    = splitLine.lift(MAXLENGTH_INDEX).toValidNec(FIGheaderError("Missing maxLength field in header"))
-      val oldLayoutFieldV    = splitLine.lift(OLDLAYOUT_INDEX).toValidNec(FIGheaderError("Missing oldLayout field in header"))
-      val commentLinesFieldV = splitLine.lift(COMMENTLINES_INDEX).toValidNec(FIGheaderError("Missing commentLines field in header"))
+      val requiredFields = FigletResult.sequence(
+        Seq(
+          splitLine.lift(SIGNATURE_INDEX).toValid(FIGheaderError("Missing signature field in header")),
+          splitLine.lift(HEIGHT_INDEX).toValid(FIGheaderError("Missing height field in header")),
+          splitLine.lift(BASELINE_INDEX).toValid(FIGheaderError("Missing baseline field in header")),
+          splitLine.lift(MAXLENGTH_INDEX).toValid(FIGheaderError("Missing maxLength field in header")),
+          splitLine.lift(OLDLAYOUT_INDEX).toValid(FIGheaderError("Missing oldLayout field in header")),
+          splitLine.lift(COMMENTLINES_INDEX).toValid(FIGheaderError("Missing commentLines field in header")),
+        ),
+      )
 
-      (signatureFieldV, heightFieldV, baselineFieldV, maxLengthFieldV, oldLayoutFieldV, commentLinesFieldV).tupled.andThen {
-        case (signatureField, heightField, baselineField, maxLengthField, oldLayoutField, commentLinesField) =>
+      requiredFields.andThen {
+        case Seq(signatureField, heightField, baselineField, maxLengthField, oldLayoutField, commentLinesField) =>
           val (signatureText, hardblankText) = signatureField.splitAt(5)
 
-          val signatureV      = validateSignature(signatureText)
-          val hardblankV      = validateHardblank(hardblankText)
-          val heightV         = validateHeight(heightField)
-          val baselineV       = validateBaseline(baselineField)
-          val maxLengthV      = validateMaxLength(maxLengthField)
-          val oldLayoutV      = validateOldLayout(oldLayoutField)
-          val commentLinesV   = validateCommentLines(commentLinesField)
-          val printDirectionV = validatePrintDirection(splitLine.get(PRINTDIRECTION_INDEX.toLong))
-          val fullLayoutV     = validateFullLayout(splitLine.get(FULLLAYOUT_INDEX.toLong))
-          val codetagCountV   = validateCodetagCount(splitLine.get(CODETAGCOUNT_INDEX.toLong))
+          val identityV =
+            (validateSignature(signatureText), validateHardblank(hardblankText))
+            .mapN(HeaderIdentity.apply)
 
-          (signatureV, hardblankV, heightV, baselineV, maxLengthV, oldLayoutV, commentLinesV, printDirectionV, fullLayoutV, codetagCountV)
-            .mapN(FIGheader.apply)
+          val dimensionsV =
+            (validateHeight(heightField), validateBaseline(baselineField), validateMaxLength(maxLengthField))
+              .mapN(HeaderDimensions.apply)
+
+          val layoutV =
+            (
+              validateOldLayout(oldLayoutField),
+              validateCommentLines(commentLinesField),
+              validatePrintDirection(splitLine.lift(PRINTDIRECTION_INDEX)),
+            ).mapN(HeaderLayout.apply)
+            
+          val tagsV =
+            (
+              validateFullLayout(splitLine.lift(FULLLAYOUT_INDEX)),
+              validateCodetagCount(splitLine.lift(CODETAGCOUNT_INDEX)),
+            ).mapN(HeaderTags.apply)
+
+          (identityV, dimensionsV, layoutV, tagsV).mapN { (identity, dimensions, layout, tags) =>
+            FIGheader(
+              identity.signature,
+              identity.hardblank,
+              dimensions.height,
+              dimensions.baseline,
+              dimensions.maxLength,
+              layout.oldLayout,
+              layout.commentLines,
+              layout.printDirection,
+              tags.fullLayout,
+              tags.codetagCount,
+            )
+          }
+
+        case _ =>
+          // Unreachable: the sequence is built with exactly six fields
+          FIGheaderError("Invalid number of fields in FLF header").invalid
       }
     }
   }
@@ -111,64 +155,73 @@ object FIGheader {
   private def validateSignature(signature: String): FigletResult[String] =
     Option
       .when(signature === "flf2a")(signature)
-      .toValidNec(FIGheaderError(s"Wrong FLF signature: $signature"))
+      .toValid(FIGheaderError(s"Wrong FLF signature: $signature"))
 
   private def validateHardblank(hardblank: String): FigletResult[Char] =
     Option
       .when(hardblank.length === 1)(hardblank)
-      .toValidNec(FIGheaderError(s"The hardblank '$hardblank' is not composed of only one character"))
+      .toValid(FIGheaderError(s"The hardblank '$hardblank' is not composed of only one character"))
       .map(_.charAt(0))
 
   private def validateHeight(height: String): FigletResult[Int] =
     height
       .toIntOption
-      .toValidNec(FIGheaderError(s"Couldn't parse header field 'height': $height"))
+      .toValid(FIGheaderError(s"Couldn't parse header field 'height': $height"))
       .andThen { value =>
-        Validated.condNec(value > 0, value, FIGheaderError(s"Field 'height' must be positive: $height"))
+        FigletResult.ensure(value > 0, value, FIGheaderError(s"Field 'height' must be positive: $height"))
       }
 
   private def validateBaseline(baseline: String): FigletResult[Int] =
     baseline
       .toIntOption
-      .toValidNec(FIGheaderError(s"Couldn't parse header field 'baseline': $baseline"))
+      .toValid(FIGheaderError(s"Couldn't parse header field 'baseline': $baseline"))
       .andThen { value =>
-        Validated.condNec(value >= 0, value, FIGheaderError(s"Field 'baseline' must be non-negative: $baseline"))
+        FigletResult.ensure(value >= 0, value, FIGheaderError(s"Field 'baseline' must be non-negative: $baseline"))
       }
 
   private def validateMaxLength(maxLength: String): FigletResult[Int] =
     maxLength
       .toIntOption
-      .toValidNec(FIGheaderError(s"Couldn't parse header field 'maxLength': $maxLength"))
+      .toValid(FIGheaderError(s"Couldn't parse header field 'maxLength': $maxLength"))
       .andThen { value =>
-        Validated.condNec(value > 0, value, FIGheaderError(s"Field 'maxLength' must be positive: $maxLength"))
+        FigletResult.ensure(value > 0, value, FIGheaderError(s"Field 'maxLength' must be positive: $maxLength"))
       }
 
   private def validateOldLayout(oldLayout: String): FigletResult[Vector[OldLayout]] =
     oldLayout
       .toIntOption
-      .toValidNec(FIGheaderError(s"Couldn't parse header field 'oldLayout': $oldLayout"))
+      .toValid(FIGheaderError(s"Couldn't parse header field 'oldLayout': $oldLayout"))
       .andThen { value =>
-        val valid      = value >= -1 && value <= 63
-        lazy val error = FIGheaderError(s"Field 'oldLayout' must be between -1 and 63, both included: $value")
-        Validated.condNec(valid, value, error)
+        val valid = value >= -1 && value <= 63
+        FigletResult.ensure(
+          valid,
+          value,
+          FIGheaderError(s"Field 'oldLayout' must be between -1 and 63, both included: $value"),
+        )
       }
       .andThen(OldLayout(_))
 
   private def validateCommentLines(commentLines: String): FigletResult[Int] =
     commentLines
       .toIntOption
-      .toValidNec(FIGheaderError(s"Couldn't parse header field 'commentLines': $commentLines"))
+      .toValid(FIGheaderError(s"Couldn't parse header field 'commentLines': $commentLines"))
       .andThen { value =>
-        Validated.condNec(value >= 0, value, FIGheaderError(s"Field 'commentLines' must be non-negative: $commentLines"))
+        FigletResult.ensure(
+          value >= 0,
+          value,
+          FIGheaderError(s"Field 'commentLines' must be non-negative: $commentLines"),
+        )
       }
 
   private def validatePrintDirection(printDirection: Option[String]): FigletResult[Option[PrintDirection]] =
     printDirection.traverse { value =>
       value
         .toIntOption
-        .toValidNec(FIGheaderError(s"Couldn't parse header field 'printDirection': $printDirection"))
+        .toValid(FIGheaderError(s"Couldn't parse header field 'printDirection': $printDirection"))
         .andThen {
-          PrintDirection(_).leftMap(_.map(FIGheaderError(s"Invalid value for field 'printDirection': $value", _)))
+          PrintDirection(_).mapErrors { error =>
+            FIGheaderError(s"Invalid value for field 'printDirection': $value", error)
+          }
         }
     }
 
@@ -176,11 +229,13 @@ object FIGheader {
     fullLayout.traverse { value =>
       value
         .toIntOption
-        .toValidNec(FIGheaderError(s"Couldn't parse header field 'fullLayout': $fullLayout"))
+        .toValid(FIGheaderError(s"Couldn't parse header field 'fullLayout': $fullLayout"))
         .andThen { value =>
-          val valid      = value >= 0 && value <= 32767
-          lazy val error = FIGheaderError(s"Field 'fullLayout' must be between 0 and 32767, both included: $value")
-          Validated.condNec(valid, value, error)
+          FigletResult.ensure(
+            value >= 0 && value <= 32767,
+            value,
+            FIGheaderError(s"Field 'fullLayout' must be between 0 and 32767, both included: $value"),
+          )
         }
         .andThen(FullLayout(_))
     }
@@ -189,10 +244,13 @@ object FIGheader {
     codetagCount.traverse { value =>
       value
         .toIntOption
-        .toValidNec(FIGheaderError(s"Couldn't parse header field 'codetagCount': $codetagCount"))
+        .toValid(FIGheaderError(s"Couldn't parse header field 'codetagCount': $codetagCount"))
         .andThen { value =>
-          lazy val error = FIGheaderError(s"Field 'codetagCount' must be non-negative: $codetagCount")
-          Validated.condNec(value >= 0, value, error)
+          FigletResult.ensure(
+            value >= 0,
+            value,
+            FIGheaderError(s"Field 'codetagCount' must be non-negative: $codetagCount"),
+          )
         }
     }
 

@@ -1,6 +1,6 @@
 package com.colofabrix.scala.figlet4s.rendering
 
-import cats.implicits._
+import com.colofabrix.scala.figlet4s._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options.{ PrintDirection => ClientPrintDirection, _ }
 import com.colofabrix.scala.figlet4s.rendering.MergeAction._
@@ -200,24 +200,22 @@ final private[rendering] class Rendering(options: RenderOptions) {
 
   /** Merges the two overlapping sections of two characters */
   private def mergeOverlappingSections(state: MergeState, aSection: Columns, bSection: Columns): MergeAction[Columns] =
-    (aSection zip bSection)
-      .traverse {
-        case (aActiveColumn, bActiveColumn) =>
-          (aActiveColumn zip bActiveColumn)
-            .toVector
-            .traverse(mergeStrategy(state).tupled)
-            .map(_.mkString)
-      }
+    MergeAction.traverseSeq(aSection zip bSection) { case (aActiveColumn, bActiveColumn) =>
+      MergeAction
+        .traverseSeq((aActiveColumn zip bActiveColumn).toVector)(mergeStrategy(state).tupled)
+        .map(_.mkString)
+    }
 
   /** Merges a character on the left border */
   private def mergeOnLeftBorder(state: MergeState, section: Columns): MergeAction[Unit] =
-    section
-      .traverse {
-        _.toVector.traverse {
+    MergeAction
+      .traverseSeq(section) { subSection =>
+        MergeAction.traverseSeq(subSection.toVector) {
           case ' ' => mergeStrategy(state)(options.font.header.hardblank, ' ')
           case _   => Stop
         }
-      }.map(_ => ())
+      }
+      .map(_ => ())
 
 }
 

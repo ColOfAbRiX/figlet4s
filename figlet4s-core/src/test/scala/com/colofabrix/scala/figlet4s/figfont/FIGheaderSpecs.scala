@@ -1,11 +1,11 @@
 package com.colofabrix.scala.figlet4s.figfont
 
-import cats.scalatest._
+import com.colofabrix.scala.figlet4s.testutils.FigletResultValues._
 import com.colofabrix.scala.figlet4s.figfont.FIGheaderParameters._
 import org.scalatest.flatspec._
 import org.scalatest.matchers.should._
 
-class FIGheaderSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers with ValidatedValues {
+class FIGheaderSpecs extends AnyFlatSpec with Matchers {
 
   //  Signature  //
 

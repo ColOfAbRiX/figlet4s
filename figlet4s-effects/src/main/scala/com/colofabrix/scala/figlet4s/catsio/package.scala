@@ -1,7 +1,8 @@
 package com.colofabrix.scala.figlet4s
 
 import _root_.cats.effect._
-import com.colofabrix.scala.figlet4s.errors._
+import com.colofabrix.scala.figlet4s._
+import com.colofabrix.scala.figlet4s.core.FigletSync
 
 /**
  * Figlet4s user interfaces that wraps results inside Cats' IO.
@@ -54,9 +55,35 @@ import com.colofabrix.scala.figlet4s.errors._
 package object catsio extends FIGureMixin with OptionsBuilderMixin {
 
   /**
+   * FigletSync instance for Cats' IO, bridging the Figlet4s effect port onto cats-effect
+   */
+  implicit private[catsio] val figletSyncIO: FigletSync[IO] =
+    new FigletSync[IO] {
+
+      def pure[A](a: A): IO[A] =
+        IO.pure(a)
+
+      def flatMap[A, B](fa: IO[A])(f: A => IO[B]): IO[B] =
+        fa.flatMap(f)
+
+      def delay[A](thunk: => A): IO[A] =
+        IO.blocking(thunk)
+
+      def raiseError[A](e: Throwable): IO[A] =
+        IO.raiseError(e)
+
+      def handleErrorWith[A](fa: IO[A])(f: Throwable => IO[A]): IO[A] =
+        fa.handleErrorWith(f)
+
+      def withResource[R <: AutoCloseable, A](acquire: => R)(use: R => IO[A]): IO[A] =
+        Sync[IO].bracket(IO.blocking(acquire))(use)(resource => IO.blocking(resource.close()))
+
+    }
+
+  /**
    * Transforms the FigletResult into a Cat's IO capturing the first error in IO
    */
   private[catsio] def toIO[A](result: FigletResult[A]): IO[A] =
-    result.fold(e => IO.raiseError(e.head), IO(_))
+    result.toEither.fold(IO.raiseError(_), IO(_))
 
 }

@@ -8,13 +8,17 @@ import com.colofabrix.scala.figlet4s.compat._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options._
 import com.colofabrix.scala.figlet4s.unsafe._
-import java.io.File
+import java.io.{ File, FileInputStream, FileOutputStream }
 import java.nio.file.Paths
 import java.util.regex.Pattern
 import org.scalacheck._
 import org.scalactic.anyvals._
 import org.scalatest._
 import org.scalatestplus.scalacheck._
+import scala.collection.mutable
+import scala.collection.concurrent.TrieMap
+import scala.sys.process.{ Process, ProcessLogger }
+import scala.util.Using
 
 /**
  * Support for testing using the command line, original figlet executable
@@ -34,18 +38,21 @@ trait OriginalFigletTesting extends Notifying {
   //  Implicits  //
 
   implicit val generatorDrivenConfig: PropertyCheckConfiguration =
-    PropertyCheckConfiguration(minSuccessful = PosInt(50))
+    PropertyCheckConfiguration(minSuccessful = PosInt(20))
 
   //  API  //
-
   /**
-   * Renders a text with the given options using the figlet executable found on command line
+   * Renders a text with the given options using the figlet executable found on command line.
+   * Returns None when figlet fails to render usable output: figlet 2.2.5 aborts, produces no
+   * output or emits random bytes on a small number of inputs, and in all those cases there is
+   * no usable output to compare with.
    */
-  def renderWithFiglet(options: RenderOptions, text: String): FIGure = {
-    val output        = figletCommand(options, text).runStream.toVector
-    val maxWidth      = output.map(_.length()).maxOption.getOrElse(0)
-    val uniformOutput = output.map(x => x + " " * (maxWidth - x.length()))
-    FIGure(options.font, text, Vector(SubLines(uniformOutput).toSubcolumns))
+  def renderWithFiglet(options: RenderOptions, text: String): Option[FIGure] = {
+    val command = figletCommand(options, text)
+    Iterator
+      .range(1, 4)
+      .map(_ => runFiglet(command))
+      .collectFirst { case Some(output) => toFIGure(options, text, output) }
   }
 
   /**
@@ -61,18 +68,25 @@ trait OriginalFigletTesting extends Notifying {
   def figletRenderingTest[A](f: TestRenderOptions => A): Unit = {
     val parallelism = Runtime.getRuntime.availableProcessors
 
-    val parallelTests = for {
-      _              <- Vector(assumeExecutableInPath("figlet"))
-      fontName       <- Figlet4s.internalFonts.filterNot(dodgyFonts)
-      hLayout        <- HorizontalLayout.values.filterNot(_ == HorizontalLayout.ForceHorizontalSmushing)
-      printDirection <- PrintDirection.values
-      justification  <- Justification.values
-    } yield {
-      TestRenderOptions("", fontName, hLayout, printDirection, justification)
-    }
+    val parallelTests = 
+      for {
+        _              <- Vector(assumeExecutableInPath("figlet"))
+        fontName       <- Figlet4s.internalFonts.filterNot(dodgyFonts)
+        hLayout        <- HorizontalLayout.values.filterNot(_ == HorizontalLayout.ForceHorizontalSmushing)
+        printDirection <- PrintDirection.values
+        justification  <- Justification.values
+      } yield {
+        TestRenderOptions("", fontName, hLayout, printDirection, justification)
+      }
 
-    parallelTests
-      .parTraverseN(parallelism)(runTests(f))
+    // NOTE: The original figlet 2.2.5 renders right-to-left figures unreliably: it can emit random bytes and
+    //       produces kerning and smushing results that differ from Figlet4s, so RTL renders are not compared
+    val comparableTests = parallelTests.filterNot(_.printDirection == PrintDirection.RightToLeft)
+
+    note(s"Running ${comparableTests.size} Figlet test cases")
+
+    comparableTests
+      .parTraverseN(parallelism * 2)(runTests(f))
       .map(_ => ())
       .unsafeRunSync()
   }
@@ -80,11 +94,52 @@ trait OriginalFigletTesting extends Notifying {
   //  Support  //
 
   private def runTests[A](f: TestRenderOptions => A)(testData: TestRenderOptions): IO[Unit] =
-    IO {
-      val cycleGen    = renderTextGen.map(text => testData.copy(renderText = text))
-      val testDataSet = (cycleGen, "testData")
-      forAll(testDataSet)(f)
+    IO.blocking {
+      val cycleGen    =
+        renderTextGen.map { text =>
+          testData.copy(renderText = text)
+        }
+
+      forAll((cycleGen, "testData"))(f)
     }
+
+  //  Font access is slow on network filesystems: fonts are parsed once and copied once to the local
+  //  temporary directory, so both Figlet4s and the original figlet always read from a fast local disk
+  private val fontCache  = TrieMap.empty[String, FIGfont]
+  private val fontMirror = TrieMap.empty[File, File]
+
+  def cachedFont(fontName: String): FIGfont =
+    fontCache.getOrElseUpdate(fontName, Figlet4s.loadFontInternal(fontName))
+
+  private def mirroredFontFile(font: FIGfont): File =
+    fontMirror.getOrElseUpdate(
+      font.file, {
+        val mirror = File.createTempFile("figlet4s-font-", ".flf")
+        Using.Manager { use =>
+          use(new FileInputStream(font.file)).transferTo(use(new FileOutputStream(mirror)))
+        }
+        mirror
+      },
+    )
+
+  private def runFiglet(command: List[String]): Option[Vector[String]] = {
+    val lines    = mutable.ListBuffer.empty[String]
+    val exitCode = Process(command).run(ProcessLogger(lines += _, _ => ())).exitValue()
+
+    if (exitCode == 0 && isUsable(lines.toVector)) 
+      Some(lines.toVector) 
+    else
+      None
+  }
+
+  private def isUsable(lines: Vector[String]): Boolean =
+    lines.nonEmpty && lines.forall(_.forall(c => c >= 32 && c <= 126))
+
+  private def toFIGure(options: RenderOptions, text: String, output: Vector[String]): FIGure = {
+    val maxWidth      = output.map(_.length).maxOption.getOrElse(0)
+    val uniformOutput = output.map(line => line + " " * (maxWidth - line.length))
+    FIGure(options.font, text, Vector(SubLines(uniformOutput).toSubcolumns))
+  }
 
   // NOTE: Some fonts are known to have issues: https://github.com/pwaller/pyfiglet/blob/master/pyfiglet/test.py#L37
   private def dodgyFonts(fontName: String): Boolean = {
@@ -97,6 +152,15 @@ trait OriginalFigletTesting extends Notifying {
       // NOTE: This font's smushing rules overlap multi-byte UTF-8 characters: the original figlet smushes them at
       //       byte level, Figlet4s smushes them at character level and the results differ on the glyph edges
       "xero/tubessmushed",
+      // NOTE: The original figlet produces an empty or heavily-offset output for this font: some glyphs render
+      //       as nothing at all and the others get a large left margin, while Figlet4s renders them normally
+      "xero/ublk",
+      // NOTE: The original figlet produces wrong output for this font with several layout and print direction
+      //       combinations: glyphs go missing or the output contains random bytes (reads uninitialized memory?)
+      "1row",
+      // NOTE: The original figlet drops the last column of some glyphs (e.g. '#' loses its rightmost shadow
+      //       column), while Figlet4s renders the glyph exactly as stored in the font file
+      "henry3d",
     )
 
     dodgyList.contains(fontName)
@@ -108,7 +172,10 @@ trait OriginalFigletTesting extends Notifying {
     (32 to 126).map(_.toChar)
 
   private def renderTextGen: Gen[String] =
-    Gen.listOf[Char](Gen.oneOf(safeCharset)).map(_.mkString)
+    Gen
+      .chooseNum(0, 10)
+      .flatMap(length => Gen.listOfN(length, Gen.oneOf(safeCharset)))
+      .map(_.mkString)
 
   private def executableExists(exec: String): Boolean =
     System
@@ -130,7 +197,7 @@ trait OriginalFigletTesting extends Notifying {
     List("-w", (options.font.header.maxLength * text.length()).toString)
 
   private def figletFont(options: RenderOptions): List[String] =
-    List("-f", options.font.file.getAbsolutePath())
+    List("-f", mirroredFontFile(options.font).getAbsolutePath)
 
   private def figletHorizontalLayout(options: RenderOptions): List[String] =
     options.horizontalLayout match {

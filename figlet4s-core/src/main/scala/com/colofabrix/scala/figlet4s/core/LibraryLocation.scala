@@ -1,6 +1,5 @@
 package com.colofabrix.scala.figlet4s.core
 
-import cats.effect.Sync
 import java.io.File
 import java.net.URI
 import java.nio.file.FileSystems
@@ -20,8 +19,8 @@ private[figlet4s] object LibraryLocation {
   /**
    * Discovers where the current code is located
    */
-  def discover[F[_]: Sync]: F[LibraryLocation] =
-    Sync[F].delay {
+  def discover[F[_]](implicit F: FigletSync[F]): F[LibraryLocation] =
+    F.delay {
       val resources =
         Option(
           getClass

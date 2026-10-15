@@ -1,10 +1,7 @@
 package com.colofabrix.scala.figlet4s.options
 
-import cats.Applicative
-import cats.effect.Sync
-import cats.implicits._
+import com.colofabrix.scala.figlet4s._
 import com.colofabrix.scala.figlet4s.core._
-import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options.BuilderAction._
 import com.colofabrix.scala.figlet4s.options.OptionsBuilder._
@@ -155,7 +152,7 @@ final class OptionsBuilder(private[figlet4s] val actions: List[BuilderAction] = 
 
   //  Support  //
 
-  private[figlet4s] def compile[F[_]: Sync]: F[BuildData] =
+  private[figlet4s] def compile[F[_]: FigletSync]: F[BuildData] =
     OptionsBuilder.compile[F](this)
 
   private def addAction(action: BuilderAction): OptionsBuilder =
@@ -196,12 +193,14 @@ private[figlet4s] object OptionsBuilder {
   /**
    * Compiler to run BuilderAction that create BuildData, generic in the effect
    */
-  def compile[F[_]: Sync](self: OptionsBuilder): F[BuildData] =
+  def compile[F[_]](self: OptionsBuilder)(implicit F: FigletSync[F]): F[BuildData] =
     self
       .actions
-      .foldM(BuildData())(foldCompilers(allCompilers))
+      .foldLeft(F.pure(BuildData())) { (buildData, action) =>
+        F.flatMap(buildData)(foldCompilers(allCompilers)(_, action))
+      }
 
-  private def allCompilers[F[_]: Sync]: List[ActionCompiler[F]] =
+  private def allCompilers[F[_]](implicit F: FigletSync[F]): List[ActionCompiler[F]] =
     List(
       compileFonts[F],
       compileHorizontalLayout[F],
@@ -212,72 +211,66 @@ private[figlet4s] object OptionsBuilder {
     )
 
   /** Compiles the settings for Text */
-  private def compileText[F[_]: Applicative]: ActionCompiler[F] = {
+  private def compileText[F[_]](implicit F: FigletSync[F]): ActionCompiler[F] = {
     case (buildData, SetTextAction(text)) =>
-      Applicative[F].pure(buildData.copy(text = text))
+      F.pure(buildData.copy(text = text))
   }
 
   /** Compiles the settings for Fonts */
-  private def compileFonts[F[_]: Sync]: ActionCompiler[F] = {
+  private def compileFonts[F[_]](implicit F: FigletSync[F]): ActionCompiler[F] = {
     case (buildData, DefaultFontAction) =>
-      Figlet4sClient
-        .loadFontInternal[F](Figlet4sClient.defaultFont)
-        .map { font =>
-          buildData.copy(font = Some(font))
-        }
+      F.map(Figlet4sClient.loadFontInternal[F](Figlet4sClient.defaultFont)) { font =>
+        buildData.copy(font = Some(font))
+      }
 
     case (buildData, SetFontAction(font)) =>
-      Sync[F].pure(buildData.copy(font = Some(font.validNec)))
+      F.pure(buildData.copy(font = Some(font.valid)))
 
     case (buildData, LoadFontAction(fontPath, encoding)) =>
-      Figlet4sClient
-        .loadFont[F](fontPath, encoding)
-        .map { font =>
-          buildData.copy(font = Some(font))
-        }
+      F.map(Figlet4sClient.loadFont[F](fontPath, encoding)) { font =>
+        buildData.copy(font = Some(font))
+      }
 
     case (buildData, LoadInternalFontAction(fontName)) =>
-      Figlet4sClient
-        .loadFontInternal[F](fontName)
-        .map { font =>
-          buildData.copy(font = Some(font))
-        }
+      F.map(Figlet4sClient.loadFontInternal[F](fontName)) { font =>
+        buildData.copy(font = Some(font))
+      }
   }
 
   /** Compiles the settings for Max Width */
-  private def compileMaxWidth[F[_]: Applicative]: ActionCompiler[F] = {
+  private def compileMaxWidth[F[_]](implicit F: FigletSync[F]): ActionCompiler[F] = {
     case (buildData, DefaultMaxWidthAction) =>
-      Applicative[F].pure(buildData.copy(maxWidth = None))
+      F.pure(buildData.copy(maxWidth = None))
 
     case (buildData, SetMaxWidthAction(maxWidth)) =>
-      Applicative[F].pure(buildData.copy(maxWidth = Some(maxWidth)))
+      F.pure(buildData.copy(maxWidth = Some(maxWidth)))
   }
 
   /** Compiles the settings for Horizontal Layout */
-  private def compileHorizontalLayout[F[_]: Applicative]: ActionCompiler[F] = {
+  private def compileHorizontalLayout[F[_]](implicit F: FigletSync[F]): ActionCompiler[F] = {
     case (buildData, DefaultHorizontalLayout) =>
-      Applicative[F].pure(buildData.copy(horizontalLayout = HorizontalLayout.FontDefault))
+      F.pure(buildData.copy(horizontalLayout = HorizontalLayout.FontDefault))
 
     case (buildData, SetHorizontalLayout(layout)) =>
-      Applicative[F].pure(buildData.copy(horizontalLayout = layout))
+      F.pure(buildData.copy(horizontalLayout = layout))
   }
 
   /** Compiles the settings for Print Direction */
-  private def compilePrintDirection[F[_]: Applicative]: ActionCompiler[F] = {
+  private def compilePrintDirection[F[_]](implicit F: FigletSync[F]): ActionCompiler[F] = {
     case (buildData, DefaultPrintDirection) =>
-      Applicative[F].pure(buildData.copy(printDirection = PrintDirection.FontDefault))
+      F.pure(buildData.copy(printDirection = PrintDirection.FontDefault))
 
     case (buildData, SetPrintDirection(direction)) =>
-      Applicative[F].pure(buildData.copy(printDirection = direction))
+      F.pure(buildData.copy(printDirection = direction))
   }
 
   /** Compiles the settings for Justification */
-  private def compileJustification[F[_]: Applicative]: ActionCompiler[F] = {
+  private def compileJustification[F[_]](implicit F: FigletSync[F]): ActionCompiler[F] = {
     case (buildData, DefaultJustification) =>
-      Applicative[F].pure(buildData.copy(justification = Justification.FontDefault))
+      F.pure(buildData.copy(justification = Justification.FontDefault))
 
     case (buildData, SetJustification(justification)) =>
-      Applicative[F].pure(buildData.copy(justification = justification))
+      F.pure(buildData.copy(justification = justification))
   }
 
   private def foldCompilers[F[_]](data: List[ActionCompiler[F]]): (BuildData, BuilderAction) => F[BuildData] =

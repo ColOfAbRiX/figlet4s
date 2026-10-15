@@ -1,11 +1,11 @@
 package com.colofabrix.scala.figlet4s.figfont
 
-import cats.scalatest._
+import com.colofabrix.scala.figlet4s.testutils.FigletResultValues._
 import org.scalatest.flatspec._
 import org.scalatest.matchers.should._
 import java.io.File
 
-class FIGfontSpecs extends AnyFlatSpec with Matchers with ValidatedMatchers with ValidatedValues {
+class FIGfontSpecs extends AnyFlatSpec with Matchers {
 
   "FIGfont creation" should "succeed when data is valid" in new FontScope {
     val computed = adaptError(FIGfont(new File("test"), font.allLines().iterator))
