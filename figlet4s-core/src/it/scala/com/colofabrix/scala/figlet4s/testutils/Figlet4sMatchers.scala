@@ -45,8 +45,8 @@ trait Figlet4sMatchers {
       )
 
     private def compareColumns(computed: FIGure, expected: FIGure): Either[String, Unit] = {
-      val cc = computed.cleanColumns.headOption.getOrElse(SubColumns(Vector.empty))
-      val ec = expected.cleanColumns.headOption.getOrElse(SubColumns(Vector.empty))
+      val cc = trimBlankColumns(computed.cleanColumns.headOption.getOrElse(SubColumns(Vector.empty)))
+      val ec = trimBlankColumns(expected.cleanColumns.headOption.getOrElse(SubColumns(Vector.empty)))
 
       // Discover max length for column padding
       val maxC    = cc.value.map(_.length).maxOption.getOrElse(0)
@@ -85,8 +85,13 @@ trait Figlet4sMatchers {
         s"Computed:\n${computed.asString()}\n\n" +
         s"Differences:\n$printableDiffs"
 
-      Either.cond(computed.cleanColumns === expected.cleanColumns, (), diffMessage)
+      Either.cond(cc === ec, (), diffMessage)
     }
+
+    // Trailing blank columns are visually insignificant and the original figlet drops them entirely when a
+    // whole figure is blank, so they must not influence the comparison
+    private def trimBlankColumns(sub: SubColumns): SubColumns =
+      SubColumns(sub.value.reverse.dropWhile(_.forall(_ == ' ')).reverse)
 
     private def niceFont(font: FIGfont): String = {
       s"  Name: ${font.name}\n" +

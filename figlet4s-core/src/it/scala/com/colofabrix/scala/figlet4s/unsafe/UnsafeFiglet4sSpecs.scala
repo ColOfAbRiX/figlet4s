@@ -1,7 +1,6 @@
 package com.colofabrix.scala.figlet4s.unsafe
 
 import cats.effect._
-import cats.effect.unsafe.implicits.global
 import com.colofabrix.scala.figlet4s.core._
 import com.colofabrix.scala.figlet4s.errors._
 import com.colofabrix.scala.figlet4s.figfont._
@@ -40,13 +39,14 @@ class UnsafeFiglet4sSpecs extends AnyFlatSpec with Matchers with Figlet4sMatcher
           .withPrintDirection(testData.printDirection)
           .withJustification(testData.justification)
 
-      val (computed, expected) =
-        IO.both(
-          IO.blocking(testBuilder.render()),
-          IO.blocking(renderWithFiglet(testBuilder.options, testData.renderText)),
-        ).unsafeRunSync()
+      val computedIo = IO(testBuilder.render())
+      val expectedIo = renderWithFiglet(testBuilder.options, testData.renderText)
 
-      expected.foreach(figure => computed should lookLike(figure))
+      IO
+        .both(computedIo, expectedIo)
+        .map {
+          case (computed, expected) => computed should lookLike(expected)
+        }
     }
   }
 

@@ -1,31 +1,29 @@
 package com.colofabrix.scala.figlet4s.testutils
 
 import cats.effect._
-import cats.effect.implicits._
+import cats.effect.implicits.concurrentParTraverseOps
 import cats.effect.unsafe.implicits.global
 import cats.implicits._
 import com.colofabrix.scala.figlet4s.compat._
 import com.colofabrix.scala.figlet4s.figfont._
 import com.colofabrix.scala.figlet4s.options._
 import com.colofabrix.scala.figlet4s.unsafe._
-import java.io.{ File, FileInputStream, FileOutputStream }
+import java.io._
 import java.nio.file.Paths
 import java.util.regex.Pattern
 import org.scalacheck._
-import org.scalactic.anyvals._
+import org.scalacheck.effect.PropF
 import org.scalatest._
-import org.scalatestplus.scalacheck._
-import scala.collection.mutable
+import org.scalatest.exceptions.TestFailedException
 import scala.collection.concurrent.TrieMap
+import scala.collection.mutable
 import scala.sys.process.{ Process, ProcessLogger }
 import scala.util.Using
 
 /**
- * Support for testing using the command line, original figlet executable
+ * Support for testing using the command line, original figlet executable.
  */
 trait OriginalFigletTesting extends Notifying {
-
-  import ScalaCheckDrivenPropertyChecks._
 
   case class TestRenderOptions(
       renderText: String,
@@ -35,25 +33,31 @@ trait OriginalFigletTesting extends Notifying {
       justification: Justification,
   )
 
-  //  Implicits  //
+  private val MinSuccessfulTests =
+    20
 
-  implicit val generatorDrivenConfig: PropertyCheckConfiguration =
-    PropertyCheckConfiguration(minSuccessful = PosInt(20))
+  private val Parallelism =
+    Runtime.getRuntime.availableProcessors
+
+  //  Font access is slow on network filesystems: fonts are parsed once and copied once to the local
+  //  temporary directory, so both Figlet4s and the original figlet always read from a fast local disk
+  private val fontCache =
+    TrieMap.empty[String, FIGfont]
+
+  private val fontMirror =
+    TrieMap.empty[File, File]
 
   //  API  //
+
   /**
    * Renders a text with the given options using the figlet executable found on command line.
-   * Returns None when figlet fails to render usable output: figlet 2.2.5 aborts, produces no
-   * output or emits random bytes on a small number of inputs, and in all those cases there is
-   * no usable output to compare with.
    */
-  def renderWithFiglet(options: RenderOptions, text: String): Option[FIGure] = {
-    val command = figletCommand(options, text)
-    Iterator
-      .range(1, 4)
-      .map(_ => runFiglet(command))
-      .collectFirst { case Some(output) => toFIGure(options, text, output) }
-  }
+  def renderWithFiglet(options: RenderOptions, text: String): IO[FIGure] =
+    IO.blocking {
+      val command = figletCommand(options, text)
+      val output  = runFiglet(command)
+      toFIGure(options, text, figletLinesOrCrash(options, text, output))
+    }
 
   /**
    * Checks if an executable is present in the path and cancels the execution of the test if not present
@@ -65,13 +69,11 @@ trait OriginalFigletTesting extends Notifying {
   /**
    * Runs property testing on a given function to test Figlet4s
    */
-  def figletRenderingTest[A](f: TestRenderOptions => A): Unit = {
-    val parallelism = Runtime.getRuntime.availableProcessors
-
-    val parallelTests = 
+  def figletRenderingTest(f: TestRenderOptions => IO[Unit]): Unit = {
+    val parallelTests =
       for {
         _              <- Vector(assumeExecutableInPath("figlet"))
-        fontName       <- Figlet4s.internalFonts.filterNot(dodgyFonts)
+        fontName       <- Figlet4s.internalFonts
         hLayout        <- HorizontalLayout.values.filterNot(_ == HorizontalLayout.ForceHorizontalSmushing)
         printDirection <- PrintDirection.values
         justification  <- Justification.values
@@ -79,37 +81,161 @@ trait OriginalFigletTesting extends Notifying {
         TestRenderOptions("", fontName, hLayout, printDirection, justification)
       }
 
-    // NOTE: The original figlet 2.2.5 renders right-to-left figures unreliably: it can emit random bytes and
-    //       produces kerning and smushing results that differ from Figlet4s, so RTL renders are not compared
-    val comparableTests = parallelTests.filterNot(_.printDirection == PrintDirection.RightToLeft)
+    note(s"Figlet test cases: ${parallelTests.size}")
 
-    note(s"Running ${comparableTests.size} Figlet test cases")
-
-    comparableTests
-      .parTraverseN(parallelism * 2)(runTests(f))
+    parallelTests
+      .filterNot(isDisabledInput)
+      .parTraverseN(Parallelism)(runProperty(f))
       .map(_ => ())
       .unsafeRunSync()
   }
 
-  //  Support  //
-
-  private def runTests[A](f: TestRenderOptions => A)(testData: TestRenderOptions): IO[Unit] =
-    IO.blocking {
-      val cycleGen    =
-        renderTextGen.map { text =>
-          testData.copy(renderText = text)
-        }
-
-      forAll((cycleGen, "testData"))(f)
-    }
-
-  //  Font access is slow on network filesystems: fonts are parsed once and copied once to the local
-  //  temporary directory, so both Figlet4s and the original figlet always read from a fast local disk
-  private val fontCache  = TrieMap.empty[String, FIGfont]
-  private val fontMirror = TrieMap.empty[File, File]
-
   def cachedFont(fontName: String): FIGfont =
     fontCache.getOrElseUpdate(fontName, Figlet4s.loadFontInternal(fontName))
+
+  //  Support  //
+
+  private def runProperty(f: TestRenderOptions => IO[Unit])(testData: TestRenderOptions): IO[Unit] = {
+    val generator =
+      renderTextGen.map { text =>
+        testData.copy(renderText = text)
+      }
+
+    PropF
+      .forAllF(generator) { (sample: TestRenderOptions) =>
+        f(sample)
+      }
+      .check {
+        Test.Parameters.default.withMinSuccessfulTests(MinSuccessfulTests)
+      }
+      .flatMap(checkResult)
+  }
+
+  private def checkResult(result: Test.Result): IO[Unit] =
+    result.status match {
+      case Test.Passed | Test.Proved =>
+        IO.unit
+      case Test.PropException(_, e, _) =>
+        IO.raiseError(e)
+      case Test.Failed(args, labels) =>
+        val niceArgs = args.map(_.arg).mkString(", ")
+        IO.raiseError(new AssertionError(s"Property falsified for [$niceArgs] $labels"))
+      case other =>
+        IO.raiseError(new AssertionError(s"Property was not satisfied: $other"))
+    }
+
+  private case class FigletOutput(exit: Int, stdout: Vector[String], stderr: String)
+
+  private def runFiglet(command: List[String]): FigletOutput = {
+    val out  = mutable.ListBuffer.empty[String]
+    val err  = mutable.ListBuffer.empty[String]
+    val exit = Process(command).run(ProcessLogger(out += _, err += _)).exitValue()
+    FigletOutput(exit, out.toVector, err.mkString("\n"))
+  }
+
+  private def figletLinesOrCrash(
+      options: RenderOptions,
+      text: String,
+      output: FigletOutput,
+  ): Vector[String] = {
+    val reason =
+      if (output.exit != 0)
+        Some(s"non-zero exit code ${output.exit}")
+      else if (output.stdout.exists(_.exists(c => c < ' ' || c > '~')))
+        Some("control bytes or non-ASCII bytes in output")
+      else
+        None
+
+    reason.fold(output.stdout) { r =>
+      throw new TestFailedException(
+        s"Unusable figlet output ($r) for font '${options.font.name}', layout ${options.horizontalLayout}, direction ${options.printDirection}, justification ${options.justification}, text '$text'",
+        0,
+      )
+    }
+  }
+
+  private def toFIGure(options: RenderOptions, text: String, output: Vector[String]): FIGure = {
+    val maxWidth      = output.map(_.length).maxOption.getOrElse(0)
+    val uniformOutput = output.map(line => line + " " * (maxWidth - line.length))
+    FIGure(options.font, text, Vector(SubLines(uniformOutput).toSubcolumns))
+  }
+
+  //  Known defects of the original figlet 2.2.5, used to tune the test inputs.
+  //  Only specific fonts and input combinations with an observed defect are disabled: see the notes.
+
+  private def isDisabledInput(options: TestRenderOptions): Boolean = {
+    val fontDisabled =
+      dodgyFonts(options.fontName)
+
+    val inputDisabled =
+      disabledInputs.contains {
+        (
+          options.fontName,
+          options.horizontalLayout.toString,
+          options.printDirection.toString,
+          options.justification.toString,
+        )
+      }
+
+    val divergentDisabled =
+      options.fontName == "c64/e__fist_" &&
+      options.printDirection == PrintDirection.RightToLeft
+
+    fontDisabled || inputDisabled || divergentDisabled
+  }
+
+  // NOTE: Fonts disabled for every combination because the original figlet cannot render them at all
+  private def dodgyFonts(fontName: String): Boolean = {
+    // FIXME: Store this list in a tsv file, like `disabledInputs`
+    val dodgyList =
+      List(
+        // NOTE: These fonts use multi-byte UTF-8 sub-characters: the original figlet emits control bytes for
+        //       them in every layout and direction combination
+        "xero/ansiregular",
+        "xero/ansishadow",
+        "xero/bloody",
+        "xero/calvins",
+        "xero/deltacorpspriest1",
+        "xero/electronic",
+        "xero/elite",
+        "xero/koholint",
+        "xero/kompaktblk",
+        "xero/mono9",
+        "xero/sixfo",
+        "xero/strongerthanall",
+        "xero/theedge",
+        "xero/this",
+        "xero/tubesregular",
+        "xero/tubessmushed",
+        "xero/ublk",
+        // NOTE: The original figlet renders these fonts as blank output, or control-byte garbage with -R and
+        //       kerning layouts
+        "dosrebel",
+        "obanner/Obanner1",
+        // NOTE: This font uses a sub-character with code greater than 127, which the original figlet treats as
+        //       smushable background during smushing. Figlet4s doesn't implement this rule yet and renders it wider
+        "contributed/l4me",
+      )
+
+    dodgyList.contains(fontName)
+  }
+
+  // NOTE: Catalogue of the specific (font, layout, direction, justification) combinations for which the original
+  //       figlet 2.2.5 aborts or emits nondeterministic garbage
+  private lazy val disabledInputs: Set[(String, String, String, String)] = {
+    val source = scala.io.Source.fromResource("known-figlet-issues/broken-inputs.tsv")
+    try {
+      source
+        .getLines()
+        .filterNot(_.startsWith("#"))
+        .filter(_.trim.nonEmpty)
+        .map(_.split('|'))
+        .map(fields => (fields(0), fields(1), fields(2), fields(3)))
+        .toSet
+    } finally {
+      source.close()
+    }
+  }
 
   private def mirroredFontFile(font: FIGfont): File =
     fontMirror.getOrElseUpdate(
@@ -122,58 +248,15 @@ trait OriginalFigletTesting extends Notifying {
       },
     )
 
-  private def runFiglet(command: List[String]): Option[Vector[String]] = {
-    val lines    = mutable.ListBuffer.empty[String]
-    val exitCode = Process(command).run(ProcessLogger(lines += _, _ => ())).exitValue()
-
-    if (exitCode == 0 && isUsable(lines.toVector)) 
-      Some(lines.toVector) 
-    else
-      None
-  }
-
-  private def isUsable(lines: Vector[String]): Boolean =
-    lines.nonEmpty && lines.forall(_.forall(c => c >= 32 && c <= 126))
-
-  private def toFIGure(options: RenderOptions, text: String, output: Vector[String]): FIGure = {
-    val maxWidth      = output.map(_.length).maxOption.getOrElse(0)
-    val uniformOutput = output.map(line => line + " " * (maxWidth - line.length))
-    FIGure(options.font, text, Vector(SubLines(uniformOutput).toSubcolumns))
-  }
-
-  // NOTE: Some fonts are known to have issues: https://github.com/pwaller/pyfiglet/blob/master/pyfiglet/test.py#L37
-  private def dodgyFonts(fontName: String): Boolean = {
-    val dodgyList = List(
-      // NOTE: The original figlet renders this font as all whitespaces, maybe the font is corrupted?
-      "dosrebel",
-      // NOTE: This font uses a sub-character with code greater than 127, which the original figlet treats as
-      //       smushable background during smushing. Figlet4s doesn't implement this rule yet and renders it wider
-      "contributed/l4me",
-      // NOTE: This font's smushing rules overlap multi-byte UTF-8 characters: the original figlet smushes them at
-      //       byte level, Figlet4s smushes them at character level and the results differ on the glyph edges
-      "xero/tubessmushed",
-      // NOTE: The original figlet produces an empty or heavily-offset output for this font: some glyphs render
-      //       as nothing at all and the others get a large left margin, while Figlet4s renders them normally
-      "xero/ublk",
-      // NOTE: The original figlet produces wrong output for this font with several layout and print direction
-      //       combinations: glyphs go missing or the output contains random bytes (reads uninitialized memory?)
-      "1row",
-      // NOTE: The original figlet drops the last column of some glyphs (e.g. '#' loses its rightmost shadow
-      //       column), while Figlet4s renders the glyph exactly as stored in the font file
-      "henry3d",
-    )
-
-    dodgyList.contains(fontName)
-  }
-
   // NOTE: I found issues when rendering higher-number characters with figlet so I decided to work on only a subset
   //       of a font's charset. The ideal scenario would be to test all possible characters: font.characters.keySet
   private def safeCharset: Seq[Char] =
     (32 to 126).map(_.toChar)
 
+  // NOTE: figlet renders an empty input as an empty output, so the generator only produces non-empty texts
   private def renderTextGen: Gen[String] =
     Gen
-      .chooseNum(0, 10)
+      .chooseNum(1, 10)
       .flatMap(length => Gen.listOfN(length, Gen.oneOf(safeCharset)))
       .map(_.mkString)
 
