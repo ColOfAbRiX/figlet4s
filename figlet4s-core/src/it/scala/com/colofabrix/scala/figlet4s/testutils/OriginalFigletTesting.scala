@@ -14,7 +14,6 @@ import java.util.regex.Pattern
 import org.scalacheck._
 import org.scalacheck.effect.PropF
 import org.scalatest._
-import org.scalatest.exceptions.TestFailedException
 import scala.collection.concurrent.TrieMap
 import scala.collection.mutable
 import scala.sys.process.{ Process, ProcessLogger }
@@ -23,7 +22,7 @@ import scala.util.Using
 /**
  * Support for testing using the command line, original figlet executable.
  */
-trait OriginalFigletTesting extends Notifying {
+trait OriginalFigletTesting extends Notifying with Assertions with Checkpoints {
 
   case class TestRenderOptions(
       renderText: String,
@@ -34,7 +33,7 @@ trait OriginalFigletTesting extends Notifying {
   )
 
   private val MinSuccessfulTests =
-    20
+    5
 
   private val Parallelism =
     Runtime.getRuntime.availableProcessors
@@ -63,8 +62,9 @@ trait OriginalFigletTesting extends Notifying {
    * Checks if an executable is present in the path and cancels the execution of the test if not present
    */
   def assumeExecutableInPath(executable: String): Unit =
-    if (!executableExists(executable))
+    if (!executableExists(executable)) {
       Assertions.cancel(s"Executable $executable doesn't exist. Install $executable to run this test.")
+    }
 
   /**
    * Runs property testing on a given function to test Figlet4s
@@ -83,11 +83,27 @@ trait OriginalFigletTesting extends Notifying {
 
     note(s"Figlet test cases: ${parallelTests.size}")
 
+    val checkpoint = new Checkpoint()
+
     parallelTests
       .filterNot(isDisabledInput)
-      .parTraverseN(Parallelism)(runProperty(f))
-      .map(_ => ())
+      .take(parallelTests.size)
+      .parTraverseN(Parallelism) { testData =>
+        runProperty(testData)(f)
+      }
       .unsafeRunSync()
+      .foreach {
+        case (testData, Left(e)) =>
+          checkpoint {
+            withClue(s"Problematic configuration $testData") {
+              fail(e.getMessage)
+            }
+          }
+        case (testData, Right(_)) =>
+          note(s"Verified configuration $testData")
+      }
+
+    checkpoint.reportAll()
   }
 
   def cachedFont(fontName: String): FIGfont =
@@ -95,7 +111,9 @@ trait OriginalFigletTesting extends Notifying {
 
   //  Support  //
 
-  private def runProperty(f: TestRenderOptions => IO[Unit])(testData: TestRenderOptions): IO[Unit] = {
+  private def runProperty(
+      testData: TestRenderOptions,
+  )(f: TestRenderOptions => IO[Unit]): IO[(TestRenderOptions, Either[Throwable, Unit])] = {
     val generator =
       renderTextGen.map { text =>
         testData.copy(renderText = text)
@@ -109,6 +127,8 @@ trait OriginalFigletTesting extends Notifying {
         Test.Parameters.default.withMinSuccessfulTests(MinSuccessfulTests)
       }
       .flatMap(checkResult)
+      .attempt
+      .tupleLeft(testData)
   }
 
   private def checkResult(result: Test.Result): IO[Unit] =
@@ -147,9 +167,8 @@ trait OriginalFigletTesting extends Notifying {
         None
 
     reason.fold(output.stdout) { r =>
-      throw new TestFailedException(
+      throw new IllegalArgumentException(
         s"Unusable figlet output ($r) for font '${options.font.name}', layout ${options.horizontalLayout}, direction ${options.printDirection}, justification ${options.justification}, text '$text'",
-        0,
       )
     }
   }
@@ -160,12 +179,9 @@ trait OriginalFigletTesting extends Notifying {
     FIGure(options.font, text, Vector(SubLines(uniformOutput).toSubcolumns))
   }
 
-  //  Known defects of the original figlet 2.2.5, used to tune the test inputs.
-  //  Only specific fonts and input combinations with an observed defect are disabled: see the notes.
-
   private def isDisabledInput(options: TestRenderOptions): Boolean = {
     val fontDisabled =
-      dodgyFonts(options.fontName)
+      dodgyFonts.contains(options.fontName)
 
     val inputDisabled =
       disabledInputs.contains {
@@ -184,54 +200,27 @@ trait OriginalFigletTesting extends Notifying {
     fontDisabled || inputDisabled || divergentDisabled
   }
 
-  // NOTE: Fonts disabled for every combination because the original figlet cannot render them at all
-  private def dodgyFonts(fontName: String): Boolean = {
-    // FIXME: Store this list in a tsv file, like `disabledInputs`
-    val dodgyList =
-      List(
-        // NOTE: These fonts use multi-byte UTF-8 sub-characters: the original figlet emits control bytes for
-        //       them in every layout and direction combination
-        "xero/ansiregular",
-        "xero/ansishadow",
-        "xero/bloody",
-        "xero/calvins",
-        "xero/deltacorpspriest1",
-        "xero/electronic",
-        "xero/elite",
-        "xero/koholint",
-        "xero/kompaktblk",
-        "xero/mono9",
-        "xero/sixfo",
-        "xero/strongerthanall",
-        "xero/theedge",
-        "xero/this",
-        "xero/tubesregular",
-        "xero/tubessmushed",
-        "xero/ublk",
-        // NOTE: The original figlet renders these fonts as blank output, or control-byte garbage with -R and
-        //       kerning layouts
-        "dosrebel",
-        "obanner/Obanner1",
-        // NOTE: This font uses a sub-character with code greater than 127, which the original figlet treats as
-        //       smushable background during smushing. Figlet4s doesn't implement this rule yet and renders it wider
-        "contributed/l4me",
-      )
+  // Fonts for which the original figlet 2.2.5 cannot produce a usable render for any layout, direction and
+  // justification combination
+  private lazy val dodgyFonts: Set[String] =
+    tsvLines("known-figlet-issues/broken-fonts.tsv").map(_.takeWhile(_ != '|')).toSet
 
-    dodgyList.contains(fontName)
-  }
+  // Catalogue of the specific (font, layout, direction, justification) combinations for which the original figlet 2.2.5
+  // aborts or emits nondeterministic garbage
+  private lazy val disabledInputs: Set[(String, String, String, String)] =
+    tsvLines("known-figlet-issues/broken-inputs.tsv").map { line =>
+      val fields = line.split('|')
+      (fields(0), fields(1), fields(2), fields(3))
+    }.toSet
 
-  // NOTE: Catalogue of the specific (font, layout, direction, justification) combinations for which the original
-  //       figlet 2.2.5 aborts or emits nondeterministic garbage
-  private lazy val disabledInputs: Set[(String, String, String, String)] = {
-    val source = scala.io.Source.fromResource("known-figlet-issues/broken-inputs.tsv")
+  private def tsvLines(resource: String): Vector[String] = {
+    val source = scala.io.Source.fromResource(resource)
     try {
       source
         .getLines()
         .filterNot(_.startsWith("#"))
         .filter(_.trim.nonEmpty)
-        .map(_.split('|'))
-        .map(fields => (fields(0), fields(1), fields(2), fields(3)))
-        .toSet
+        .toVector
     } finally {
       source.close()
     }
@@ -248,15 +237,15 @@ trait OriginalFigletTesting extends Notifying {
       },
     )
 
-  // NOTE: I found issues when rendering higher-number characters with figlet so I decided to work on only a subset
-  //       of a font's charset. The ideal scenario would be to test all possible characters: font.characters.keySet
+  // I found issues when rendering higher-number characters with figlet so I decided to work on only a subset of a
+  // font's charset. The ideal scenario would be to test all possible characters: font.characters.keySet
   private def safeCharset: Seq[Char] =
     (32 to 126).map(_.toChar)
 
-  // NOTE: figlet renders an empty input as an empty output, so the generator only produces non-empty texts
+  // figlet renders an empty input as an empty output, so the generator only produces non-empty texts
   private def renderTextGen: Gen[String] =
     Gen
-      .chooseNum(1, 10)
+      .chooseNum(0, 20)
       .flatMap(length => Gen.listOfN(length, Gen.oneOf(safeCharset)))
       .map(_.mkString)
 

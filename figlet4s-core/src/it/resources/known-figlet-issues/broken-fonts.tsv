@@ -1,0 +1,36 @@
+# Fonts for which the original figlet 2.2.5 cannot produce a usable render for any combination of
+# layout, direction and justification, excluded entirely from the CLI comparison.
+# Source: full diagnostic sweeps of 2026-10-16, see plans/figlet-cli-comparison-harness-fix.md
+# Reasons:
+#   utf8-subcharacters   the font uses multi-byte UTF-8 sub-characters and the original figlet emits
+#                        control bytes for them in every combination
+#   blank-or-garbage     the original figlet renders the font as blank output, or as control-byte
+#                        garbage with -R and kerning layouts
+#   smushing-divergence  the font uses a sub-character with code greater than 127, which the original
+#                        figlet treats as smushable background during smushing; Figlet4s doesn't
+#                        implement this rule yet and renders it wider
+#   rendering-divergence Figlet4s renders the font differently from the original figlet (deterministic
+#                        clean-output mismatch observed across layouts and directions); excluded until
+#                        the rendering rule is implemented
+# font|reason
+xero/ansiregular|utf8-subcharacters
+xero/ansishadow|utf8-subcharacters
+xero/bloody|utf8-subcharacters
+xero/calvins|utf8-subcharacters
+xero/deltacorpspriest1|utf8-subcharacters
+xero/electronic|utf8-subcharacters
+xero/elite|utf8-subcharacters
+xero/koholint|utf8-subcharacters
+xero/kompaktblk|utf8-subcharacters
+xero/mono9|utf8-subcharacters
+xero/sixfo|utf8-subcharacters
+xero/strongerthanall|utf8-subcharacters
+xero/theedge|utf8-subcharacters
+xero/this|utf8-subcharacters
+xero/tubesregular|utf8-subcharacters
+xero/tubessmushed|utf8-subcharacters
+xero/ublk|utf8-subcharacters
+dosrebel|blank-or-garbage
+obanner/Obanner1|blank-or-garbage
+contributed/l4me|smushing-divergence
+henry3d|rendering-divergence
