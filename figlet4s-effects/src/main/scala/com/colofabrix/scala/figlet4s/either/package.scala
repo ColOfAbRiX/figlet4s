@@ -94,7 +94,7 @@ package object either extends FIGureMixin with OptionsBuilderMixin {
         Try(acquire)
           .toEither
           .left
-          .map { t => 
+          .map { t =>
             FigletError(t.getMessage, t): FigletException
           }
           .flatMap { resource =>
@@ -105,7 +105,7 @@ package object either extends FIGureMixin with OptionsBuilderMixin {
                 .map(t => FigletError(t.getMessage, t): FigletException)
                 .flatten
 
-            val closed = 
+            val closed =
               Try(resource.close())
                 .toEither
                 .left

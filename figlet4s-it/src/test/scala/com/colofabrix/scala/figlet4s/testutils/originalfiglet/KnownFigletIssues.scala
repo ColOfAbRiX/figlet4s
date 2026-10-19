@@ -21,7 +21,7 @@ object KnownFigletIssues {
 
     val divergentDisabled =
       options.fontName == "c64/e__fist_" &&
-        options.printDirection == PrintDirection.RightToLeft
+      options.printDirection == PrintDirection.RightToLeft
 
     fontDisabled || inputDisabled || divergentDisabled
   }

@@ -25,8 +25,8 @@ private[figlet4s] object FontFileReader {
     val opened: F[BufferedInputStream] =
       try {
         fs.pure(new BufferedInputStream(new FileInputStream(path)))
-      } catch { 
-        case NonFatal(t) => fs.raiseError(new FigletLoadingError(t.getMessage, t)) 
+      } catch {
+        case NonFatal(t) => fs.raiseError(new FigletLoadingError(t.getMessage, t))
       }
 
     fs.flatMap(opened) { inputStream =>
@@ -38,12 +38,8 @@ private[figlet4s] object FontFileReader {
   /**
    * Reads a font file from the internal library resources (files or JAR).
    */
-  def readInternal[F[_], A](
-    path: String,
-    codec: Codec)(
-    f: (File, BufferedSource) => F[A])(
-    implicit
-    F: FigletSync[F]
+  def readInternal[F[_], A](path: String, codec: Codec)(f: (File, BufferedSource) => F[A])(
+      implicit F: FigletSync[F],
   ): F[A] =
     F.withResource(acquireFontBytes(path)) { h =>
       h.bytes match {
@@ -60,20 +56,18 @@ private[figlet4s] object FontFileReader {
 
   //  Support  //
 
-  private def sourceAsInputStream[F[_]](bytes: Array[Byte], codec: Codec)(implicit F: FigletSync[F]): F[BufferedSource] =
+  private def sourceAsInputStream[F[_]](bytes: Array[Byte], codec: Codec)(
+      implicit F: FigletSync[F],
+  ): F[BufferedSource] =
     F.delay {
-      implicit val actualCodec: Codec =  if (isValidUtf8(bytes)) Codec.UTF8 else codec
+      implicit val actualCodec: Codec = if (isValidUtf8(bytes)) Codec.UTF8 else codec
 
       val byteSource = Source.fromInputStream(new BufferedInputStream(new ByteArrayInputStream(bytes)))
       tapSource(byteSource)
     }
 
-  private[core] def read[F[_], A](
-      bif: => BufferedInputStream, 
-      codec: Codec)(
-      f: BufferedSource => F[A])(
-      implicit
-      F: FigletSync[F],
+  private[core] def read[F[_], A](bif: => BufferedInputStream, codec: Codec)(f: BufferedSource => F[A])(
+      implicit F: FigletSync[F],
   ): F[A] = {
     F.withResource(bif) { inputStream =>
       implicit val c: Codec = codec
@@ -130,7 +124,7 @@ private[figlet4s] object FontFileReader {
           .map(_.toByte)
 
       is.reset()
-      
+
       zipMagicBytes.contains(headerBytes)
     }
 

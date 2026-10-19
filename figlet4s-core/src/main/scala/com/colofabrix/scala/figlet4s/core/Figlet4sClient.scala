@@ -78,7 +78,9 @@ private[figlet4s] object Figlet4sClient {
         .onMalformedInput(java.nio.charset.CodingErrorAction.REPORT)
     }
 
-  private def createFIGfont[F[_]](file: File, source: BufferedSource)(implicit F: FigletSync[F]): F[FigletResult[FIGfont]] =
+  private def createFIGfont[F[_]](file: File, source: BufferedSource)(
+      implicit F: FigletSync[F],
+  ): F[FigletResult[FIGfont]] =
     F.delay {
       FIGfont(file, source.getLines())
     }

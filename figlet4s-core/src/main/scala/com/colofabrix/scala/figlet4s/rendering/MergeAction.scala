@@ -21,12 +21,12 @@ private[figlet4s] object MergeAction {
    */
   def map2[A, B, C](fa: MergeAction[A], fb: MergeAction[B])(f: (A, B) => C): MergeAction[C] =
     (fa, fb) match {
-      case (Stop, _)                         => Stop
-      case (_, Stop)                         => Stop
-      case (CurrentLast(a), CurrentLast(b))  => CurrentLast(f(a, b))
-      case (CurrentLast(a), Continue(b))     => CurrentLast(f(a, b))
-      case (Continue(a), CurrentLast(b))     => CurrentLast(f(a, b))
-      case (Continue(a), Continue(b))        => Continue(f(a, b))
+      case (Stop, _)                        => Stop
+      case (_, Stop)                        => Stop
+      case (CurrentLast(a), CurrentLast(b)) => CurrentLast(f(a, b))
+      case (CurrentLast(a), Continue(b))    => CurrentLast(f(a, b))
+      case (Continue(a), CurrentLast(b))    => CurrentLast(f(a, b))
+      case (Continue(a), Continue(b))       => Continue(f(a, b))
     }
 
   /**
@@ -35,12 +35,12 @@ private[figlet4s] object MergeAction {
   def traverseSeq[A, B](values: Seq[A])(f: A => MergeAction[B]): MergeAction[Vector[B]] =
     values.foldLeft[MergeAction[Vector[B]]](Continue(Vector.empty)) { (acc, value) =>
       (acc, f(value)) match {
-        case (Stop, _)                          => Stop
-        case (_, Stop)                          => Stop
-        case (CurrentLast(vs), Continue(v))     => CurrentLast(vs :+ v)
-        case (Continue(vs), CurrentLast(v))     => CurrentLast(vs :+ v)
-        case (CurrentLast(vs), CurrentLast(v))  => CurrentLast(vs :+ v)
-        case (Continue(vs), Continue(v))        => Continue(vs :+ v)
+        case (Stop, _)                         => Stop
+        case (_, Stop)                         => Stop
+        case (CurrentLast(vs), Continue(v))    => CurrentLast(vs :+ v)
+        case (Continue(vs), CurrentLast(v))    => CurrentLast(vs :+ v)
+        case (CurrentLast(vs), CurrentLast(v)) => CurrentLast(vs :+ v)
+        case (Continue(vs), Continue(v))       => Continue(vs :+ v)
       }
     }
 
@@ -70,8 +70,9 @@ private[figlet4s] object MergeAction {
 
     def mapN[D](f: (A, B, C) => D): MergeAction[D] = {
       val ab = MergeAction.map2(tuple._1, tuple._2)((_, _))
-      MergeAction.map2(ab, tuple._3) { case ((a, b), c) =>
-        f(a, b, c)
+      MergeAction.map2(ab, tuple._3) {
+        case ((a, b), c) =>
+          f(a, b, c)
       }
     }
 

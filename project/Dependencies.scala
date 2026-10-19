@@ -18,6 +18,5 @@ object Dependencies {
   lazy val CatsCoreDep   = "org.typelevel" %% "cats-core"   % CatsVersion
   lazy val CatsEffectDep = "org.typelevel" %% "cats-effect" % CatsEffectVersion
   lazy val CatsKernelDep = "org.typelevel" %% "cats-kernel" % CatsVersion
-  lazy val EnumeratumDep = "com.beachape"  %% "enumeratum"  % EnumeratumVersion % Compile
-
+  lazy val EnumeratumDep = "com.beachape"  %% "enumeratum" % EnumeratumVersion % Compile
 }

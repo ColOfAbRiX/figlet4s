@@ -55,7 +55,7 @@ private[figlet4s] object FontListing {
           }
         }
       }
-      
+
     recurse(startPath)
   }
 

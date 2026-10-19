@@ -30,7 +30,7 @@ object OriginalFigletCli {
 
   //  Support  //
 
-  private final case class FigletOutput(exit: Int, stdout: Vector[String], stderr: String)
+  final private case class FigletOutput(exit: Int, stdout: Vector[String], stderr: String)
 
   private def runFiglet(command: List[String]): FigletOutput = {
     val out  = mutable.ListBuffer.empty[String]

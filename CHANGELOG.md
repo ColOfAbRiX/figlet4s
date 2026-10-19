@@ -6,6 +6,7 @@
 
 * **Dropped Scala 2.12 support** - Now supports Scala 3.9.0 LTS and 2.13.18 only
 * **Upgraded to Cats Effect 3** - Migrated from Cats Effect 2.x to 3.7.1
+* **Restructured interfaces** - Complete clean split between vanilla and effectful API
 
 ### Added
 
@@ -43,23 +44,30 @@
 
 ### Build & Plugin Changes
 
-* Added sbt-dynver: 5.1.0
-* Added sbt-mdoc: 2.9.2
-* Added sbt-native-packager: 1.10.4
+* Added sbt-dynver: 5.1.1
+* Added sbt-site: 1.8.0
+* Added sbt-site-paradox: 1.8.0
+* Added sbt-paradox: 0.11.1
 * Added sbt-tpolecat: 0.5.7
 * Added sbt-unidoc: 0.6.1
-* Upgraded to sbt: 1.13.0
-* Upgraded to sbt-assembly: 2.3.0
-* Upgraded to sbt-explicit-dependencies: 0.3.1
-* Upgraded to sbt-git: 2.1.0
-* Upgraded to sbt-microsites: 1.4.4
-* Upgraded to sbt-pgp: 2.3.1
+* Upgraded to sbt: 2.0.11
+* Upgraded to sbt-git: 2.2.0
+* Upgraded to sbt-pgp: 2.3.2
 * Upgraded to sbt-scalafix: 0.14.9
 * Upgraded to sbt-scalafmt: 2.6.2 (config version: 3.8.4)
 * Upgraded to sbt-scoverage: 2.4.4
-* Upgraded to sbt-updates: 0.7.0
-* Upgraded to sbt-wartremover: 3.6.2
+* Upgraded to sbt-updates: 0.7.1
+* Upgraded to sbt-wartremover: 3.6.3
+* Removed sbt-assembly
+* Removed sbt-errors-summary
+* Removed sbt-explicit-dependencies
+* Removed sbt-mdoc
+* Removed sbt-microsites
+* Removed sbt-native-packager
+* Removed sbt-remove-test-from-pom
 * Removed sbt-sonatype (superseded by sbt's built-in publishing)
+* Integration tests moved to the `figlet4s-it` project
+* Test dependencies excluded from POMs via `pomPostProcess` (replaces sbt-remove-test-from-pom)
 
 ## v0.3.2 - 2021/11/05
 

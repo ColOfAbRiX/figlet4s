@@ -200,10 +200,11 @@ final private[rendering] class Rendering(options: RenderOptions) {
 
   /** Merges the two overlapping sections of two characters */
   private def mergeOverlappingSections(state: MergeState, aSection: Columns, bSection: Columns): MergeAction[Columns] =
-    MergeAction.traverseSeq(aSection zip bSection) { case (aActiveColumn, bActiveColumn) =>
-      MergeAction
-        .traverseSeq((aActiveColumn zip bActiveColumn).toVector)(mergeStrategy(state).tupled)
-        .map(_.mkString)
+    MergeAction.traverseSeq(aSection zip bSection) {
+      case (aActiveColumn, bActiveColumn) =>
+        MergeAction
+          .traverseSeq((aActiveColumn zip bActiveColumn).toVector)(mergeStrategy(state).tupled)
+          .map(_.mkString)
     }
 
   /** Merges a character on the left border */

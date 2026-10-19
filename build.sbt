@@ -10,34 +10,43 @@ Global / lintUnusedKeysOnLoad := false
 ThisBuild / turbo             := true
 ThisBuild / scalaVersion      := ScalaLangVersion
 
-// Use separate target directories for Windows and WSL to avoid cache conflicts
-ThisBuild / target := {
-  val envSuffix = if (sys.env.get("WSL_DISTRO_NAME").isDefined) "-wsl" else ""
-  baseDirectory.value / s"target$envSuffix"
-}
-
 // Project information
 ThisBuild / name                 := "figlet4s"
 ThisBuild / startYear            := Some(2020)
-ThisBuild / homepage             := Some(url("https://github.com/ColOfAbRiX/figlet4s"))
+ThisBuild / homepage             := Some(uri("https://github.com/ColOfAbRiX/figlet4s"))
 ThisBuild / organization         := "com.colofabrix.scala"
 ThisBuild / organizationName     := "ColOfAbRiX"
-ThisBuild / organizationHomepage := Some(url("https://github.com/ColOfAbRiX"))
-ThisBuild / licenses             := Seq("MIT" -> url("https://opensource.org/licenses/MIT"))
+ThisBuild / organizationHomepage := Some(uri("https://github.com/ColOfAbRiX"))
+ThisBuild / licenses             := Seq(License("MIT", uri("https://opensource.org/licenses/MIT")))
 ThisBuild / scmInfo := Some(
-  ScmInfo(url("https://github.com/ColOfAbRiX/figlet4s"), "scm:git@github.com:ColOfAbRiX/figlet4s.git"),
+  ScmInfo(uri("https://github.com/ColOfAbRiX/figlet4s"), "scm:git@github.com:ColOfAbRiX/figlet4s.git"),
 )
 ThisBuild / developers := List(
-  Developer("ColOfAbRiX", "Fabrizio Colonna", "colofabrix@tin.it", url("http://github.com/ColOfAbRiX")),
+  Developer("ColOfAbRiX", "Fabrizio Colonna", "colofabrix@tin.it", uri("http://github.com/ColOfAbRiX")),
 )
 
-// Publishing - sbt built-in Sonatype Central Portal support
+// Publishing
 ThisBuild / pomIncludeRepository := { _ => false }
 ThisBuild / publishMavenStyle    := true
 ThisBuild / publishTo := {
   val centralSnapshots = "https://central.sonatype.com/repository/maven-snapshots/"
   if (isSnapshot.value) Some("central-snapshots" at centralSnapshots)
   else localStaging.value
+}
+
+// Never ship test dependencies in the generated POM (replaces the unmaintained sbt-remove-test-from-pom)
+ThisBuild / pomPostProcess := { (node: scala.xml.Node) =>
+  import scala.xml._
+  import scala.xml.transform.{ RewriteRule, RuleTransformer }
+  val rule = new RewriteRule {
+    override def transform(n: Node): Seq[Node] = n match {
+      case e: Elem if e.label == "dependency" && e.child.exists(c => c.label == "scope" && c.text == "test") =>
+        NodeSeq.Empty
+      case _ => 
+        n
+    }
+  }
+  new RuleTransformer(rule).transform(node).head
 }
 
 // GIT version information
@@ -50,16 +59,11 @@ ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
 addCommandAlias("styleApply", "; scalafmtAll; Compile / scalafixAll")
 addCommandAlias("styleCheck", "; scalafmtCheckAll; Compile / scalafixAll --check")
 
-val copyApiDocsToSite = taskKey[Unit](
-  "Copies the unified API documentation into the microsite site directory, under /api"
-)
-
-val commonScalaSettings: Seq[Def.Setting[_]] = Seq(
+val commonScalaSettings: Seq[Def.Setting[?]] = Seq(
   crossScalaVersions := SupportedScalaLangVersion,
   Test / testOptions += Tests.Argument("-oFD"),
   Test / tpolecatExcludeOptions ++= ScalacOptions.warnUnusedOptions,
   Test / scalafix / skip := true,
-  IntegrationTest / scalafix / skip := true,
   // Relax Scala 3 syntax warnings for test code (tests use Scala 2 style)
   Test / scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((3, _)) => Seq(
@@ -123,72 +127,50 @@ val commonScalaSettings: Seq[Def.Setting[_]] = Seq(
 // Figlet4s
 lazy val figlet4s: Project = project
   .in(file("."))
-  .aggregate(figlet4sCore, figlet4sEffects, figlet4sJava)
+  .aggregate(figlet4sCore, figlet4sEffects, figlet4sJava, figlet4sIt)
   .enablePlugins(ScalaUnidocPlugin)
   .settings(
     name               := "figlet4s",
     crossScalaVersions := Nil,
     publish / skip     := true,
     onLoadMessage :=
-      """
-        |    _____ _       _      _   _  _
-        |   |  ___(_) __ _| | ___| |_| || |  ___
-        |   | |_  | |/ _` | |/ _ \ __| || |_/ __|
-        |   |  _| | | (_| | |  __/ |_|__   _\__ \
-        |   |_|   |_|\__, |_|\___|\__|  |_| |___/
-        |            |___/
-        |     Welcome to the build for Figlet4s
-        |
-        |""".stripMargin,
+      Seq(
+        "",
+        "    _____ _       _      _   _  _",
+        "   |  ___(_) __ _| | ___| |_| || |  ___",
+        "   | |_  | |/ _` | |/ _ \\ __| || |_/ __|",
+        "   |  _| | | (_| | |  __/ |_|__   _\\__ \\",
+        "   |_|   |_|\\__, |_|\\___|\\__|  |_| |___/",
+        "            |___/",
+        "     Welcome to the build for Figlet4s",
+        "",
+      ).mkString("\n"),
     ScalaUnidoc / unidoc / unidocProjectFilter := inAnyProject -- inProjects(figlet4sJava),
   )
 
 // Figlet4s Core project
 lazy val figlet4sCore: Project = project
   .in(file("figlet4s-core"))
-  .configs(IntegrationTest)
   .settings(commonScalaSettings)
-  .settings(Defaults.itSettings)
   .settings(
     name        := "figlet4s-core",
     description := "ASCII-art banners in Scala",
+    exportJars := false,
+    Compile / compile / compileInputs := (Compile / compile / compileInputs).dependsOn(Compile / copyResources).value,
     libraryDependencies ++= Seq(
       EnumeratumDep,
       ScalaMockDep,
       ScalaMockScalaTestDep,
       ScalaTestFlatSpecDep,
-      ScalaCheckEffectDep,
-      ScalaTestPlusCheckDep,
       ScalaTestShouldMatchersDep,
-      CatsCoreDep % "test,it",
-      CatsEffectDep % "test,it",
-      CatsKernelDep % "test,it",
     ),
-    // Integration test settings
-    IntegrationTest / testOptions += Tests.Argument("-oFD"),
-    IntegrationTest / tpolecatExcludeOptions ++= ScalacOptions.warnUnusedOptions,
-    IntegrationTest / scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((3, _)) => Seq("-source:3.0-migration", "-Wconf:any:s")
-      case _ => Nil
-    }),
-    IntegrationTest / scalacOptions ~= { opts =>
-      opts.filterNot(o =>
-        o == "-Werror" ||
-        o == "-Xfatal-warnings" ||
-        o.startsWith("-P:wartremover")
-      )
-    },
-    IntegrationTest / wartremoverErrors := Nil,
-    IntegrationTest / wartremoverWarnings := Nil,
   )
 
 // Figlet4s Effects project
 lazy val figlet4sEffects: Project = project
   .in(file("figlet4s-effects"))
-  .configs(IntegrationTest)
-  .dependsOn(figlet4sCore % "compile->compile;test->test;it->it")
+  .dependsOn(figlet4sCore % "compile->compile;test->test")
   .settings(commonScalaSettings)
-  .settings(Defaults.itSettings)
   .settings(
     name        := "figlet4s-effects",
     description := "Effects extension for Figlet4s",
@@ -199,29 +181,12 @@ lazy val figlet4sEffects: Project = project
       ScalaTestFlatSpecDep,
       ScalaTestShouldMatchersDep,
     ),
-    // Integration test settings
-    IntegrationTest / testOptions += Tests.Argument("-oFD"),
-    IntegrationTest / tpolecatExcludeOptions ++= ScalacOptions.warnUnusedOptions,
-    IntegrationTest / scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((3, _)) => Seq("-source:3.0-migration", "-Wconf:any:s")
-      case _ => Nil
-    }),
-    IntegrationTest / scalacOptions ~= { opts =>
-      opts.filterNot(o =>
-        o == "-Werror" ||
-        o == "-Xfatal-warnings" ||
-        o.startsWith("-P:wartremover")
-      )
-    },
-    IntegrationTest / wartremoverErrors := Nil,
-    IntegrationTest / wartremoverWarnings := Nil,
   )
 
 // Figlet4s Java integration project
 lazy val figlet4sJava: Project = project
   .in(file("figlet4s-java"))
   .dependsOn(figlet4sCore % "compile->compile;test->test")
-  .configs(IntegrationTest)
   .settings(commonScalaSettings)
   .settings(
     name                         := "figlet4s-java",
@@ -235,38 +200,24 @@ lazy val figlet4sJava: Project = project
     ),
   )
 
-lazy val figlet4sMicrosite = project
-  .in(file("figlet4s-microsite"))
-  .enablePlugins(MicrositesPlugin)
-  .dependsOn(figlet4sEffects)
+// Figlet4s integration tests
+lazy val figlet4sIt: Project = project
+  .in(file("figlet4s-it"))
+  .dependsOn(figlet4sCore, figlet4sEffects)
+  .settings(commonScalaSettings)
   .settings(
-    crossScalaVersions           := SupportedScalaLangVersion,
-    micrositeAuthor              := "ColOfAbRiX",
-    micrositeBaseUrl             := "figlet4s",
-    micrositeDescription         := "ASCII-art banners in Scala",
-    micrositeDocumentationUrl    := "docs/",
-    micrositeGithubOwner         := "ColOfAbRiX",
-    micrositeGithubRepo          := "figlet4s",
-    micrositeGithubToken         := sys.env.get("GITHUB_TOKEN"),
-    micrositeGitterChannel       := false,
-    micrositeHighlightLanguages ++= Seq("xml", "plaintext"),
-    micrositeHighlightTheme      := "atom-one-dark", // https://highlightjs.org/static/demo/
-    micrositeHomepage            := "https://colofabrix.github.io/",
-    micrositeName                := "Figlet4s",
-    micrositePushSiteWith        := GitHub4s,
-    name                         := "figlet4s-microsite",
-    publish / skip               := true,
-    // Host the API documentation on GitHub Pages: Scala unidoc under /api, Java javadoc under /api-java
-    copyApiDocsToSite := {
-      val unidocDir  = (figlet4s / ScalaUnidoc / doc).value
-      val javaDocDir = (figlet4sJava / Compile / doc).value
-      val siteDir    = (makeSite / target).value
-      IO.copyDirectory(unidocDir, siteDir / "api", overwrite = true)
-      IO.copyDirectory(javaDocDir, siteDir / "api-java", overwrite = true)
-    },
-    publishMicrosite := Def.sequential(clean, makeMicrosite, copyApiDocsToSite, pushMicrosite).value,
-    mdocVariables := Map(
-      "VERSION"       -> """\d+\.\d+\.\d+""".r.findFirstIn(version.value).getOrElse(""),
-      "SCALA_VERSION" -> """\d+\.\d+""".r.findFirstIn(scalaVersion.value).getOrElse(""),
+    name               := "figlet4s-it",
+    description        := "Integration tests for Figlet4s",
+    publish / skip     := true,
+    crossScalaVersions := SupportedScalaLangVersion,
+    Test / exportJars := false,
+    libraryDependencies ++= Seq(
+      CatsCoreDep,
+      CatsEffectDep,
+      catsScalaTestDep(scalaVersion.value),
+      ScalaCheckEffectDep,
+      ScalaTestFlatSpecDep,
+      ScalaTestPlusCheckDep,
+      ScalaTestShouldMatchersDep,
     ),
   )

@@ -13,14 +13,14 @@ object TestDependencies {
   lazy val ScalaMockVersion         = "7.6.0"
   lazy val ScalaTestVersion         = "3.2.20"
 
-  lazy val CatsEffectTestingDep       = "org.typelevel" %% "cats-effect-testing-scalatest" % CatsEffectTestingVersion % "test,it"
-  lazy val ScalaCheckEffectDep        = "org.typelevel" %% "scalacheck-effect"            % ScalaCheckEffectVersion  % "test,it"
+  lazy val CatsEffectTestingDep       = "org.typelevel" %% "cats-effect-testing-scalatest" % CatsEffectTestingVersion % "test"
+  lazy val ScalaCheckEffectDep        = "org.typelevel" %% "scalacheck-effect"            % ScalaCheckEffectVersion  % "test"
   lazy val ScalaMockDep               = "org.scalamock"     %% "scalamock"                % ScalaMockVersion       % "test"
   lazy val ScalaMockScalaTestDep      = "org.scalamock"     %% "scalamock-scalatest"      % ScalaMockVersion       % "test"
-  lazy val ScalaTestDep               = "org.scalatest"     %% "scalatest"                % ScalaTestVersion       % "test,it"
-  lazy val ScalaTestFlatSpecDep       = "org.scalatest"     %% "scalatest-flatspec"       % ScalaTestVersion       % "test,it"
-  lazy val ScalaTestPlusCheckDep      = "org.scalatestplus" %% scalatestpluscheck         % s"$ScalaTestVersion.0" % "it,test"
-  lazy val ScalaTestShouldMatchersDep = "org.scalatest"     %% "scalatest-shouldmatchers" % ScalaTestVersion       % "test,it"
+  lazy val ScalaTestDep               = "org.scalatest"     %% "scalatest"                % ScalaTestVersion       % "test"
+  lazy val ScalaTestFlatSpecDep       = "org.scalatest"     %% "scalatest-flatspec"       % ScalaTestVersion       % "test"
+  lazy val ScalaTestPlusCheckDep      = "org.scalatestplus" %% scalatestpluscheck         % s"$ScalaTestVersion.0" % "test"
+  lazy val ScalaTestShouldMatchersDep = "org.scalatest"     %% "scalatest-shouldmatchers" % ScalaTestVersion       % "test"
 
   //  Support  //
 
@@ -31,7 +31,7 @@ object TestDependencies {
 
   def catsScalaTestDep(scalaVersion: String): ModuleID = {
     val version = if (scalaVersion.startsWith("2.")) CatsScalaTestVersion2 else CatsScalaTestVersion3
-    "com.ironcorelabs" %% "cats-scalatest" % version % "test,it"
+    "com.ironcorelabs" %% "cats-scalatest" % version % "test"
   }
 
 }

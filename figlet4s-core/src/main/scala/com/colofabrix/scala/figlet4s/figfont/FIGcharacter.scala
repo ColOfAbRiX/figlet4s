@@ -57,20 +57,20 @@ object FIGcharacter {
       comment: Option[String],
       position: Int,
   ): FigletResult[FIGcharacter] = {
-    val maxWidthV = 
+    val maxWidthV =
       FigletResult.ensure(
         maxWidth > 0,
         maxWidth,
         FIGheaderError(s"Value of 'maxLength' must be positive: $maxWidth"),
       )
 
-    val argHeightV = 
+    val argHeightV =
       FigletResult.ensure(
         height > 0,
         height,
         FIGheaderError(s"Value of 'height' must be positive: $height"),
       )
-      
+
     val nameV       = if (name =!= '\uffff') name.valid else FIGcharacterError(s"Name '-1' is illegal").invalid
     val endmarkV    = validateEndmark(name, position, lines)
     val cleanLinesV = endmarkV.andThen(cleanLines(lines))
@@ -81,8 +81,9 @@ object FIGcharacter {
     val sizeV     = (widthV, comment.valid, position.valid).tupled
 
     heightV andThen { _ =>
-      (identityV, sizeV).mapN { case ((fontId, name, cleanLines, endmark), (width, comment, position)) =>
-        FIGcharacter(fontId, name, cleanLines, endmark, width, comment, position)
+      (identityV, sizeV).mapN {
+        case ((fontId, name, cleanLines, endmark), (width, comment, position)) =>
+          FIGcharacter(fontId, name, cleanLines, endmark, width, comment, position)
       }
     }
   }
