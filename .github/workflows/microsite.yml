@@ -22,13 +22,13 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           # Use this or sbt-dynver won't see the tag
           fetch-depth: 0
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -39,7 +39,7 @@ jobs:
 
       - name: Install Jekyll
         run: |
-          sudo gem install bundler 'jekyll:~>4.0.0' jekyll-relative-links
+          sudo apt-get install -y ruby-dev && sudo gem install bundler 'jekyll:~>4.0.0' jekyll-relative-links
           echo "$HOME/gems/bin" >> $GITHUB_PATH
           echo "GEM_HOME=$HOME/gems" >> $GITHUB_ENV
 
