@@ -134,7 +134,7 @@ val commonScalaSettings: Seq[Def.Setting[?]] = Seq(
 // Figlet4s
 lazy val figlet4s: Project = project
   .in(file("."))
-  .aggregate(figlet4sCore, figlet4sEffects, figlet4sJava, figlet4sIt, figlet4sMicrosite)
+  .aggregate(figlet4sCore, figlet4sEffects, figlet4sJava, figlet4sIt)
   .enablePlugins(ScalaUnidocPlugin)
   .settings(
     name               := "figlet4s",
@@ -228,23 +228,13 @@ lazy val figlet4sIt: Project = project
       ScalaTestShouldMatchersDep,
     ),
   )
-// Figlet4s microsite
-lazy val figlet4sMicrosite: Project = project
-  .in(file("figlet4s-microsite"))
-  .enablePlugins(ParadoxPlugin)
-  .settings(
-    name                          := "figlet4s-microsite",
-    description                   := "Documentation microsite for Figlet4s",
-    publish / skip                := true,
-    paradoxTheme                  := Some("com.lightbend.paradox" % "paradox-theme-generic" % "0.11.1"),
-    Compile / paradoxRoots := List("index.html", "docs/index.html", "docs/setup.html", "docs/using-figlet4s.html", "docs/advanced-usage.html", "docs/figlet4s-in-java.html", "docs/glossary.html", "docs/figfont-reference.html"),
-    Compile / paradoxMarkdownToHtml / paradoxRoots := (Compile / paradoxRoots).value,
-    Compile / paradox / target            := baseDirectory.value / "target" / "paradox-site",
-
-    paradoxProperties ++= Map(
-      "version"   -> version.value.replace('+', '-'),
-      "scalac"    -> ScalaLangVersion,
-      "extproxy"  -> "",
-    ),
-    Compile / paradox / sourceDirectory := sourceDirectory.value / "site",
-  )
+// Stages the API documentation produced by this build for the standalone microsite project
+// (figlet4s-microsite/, an independent sbt 1.x build): CI copies it into the site before pushing
+lazy val copyApiDocsToSite = taskKey[Unit]("Stage API docs into figlet4s-microsite/api-docs")
+copyApiDocsToSite := {
+  val unidocDir  = (figlet4s / ScalaUnidoc / doc).value
+  val javaDocDir = (figlet4sJava / Compile / doc).value
+  val stagingDir = (ThisBuild / baseDirectory).value / "figlet4s-microsite" / "api-docs"
+  IO.copyDirectory(unidocDir, stagingDir / "api", overwrite = true)
+  IO.copyDirectory(javaDocDir, stagingDir / "api-java", overwrite = true)
+}

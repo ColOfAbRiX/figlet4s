@@ -45,9 +45,6 @@
 ### Build & Plugin Changes
 
 * Added sbt-dynver: 5.1.1
-* Added sbt-site: 1.8.0
-* Added sbt-site-paradox: 1.8.0
-* Added sbt-paradox: 0.11.1
 * Added sbt-tpolecat: 0.5.7
 * Added sbt-unidoc: 0.6.1
 * Upgraded to sbt: 2.0.11
@@ -59,10 +56,9 @@
 * Upgraded to sbt-updates: 0.7.1
 * Upgraded to sbt-wartremover: 3.6.3
 * Removed sbt-assembly
+* Restored the microsite as a standalone sbt 1.x project (sbt-microsites + Jekyll)
 * Removed sbt-errors-summary
 * Removed sbt-explicit-dependencies
-* Removed sbt-mdoc
-* Removed sbt-microsites
 * Removed sbt-native-packager
 * Removed sbt-remove-test-from-pom
 * Removed sbt-sonatype (superseded by sbt's built-in publishing)

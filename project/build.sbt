@@ -1,5 +1,4 @@
 import CodeQualityDependencies._
-import MicrositeDependencies._
 import SbtPluginsDeps._
 import PublishDependencies._
 
@@ -10,4 +9,3 @@ ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" 
 sbtPlugins.map(addSbtPlugin)
 publishSbtPlugins.map(addSbtPlugin)
 codeQualitySbtPlugins.map(addSbtPlugin)
-micrositeSbtPlugins.map(addSbtPlugin)

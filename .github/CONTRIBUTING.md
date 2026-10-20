@@ -32,7 +32,7 @@ be happy to discuss it with you.
 
 ## Project structure
 
-Figlet4s is a multi-module sbt project. The root project aggregates the library modules and the microsite.
+Figlet4s is a multi-module sbt project. The root project aggregates the library modules; the microsite is a standalone sbt 1.x project.
 
 | Module              | Directory              | Description                                                                                                                                 |
 |---------------------|------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
@@ -40,7 +40,7 @@ Figlet4s is a multi-module sbt project. The root project aggregates the library 
 | `figlet4sCore`      | `figlet4s-core/`       | The core library: FIGfont parsing, FIGure rendering, render options and the builder. It bundles 450+ FIGfonts under `src/main/resources/fonts`. Cross-built for Scala 3 and Scala 2.13. |
 | `figlet4sEffects`   | `figlet4s-effects/`    | Effectful APIs on top of the core: package `catsio` (Cats Effect `IO`) and package `either` (`Either`). It depends on `figlet4sCore` (main, test and integration-test sources). Cross-built for Scala 3 and Scala 2.13. |
 | `figlet4sJava`      | `figlet4s-java/`       | Java-friendly API (`com.colofabrix.java.figlet4s`). It depends on `figlet4sCore`. Built for a single Scala version and excluded from the unified API documentation. |
-| `figlet4sMicrosite` | `figlet4s-microsite/`  | Documentation website (sbt-site + Paradox). Aggregated by the root project; its sources live in `src/site`.                                       |
+| `figlet4sMicrosite` | `figlet4s-microsite/`  | Documentation website (sbt-microsites + Jekyll). It is a standalone sbt 1.x build inside `figlet4s-microsite/`: run `sbt makeMicrosite` there and open `target/site`. It needs Ruby and Jekyll locally, and its snippets are mdoc-compiled against the latest released version of the library.                                       |
 
 Each library module follows the standard sbt layout:
 
@@ -79,7 +79,7 @@ Plain `sbt <command>` behaves the same way.
 | `sbt styleCheck`              | Checks formatting (scalafmt) and code style (scalafix) without modifying files    |
 | `sbt styleApply`              | Formats and fixes the code in place                                               |
 | `sbt unidoc`                  | Builds the unified Scala API documentation                                        |
-| `sbt figlet4sMicrosite/paradox` | Builds the documentation microsite (Paradox) |
+| `sbt makeMicrosite` (inside `figlet4s-microsite/`, sbt 1.x) | Builds the documentation microsite (Jekyll; needs Ruby + Jekyll locally) |
 
 ### Single modules
 
