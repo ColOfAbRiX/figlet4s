@@ -32,8 +32,7 @@ be happy to discuss it with you.
 
 ## Project structure
 
-Figlet4s is a multi-module sbt project. The root project aggregates the library modules; the
-microsite is built separately.
+Figlet4s is a multi-module sbt project. The root project aggregates the library modules and the microsite.
 
 | Module              | Directory              | Description                                                                                                                                 |
 |---------------------|------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
@@ -41,14 +40,16 @@ microsite is built separately.
 | `figlet4sCore`      | `figlet4s-core/`       | The core library: FIGfont parsing, FIGure rendering, render options and the builder. It bundles 450+ FIGfonts under `src/main/resources/fonts`. Cross-built for Scala 3 and Scala 2.13. |
 | `figlet4sEffects`   | `figlet4s-effects/`    | Effectful APIs on top of the core: package `catsio` (Cats Effect `IO`) and package `either` (`Either`). It depends on `figlet4sCore` (main, test and integration-test sources). Cross-built for Scala 3 and Scala 2.13. |
 | `figlet4sJava`      | `figlet4s-java/`       | Java-friendly API (`com.colofabrix.java.figlet4s`). It depends on `figlet4sCore`. Built for a single Scala version and excluded from the unified API documentation. |
-| `figlet4sMicrosite` | `figlet4s-microsite/`  | Documentation website (sbt-microsites + mdoc). Not aggregated by the root project: build it explicitly.                                       |
+| `figlet4sMicrosite` | `figlet4s-microsite/`  | Documentation website (sbt-site + Paradox). Aggregated by the root project; its sources live in `src/site`.                                       |
 
-Each library module follows the standard sbt layout, plus an extra integration-test configuration
-(`IntegrationTest`, directory `src/it`) in `figlet4sCore` and `figlet4sEffects`:
+Each library module follows the standard sbt layout:
 
 * `src/main` — library code
 * `src/test` — unit tests
-* `src/it` — integration tests
+
+The integration tests live in a dedicated project, `figlet4sIt` in `figlet4s-it/`, using the standard
+`src/test` layout and aggregated by the root project, so plain `sbt test` runs them together with
+the unit tests.
 
 ## Requirements
 
@@ -72,13 +73,13 @@ Plain `sbt <command>` behaves the same way.
 
 | Command                       | What it does                                                                    |
 |-------------------------------|---------------------------------------------------------------------------------|
-| `sbt test`                    | Unit tests of all modules, for the current Scala version                          |
-| `sbt +test`                   | Unit tests of all modules, for all supported Scala versions (3 and 2.13)          |
-| `sbt +IntegrationTest/test`   | Integration tests of all modules, for all supported Scala versions                |
+| `sbt test` | All tests, unit and integration, for the current Scala version |
+| `sbt +testFull` | All tests, unit and integration, for all supported Scala versions (3 and 2.13) |
+| `sbt figlet4sIt/test` | Integration tests only, for the current Scala version |
 | `sbt styleCheck`              | Checks formatting (scalafmt) and code style (scalafix) without modifying files    |
 | `sbt styleApply`              | Formats and fixes the code in place                                               |
 | `sbt unidoc`                  | Builds the unified Scala API documentation                                        |
-| `sbt figlet4sMicrosite/mdoc`  | Compiles the documentation site sources (mdoc)                                    |
+| `sbt figlet4sMicrosite/paradox` | Builds the documentation microsite (Paradox) |
 
 ### Single modules
 
@@ -87,8 +88,7 @@ Plain `sbt <command>` behaves the same way.
 | `sbt figlet4sCore/test`                  | Unit tests of the core module (current Scala version)                             |
 | `sbt figlet4sEffects/test`               | Unit tests of the effects module (current Scala version)                          |
 | `sbt figlet4sJava/test`                  | Tests of the Java API module                                                      |
-| `sbt figlet4sCore/IntegrationTest/test`  | Integration tests of the core module, including the figlet-parity suite           |
-| `sbt figlet4sEffects/IntegrationTest/test` | Integration tests of the effects module                                         |
+| `sbt figlet4sIt/testOnly com.colofabrix.scala.figlet4s.unsafe.UnsafeFiglet4sSpecs` | Only the figlet-parity suite |
 
 Prefix any of them with `+` to cross-build over all supported Scala versions, for example
 `sbt +figlet4sCore/test`.
@@ -105,10 +105,10 @@ The most important integration tests are the **figlet-parity** tests: they verif
 renders text exactly like the original `figlet` command-line program.
 
 * Suite:
-  [`UnsafeFiglet4sSpecs`](../figlet4s-core/src/it/scala/com/colofabrix/scala/figlet4s/unsafe/UnsafeFiglet4sSpecs.scala)
+  [`UnsafeFiglet4sSpecs`](../figlet4s-it/src/test/scala/com/colofabrix/scala/figlet4s/unsafe/UnsafeFiglet4sSpecs.scala)
   — the test "render the texts as the original command line FIGlet does", tagged `SlowTest`.
 * Support code:
-  [`OriginalFigletTesting.scala`](../figlet4s-core/src/it/scala/com/colofabrix/scala/figlet4s/testutils/OriginalFigletTesting.scala)
+  [`OriginalFigletTesting.scala`](../figlet4s-it/src/test/scala/com/colofabrix/scala/figlet4s/testutils/OriginalFigletTesting.scala)
 
 How it works:
 
@@ -132,17 +132,17 @@ CI always has figlet installed, so the parity tests run there on every build.
 ### Running the parity tests
 
 ```
-sbt figlet4sCore/IntegrationTest/test
+sbt figlet4sIt/test
 ```
 
 The parity test is tagged `SlowTest` because it takes several minutes. To run only that test:
 
 ```
-sbt "figlet4sCore/IntegrationTest/testOnly com.colofabrix.scala.figlet4s.unsafe.UnsafeFiglet4sSpecs -- -n SlowTest"
+sbt "figlet4sIt/testOnly com.colofabrix.scala.figlet4s.unsafe.UnsafeFiglet4sSpecs -- -n SlowTest"
 ```
 
 Two tags are available in
-[`Figlet4sTags`](../figlet4s-core/src/it/scala/com/colofabrix/scala/figlet4s/testutils/Figlet4sTags.scala)
+[`Figlet4sTags`](../figlet4s-it/src/test/scala/com/colofabrix/scala/figlet4s/testutils/Figlet4sTags.scala)
 to mark long-running or manually-run tests: `SlowTest` and `ManualRunTest`.
 
 ## Pull requests
@@ -151,7 +151,7 @@ to mark long-running or manually-run tests: `SlowTest` and `ManualRunTest`.
 
 To start contributing you need to:
 
-* have [SBT installed](https://www.scala-sbt.org/1.x/docs/Setup.html) on your machine;
+* have [SBT installed](https://www.scala-sbt.org/) on your machine;
 * clone this repository with `git clone`;
 * use your favourite editor (we love [VSCode + Metals](https://scalameta.org/metals/docs/editors/vscode.html));
 * use GIT to manage your changes.
@@ -167,15 +167,14 @@ One issue, one branch.
 
 Each Pull Request is validated by an automatic tool that checks several aspects of the code:
 
-* All tests must pass for all the supported versions of Scala (`sbt +test`)
-* Integration tests must pass, including the figlet-parity suite (`sbt +IntegrationTest/test`)
+* All tests must pass for all the supported versions of Scala (`sbt +testFull`), including the
+  figlet-parity suite
 * Documentation must be present and build successfully (`sbt unidoc`)
 * Code must be properly formatted (`sbt styleApply`)
 
 All these checks must pass for the PR to be accepted.
 
-If you write any code, be sure to write the tests that go with it and, before pushing anything, be
-sure to check that the tests are OK by running `sbt +test` and `sbt +IntegrationTest/test`. The
+If you write any code, be sure to write the tests that go with it and, before pushing anything, be sure to check that the tests are OK by running `sbt +testFull`. The
 figlet-parity tests require that you have figlet installed on your system and available on the PATH
 (see [The figlet-parity suite](#the-figlet-parity-suite)); without it they are cancelled, not failed.
 

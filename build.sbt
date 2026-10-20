@@ -34,6 +34,13 @@ ThisBuild / publishTo := {
   else localStaging.value
 }
 
+// Use separate output directories for Windows and WSL to avoid cache conflicts.
+ThisBuild / rootOutputDirectory := {
+  sys.env.get("WSL_DISTRO_NAME").map { _ =>
+    java.nio.file.Paths.get("/var/cache/fabrizio/sbtfig/out")
+  }.getOrElse((baseDirectory.value / "target" / "out").toPath)
+}
+
 // Never ship test dependencies in the generated POM (replaces the unmaintained sbt-remove-test-from-pom)
 ThisBuild / pomPostProcess := { (node: scala.xml.Node) =>
   import scala.xml._
@@ -127,7 +134,7 @@ val commonScalaSettings: Seq[Def.Setting[?]] = Seq(
 // Figlet4s
 lazy val figlet4s: Project = project
   .in(file("."))
-  .aggregate(figlet4sCore, figlet4sEffects, figlet4sJava, figlet4sIt)
+  .aggregate(figlet4sCore, figlet4sEffects, figlet4sJava, figlet4sIt, figlet4sMicrosite)
   .enablePlugins(ScalaUnidocPlugin)
   .settings(
     name               := "figlet4s",
@@ -220,4 +227,24 @@ lazy val figlet4sIt: Project = project
       ScalaTestPlusCheckDep,
       ScalaTestShouldMatchersDep,
     ),
+  )
+// Figlet4s microsite
+lazy val figlet4sMicrosite: Project = project
+  .in(file("figlet4s-microsite"))
+  .enablePlugins(ParadoxPlugin)
+  .settings(
+    name                          := "figlet4s-microsite",
+    description                   := "Documentation microsite for Figlet4s",
+    publish / skip                := true,
+    paradoxTheme                  := Some("com.lightbend.paradox" % "paradox-theme-generic" % "0.11.1"),
+    Compile / paradoxRoots := List("index.html", "docs/index.html", "docs/setup.html", "docs/using-figlet4s.html", "docs/advanced-usage.html", "docs/figlet4s-in-java.html", "docs/glossary.html", "docs/figfont-reference.html"),
+    Compile / paradoxMarkdownToHtml / paradoxRoots := (Compile / paradoxRoots).value,
+    Compile / paradox / target            := baseDirectory.value / "target" / "paradox-site",
+
+    paradoxProperties ++= Map(
+      "version"   -> version.value.replace('+', '-'),
+      "scalac"    -> ScalaLangVersion,
+      "extproxy"  -> "",
+    ),
+    Compile / paradox / sourceDirectory := sourceDirectory.value / "site",
   )

@@ -37,13 +37,20 @@ jobs:
       - name: Set up sbt
         uses: sbt/setup-sbt@v1
 
-      - name: Install Jekyll
-        run: |
-          sudo gem install bundler 'jekyll:~>4.0.0' jekyll-relative-links
-          echo "$HOME/gems/bin" >> $GITHUB_PATH
-          echo "GEM_HOME=$HOME/gems" >> $GITHUB_ENV
+      - name: Build the microsite
+        run: sbt figlet4sMicrosite/paradox
 
-      - name: Publish microsite
-        run: sbt "figlet4sMicrosite/publishMicrosite"
+      - name: Publish to gh-pages
+        if: github.event_name != 'pull_request'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          SITE=figlet4s-microsite/target/paradox-site
+          git switch --orphan gh-pages
+          cp -r "$SITE"/* .
+          touch .nojekyll
+          git add -A
+          git commit -m "Update microsite from ${GITHUB_SHA}"
+          git push origin gh-pages --force
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"

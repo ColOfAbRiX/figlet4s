@@ -30,7 +30,7 @@ jobs:
         run: sudo apt-get install -y figlet
 
       - name: Run tests on all versions
-        run: sbt "+test; +IntegrationTest/test"
+        run: sbt "+testFull"
 
       - name: Import the GPG signing key
         env:

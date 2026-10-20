@@ -36,7 +36,7 @@ jobs:
         run: sudo apt-get install -y figlet
 
       - name: Run tests on all versions
-        run: sbt "+test; +IntegrationTest/test"
+        run: sbt "+testFull"
 
       - name: Test styling
         run: sbt styleCheck
@@ -64,10 +64,10 @@ jobs:
         run: sudo apt-get install -y figlet
 
       - name: Run tests with coverage
-        run: sbt "coverage; +test; +IntegrationTest/test; coverageReport; coverageAggregate"
+        run: sbt "coverage; +testFull; coverageReport; coverageAggregate"
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
-          files: target/scala-*/scoverage-report/scoverage.xml
+          files: '**/scoverage-report/scoverage.xml'
           fail_ci_if_error: false
