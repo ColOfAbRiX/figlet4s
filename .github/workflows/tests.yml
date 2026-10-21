@@ -67,7 +67,7 @@ jobs:
         run: sbt "coverage; +testFull; coverageReport; coverageAggregate"
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           files: '**/scoverage-report/scoverage.xml'
           fail_ci_if_error: false
