@@ -63,8 +63,8 @@ ThisBuild / dynverSonatypeSnapshots := true
 ThisBuild / semanticdbEnabled := true
 ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
 
-addCommandAlias("styleApply", "; scalafmtAll; Compile / scalafixAll")
-addCommandAlias("styleCheck", "; scalafmtCheckAll; Compile / scalafixAll --check")
+addCommandAlias("styleApply", "scalafmtAll; scalafixAll")
+addCommandAlias("styleCheck", "scalafmtCheckAll; scalafixAll --check")
 
 val commonScalaSettings: Seq[Def.Setting[?]] = Seq(
   crossScalaVersions := SupportedScalaLangVersion,
