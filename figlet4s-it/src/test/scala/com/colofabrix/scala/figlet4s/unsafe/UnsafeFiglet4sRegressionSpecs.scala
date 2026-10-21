@@ -38,9 +38,10 @@ class UnsafeFiglet4sRegressionSpecs extends AnyFlatSpec with Matchers with Figle
 
     IO
       .both(computed, expected)
-      .map { case (c, e) =>
-        val expectedLines = e.lines.flatMap(_.value).filterNot(_.trim.isEmpty)
-        c.cleanLines.flatMap(_.value) should contain theSameElementsInOrderAs expectedLines
+      .map {
+        case (c, e) =>
+          val expectedLines = e.lines.flatMap(_.value).filterNot(_.trim.isEmpty)
+          c.cleanLines.flatMap(_.value) should contain theSameElementsInOrderAs expectedLines
       }
       .unsafeRunSync()
   }
