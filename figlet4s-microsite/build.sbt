@@ -14,7 +14,7 @@ lazy val figlet4sMicrosite = project
   .in(file("."))
   .enablePlugins(MicrositesPlugin)
   .settings(
-    scalaVersion                 := "2.13.18",
+    scalaVersion                 := "3.10.0",
     organization                 := "com.colofabrix.scala",
     libraryDependencies += "com.colofabrix.scala" %% "figlet4s-effects" % DocsVersion,
     micrositeAuthor              := "ColOfAbRiX",
