@@ -11,6 +11,10 @@
 # texts on some fonts, e.g. 3-d), invisible to the original sweep whose texts were all 3+ characters.
 # The HorizontalSmushing rows are mirrored as FontDefault rows: the harness maps the FontDefault
 # layout to the same figlet flag (-s), so both options run the identical CLI invocation.
+# The nvscript rows (found 2026-10-21): with right-to-left direction, figlet spuriously wraps texts
+# near the output-width boundary and replaces rows with blank lines (e.g. flush-right) or garbles
+# them (e.g. flush-left); the defect is text-dependent, so all nvscript right-to-left combinations
+# are disabled. The single reproducible case is covered by UnsafeFiglet4sRegressionSpecs.
 # font|layout|direction|justification|issue   (issue: sigabrt = figlet aborts, garbage = random bytes)
 1row|HorizontalFitting|RightToLeft|Center|garbage
 1row|HorizontalFitting|RightToLeft|FlushLeft|garbage
@@ -5412,3 +5416,15 @@ xero/ublk|HorizontalSmushing|RightToLeft|Center|garbage
 xero/ublk|HorizontalSmushing|RightToLeft|FlushLeft|garbage
 xero/ublk|HorizontalSmushing|RightToLeft|FlushRight|garbage
 xero/ublk|HorizontalSmushing|RightToLeft|FontDefault|garbage
+contributed/nvscript|FontDefault|RightToLeft|Center|garbage
+contributed/nvscript|FontDefault|RightToLeft|FlushLeft|garbage
+contributed/nvscript|FontDefault|RightToLeft|FlushRight|garbage
+contributed/nvscript|FontDefault|RightToLeft|FontDefault|garbage
+contributed/nvscript|HorizontalFitting|RightToLeft|Center|garbage
+contributed/nvscript|HorizontalFitting|RightToLeft|FlushLeft|garbage
+contributed/nvscript|HorizontalFitting|RightToLeft|FlushRight|garbage
+contributed/nvscript|HorizontalFitting|RightToLeft|FontDefault|garbage
+contributed/nvscript|HorizontalSmushing|RightToLeft|Center|garbage
+contributed/nvscript|HorizontalSmushing|RightToLeft|FlushLeft|garbage
+contributed/nvscript|HorizontalSmushing|RightToLeft|FlushRight|garbage
+contributed/nvscript|HorizontalSmushing|RightToLeft|FontDefault|garbage
