@@ -10,13 +10,13 @@ object TestDependencies {
   lazy val CatsScalaTestVersion3    = "4.0.2" // For Scala 3
   lazy val ScalaCheckEffectVersion  = "2.1.0"
   lazy val ScalaCheckVersion        = "1.20.0"
-  lazy val ScalaMockVersion         = "7.6.0"
+  // lazy val ScalaMockVersion         = "7.6.0"
   lazy val ScalaTestVersion         = "3.2.20"
 
   lazy val CatsEffectTestingDep       = "org.typelevel" %% "cats-effect-testing-scalatest" % CatsEffectTestingVersion % "test"
   lazy val ScalaCheckEffectDep        = "org.typelevel" %% "scalacheck-effect"            % ScalaCheckEffectVersion  % "test"
-  lazy val ScalaMockDep               = "org.scalamock"     %% "scalamock"                % ScalaMockVersion       % "test"
-  lazy val ScalaMockScalaTestDep      = "org.scalamock"     %% "scalamock-scalatest"      % ScalaMockVersion       % "test"
+  // lazy val ScalaMockDep               = "org.scalamock"     %% "scalamock"                % ScalaMockVersion       % "test"
+  // lazy val ScalaMockScalaTestDep      = "org.scalamock"     %% "scalamock-scalatest"      % ScalaMockVersion       % "test"
   lazy val ScalaTestDep               = "org.scalatest"     %% "scalatest"                % ScalaTestVersion       % "test"
   lazy val ScalaTestFlatSpecDep       = "org.scalatest"     %% "scalatest-flatspec"       % ScalaTestVersion       % "test"
   lazy val ScalaTestPlusCheckDep      = "org.scalatestplus" %% scalatestpluscheck         % s"$ScalaTestVersion.0" % "test"

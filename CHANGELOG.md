@@ -1,10 +1,10 @@
 # Changelog
 
-## v0.4.0 - 2026/11/13
+## v1.0.0 - 2026/11/13
 
 ### Breaking Changes
 
-* **Dropped Scala 2.12 support** - Now supports Scala 3.9.0 LTS and 2.13.18 only
+* **Dropped Scala 2.12 support** - Now supports Scala 3.3.9 LTS and 2.13.18 only
 * **Upgraded to Cats Effect 3** - Migrated from Cats Effect 2.x to 3.7.1
 * **Restructured interfaces** - Complete clean split between vanilla and effectful API
 

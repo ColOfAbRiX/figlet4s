@@ -166,8 +166,8 @@ lazy val figlet4sCore: Project = project
     Compile / compile / compileInputs := (Compile / compile / compileInputs).dependsOn(Compile / copyResources).value,
     libraryDependencies ++= Seq(
       EnumeratumDep,
-      ScalaMockDep,
-      ScalaMockScalaTestDep,
+      // ScalaMockDep,
+      // ScalaMockScalaTestDep,
       ScalaTestFlatSpecDep,
       ScalaTestShouldMatchersDep,
     ),

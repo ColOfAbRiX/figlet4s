@@ -25,7 +25,7 @@ Try out [Figlet4s on Scastie](https://scastie.scala-lang.org/fzrGAYvLQ5uP0xiQ2HT
 Add the core library to your `build.sbt`:
 
 ```scala
-libraryDependencies += "com.colofabrix.scala" %% "figlet4s-core" % "0.4.0"
+libraryDependencies += "com.colofabrix.scala" %% "figlet4s-core" % "1.0.0"
 ```
 
 Then render your first banner:
